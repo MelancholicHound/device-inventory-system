@@ -47,6 +47,19 @@ export class SignupComponent implements OnInit {
         closeModal.onclick = function() {
             modal.style.display = 'none';
         }
+
+        this.otpForm.get('numOne')?.valueChanges.subscribe(() => {
+            let digit = document.getElementById('second-digit') as HTMLInputElement;
+            digit.focus();
+        });
+        this.otpForm.get('numTwo')?.valueChanges.subscribe(() => {
+            let digit = document.getElementById('third-digit') as HTMLInputElement;
+            digit.focus();
+        });
+        this.otpForm.get('numThree')?.valueChanges.subscribe(() => {
+            let digit = document.getElementById('fourth-digit') as HTMLInputElement;
+            digit.focus();
+        });
     }
 
     createSignupFormGroup(): FormGroup {
