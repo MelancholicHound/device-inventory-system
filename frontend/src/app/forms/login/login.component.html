@@ -6,21 +6,15 @@
     <section class="input-field">
         <div class="input-container">
             <label for="email" class="material-symbols-rounded"> person </label>
-            <input type="email"
-                   id="email"
-                   placeholder="Email Address"
-                   class="user-cred br gray-border">
+            <input type="email" id="email" placeholder="Email Address" class="user-cred br gray-border" formControlName="email">
         </div>
         <div class="input-container">
             <label for="password" class="material-symbols-rounded"> vpn_key </label>
-            <input type="password"
-                   id="password"
-                   placeholder="Password"
-                   class="user-cred br gray-border">
+            <input type="password" id="password" placeholder="Password" class="user-cred br gray-border" autocomplete="off" formControlName="password">
         </div>
     </section>
     <section class="buttons-container">
-        <button type="submit" class="login-btn br bold"> Log In </button>
+        <button type="submit" class="login-btn br bold" [disabled]="loginForm.invalid"> Log In </button>
         <button type="button" class="recover-btn" id="open-recover-btn"> Forgot Password </button>
     </section>
     <hr>

@@ -1,1 +1,29 @@
-<p>navigation works!</p>
+<nav>
+    <header>
+        <div class="logo-container">
+            <img src="images/IMISS.png" alt="logo">
+            <h2 class="bold"> DIS </h2>
+        </div>
+        <button type="button" class="settings-btn">
+            <span class="material-symbols-rounded settings-icon"> more_horiz </span>
+        </button>
+    </header>
+    <section>
+        <h1 class="section-title"> Overview </h1>
+        <button type="button" class="nav-btn" id="batch-delivery">
+            <span class="material-symbols-rounded nav-icon"> local_shipping </span>
+            <p class="btn-label"> Batch Delivery </p>
+        </button>
+        <button type="button" class="nav-btn" id="computer-inv">
+            <span class="material-symbols-rounded nav-icon"> inventory </span>
+            <p class="btn-label"> Computer Inventory </p>
+        </button>
+    </section>
+    <section>
+        <h1 class="section-title"> Reports by division </h1>
+        <select class="select-div" title="divisions" id="divisions">
+            <option value="" disabled selected> Select division </option>
+            <option value="" *ngFor="let division of divisions"> {{ division.name }} </option>
+        </select>
+    </section>
+</nav>

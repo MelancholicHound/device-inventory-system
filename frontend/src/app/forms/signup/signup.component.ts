@@ -4,6 +4,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../util/services/auth.service';
+import { ParamsService } from '../../util/services/params.service';
 
 @Component({
     selector: 'app-signup',
@@ -15,7 +16,8 @@ import { AuthService } from '../../util/services/auth.service';
         NgFor
     ],
     providers: [
-        AuthService
+        AuthService,
+        ParamsService
     ],
     templateUrl: './signup.component.html',
     styleUrl: './signup.component.scss'
@@ -25,12 +27,12 @@ export class SignupComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
 
     signupForm!: FormGroup; otpForm!: FormGroup;
-    passwordValidation!: FormGroup;
 
-    position!: any;
+    positions!: any;
 
     constructor(private router: Router,
-                private auth: AuthService) { }
+                private auth: AuthService,
+                private params: ParamsService) { }
 
     ngOnInit(): void {
         this.signupForm = this.createSignupFormGroup();
@@ -59,6 +61,10 @@ export class SignupComponent implements OnInit {
         this.otpForm.get('numThree')?.valueChanges.subscribe(() => {
             let digit = document.getElementById('fourth-digit') as HTMLInputElement;
             digit.focus();
+        });
+
+        this.auth.getEmployeePositions().subscribe((positions) => {
+            this.positions = positions;
         });
     }
 
@@ -94,6 +100,28 @@ export class SignupComponent implements OnInit {
     signup() {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
+        this.auth.signup(this.signupForm.value).subscribe(() => {
+            console.log('OTP sent to email.');
+        }, (error) => {
+            if (error.status) {
+                this.signupForm.reset();
+            }
+        });
+    }
+
+    sendOTP() {
+        let otp = this.otpForm.get('numOne')?.value + this.otpForm.get('numTwo')?.value + this.otpForm.get('numThree')?.value + this.otpForm.get('numFour')?.value;
+        let label = document.querySelector('.footer-label') as HTMLParagraphElement;
+        this.auth.verifyOTP(`${otp}`).subscribe(() => {
+            label.textContent = 'OTP verification complete. You may now proceed to login.';
+            label.style.color = '#1d1d1f';
+            setTimeout(() => {
+                const closeModal = document.getElementById('close-signup-btn') as HTMLButtonElement;
+                const backButton = document.getElementById('back-to-login-btn') as HTMLButtonElement;
+                closeModal.click();
+                backButton.click();
+            }, 3000);
+        });
     }
 
     returnToggle() {

@@ -1,9 +1,15 @@
-<main class="initial">
+<!-- <main class="initial">
     <div class="card">
         <img src="images/IMISS.png" alt="logo">
-        <app-login *ngIf="toggleSignupForm"/>
-        <app-signup *ngIf="toggleLoginForm"/>
+        <app-login *ngIf="toggleLoginForm" (booleanEvent)="toggleSignup($event)"/>
+        <app-signup *ngIf="toggleSignupForm" (booleanEvent)="toggleLogin($event)"/>
     </div>
-</main>
+</main> -->
 
+<main class="landing">
+    <app-navigation />
+    <aside>
+        <router-outlet />
+    </aside>
+</main>
 

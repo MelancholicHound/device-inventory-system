@@ -83,3 +83,18 @@ app-login, app-signup {
         width: 90%;
     }
 }
+
+//Landing page styles
+.landing {
+    display: flex;
+}
+
+app-navigation {
+    width: 23rem;
+}
+
+aside {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
