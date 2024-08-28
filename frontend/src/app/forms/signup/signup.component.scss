@@ -1,0 +1,64 @@
+form {
+    width: 100%;
+}
+
+header {
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+}
+
+.input-field {
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-container { position: relative; }
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+}
+
+.form-label {
+    position: absolute;
+    top: 30%;
+    left: 0.75rem;
+    font-size: 0.9;
+    transition: 0.2s ease all;
+    pointer-events: none;
+    background-color: #ffffff;
+    padding: 0 2px;
+}
+
+.form-field {
+    justify-content: space-between;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.input-control {
+    width: 10rem;
+}
+
+input[type='number'] { padding: 10px; }
+
+.container {
+    width: 10rem;
+    flex-direction: column;
+    gap: 3px;
+}
+
+input.form-control, .input-control {
+    height: 2.8rem;
+}
+
+.form-control:focus ~ .form-label,
+.form-control:not(:placeholder-shown) ~ .form-label {
+    top: -0.5rem;
+    left: 0.75rem;
+}
+
+header,
+.input-field,
+.form-field,
+.container { display: flex; }

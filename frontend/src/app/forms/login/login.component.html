@@ -1,1 +1,44 @@
-<p>login works!</p>
+<form action="" [formGroup]="loginForm">
+    <header>
+        <h2> DIS: Device Inventory System </h2>
+        <p class="gray-text"> Log in to your account to continue </p>
+    </header>
+    <section class="input-field">
+        <div class="input-container">
+            <label for="email" class="material-symbols-rounded"> person </label>
+            <input type="email"
+                   id="email"
+                   placeholder="Email Address"
+                   class="user-cred br gray-border">
+        </div>
+        <div class="input-container">
+            <label for="password" class="material-symbols-rounded"> vpn_key </label>
+            <input type="password"
+                   id="password"
+                   placeholder="Password"
+                   class="user-cred br gray-border">
+        </div>
+    </section>
+    <section class="buttons-container">
+        <button type="submit" class="login-btn br bold"> Log In </button>
+        <button type="button" class="recover-btn" id="open-recover-btn"> Forgot Password </button>
+    </section>
+    <hr>
+    <footer>
+        <button type="button" class="signup-btn br bold" (click)="returnToggle()"> Create an account </button>
+    </footer>
+</form>
+
+<div class="modal recover-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Account Recovery </h3>
+            <button type="button" class="close-btn" id="close-recover-btn">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+
+        </div>
+    </div>
+</div>

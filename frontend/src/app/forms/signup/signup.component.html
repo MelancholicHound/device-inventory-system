@@ -1,1 +1,70 @@
-<p>signup works!</p>
+<form action="">
+    <header>
+        <h2> Create an account </h2>
+        <button type="button" class="back-btn" id="back-to-login-btn">
+            <i class="material-symbols-rounded"> arrow_back_ios </i>
+            <p class="back-btn-label"> Back </p>
+        </button>
+    </header>
+    <section class="input-field">
+        <div class="input-container">
+            <input type="text" class="form-control br gray-border" placeholder=" " id="first-name">
+            <label for="first-name" class="form-label"> First Name </label>
+        </div>
+        <div class="input-container">
+            <input type="text" class="form-control br gray-border" placeholder=" " id="middle-name">
+            <label for="middle-name" class="form-label"> Middle Name </label>
+        </div>
+        <div class="input-container">
+            <input type="text" class="form-control br gray-border" placeholder=" " id="last-name">
+            <label for="last-name" class="form-label"> Last Name </label>
+        </div>
+        <span class="form-field">
+            <div class="container">
+                <label for="position" class="field-label"> Position </label>
+                <select name="position" id="position" class="input-control br gray-border">
+                    <option value="" selected disabled> Select your position </option>
+                    <option value=""></option>
+                </select>
+            </div>
+            <div class="container">
+                <label for="rank" class="field-label"> Rank </label>
+                <input type="number" class="input-control br gray-border" id="rank" min="0" max="5">
+            </div>
+        </span>
+        <div class="input-container">
+            <input type="email" class="form-control br gray-border" placeholder=" " id="email-add">
+            <label for="email-add" class="form-label"> Email Address </label>
+        </div>
+        <div class="input-container">
+            <input type="password" class="form-control br gray-border" placeholder=" " id="password">
+            <label for="password" class="form-label"> Password </label>
+        </div>
+        <div class="input-container">
+            <input type="password" class="form-control br gray-border" placeholder=" " id="confirm-password">
+            <label for="confirm-password" class="form-label"> Confirm password </label>
+        </div>
+        <button type="submit" class="submit-btn" id="open-signup-btn"> Submit </button>
+    </section>
+</form>
+
+<div class="modal otp-signup-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> OTP Verification </h3>
+            <button type="button" class="close-btn" id="close-signup-btn">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="" class="otp-form">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="first-digit">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="second-digit">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="third-digit">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="fourth-digit">
+            </form>
+            <button type="submit" class="otp-button"> Send OTP </button>
+        </div>
+        <p class="footer-label gray-text"> We sent you an email. Please check to see your OTP. </p>
+    </div>
+</div>
