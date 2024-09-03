@@ -1,13 +1,20 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgFor } from '@angular/common';
+
+import { ParamsService } from '../../util/services/params.service';
 
 @Component({
   selector: 'app-batch',
   standalone: true,
   imports: [
       ReactiveFormsModule,
-      FormsModule
+      FormsModule,
+      NgFor
+  ],
+  providers: [
+      ParamsService
   ],
   templateUrl: './batch.component.html',
   styleUrl: './batch.component.scss'
@@ -17,8 +24,10 @@ export class BatchComponent implements OnInit {
     @Output() isAddingBatch = new EventEmitter<boolean>();
 
     batchForm!: FormGroup;
+    suppliers: any;
 
-    constructor(private router: Router) { }
+    constructor(private router: Router,
+                private _params: ParamsService) { }
 
     createBatchFormGroup(): FormGroup {
         return new FormGroup({
@@ -32,6 +41,8 @@ export class BatchComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
+
+        this._params.getSuppliers().subscribe(res => this.suppliers = res);
     }
 
     returnToggle() {
@@ -39,6 +50,10 @@ export class BatchComponent implements OnInit {
     }
 
     addBatch() {
+        this._params.saveBatch(this.batchForm.value).subscribe(
+            () => { console.log(this.batchForm.value); },
+            (error) => { if (error) console.log(this.batchForm.value); }
+        );
         this.isAddingBatch.emit(true);
     }
 }

@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter} from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
+import { ParamsService } from '../../util/services/params.service';
 
 @Component({
   selector: 'app-supplier',
@@ -9,6 +10,9 @@ import { Router } from '@angular/router';
   imports: [
       ReactiveFormsModule,
       FormsModule
+  ],
+  providers: [
+      ParamsService
   ],
   templateUrl: './supplier.component.html',
   styleUrl: './supplier.component.scss'
@@ -18,7 +22,8 @@ export class SupplierComponent implements OnInit {
 
     supplierForm!: FormGroup;
 
-    constructor(private router: Router) { }
+    constructor(private router: Router,
+                private _params: ParamsService) { }
 
     createSupplierFormGroup(): FormGroup {
         return new FormGroup({
@@ -35,5 +40,9 @@ export class SupplierComponent implements OnInit {
 
     returnToggle() {
         this.booleanEvent.emit(true);
+    }
+
+    saveSupplier() {
+        this._params.saveSupplier(this.supplierForm.value).subscribe();
     }
 }

@@ -11,7 +11,20 @@
 .page-header {
     margin: 2rem 0;
     width: 100%;
+    align-items: center;
+    gap: 10px;
 }
+
+.button-label { margin-top: 3px; }
+
+.divider { font-weight: 500; }
+
+.current {
+    text-decoration: none;
+    margin-top: 2px;
+}
+
+
 
 .page-title {
     color: #1d1d1f;
@@ -58,13 +71,15 @@
 
 .modal-header,
 .modal-body,
-.back-btn { display: flex; }
+.back-btn,
+.navigation,
+.page-header { display: flex; }
 
 button:hover { cursor: pointer; }
 
 .gray-text { color: #808080; }
 
-.gray-border { border: 1px solid #808080;}
+.gray-border { border: 1px solid #808080; }
 
 .br { border-radius: 5px; }
 

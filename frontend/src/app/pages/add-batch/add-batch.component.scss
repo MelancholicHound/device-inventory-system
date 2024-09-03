@@ -1,0 +1,16 @@
+.back-btn { gap: 5px; }
+
+.batch-container {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 6rem;
+    padding: 10px 15px;
+}
+
+.batch-details { gap: 5rem; }
+
+
+
+.batch-container,
+.batch-details { display: flex;}

@@ -7,6 +7,9 @@ import { catchError, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
 
+import { Supplier } from '../models/Supplier';
+import { Batch } from '../models/Batch';
+
 @Injectable({
     providedIn: 'root'
 })
@@ -79,5 +82,20 @@ export class ParamsService {
     getVideoCardCapacities(): Observable<any> {
         return this.http.get<any>(`${this.url}/part/video-card-capacities`)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/video-card-capacities')));
+    }
+
+    getSuppliers(): Observable<any> {
+        return this.http.get<any>(`${this.url}/suppliers`)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('supplier')));
+    }
+
+    saveSupplier(supplier: Omit<Supplier, 'supplierId'>): Observable<Supplier> {
+        return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
+    }
+
+    saveBatch(batch: Omit<Batch, 'batchId'>): Observable<Batch> {
+        return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
     }
 }

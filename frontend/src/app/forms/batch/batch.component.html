@@ -1,10 +1,10 @@
-<form action="">
+<form action="" [formGroup]="batchForm">
     <div class="supplier-field">
         <div class="form-container">
             <label for="supplier"> Supplier </label>
-            <select title="supplier" id="supplier" class="form-control">
+            <select title="supplier" id="supplier" class="form-control" formControlName="positionId">
                 <option value="" selected disabled> Select supplier </option>
-                <option value="">  </option>
+                <option [value]="supplier.supplierId" *ngFor="let supplier of suppliers"> {{ supplier.supplierName }} </option>
             </select>
         </div>
         <button type="button" class="add-btn" (click)="returnToggle()">
@@ -14,23 +14,23 @@
     <div class="form-field">
         <div class="form-container">
             <label for="service-center"> Service Center </label>
-            <input type="text" class="form-control" id="service-center">
+            <input type="text" class="form-control" id="service-center" formControlName="serviceCenter">
         </div>
     </div>
     <div class="date-field">
         <div class="form-container">
             <label for="date-delivered"> Date Delivered </label>
-            <input type="date" class="form-control" id="date-delivered">
+            <input type="date" class="form-control" id="date-delivered" formControlName="dateDelivered">
         </div>
         <div class="form-container">
             <label for="valid-until"> Valid Until </label>
-            <input type="date" class="form-control" id="valid-until">
+            <input type="date" class="form-control" id="valid-until" formControlName="validUntil">
         </div>
     </div>
     <div class="radio-field">
         <div class="form-container radio-input">
             <label for="date-tested"> Date Tested </label>
-            <input type="date" class="form-control date-tested" id="date-tested">
+            <input type="date" class="form-control date-tested" id="date-tested" formControlName="dateTested">
         </div>
         <div class="radio-container">
             <input type="radio" id="not-tested">

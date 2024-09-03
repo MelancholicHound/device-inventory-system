@@ -1,19 +1,19 @@
 <form action="">
     <div class="form-field">
         <label for="supplier"> Supplier </label>
-        <input type="text" class="form-control" placeholder="Company Name" id="supplier">
+        <input type="text" class="form-control" placeholder="Company Name" id="supplier" formControlName="supplierName">
     </div>
     <div class="form-field">
         <label for="location"> Location </label>
-        <input type="text" class="form-control" placeholder="Company Address" id="location">
+        <input type="text" class="form-control" placeholder="Company Address" id="location" formControlName="location">
     </div>
     <div class="form-field">
         <label for=""> Email Address </label>
-        <input type="email" class="form-control" placeholder="Ex: company.address@email.com">
+        <input type="email" class="form-control" placeholder="Ex: company.address@email.com" formControlName="emailAddress">
     </div>
     <div class="form-field">
         <label for=""> Phone/Telephone Number </label>
-        <input type="text" class="form-control" placeholder="0000-000-0000">
+        <input type="text" class="form-control" placeholder="0000-000-0000" formControlName="contactNumber">
     </div>
     <div class="buttons">
         <button type="submit" class="save-btn"> Save </button>
