@@ -1,1 +1,43 @@
-<p>batch works!</p>
+<form action="">
+    <div class="supplier-field">
+        <div class="form-container">
+            <label for="supplier"> Supplier </label>
+            <select title="supplier" id="supplier" class="form-control">
+                <option value="" selected disabled> Select supplier </option>
+                <option value="">  </option>
+            </select>
+        </div>
+        <button type="button" class="add-btn" (click)="returnToggle()">
+            <span class="material-symbols-rounded"> add </span>
+        </button>
+    </div>
+    <div class="form-field">
+        <div class="form-container">
+            <label for="service-center"> Service Center </label>
+            <input type="text" class="form-control" id="service-center">
+        </div>
+    </div>
+    <div class="date-field">
+        <div class="form-container">
+            <label for="date-delivered"> Date Delivered </label>
+            <input type="date" class="form-control" id="date-delivered">
+        </div>
+        <div class="form-container">
+            <label for="valid-until"> Valid Until </label>
+            <input type="date" class="form-control" id="valid-until">
+        </div>
+    </div>
+    <div class="radio-field">
+        <div class="form-container radio-input">
+            <label for="date-tested"> Date Tested </label>
+            <input type="date" class="form-control date-tested" id="date-tested">
+        </div>
+        <div class="radio-container">
+            <input type="radio" id="not-tested">
+            <label for="not-tested" class="not-tested"> Not Tested Yet </label>
+        </div>
+    </div>
+    <footer>
+        <button type="button" class="submit-btn" (click)="addBatch()"> Create batch </button>
+    </footer>
+</form>

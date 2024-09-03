@@ -55,7 +55,7 @@
             </button>
         </div>
         <div class="modal-body">
-            <app-batch *ngIf="toggleBatchForm" />
+            <app-batch *ngIf="toggleBatchForm" (booleanEvent)="toggleSupplier($event)" (isAddingBatch)="isAdding($event)"/>
             <app-supplier *ngIf="toggleSupplierForm" />
         </div>
     </div>

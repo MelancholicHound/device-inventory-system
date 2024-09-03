@@ -1,0 +1,66 @@
+form {
+    flex-direction: column;
+    gap: 15px;
+}
+
+.supplier-field { position: relative; }
+
+.form-container {
+    flex-direction: column;
+    width: 100%;
+}
+
+.add-btn {
+    width: 2.15rem;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+select {
+    width: 300px;
+    padding: 3px;
+}
+
+.date-field { gap: 20px; }
+
+.radio-field {
+    position: relative;
+}
+
+.radio-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    align-items: center;
+    gap: 10px;
+}
+
+footer {
+    display: grid;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.submit-btn {
+    width: 180px;
+    place-self: center;
+    font-weight: 550;
+}
+
+input[type='text'],
+input[type='date'] { padding: 0 5px; }
+
+.date-tested,
+.radio-container { width: 169px; }
+
+input,
+select,
+.add-btn,
+.radio-container { height: 2.15rem; }
+
+form,
+.form-container,
+.date-field,
+.radio-field,
+.radio-container { display: flex; }
