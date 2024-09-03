@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
   templateUrl: './batch.component.html',
   styleUrl: './batch.component.scss'
 })
-export class BatchComponent {
+export class BatchComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
     @Output() isAddingBatch = new EventEmitter<boolean>();
 
@@ -28,6 +28,10 @@ export class BatchComponent {
             validUntil: new FormControl('', [Validators.required]),
             dateTested: new FormControl('', [Validators.required]),
         });
+    }
+
+    ngOnInit(): void {
+        this.batchForm = this.createBatchFormGroup();
     }
 
     returnToggle() {

@@ -38,14 +38,14 @@ select {
 
 footer {
     display: grid;
-    margin-top: 10px;
+    margin-top: 25px;
     width: 100%;
 }
 
 .submit-btn {
-    width: 180px;
+    width: 200px;
     place-self: center;
-    font-weight: 550;
+    padding: 15px 0;
 }
 
 input[type='text'],

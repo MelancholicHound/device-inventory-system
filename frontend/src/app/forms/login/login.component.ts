@@ -21,6 +21,13 @@ export class LoginComponent implements OnInit {
 
     constructor(private router: Router) { }
 
+    createLoginFormGroup(): FormGroup {
+        return new FormGroup({
+            email: new FormControl('', [Validators.required, Validators.email]),
+            password: new FormControl('', [Validators.required, Validators.minLength(8)])
+        });
+    }
+
     ngOnInit(): void {
         this.loginForm = this.createLoginFormGroup();
 
@@ -35,13 +42,6 @@ export class LoginComponent implements OnInit {
         closeModal.onclick = function() {
             modal.style.display = 'none';
         }
-    }
-
-    createLoginFormGroup(): FormGroup {
-        return new FormGroup({
-            email: new FormControl('', [Validators.required, Validators.email]),
-            password: new FormControl('', [Validators.required, Validators.minLength(8)])
-        });
     }
 
     returnToggle() {

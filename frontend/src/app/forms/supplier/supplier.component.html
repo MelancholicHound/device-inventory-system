@@ -1,1 +1,23 @@
-<p>supplier works!</p>
+<form action="">
+    <div class="form-field">
+        <label for="supplier"> Supplier </label>
+        <input type="text" class="form-control" placeholder="Company Name" id="supplier">
+    </div>
+    <div class="form-field">
+        <label for="location"> Location </label>
+        <input type="text" class="form-control" placeholder="Company Address" id="location">
+    </div>
+    <div class="form-field">
+        <label for=""> Email Address </label>
+        <input type="email" class="form-control" placeholder="Ex: company.address@email.com">
+    </div>
+    <div class="form-field">
+        <label for=""> Phone/Telephone Number </label>
+        <input type="text" class="form-control" placeholder="0000-000-0000">
+    </div>
+    <div class="buttons">
+        <button type="submit" class="save-btn"> Save </button>
+        <button type="button" class="go-back-btn" (click)="returnToggle()"> Go Back </button>
+    </div>
+</form>
+

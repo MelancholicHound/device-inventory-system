@@ -34,6 +34,28 @@ export class SignupComponent implements OnInit {
                 private auth: AuthService,
                 private params: ParamsService) { }
 
+    createSignupFormGroup(): FormGroup {
+        return new FormGroup({
+            firstName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            middleName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            lastName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            positionId: new FormControl('', [Validators.required]),
+            positionRanking: new FormControl('', [Validators.required]),
+            email: new FormControl('', [Validators.required, Validators.email]),
+            password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+            confirmPassword: new FormControl('', [Validators.required, Validators.minLength(8)])
+        });
+    }
+
+    createOTPFormGroup(): FormGroup {
+        return new FormGroup({
+            numOne: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
+            numTwo: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
+            numThree: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
+            numFour: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')])
+        });
+    }
+
     ngOnInit(): void {
         this.signupForm = this.createSignupFormGroup();
         this.otpForm = this.createOTPFormGroup();
@@ -65,28 +87,6 @@ export class SignupComponent implements OnInit {
 
         this.auth.getEmployeePositions().subscribe((positions) => {
             this.positions = positions;
-        });
-    }
-
-    createSignupFormGroup(): FormGroup {
-        return new FormGroup({
-            firstName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            middleName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            lastName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            positionId: new FormControl('', [Validators.required]),
-            positionRanking: new FormControl('', [Validators.required]),
-            email: new FormControl('', [Validators.required, Validators.email]),
-            password: new FormControl('', [Validators.required, Validators.minLength(8)]),
-            confirmPassword: new FormControl('', [Validators.required, Validators.minLength(8)])
-        });
-    }
-
-    createOTPFormGroup(): FormGroup {
-        return new FormGroup({
-            numOne: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numTwo: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numThree: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numFour: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')])
         });
     }
 
