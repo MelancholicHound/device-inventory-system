@@ -60,7 +60,7 @@ export class SignupComponent implements OnInit {
         this.signupForm = this.createSignupFormGroup();
         this.otpForm = this.createOTPFormGroup();
 
-        var modal = document.querySelector('.otp-signup-modal') as HTMLDivElement;
+        var modal = document.getElementById('otp-signup-modal') as HTMLDivElement;
         var openModal = document.getElementById('open-signup-btn') as HTMLButtonElement;
         var closeModal = document.getElementById('close-signup-btn') as HTMLButtonElement;
 

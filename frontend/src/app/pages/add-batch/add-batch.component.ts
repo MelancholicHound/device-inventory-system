@@ -8,21 +8,26 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { TableDevice } from '../../util/models/TableDevice';
+export interface TableDevice {
+    tag: string;
+    device: string;
+    division: string;
+    section: string;
+}
 
 @Component({
-  selector: 'app-add-batch',
-  standalone: true,
-  imports: [
-      MatFormFieldModule,
-      MatInputModule,
-      MatTableModule,
-      MatSortModule,
-      MatPaginatorModule,
-      NgFor
-  ],
-  templateUrl: './add-batch.component.html',
-  styleUrl: './add-batch.component.scss'
+    selector: 'app-add-batch',
+    standalone: true,
+    imports: [
+        MatFormFieldModule,
+        MatInputModule,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        NgFor
+    ],
+    templateUrl: './add-batch.component.html',
+    styleUrl: './add-batch.component.scss'
 })
 export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
     displayedColumns: string[] = ['tag', 'device', 'division', 'section', 'settings'];
