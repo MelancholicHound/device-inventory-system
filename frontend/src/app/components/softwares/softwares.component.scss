@@ -3,11 +3,26 @@ section {
     gap: 20px;
 }
 
-.form-field { flex-direction: column; }
+.form-field {
+    flex-direction: column;
+}
 
 .label { margin-bottom: 5px; }
 
-select { height: 2rem; }
+.input-field { gap: 20px; }
+
+.add-btn {
+    width: 50px;
+    align-items: center;
+    justify-content: center;
+}
+
+select { width: 100%; }
+
+select,
+.add-btn { height: 2rem; }
 
 section,
-.form-field { display: flex; }
+.form-field,
+.input-field,
+.add-btn { display: flex; }
