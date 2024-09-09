@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -29,7 +29,7 @@ export interface TableDevice {
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
 })
-export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
+export class AddBatchComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'device', 'division', 'section', 'settings'];
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
@@ -58,7 +58,17 @@ export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
+        var modal = document.getElementById('add-dev') as HTMLDivElement;
+        var openModal = document.getElementById('open-add-dev') as HTMLButtonElement;
+        var closeModal = document.getElementById('close-add-dev') as HTMLButtonElement;
 
+        openModal.onclick = function() {
+            modal.style.display = 'block';
+        }
+
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+        }
     }
 
     ngOnDestroy(): void {

@@ -10,7 +10,58 @@
 
 .batch-details { gap: 5rem; }
 
+blockquote { gap: 10px; }
 
+.output-label { text-decoration: underline; }
+
+.button-field { gap: 20px; }
+
+.add-btn { width: 8rem; }
+
+.save-btn { width: 6rem; }
+
+.add-btn,
+.save-btn {
+    justify-content: space-around;
+    align-items: center;
+    height: 2.8rem;
+}
 
 .batch-container,
-.batch-details { display: flex;}
+.batch-details,
+blockquote,
+.button-field,
+.add-btn,
+.save-btn { display: flex; }
+
+//Modal extra styles
+.device-form {
+    gap: 15px;
+    width: 100%;
+    margin-top: 1.8rem;
+}
+
+.form-control { height: 2.15rem; }
+
+input[type='number'] {
+    width: 75px;
+    padding: 5px;
+}
+
+.add-dev-btn {
+    width: 200px;
+    height: 2.5rem;
+}
+
+.btn-container {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.device-form,
+.form-field { flex-direction: column; }
+
+.device-form,
+.form-field,
+.btn-container { display: flex; }

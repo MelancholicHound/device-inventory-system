@@ -5,7 +5,7 @@
             <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
             <a class="page-title current"> Add Batch </a>
         </header>
-        <button type="button" class="back-btn">
+        <button type="button" class="back-btn" (click)="backButton()">
             <span class="material-symbols-rounded"> reply </span>
             <p class="button-label"> Back </p>
         </button>
@@ -14,25 +14,25 @@
         <div class="batch-details">
             <blockquote>
                 <p> Batch Number: </p>
-                <p class="output-label">  </p>
+                <p class="output-label bold">  </p>
             </blockquote>
             <blockquote>
                 <p> Date Created: </p>
-                <p class="output-label">  </p>
+                <p class="output-label bold">  </p>
             </blockquote>
             <blockquote>
                 <p> Supplier: </p>
-                <p class="output-label">  </p>
+                <p class="output-label bold">  </p>
             </blockquote>
         </div>
         <div class="button-field">
-            <button type="button" class="add-btn open-dev-btn">
+            <button type="button" class="add-btn" id="open-add-dev">
                 <span class="material-symbols-rounded"> add </span>
-                <p class="add-label"> Add Device </p>
+                <p class="add-label bold"> Add Device </p>
             </button>
             <button type="button" class="save-btn">
                 <span class="material-symbols-rounded"> check </span>
-                <p class="add-label"> Save </p>
+                <p class="save-label bold"> Save </p>
             </button>
         </div>
     </div>
@@ -69,3 +69,32 @@
     </table>
     <mat-paginator [pageSizeOptions]="[5, 10, 15]" aria-label="Select page of devices"/>
 </aside>
+
+<div class="modal" id="add-dev">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Add Device </h3>
+            <button class="close-btn" id="close-add-dev" type="button">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form class="device-form" action="">
+                <div class="form-field">
+                    <label for="device"> Device </label>
+                    <select title="device" class="form-control" id="device">
+                        <option [value]="" selected disabled> Select a device </option>
+                        <option [value]="device.name" *ngFor="let device of devices"> {{ device.name }} </option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="count"> Device count </label>
+                    <input type="number" class="form-control" id="count" min="0">
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="add-dev-btn"> Add </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
