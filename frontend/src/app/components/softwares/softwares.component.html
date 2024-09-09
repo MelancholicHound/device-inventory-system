@@ -1,1 +1,23 @@
-<p>softwares works!</p>
+<section>
+    <div class="form-field">
+        <label for="os" class="label"> Operating System </label>
+        <select class="form-control" title="operating-system" id="os">
+            <option [value]="" disabled selected> Select OS </option>
+            <option [value]="os.id" *ngFor="let os of fetchedOS"> {{ os.softwareName }} </option>
+        </select>
+    </div>
+    <div class="form-field">
+        <label for="security" class="label"> Security </label>
+        <select class="form-control" title="security" id="security">
+            <option [value]="" disabled selected> Select security </option>
+            <option [value]="security.id" *ngFor="let security of fetchedSecurity"> {{ security.softwareName }} </option>
+        </select>
+    </div>
+    <div class="form-field">
+        <label for="prod-tool" class="label"> Productivity Tools </label>
+        <select title="prod-tool" id="prod-tool">
+            <option [value]="" disabled selected> Select productivity tools </option>
+            <option [value]="tool.id" *ngFor="let tool of fetchedProdTool"> {{ tool.softwareName }} </option>
+        </select>
+    </div>
+</section>
