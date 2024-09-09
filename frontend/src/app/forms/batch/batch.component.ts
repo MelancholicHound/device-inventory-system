@@ -46,6 +46,7 @@ export class BatchComponent implements OnInit {
     }
 
     returnToggle() {
+        this.batchForm.reset();
         this.booleanEvent.emit(true);
     }
 

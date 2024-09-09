@@ -39,6 +39,7 @@ export class SupplierComponent implements OnInit {
     }
 
     returnToggle() {
+        this.supplierForm.reset();
         this.booleanEvent.emit(true);
     }
 

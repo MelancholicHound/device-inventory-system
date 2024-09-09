@@ -3,7 +3,7 @@
         <div class="form-container">
             <label for="supplier"> Supplier </label>
             <select title="supplier" id="supplier" class="form-control" formControlName="positionId">
-                <option value="" selected disabled> Select supplier </option>
+                <option [value]="" selected disabled> Select supplier </option>
                 <option [value]="supplier.supplierId" *ngFor="let supplier of suppliers"> {{ supplier.supplierName }} </option>
             </select>
         </div>
@@ -14,7 +14,7 @@
     <div class="form-field">
         <div class="form-container">
             <label for="service-center"> Service Center </label>
-            <input type="text" class="form-control" id="service-center" formControlName="serviceCenter">
+            <input type="text" class="form-control" id="service-center" placeholder="Enter service center" formControlName="serviceCenter">
         </div>
     </div>
     <div class="date-field">
@@ -38,6 +38,6 @@
         </div>
     </div>
     <footer>
-        <button type="button" class="submit-btn" (click)="addBatch()"> Create batch </button>
+        <button type="submit" class="submit-batch-btn" (click)="addBatch()"> Create batch </button>
     </footer>
 </form>
