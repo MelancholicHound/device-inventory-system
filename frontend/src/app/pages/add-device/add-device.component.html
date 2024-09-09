@@ -1,1 +1,54 @@
-
+<aside class="page">
+    <nav class="navigation">
+        <header class="page-header">
+            <a href="/batch-delivery" class="page-title"> Batch Delivery </a>
+            <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
+            <a href="/add-batch" id="add-batch" class="page-title"> Add Batch </a>
+            <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
+            <a class="page-title current"> Add {{ selected }} </a>
+        </header>
+        <button type="button" class="back-btn" (click)="backButton()">
+            <span class="material-symbols-rounded"> reply </span>
+            <p class="button-label"> Back </p>
+        </button>
+    </nav>
+    <router-outlet />
+    <footer class="toggler-container">
+        <div class="card gray-border">
+            <div class="card-header">
+                <h1> Peripherals </h1>
+                <label class="switch">
+                    <input type="checkbox" id="toggler-peripherals" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="card-body">
+                <app-peripherals />
+            </div>
+        </div>
+        <div class="card gray-border">
+            <div class="card-header">
+                <h1> Connections </h1>
+                <label class="switch">
+                    <input type="checkbox" id="toggler-connections" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="card-body">
+                <app-connections />
+            </div>
+        </div>
+        <div class="card gray-border">
+          <div class="card-header">
+              <h1> Softwares </h1>
+              <label class="switch">
+                  <input type="checkbox" id="toggler-softwares" checked>
+                  <span class="slider round"></span>
+              </label>
+          </div>
+          <div class="card-body">
+              <app-softwares />
+          </div>
+      </div>
+    </footer>
+</aside>
