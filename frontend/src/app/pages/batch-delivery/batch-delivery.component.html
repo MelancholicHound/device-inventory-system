@@ -4,12 +4,12 @@
     </header>
     <section class="gray-border">
         <div class="search-container">
-            <input type="search" id="search-bar" name="searchbar" placeholder="Search for batch/es" matInput #input>
-            <button type="submit" class="search-btn"> Search </button>
+            <input class="gray-border br" type="search" id="search-bar" name="searchbar" placeholder="Search for batch/es" matInput #input>
+            <button type="submit" class="search-btn br gray-border bold"> Search </button>
         </div>
-        <button type="button" class="add-btn" id="open-add-batch">
+        <button type="button" class="add-btn br gray-border" id="open-add-batch">
             <span class="material-symbols-rounded"> add </span>
-            <p class="add-label"> Add Batch </p>
+            <p class="add-label bold"> Add Batch </p>
         </button>
     </section>
     <table mat-table [dataSource]="dataSource" matSort>
@@ -39,7 +39,7 @@
         </ng-container>
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        <tr class="mat-row">
+        <tr class="mat-row" *matNoDataRow>
             <td class="mat-cell" colspan="4"> No data matching the query: {{ input.value }} </td>
         </tr>
     </table>
@@ -55,8 +55,8 @@
             </button>
         </div>
         <div class="modal-body">
-            <app-batch *ngIf="toggleBatchForm" (booleanEvent)="toggleSupplier($event)" (isAddingBatch)="isAdding($event)" />
-            <app-supplier *ngif="toggleSupplierForm" (booleanEvent)="toggleBatch($event)" />
+            <app-batch [hidden]="!toggleBatchForm" (booleanEvent)="toggleSupplier($event)" (isAddingBatch)="isAdding($event)" />
+            <app-supplier [hidden]="!toggleSupplierForm" (booleanEvent)="toggleBatch($event)" />
         </div>
     </div>
 </div>

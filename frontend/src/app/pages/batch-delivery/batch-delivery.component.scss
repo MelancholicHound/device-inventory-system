@@ -6,7 +6,30 @@ section {
     height: 8rem;
 }
 
-section { display: flex; }
+input[type='search'] {
+    padding: 10px;
+    width: 300px;
+}
+
+.search-btn { width: 100px; }
+
+.search-container { gap: 20px; }
+
+.add-btn {
+    align-items: center;
+    justify-content: space-around;
+    width: 8rem;
+}
+
+.add-label { margin-right: 5px; }
+
+input[type='search'],
+.add-btn,
+.search-btn { height: 2.8rem; }
+
+section,
+.search-container,
+.add-btn { display: flex; }
 
 //Modal styles
 .modal-body { margin-top: 2rem; }

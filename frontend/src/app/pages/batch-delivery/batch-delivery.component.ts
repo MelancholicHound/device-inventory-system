@@ -1,5 +1,4 @@
 import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -28,8 +27,7 @@ export interface BatchTable {
         MatSortModule,
         MatPaginatorModule,
         BatchComponent,
-        SupplierComponent,
-        NgIf
+        SupplierComponent
     ],
     templateUrl: './batch-delivery.component.html',
     styleUrl: './batch-delivery.component.scss'
