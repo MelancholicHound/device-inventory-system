@@ -9,8 +9,7 @@ import { DeviceAioService } from '../../util/services/device-aio.service';
     selector: 'app-aio',
     standalone: true,
     imports: [
-        NgFor,
-        NgIf,
+        NgFor, NgIf,
         ReactiveFormsModule,
         FormsModule
     ],

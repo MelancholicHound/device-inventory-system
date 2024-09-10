@@ -3,6 +3,7 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } 
 import { NgFor, NgIf } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
+import { DeviceLaptopService } from '../../util/services/device-laptop.service';
 
 @Component({
     selector: 'app-laptop',
@@ -11,6 +12,9 @@ import { ParamsService } from '../../util/services/params.service';
         NgFor, NgIf,
         ReactiveFormsModule,
         FormsModule
+    ],
+    providers: [
+
     ],
     templateUrl: './laptop.component.html',
     styleUrl: './laptop.component.scss'
@@ -42,7 +46,8 @@ export class LaptopComponent implements OnInit {
 
     cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
 
-    constructor(private params: ParamsService) { }
+    constructor(private params: ParamsService,
+                private laptopAuth: DeviceLaptopService) { }
 
     ngOnInit(): void {
         this.deviceCount = localStorage.getItem('count');

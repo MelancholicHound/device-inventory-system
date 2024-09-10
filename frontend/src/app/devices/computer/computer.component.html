@@ -1,1 +1,131 @@
-<p>computer works!</p>
+<form action="">
+    <div class="card gray-border device-info">
+        <h1> Device Information </h1>
+        <div class="details">
+            <div class="device-tag">
+                <blockquote>
+                    <p> Batch Number: </p>
+                    <p class="output-label">  </p>
+                </blockquote>
+                <blockquote>
+                    <p> Device: </p>
+                    <p class="output-label"> {{ device.name }} </p>
+                </blockquote>
+                <blockquote>
+                    <p> Device Count: </p>
+                    <p class="output-label"> {{ deviceCount }} </p>
+                </blockquote>
+            </div>
+            <button class="save-dev-btn" type="submit"> SAVE </button>
+        </div>
+        <div class="classification">
+            <div class="destination">
+                <div class="form-container">
+                    <label for="division" class="label"> Division </label>
+                    <select title="division" class="form-control" id="division">
+                        <option [value]="" selected disabled> Select division </option>
+                        <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
+                    </select>
+                </div>
+                <div class="form-container">
+                    <label for="section" class="label"> Section </label>
+                    <select title="section" class="form-control" id="section">
+                        <option [value]="" selected disabled> Select section </option>
+                        <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card gray-border specs">
+        <h1> Specifications </h1>
+        <div class="specs-container">
+            <div class="form-container">
+                <p class="label"> Processor </p>
+                <div class="input-field">
+                    <div class="input-container">
+                        <div class="labeled-field">
+                            <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
+                                <option [value]="" selected disabled> Select brand option </option>
+                                <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
+                            </select>
+                            <input type="text" class="processors input-form" *ngIf="isProcBrandToggled" placeholder="Input brand">
+                            <label for="proc-brand"> Brand </label>
+                        </div>
+                        <button class="add-btn" type="button" id="brand-field" (click)="toggleProcBrandField()">
+                            <span class="material-symbols-rounded" [class.rotate]="isProcBrandAnimated"> add </span>
+                        </button>
+                    </div>
+                    <div class="input-container">
+                        <div class="labeled-field">
+                            <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled">
+                                <option [value]="" selected disabled> Select series option </option>
+                                <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
+                            </select>
+                            <input type="text" class="processors input-form" *ngIf="isProcSeriesToggled" placeholder="Input series">
+                            <label for="proc-series"> Series </label>
+                        </div>
+                        <button class="add-btn" type="button" id="series-field" (click)="toggleProcSeriesField()">
+                            <span class="material-symbols-rounded" [class.rotate]="isProcSeriesAnimated"> add </span>
+                        </button>
+                    </div>
+                    <div class="labeled-field">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model">
+                        <label for="proc-model"> Model </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-container">
+                <p class="label"> Video Card </p>
+                <div class="size-field">
+                    <label for="gpu-size"> Size: </label>
+                    <input type="number" class="input-form" id="gpu-size" min="0">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-container" id="ram">
+                <p class="label"> RAM </p>
+                <div class="size-field" id="ram-field">
+                    <label for="ram-size"> Size: </label>
+                    <input type="number" class="input-form" id="ram-size" min="0">
+                    <p> GB </p>
+                </div>
+                <div class="size-field top-gap">
+                    <p class="label"> Size: </p>
+                    <button class="add-btn" type="button" id="add-ram" (click)="addRam()">
+                        <span class="material-symbols-rounded"> add </span>
+                    </button>
+                </div>
+            </div>
+            <div class="form-container">
+                <p class="label"> Storage </p>
+                <div class="input-container">
+                    <label for="storage"> Type: </label>
+                    <select title="storage-type" class="form-control" id="type">
+                        <option value="" selected disabled> Select option </option>
+                        <option value="hdd"> HDD </option>
+                        <option value="ssd"> SSD </option>
+                    </select>
+                    <button type="button" class="add-btn">
+                        <span class="material-symbols-rounded"> add </span>
+                    </button>
+                </div>
+                <div class="size-field top-gap">
+                    <label for="storage-size"> Size: </label>
+                    <input type="number" class="input-form" id="storage-size">
+                    <p> GB </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <datalist id="ram">
+        <option [value]="ram" *ngFor="let ram of fetchedRAM"></option>
+    </datalist>
+    <datalist id="storage">
+        <option [value]="storage" *ngFor="let storage of fetchedStorage"></option>
+    </datalist>
+    <datalist id="gpu">
+        <option [value]="gpu" *ngFor="let gpu of fetchedGPU"></option>
+    </datalist>
+</form>
+
