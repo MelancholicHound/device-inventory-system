@@ -43,6 +43,7 @@ export class PrinterComponent implements OnInit {
             localStorage.removeItem('count');
         }
     }
+
     getLaptopBrandValue() {
         let value = document.getElementById('brand-name') as HTMLOptionElement;
         this.printerBrandId = value.value;
