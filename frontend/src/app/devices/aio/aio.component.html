@@ -9,11 +9,11 @@
                 </blockquote>
                 <blockquote>
                     <p> Device: </p>
-                    <p class="output-label">  </p>
+                    <p class="output-label"> {{ device.name }} </p>
                 </blockquote>
                 <blockquote>
                     <p> Device Count: </p>
-                    <p class="output-label">  </p>
+                    <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
             <button class="save-dev-btn" type="submit"> SAVE </button>
@@ -24,7 +24,7 @@
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
                         <select title="aio-brand" id="aio-brand" class="form-control" (change)="getAIOBrandValue()" *ngIf="!isAIOBrandToggled">
-                            <option [value]="" selected disabled> Select AIO Brand </option>
+                            <option [value]="" selected disabled> Select AIO brand </option>
                             <option [value]="aiobrand.id" *ngFor="let aiobrand of fetchedAIOBrand"> {{ aiobrand.brand }} </option>
                         </select>
                         <input type="text" class="form-control input-form" *ngIf="isAIOBrandToggled" placeholder="Input AIO Brand">
@@ -35,7 +35,7 @@
                 </div>
                 <div class="form-container">
                     <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model">
+                    <input type="text" class="form-control" id="model" placeholder="Input AIO model">
                 </div>
             </div>
             <div class="destination">
@@ -65,10 +65,10 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
-                                <option [value]="" selected disabled> Select option </option>
+                                <option [value]="" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
-                            <input type="text" class="processors input-form" *ngIf="isProcBrandToggled" placeholder="Input option">
+                            <input type="text" class="processors input-form" *ngIf="isProcBrandToggled" placeholder="Input brand">
                             <label for="proc-brand"> Brand </label>
                         </div>
                         <button class="add-btn" type="button" id="brand-field" (click)="toggleProcBrandField()">
@@ -78,10 +78,10 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled">
-                                <option [value]="" selected disabled> Select option </option>
+                                <option [value]="" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
-                            <input type="text" class="processors input-form" *ngIf="isProcSeriesToggled" placeholder="Input option">
+                            <input type="text" class="processors input-form" *ngIf="isProcSeriesToggled" placeholder="Input series">
                             <label for="proc-series"> Series </label>
                         </div>
                         <button class="add-btn" type="button" id="series-field" (click)="toggleProcSeriesField()">
@@ -89,7 +89,7 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>
@@ -110,9 +110,9 @@
                     <p> GB </p>
                 </div>
             </div>
-            <div class="form-container">
+            <div class="form-container" id="ram">
                 <p class="label"> RAM </p>
-                <div class="size-field">
+                <div class="size-field" id="ram-field">
                     <label for="ram-size"> Size: </label>
                     <input type="number" class="input-form" id="ram-size" min="0">
                     <p> GB </p>

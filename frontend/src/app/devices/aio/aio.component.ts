@@ -10,7 +10,9 @@ import { DeviceAioService } from '../../util/services/device-aio.service';
     standalone: true,
     imports: [
         NgFor,
-        NgIf
+        NgIf,
+        ReactiveFormsModule,
+        FormsModule
     ],
     providers: [
         ParamsService,
@@ -25,6 +27,7 @@ export class AioComponent implements OnInit {
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
     isAIOBrandToggled: boolean = false;
+
     isProcBrandAnimated: boolean = false; isProcSeriesAnimated: boolean = false;
     isAIOBrandAnimated: boolean = false;
 
@@ -43,7 +46,7 @@ export class AioComponent implements OnInit {
 
     aioForm!: FormGroup;
 
-    cpuReq = { cpurBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
+    cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
 
     constructor(private params: ParamsService,
                 private aioAuth: DeviceAioService) { }
@@ -159,8 +162,8 @@ export class AioComponent implements OnInit {
     }
 
     addRam() {
-        let ram = document.querySelector('.ram');
-        let ramSizeField = document.getElementById('ram-size-field');
+        let ram = document.getElementById('ram');
+        let ramSizeField = document.getElementById('ram-field');
         let clonedElement = ramSizeField?.cloneNode(true) as HTMLElement;
         let childCount = ram?.childElementCount;
         ram?.insertBefore(clonedElement, ram.children[childCount! - 1]);

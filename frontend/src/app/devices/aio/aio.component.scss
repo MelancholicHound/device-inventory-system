@@ -1,6 +1,5 @@
-form {
-    gap: 20px;
-}
+//Devices styles
+form { gap: 20px; }
 
 h1 { font-size: 23px; }
 
@@ -22,7 +21,10 @@ input { padding: 5px; }
 
 blockquote { gap: 10px; }
 
-.output-label { font-weight: 600; }
+.output-label {
+    font-weight: 600;
+    text-decoration: underline;
+}
 
 .save-dev-btn {
     padding: 10px 40px;
@@ -59,7 +61,7 @@ blockquote { gap: 10px; }
 
 .labeled-field { flex-direction: column; }
 
-.processors { width: 225px; }
+.processors { width: 220px; }
 
 .input-container { gap: 10px; }
 
