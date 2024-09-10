@@ -6,19 +6,19 @@ import { ParamsService } from '../../util/services/params.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 
 @Component({
-  selector: 'app-computer',
-  standalone: true,
-  imports: [
-      NgIf, NgFor,
-      ReactiveFormsModule,
-      FormsModule
-  ],
-  providers: [
-      ParamsService,
-      DeviceComputerService
-  ],
-  templateUrl: './computer.component.html',
-  styleUrl: './computer.component.scss'
+    selector: 'app-computer',
+    standalone: true,
+    imports: [
+        NgIf, NgFor,
+        ReactiveFormsModule,
+        FormsModule
+    ],
+    providers: [
+        ParamsService,
+        DeviceComputerService
+    ],
+    templateUrl: './computer.component.html',
+    styleUrl: './computer.component.scss'
 })
 export class ComputerComponent implements OnInit {
     device = { name: 'Computer', indicator: 'computer' };

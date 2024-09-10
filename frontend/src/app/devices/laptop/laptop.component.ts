@@ -14,7 +14,8 @@ import { DeviceLaptopService } from '../../util/services/device-laptop.service';
         FormsModule
     ],
     providers: [
-
+        ParamsService,
+        DeviceLaptopService
     ],
     templateUrl: './laptop.component.html',
     styleUrl: './laptop.component.scss'
