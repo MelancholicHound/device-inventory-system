@@ -1,1 +1,61 @@
-<p>computer-inventory works!</p>
+<aside class="page">
+    <header class="page-header">
+        <a class="page-title"> Computer Inventory </a>
+    </header>
+    <section class="gray-border">
+        <div class="search-container">
+            <input type="search" class="gray-border br" id="search-bar" name="searchbar" placeholder="Search for device/s" matInput #input>
+            <button class="search-btn gray-border br bold" type="submit"> Search </button>
+            <button type="button" class="filter-btn" id="open-filter-btn">
+                <span class="material-symbols-rounded"> tune </span>
+                <p> Filter </p>
+            </button>
+        </div>
+        <div class="button-container">
+            <button class="" type="button">
+                <span class="material-symbols-rounded"> add </span>
+                <p> Add </p>
+            </button>
+            <button class="" type="button">
+                <span class="material-symbols-rounded"> delete </span>
+                <p> Delete </p>
+            </button>
+            <button class="" type="button">
+                <span class="material-symbols-rounded"> picture_as_pdf </span>
+                <p> Generate PDF </p>
+            </button>
+        </div>
+    </section>
+    <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="formattedId">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Device Tag </th>
+            <td mat-cell *matCellDef="let row"> {{ row.formattedId }} </td>
+        </ng-container>
+        <ng-container matColumnDef="supplier">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Supplier </th>
+            <td mat-cell *matCellDef="let row"> {{ row.supplier }} </td>
+        </ng-container>
+        <ng-container matColumnDef="division">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Division </th>
+            <td mat-cell *matCellDef="let row"> {{ row.division }} </td>
+        </ng-container>
+        <ng-container matColumnDef="section">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Section </th>
+            <td mat-cell *matCellDef="let row"> {{ row.section }} </td>
+        </ng-container>
+        <ng-container matColumnDef="settings">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let row">
+                <button type="button" class="batch-settings-btn">
+                    <span class="material-symbols-rounded"> more_vert </span>
+                </button>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4"> No data matching your query: {{ input.value }} </td>
+        </tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 15]" aria-label="Select page of devices"></mat-paginator>
+</aside>
