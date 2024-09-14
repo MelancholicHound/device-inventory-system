@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -22,7 +23,8 @@ export interface DeviceTable {
         MatInputModule,
         MatTableModule,
         MatSortModule,
-        MatPaginatorModule
+        MatPaginatorModule,
+        NgFor
     ],
     templateUrl: './computer-inventory.component.html',
     styleUrl: './computer-inventory.component.scss'

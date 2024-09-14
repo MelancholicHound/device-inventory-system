@@ -71,9 +71,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
     }
 
-    ngOnDestroy(): void {
-
-    }
 
     routeSelectedDevice() {
         var selected = document.getElementById('device') as HTMLSelectElement;

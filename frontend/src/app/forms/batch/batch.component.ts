@@ -6,7 +6,7 @@ import { NgFor } from '@angular/common';
 import { ParamsService } from '../../util/services/params.service';
 
 @Component({
-  selector: 'app-batch',
+  selector: 'batch',
   standalone: true,
   imports: [
       ReactiveFormsModule,

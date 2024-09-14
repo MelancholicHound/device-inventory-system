@@ -1,4 +1,5 @@
-import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -26,6 +27,7 @@ export interface BatchTable {
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
+        NgIf,
         BatchComponent,
         SupplierComponent
     ],
@@ -33,7 +35,7 @@ export interface BatchTable {
     styleUrl: './batch-delivery.component.scss'
 })
 
-export class BatchDeliveryComponent implements AfterViewInit, OnInit {
+export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
     dataSource!: MatTableDataSource<BatchTable>;
 
@@ -67,14 +69,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         }
     }
 
-    toggleBatch(value: boolean): void {
-        this.toggleBatchForm = value;
-        this.toggleSupplierForm = !value;
-    }
+    ngOnDestroy(): void {
 
-    toggleSupplier(value: boolean): void {
-        this.toggleBatchForm = !value;
-        this.toggleSupplierForm = value;
     }
 
     applyFilter(event: Event) {
@@ -84,6 +80,16 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         if (this.dataSource.paginator) {
             this.dataSource.paginator.firstPage();
         }
+    }
+
+    toggleBatch(value: boolean): void {
+        this.toggleBatchForm = value;
+        this.toggleSupplierForm = !value;
+    }
+
+    toggleSupplier(value: boolean): void {
+        this.toggleBatchForm = !value;
+        this.toggleSupplierForm = value;
     }
 
     isAdding(item: boolean) {

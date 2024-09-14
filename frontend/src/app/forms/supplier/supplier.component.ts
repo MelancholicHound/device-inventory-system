@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ParamsService } from '../../util/services/params.service';
 
 @Component({
-  selector: 'app-supplier',
+  selector: 'supplier',
   standalone: true,
   imports: [
       ReactiveFormsModule,

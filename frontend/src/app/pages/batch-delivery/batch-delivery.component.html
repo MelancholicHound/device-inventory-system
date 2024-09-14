@@ -1,6 +1,6 @@
 <aside class="page">
     <header class="page-header">
-        <a class="page-title"> Batch Delivery </a>
+        <a href="/batch-delivery" class="page-title"> Batch Delivery </a>
     </header>
     <section class="gray-border">
         <div class="search-container">
@@ -55,8 +55,8 @@
             </button>
         </div>
         <div class="modal-body">
-            <app-batch [hidden]="!toggleBatchForm" (booleanEvent)="toggleSupplier($event)" (isAddingBatch)="isAdding($event)" />
-            <app-supplier [hidden]="!toggleSupplierForm" (booleanEvent)="toggleBatch($event)" />
+            <batch *ngIf="toggleBatchForm" (booleanEvent)="toggleSupplier($event)" (isAddingBatch)="isAdding($event)" />
+            <supplier *ngIf="toggleSupplierForm" (booleanEvent)="toggleBatch($event)" />
         </div>
     </div>
 </div>
