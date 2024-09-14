@@ -30,14 +30,14 @@ export class NavigationComponent implements OnInit {
         let computerInventory = document.getElementById('computer-inv') as HTMLButtonElement;
         let selectTab = document.getElementById('divisions') as HTMLSelectElement;
 
-        batchDelivery.addEventListener('click', () => {
+        batchDelivery.addEventListener("click", () => {
             batchDelivery.classList.add('active');
             computerInventory.classList.remove('active');
             selectTab.selectedIndex = 0;
             this.router.navigate(['batch-delivery'], { queryParams: { main: new Date().getTime() } });
         });
 
-        computerInventory.addEventListener('click', () => {
+        computerInventory.addEventListener("click", () => {
             batchDelivery.classList.remove('active');
             computerInventory.classList.add('active');
             selectTab.selectedIndex = 0;

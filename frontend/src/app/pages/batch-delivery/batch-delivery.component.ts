@@ -11,7 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BatchComponent } from '../../forms/batch/batch.component';
 import { SupplierComponent } from '../../forms/supplier/supplier.component';
 
-export interface BatchTable {
+interface TableBatch {
     formattedId: string;
     supplier: string;
     dateDelivered: string;
@@ -36,10 +36,8 @@ export interface BatchTable {
 })
 
 export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy {
-    displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
-    dataSource!: MatTableDataSource<BatchTable>;
-
-    fetchedData!: any;
+    displayedColumns: string[] = ["formattedId", "supplier", "dateDelivered", "validUntil", "settings"];
+    batchDataSource!: MatTableDataSource<TableBatch>; fetchedData!: any[];
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
 
@@ -47,12 +45,12 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
     @ViewChild(MatSort) sort!: MatSort;
 
     constructor(private router: Router) {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
+        this.batchDataSource = new MatTableDataSource(this.fetchedData);
     }
 
     ngAfterViewInit(): void {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.batchDataSource.paginator = this.paginator;
+        this.batchDataSource.sort = this.sort;
     }
 
     ngOnInit(): void {
@@ -75,10 +73,10 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
 
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
-        this.dataSource.filter = filterValue.trim().toLowerCase();
+        this.batchDataSource.filter = filterValue.trim().toLowerCase();
 
-        if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+        if (this.batchDataSource.paginator) {
+            this.batchDataSource.paginator.firstPage();
         }
     }
 

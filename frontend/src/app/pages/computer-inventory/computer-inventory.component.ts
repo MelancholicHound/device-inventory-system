@@ -1,5 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -8,9 +7,9 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-export interface DeviceTable {
-    tag: string;
-    device: string;
+interface DeviceTable {
+    formattedId: string;
+    supplier: string;
     division: string;
     section: string;
 }
@@ -23,18 +22,14 @@ export interface DeviceTable {
         MatInputModule,
         MatTableModule,
         MatSortModule,
-        MatPaginatorModule,
-        NgFor
+        MatPaginatorModule
     ],
     templateUrl: './computer-inventory.component.html',
     styleUrl: './computer-inventory.component.scss'
 })
-export class ComputerInventoryComponent implements AfterViewInit, OnInit {
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
-
+export class ComputerInventoryComponent implements AfterViewInit, OnInit, OnDestroy {
     displayedColumns: string[] = ['formattedId', 'supplier', 'division', 'section', 'settings'];
-    dataSource!: MatTableDataSource<DeviceTable>; fetchedData!: any;
+    inventoryDataSource!: MatTableDataSource<DeviceTable>; fetchedData!: any;
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
         { name: 'Laptop', indicator: 'laptop' },
@@ -45,13 +40,16 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         { name: 'AIO', indicator: 'aio' }
     ];
 
+    @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild(MatSort) sort!: MatSort;
+
     constructor(private router: Router) {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
+        this.inventoryDataSource = new MatTableDataSource(this.fetchedData);
     }
 
     ngAfterViewInit(): void {
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+        this.inventoryDataSource.paginator = this.paginator;
+        this.inventoryDataSource.sort = this.sort;
     }
 
     ngOnInit(): void {
@@ -79,12 +77,16 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         }
     }
 
+    ngOnDestroy(): void {
+
+    }
+
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
-        this.dataSource.filter = filterValue.trim().toLowerCase();
+        this.inventoryDataSource.filter = filterValue.trim().toLowerCase();
 
-        if (this.dataSource.paginator) {
-            this.dataSource.paginator.firstPage();
+        if (this.inventoryDataSource.paginator) {
+            this.inventoryDataSource.paginator.firstPage();
         }
     }
 }
