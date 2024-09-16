@@ -23,8 +23,8 @@ import { NavigationComponent } from './components/navigation/navigation.componen
 export class AppComponent {
     title = 'DIS';
 
-    toggleLoginForm: boolean = true;
-    toggleSignupForm: boolean = false;
+    isUserLoggedIn$: boolean = false;
+    toggleLoginForm: boolean = true; toggleSignupForm: boolean = false;
 
     toggleLogin(value: boolean) {
         this.toggleLoginForm = value;
