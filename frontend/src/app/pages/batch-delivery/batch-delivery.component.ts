@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -26,7 +26,6 @@ export interface BatchTable {
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
-        NgIf, NgFor,
         BatchComponent,
         SupplierComponent
     ],
@@ -93,7 +92,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
         if (item) {
             var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
             closeModal.click();
-            this._router.navigate(['add-batch'], { queryParams: { main : new Date().getTime() } });
         }
     }
 }

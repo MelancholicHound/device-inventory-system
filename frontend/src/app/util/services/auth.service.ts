@@ -14,8 +14,8 @@ import { User } from '../models/User';
 })
 
 export class AuthService {
-    private url = 'http://192.168.1.87:8082/api/v1/dis';
-    private reserveUrl = 'http://192.168.1.86:3000/auth';
+    private url = 'http://192.168.1.86:8082/api/v1/dis';
+    private reserveUrl = 'http://192.168.1.87:3000/auth';
 
     httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' })

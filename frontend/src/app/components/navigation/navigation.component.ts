@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
     styleUrl: './navigation.component.scss'
 })
 
-export class NavigationComponent implements OnInit {
+export class NavigationComponent {
     divisions: any[] = [
         { name: 'Allied', indicator: 'allied' },
         { name: 'Finance', indicator: 'finance' },
@@ -44,6 +44,4 @@ export class NavigationComponent implements OnInit {
             this.router.navigate(['computer-inventory'], { queryParams: { main: new Date().getTime() } });
         });
     }
-
-
 }

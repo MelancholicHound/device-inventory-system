@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
@@ -11,7 +11,8 @@ import { ParamsService } from '../../util/services/params.service';
   imports: [
       ReactiveFormsModule,
       FormsModule,
-      NgFor
+      NgFor,
+      RouterLink
   ],
   providers: [
       ParamsService
@@ -41,7 +42,6 @@ export class BatchComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
-
         this._params.getSuppliers().subscribe(res => this.suppliers = res);
     }
 
@@ -51,10 +51,11 @@ export class BatchComponent implements OnInit {
     }
 
     addBatch() {
-        this._params.saveBatch(this.batchForm.value).subscribe(
-            () => { console.log(this.batchForm.value); },
+        /* this._params.saveBatch(this.batchForm.value).subscribe(
+            () => { this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } }); },
             (error) => { if (error) console.log(this.batchForm.value); }
-        );
+        ); */
+        this.router.navigate(['add-batch'], { queryParams: { ref: new Date().getTime() } });
         this.isAddingBatch.emit(true);
     }
 }
