@@ -1,6 +1,7 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, Form } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../../util/services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -15,11 +16,13 @@ import { Router } from '@angular/router';
 
 export class LoginComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
+    @Output() userLog = new EventEmitter<boolean>();
 
     loginForm!: FormGroup;
     logError!: boolean;
 
-    constructor(private router: Router) { }
+    constructor(private router: Router,
+                private auth: AuthService) { }
 
     createLoginFormGroup(): FormGroup {
         return new FormGroup({
@@ -46,5 +49,12 @@ export class LoginComponent implements OnInit {
 
     returnToggle() {
         this.booleanEvent.emit(true);
+    }
+
+    login() {
+        this.auth.login(this.loginForm.value.email, this.loginForm.value.password).subscribe(
+          () => { this.userLog.emit(true); },
+          (error) => { if (error) { this.loginForm.reset(); } }
+        );
     }
 }

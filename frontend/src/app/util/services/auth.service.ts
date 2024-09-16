@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
@@ -17,8 +17,16 @@ export class AuthService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private reserveUrl = 'http://192.168.1.87:3000/auth';
 
-    httpOptions: { headers: HttpHeaders } = {
+    token!: string;
+    private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    userLogged$: Observable<boolean> = this.isUserLoggedIn.asObservable();
+
+    httpOpt: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' })
+    }
+
+    httpOption: { headers : HttpHeaders } = {
+        headers: new HttpHeaders({ 'Authorization' : `Bearer ${this.token}`, 'Content-Type' : 'appication/json'})
     }
 
     constructor(private http: HttpClient,
@@ -26,16 +34,30 @@ export class AuthService {
                 private router: Router) { }
 
     signup(user: Omit<User, 'id'>): Observable<User> {
-        return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOptions)
+        return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOpt)
         .pipe(first(), catchError(this.errorHandler.handleError<User>('signup')));
     }
 
     verifyOTP(otp: any): Observable<any> {
-        return this.http.post<any>(`${this.reserveUrl}/signup/otp`, { otp }, this.httpOptions)
+        return this.http.post<any>(`${this.reserveUrl}/signup/otp`, { otp }, this.httpOpt)
         .pipe(first(), catchError((error) => {
               if (error.status === 400 && error.error) {
                   this.errorHandler.handleError('Authentication failed: ', error.error.message);
               } return error; }));
+    }
+
+    login(email: Pick<User, 'email'>, password: Pick<User, 'password'>): Observable<any> {
+        return this.http.post<any>(`${this.url}/login`, { email, password }, this.httpOpt)
+        .pipe(first(), tap((token: any) => {
+            this.token = token;
+            this.isUserLoggedIn.next(true);
+            console.log('Logged');
+        }), catchError((error) => {
+            if (error.status === 400 && error.error && error.error.message) {
+                this.errorHandler.handleError('Login failed: ', error.error.message);
+            }
+            return throwError(error);
+        }));
     }
 
     getEmployeePositions(): Observable<any> {
