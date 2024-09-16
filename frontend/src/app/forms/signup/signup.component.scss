@@ -36,19 +36,21 @@ header {
     width: 100%;
 }
 
-.input-control {
-    width: 10rem;
+input[type='number'] {
+    padding: 10px;
+    width: 6rem;
 }
 
-input[type='number'] { padding: 10px; }
+select { width: 17rem; }
 
 .container {
-    width: 10rem;
     flex-direction: column;
     gap: 3px;
 }
 
-input.form-control, .input-control {
+input.form-control,
+select,
+input[type='number'] {
     height: 2.8rem;
 }
 

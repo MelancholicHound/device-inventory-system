@@ -22,14 +22,14 @@
         <span class="form-field">
             <div class="container">
                 <label for="position" class="field-label"> Position </label>
-                <select name="position" id="position" class="input-control br gray-border" formControlName="positionId">
+                <select name="position" id="position" class="br gray-border" formControlName="positionId">
                     <option value="" selected disabled> Select your position </option>
                     <option [value]="positions.id" *ngFor="let positions of positions"> {{ positions.positionName }} </option>
                 </select>
             </div>
             <div class="container">
                 <label for="rank" class="field-label"> Rank </label>
-                <input type="number" class="input-control br gray-border" id="rank" min="0" max="5" formControlName="positionRanking">
+                <input type="number" class="br gray-border" id="rank" min="0" max="5" formControlName="positionRanking">
             </div>
         </span>
         <div class="input-container">
