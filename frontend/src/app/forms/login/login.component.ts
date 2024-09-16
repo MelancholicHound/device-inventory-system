@@ -53,8 +53,16 @@ export class LoginComponent implements OnInit {
 
     login() {
         this.auth.login(this.loginForm.value.email, this.loginForm.value.password).subscribe(
-          () => { this.userLog.emit(true); },
-          (error) => { if (error) { this.loginForm.reset(); } }
+          () => {
+              this.userLog.emit(true);
+              console.log('Logged');
+          },
+          (error) => {
+              if (error) {
+                  this.loginForm.reset();
+                  console.log(error);
+              }
+          }
         );
     }
 }

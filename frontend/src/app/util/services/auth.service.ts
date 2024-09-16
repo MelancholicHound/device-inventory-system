@@ -17,16 +17,11 @@ export class AuthService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private reserveUrl = 'http://192.168.1.87:3000/auth';
 
-    token!: string;
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     userLogged$: Observable<boolean> = this.isUserLoggedIn.asObservable();
 
     httpOpt: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' })
-    }
-
-    httpOption: { headers : HttpHeaders } = {
-        headers: new HttpHeaders({ 'Authorization' : `Bearer ${this.token}`, 'Content-Type' : 'appication/json'})
     }
 
     constructor(private http: HttpClient,
@@ -47,11 +42,10 @@ export class AuthService {
     }
 
     login(email: Pick<User, 'email'>, password: Pick<User, 'password'>): Observable<any> {
-        return this.http.post<any>(`${this.url}/login`, { email, password }, this.httpOpt)
+        return this.http.post(`${this.url}/login`, { email, password }, { responseType: 'text' })
         .pipe(first(), tap((token: any) => {
-            this.token = token;
+            localStorage.setItem('token', token);
             this.isUserLoggedIn.next(true);
-            console.log('Logged');
         }), catchError((error) => {
             if (error.status === 400 && error.error && error.error.message) {
                 this.errorHandler.handleError('Login failed: ', error.error.message);
