@@ -1,14 +1,13 @@
-import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-
+import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { NgFor } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-interface DeviceTable {
-    formattedId: string;
+export interface DeviceTable {
+    tag: string;
     supplier: string;
     division: string;
     section: string;
@@ -22,14 +21,19 @@ interface DeviceTable {
         MatInputModule,
         MatTableModule,
         MatSortModule,
-        MatPaginatorModule
+        MatPaginatorModule,
+        NgFor
     ],
     templateUrl: './computer-inventory.component.html',
     styleUrl: './computer-inventory.component.scss'
 })
-export class ComputerInventoryComponent implements AfterViewInit, OnInit, OnDestroy {
+
+export class ComputerInventoryComponent implements AfterViewInit, OnInit {
+    @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild(MatSort) sort!: MatSort;
+
     displayedColumns: string[] = ['formattedId', 'supplier', 'division', 'section', 'settings'];
-    inventoryDataSource!: MatTableDataSource<DeviceTable>; fetchedData!: any;
+    dataSource!: MatTableDataSource<DeviceTable>;
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
         { name: 'Laptop', indicator: 'laptop' },
@@ -40,53 +44,48 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit, OnDest
         { name: 'AIO', indicator: 'aio' }
     ];
 
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
+    fetchedData!: any;
 
-    constructor(private router: Router) {
-        this.inventoryDataSource = new MatTableDataSource(this.fetchedData);
+    constructor() {
+        this.dataSource = new MatTableDataSource(this.fetchedData);
     }
 
     ngAfterViewInit(): void {
-        this.inventoryDataSource.paginator = this.paginator;
-        this.inventoryDataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
     }
 
     ngOnInit(): void {
-        var addDevModal = document.getElementById('add-device') as HTMLDivElement;
-        var filterModal = document.getElementById('filter') as HTMLDivElement;
-        var openAddDev = document.getElementById('open-add-dev-btn') as HTMLButtonElement;
-        var closeAddDev = document.getElementById('close-add-dev-btn') as HTMLButtonElement;
-        var openFilter = document.getElementById('open-filter-btn') as HTMLButtonElement;
-        var closeFilter = document.getElementById('close-filter-btn') as HTMLButtonElement;
+        var addDev = document.getElementById('add-device') as HTMLDivElement;
+        var filter = document.getElementById('filter') as HTMLDivElement;
+        var openAddDev = document.getElementById('add-dev') as HTMLButtonElement;
+        var openFilter = document.getElementById('filter-btn') as HTMLButtonElement;
+        var closeAddDev = document.querySelector('.close-add-dev') as HTMLButtonElement;
+        var closeFilter = document.querySelector('.close-filter') as HTMLButtonElement;
 
         openAddDev.onclick = function() {
-            addDevModal.style.display = 'block';
+            addDev.style.display = 'block';
+        }
+
+        openFilter.onclick = function () {
+            filter.style.display = 'block';
         }
 
         closeAddDev.onclick = function() {
-            addDevModal.style.display = 'none';
-        }
-
-        openFilter.onclick = function() {
-            filterModal.style.display = 'block';
+            addDev.style.display = 'none';
         }
 
         closeFilter.onclick = function() {
-            filterModal.style.display = 'none';
+            filter.style.display = 'none';
         }
-    }
-
-    ngOnDestroy(): void {
-
     }
 
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
-        this.inventoryDataSource.filter = filterValue.trim().toLowerCase();
+        this.dataSource.filter = filterValue.trim().toLowerCase();
 
-        if (this.inventoryDataSource.paginator) {
-            this.inventoryDataSource.paginator.firstPage();
+        if (this.dataSource.paginator) {
+            this.dataSource.paginator.firstPage();
         }
     }
 }

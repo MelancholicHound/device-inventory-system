@@ -1,7 +1,6 @@
 import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, NgFor } from '@angular/common';
 import { Router } from '@angular/router';
-
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -11,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { BatchComponent } from '../../forms/batch/batch.component';
 import { SupplierComponent } from '../../forms/supplier/supplier.component';
 
-interface TableBatch {
+export interface BatchTable {
     formattedId: string;
     supplier: string;
     dateDelivered: string;
@@ -27,7 +26,7 @@ interface TableBatch {
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
-        NgIf,
+        NgIf, NgFor,
         BatchComponent,
         SupplierComponent
     ],
@@ -36,34 +35,34 @@ interface TableBatch {
 })
 
 export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy {
-    displayedColumns: string[] = ["formattedId", "supplier", "dateDelivered", "validUntil", "settings"];
-    batchDataSource!: MatTableDataSource<TableBatch>; fetchedData!: any[];
+    displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
+    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any;
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(private router: Router) {
-        this.batchDataSource = new MatTableDataSource(this.fetchedData);
+    constructor(private _router: Router) {
+        this.dataSource = new MatTableDataSource(this.fetchedData);
     }
 
     ngAfterViewInit(): void {
-        this.batchDataSource.paginator = this.paginator;
-        this.batchDataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
     }
 
     ngOnInit(): void {
-        var addBatchModal = document.getElementById('add-batch') as HTMLDivElement;
-        var openModal = document.getElementById('open-add-batch') as HTMLButtonElement;
-        var closeModal = document.getElementById('close-add-batch') as HTMLButtonElement;
+        var modal = document.getElementById('add-batch') as HTMLDivElement;
+        var openModal = document.querySelector('.open-add-btn') as HTMLButtonElement;
+        var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
 
         openModal.onclick = function() {
-            addBatchModal.style.display = 'block';
+            modal.style.display = 'block';
         }
 
         closeModal.onclick = function() {
-            addBatchModal.style.display = 'none';
+            modal.style.display = 'none';
         }
     }
 
@@ -73,10 +72,10 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
 
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
-        this.batchDataSource.filter = filterValue.trim().toLowerCase();
+        this.dataSource.filter = filterValue.trim().toLowerCase();
 
-        if (this.batchDataSource.paginator) {
-            this.batchDataSource.paginator.firstPage();
+        if (this.dataSource.paginator) {
+            this.dataSource.paginator.firstPage();
         }
     }
 
@@ -92,9 +91,9 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
 
     isAdding(item: boolean) {
         if (item) {
-            var closeModal = document.getElementById('close-add-batch') as HTMLButtonElement;
+            var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
             closeModal.click();
-            this.router.navigate(['add-batch'], { queryParams: { branch: new Date().getTime() } });
+            this._router.navigate(['add-batch'], { queryParams: { main : new Date().getTime() } });
         }
     }
 }
