@@ -100,15 +100,13 @@ export class SignupComponent implements OnInit {
     signup() {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
-        console.log(this.signupForm.value);
-        /* this.auth.signup(this.signupForm.value).subscribe(() => {
+        this.auth.signup(this.signupForm.value).subscribe(() => {
             console.log('OTP sent to email.');
-
         }, (error) => {
             if (error.status) {
                 this.signupForm.reset();
             }
-        }); */
+        });
     }
 
     sendOTP() {
@@ -123,7 +121,7 @@ export class SignupComponent implements OnInit {
                 closeModal.click();
                 backButton.click();
             }, 3000);
-        });
+        }, (error) => { console.log(error) });
     }
 
     returnToggle() {

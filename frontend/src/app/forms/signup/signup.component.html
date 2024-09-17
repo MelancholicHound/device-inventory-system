@@ -44,7 +44,7 @@
             <input type="password" class="form-control br gray-border" placeholder=" " id="confirm-password" autocomplete="off" formControlName="confirmPassword">
             <label for="confirm-password" class="form-label"> Confirm password </label>
         </div>
-        <button type="submit" class="submit-btn" id="open-signup-btn" (click)="signup()"> Submit </button>
+        <button type="submit" class="submit-btn" id="open-signup-btn" [disabled]="signupForm.invalid  || passwordMatchValidator()" (click)="signup()"> Submit </button>
     </section>
 </form>
 
@@ -57,13 +57,13 @@
             </button>
         </div>
         <div class="modal-body">
-            <form action="" class="otp-form">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="first-digit">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="second-digit">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="third-digit">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="fourth-digit">
+            <form action="" class="otp-form" [formGroup]="otpForm">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="first-digit" formControlName="numOne">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="second-digit" formControlName="numTwo">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="third-digit" formControlName="numThree">
+                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="fourth-digit" formControlName="numFour">
             </form>
-            <button type="submit" class="otp-button" [disabled]="otpForm.invalid"> Send OTP </button>
+            <button type="submit" class="otp-button" [disabled]="otpForm.invalid" (click)="sendOTP()"> Send OTP </button>
         </div>
         <p class="footer-label gray-text"> We sent you an email. Please check to see your OTP. </p>
     </div>
