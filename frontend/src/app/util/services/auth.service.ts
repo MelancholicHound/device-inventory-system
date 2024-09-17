@@ -12,7 +12,6 @@ import { User } from '../models/User';
 @Injectable({
     providedIn: 'root'
 })
-
 export class AuthService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private reserveUrl = 'http://192.168.1.87:3000/auth';
@@ -20,7 +19,7 @@ export class AuthService {
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     userLogged$: Observable<boolean> = this.isUserLoggedIn.asObservable();
 
-    httpOpt: { headers: HttpHeaders } = {
+    httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' })
     }
 
@@ -29,12 +28,12 @@ export class AuthService {
                 private router: Router) { }
 
     signup(user: Omit<User, 'id'>): Observable<User> {
-        return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOpt)
+        return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<User>('signup')));
     }
 
     verifyOTP(otp: any): Observable<any> {
-        return this.http.post<any>(`${this.reserveUrl}/signup/otp`, { otp }, this.httpOpt)
+        return this.http.post<any>(`${this.reserveUrl}/signup/otp`, { otp }, this.httpOptions)
         .pipe(first(), catchError((error) => {
               if (error.status === 400 && error.error) {
                   this.errorHandler.handleError('Authentication failed: ', error.error.message);

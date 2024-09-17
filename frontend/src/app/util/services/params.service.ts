@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
 
 import { Observable } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
@@ -18,7 +17,7 @@ export class ParamsService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private token = localStorage.getItem('token');
 
-    httpOpt: { headers: HttpHeaders} = {
+    httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' , 'Authorization' : `Bearer ${this.token}` })
     }
 
@@ -26,77 +25,77 @@ export class ParamsService {
                 private errorHandler: ErrorHandlerService) { }
 
     getAllDivisions(): Observable<any> {
-        return this.http.get<any>(`${this.url}/divisions`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/divisions`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
     }
 
     getSectionsById(id: any): Observable<any> {
-        return this.http.get<any>(`${this.url}/divisions/${id}/sections`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/divisions/${id}/sections`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`divisions/${id}/sections`)));
     }
 
     getUPSBrand(): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/ups-brands`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/specs/ups-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/ups-brands')));
     }
 
     getOS(): Observable<any> {
-        return this.http.get<any>(`${this.url}/software/operating-systems`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/software/operating-systems`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('software/operating-systems')));
     }
 
     getProdTools(): Observable<any> {
-        return this.http.get<any>(`${this.url}/software/productivity-tools`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/software/productivity-tools`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('software/productivity-tools')));
     }
 
     getSecurity(): Observable<any> {
-        return this.http.get<any>(`${this.url}/software/securities`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/software/securities`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('software/securities')));
     }
 
     getConnections(): Observable<any> {
-        return this.http.get<any>(`${this.url}/connections`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/connections`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('connections')));
     }
 
     getAllProcBrand(): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/cpu-brands`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/specs/cpu-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/cpu-brands')));
     }
 
     getProcSeriesById(id: any): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/cpu-brands/${id}/series`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/specs/cpu-brands/${id}/series`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/cpu-brands/${id}/series`)));
     }
 
     getRamCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/ram-capacities`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/part/ram-capacities`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/ram-capacities')));
     }
 
     getStorageCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/storage-capacities`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/part/storage-capacities`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/storage-capacities')));
     }
 
     getVideoCardCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/video-card-capacities`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/part/video-card-capacities`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/video-card-capacities')));
     }
 
     getSuppliers(): Observable<any> {
-        return this.http.get<any>(`${this.url}/suppliers`, this.httpOpt)
+        return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('supplier')));
     }
 
     saveSupplier(supplier: Omit<Supplier, 'supplierId'>): Observable<Supplier> {
-        return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOpt)
+        return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
     }
 
     saveBatch(batch: Omit<Batch, 'batchId'>): Observable<Batch> {
-        return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOpt)
+        return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
     }
 }

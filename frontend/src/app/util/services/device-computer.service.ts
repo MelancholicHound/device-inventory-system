@@ -1,9 +1,22 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+import { Observable } from 'rxjs';
+import { catchError, first } from 'rxjs/operators';
+
+import { ErrorHandlerService } from './error-handler.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class DeviceComputerService {
+    private url = 'http://192.168.1.86:8082/api/v1/dis';
+    private token = localStorage.getItem('token');
 
-  constructor() { }
+    httpOptions: { headers: HttpHeaders } = {
+        headers: new HttpHeaders({ 'Content-Type' : 'application/json', 'Authorization' : `Bearer ${this.token}` })
+    }
+
+    constructor(private http: HttpClient,
+                private errorHandler: ErrorHandlerService) { }
 }
