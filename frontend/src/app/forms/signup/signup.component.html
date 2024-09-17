@@ -44,7 +44,7 @@
             <input type="password" class="form-control br gray-border" placeholder=" " id="confirm-password" autocomplete="off" formControlName="confirmPassword">
             <label for="confirm-password" class="form-label"> Confirm password </label>
         </div>
-        <button type="submit" class="submit-btn" id="open-signup-btn" [disabled]="signupForm.invalid  || passwordMatchValidator()" (click)="signup()"> Submit </button>
+        <button type="submit" class="submit-btn" id="open-signup-btn" (click)="signup()"> Submit </button>
     </section>
 </form>
 

@@ -87,11 +87,4 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
         this.toggleBatchForm = !value;
         this.toggleSupplierForm = value;
     }
-
-    isAdding(item: boolean) {
-        if (item) {
-            var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
-            closeModal.click();
-        }
-    }
 }

@@ -30,9 +30,7 @@ export class AppComponent implements OnInit {
     constructor(private auth: AuthService) { }
 
     ngOnInit(): void {
-        this.auth.userLogged$.subscribe(
-            (status: boolean) => { this.isAuthenticated = status; }
-        );
+        this.auth.userLogged$.subscribe((status: boolean) => { this.isAuthenticated = status; });
     }
 
     toggleLogin(value: boolean) {

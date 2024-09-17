@@ -16,7 +16,6 @@ import { ServerComponent } from './devices/server/server.component';
 import { TabletComponent } from './devices/tablet/tablet.component';
 
 export const routes: Routes = [
-    { path: '' , redirectTo : '/batch-delivery', pathMatch: 'full' },
     { path: 'add-batch' , component: AddBatchComponent },
     { path: 'add-device' , component: AddDeviceComponent,
       children: [
