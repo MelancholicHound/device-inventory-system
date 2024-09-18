@@ -52,6 +52,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
     }
 
     ngOnInit(): void {
+        event?.preventDefault();
         var modal = document.getElementById('add-batch') as HTMLDivElement;
         var openModal = document.querySelector('.open-add-btn') as HTMLButtonElement;
         var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;

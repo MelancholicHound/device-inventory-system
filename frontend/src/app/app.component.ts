@@ -31,6 +31,9 @@ export class AppComponent implements OnInit {
 
     ngOnInit(): void {
         this.auth.userLogged$.subscribe((status: boolean) => { this.isAuthenticated = status; });
+        if (this.isAuthenticated) {
+            event?.preventDefault();
+        }
     }
 
     toggleLogin(value: boolean) {

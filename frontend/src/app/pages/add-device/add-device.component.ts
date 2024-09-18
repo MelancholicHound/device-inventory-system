@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -20,13 +20,14 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
 export class AddDeviceComponent implements OnInit {
     selected: any;
 
+    constructor(private router: Router) { }
+
     ngOnInit(): void {
         this.selected = localStorage.getItem('device');
         localStorage.removeItem('device');
     }
 
     backButton() {
-        const toAddBatch = document.getElementById('add-batch') as HTMLAnchorElement;
-        toAddBatch.click();
+        this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } });
     }
 }

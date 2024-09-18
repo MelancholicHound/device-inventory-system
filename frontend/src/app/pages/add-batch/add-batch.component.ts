@@ -85,7 +85,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     backButton() {
-        const toBatchDelivery = document.getElementById('batch-delivery') as HTMLAnchorElement;
-        toBatchDelivery.click();
+        this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } });
     }
 }

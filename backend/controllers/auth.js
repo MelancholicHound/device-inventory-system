@@ -66,17 +66,8 @@ exports.signup = async (req, res, next) => {
             subject: 'Your One-Time Password (OTP) for Secure Access',
             text: `Hello there ${firstName}! Here is your OTP: ${otp}`
         }
-        
-        try {
-            await tranporter.sendMail(mailOptions);
-            console.log(`OTP sent to ${email}`);
-        } catch (error) {
-            if (!error.statusCode) {
-                error.statusCode = 500;
-            }
-            next(error);
-        }
-        
+      
+        await tranporter.sendMail(mailOptions);
         cache.set('otp', otp);
         res.status(200).json({ message: 'OTP sent to email. Proceed to verify'});
     } catch (error) {
