@@ -80,7 +80,7 @@ module.exports = class User {
     static save(user) {
         require('dotenv').config();
         let httpClient = new HttpClient(process.env.backend);
-        let response = httpClient.post('/employees', { user });
+        let response = httpClient.post('/register', user);
         return response;
     }
 
