@@ -25,6 +25,8 @@ export class BatchComponent implements OnInit {
     batchForm!: FormGroup;
     suppliers: any;
 
+    event!: Event;
+
     constructor(private router: Router,
                 private _params: ParamsService) { }
 
@@ -54,6 +56,6 @@ export class BatchComponent implements OnInit {
             (error) => { if (error) console.log(this.batchForm.value); }
         ); */
         this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } });
-        event?.preventDefault();
+        this.event.preventDefault();
     }
 }

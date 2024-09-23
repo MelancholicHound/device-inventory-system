@@ -1,21 +1,20 @@
 const { validationResult } = require('express-validator');
-const nodeMailer = require('nodemailer');
+const mailer = require('nodemailer');
 const nodeCache = require('node-cache');
 
 const User = require('../models/user');
 
 require('dotenv').config();
 const cache = new nodeCache();
+let userDetails = {};
 
-const tranporter = nodeMailer.createTransport({
+const transporter = mailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: process.env.GMAIL_EMAIL,
-        pass: process.env.GMAIL_PASSWORD
+        user: process.env.email,
+        pass: process.env.password
     }
 });
-
-let userDetails = {};
 
 function numericOTP(length) {
     const digits = '0123456789';
@@ -26,11 +25,22 @@ function numericOTP(length) {
     }
     return otp;
 }
+ 
+function scanExistingAccount(email) {
+    const accounts = User.getAll();
+    const emailExists = '';
+    for (let i = 0; i < accounts.length; i++) {
+        if (email === accounts[i].email) {
+            emailExists = accounts[i].email;
+        }
+    }
+    return emailExists;
+}
 
 exports.signup = async (req, res, next) => {
     const errors = validationResult(req);
 
-    if(!errors.isEmpty()) return;
+    if (!errors.isEmpty()) return;
 
     const firstName = req.body.firstName;
     const middleName = req.body.middleName;
@@ -39,11 +49,11 @@ exports.signup = async (req, res, next) => {
     const positionRanking = req.body.positionRanking;
     const email = req.body.email;
     const password = req.body.password;
- 
-    try {
-        const user = User.find(email);
 
-        if (!user) {
+    try {
+        const user = scanExistingAccount(email);
+
+        if (user) {
             const error = new Error('This email is already taken. Please try another email.');
             error.statusCode = 400;
             throw error;
@@ -61,24 +71,23 @@ exports.signup = async (req, res, next) => {
 
         const otp = numericOTP(4);
         const mailOptions = {
-            from: process.env.GMAIL_EMAIL,
+            from: process.env.email,
             to: email,
             subject: 'Your One-Time Password (OTP) for Secure Access',
             text: `Hello there ${firstName}! Here is your OTP: ${otp}`
         }
-      
-        await tranporter.sendMail(mailOptions);
+
+        await transporter.sendMail(mailOptions);
         cache.set('otp', otp);
-        res.status(200).json({ message: 'OTP sent to email. Proceed to verify'});
+        res.status(200).json({ message: "OTP sent to user's email. Proceed to verify"});
     } catch (error) {
         if (!error.statusCode) {
             error.statusCode = 500;
-        }
-        next(error);
+        } next(error);
     }
 }
 
-exports.verifyOTP = async(req, res, next) => {
+exports.verifyOTP = async (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) return;
@@ -89,19 +98,18 @@ exports.verifyOTP = async(req, res, next) => {
         let storedOTP = cache.get('otp');
 
         if (!storedOTP || storedOTP !== otp) {
-            const error = new Error('Error occured in validating OTP');
-            error.statusCode = 400;
+            const error = new Error('An error occured during validating OTP');
+            error.status = 500;
             throw error;
         }
 
         cache.del('otp');
-        await User.save(userDetails);
+        User.save(userDetails);
         userDetails = {};
-        res.status(200).json({ message: 'Verification Complete' });
+        res.status(200).json({ message: 'Verification complete.' });
     } catch (error) {
         if (!error.statusCode) {
             error.statusCode = 500;
-        }
-        next(error);
+        } next(error);
     }
 }

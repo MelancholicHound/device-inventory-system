@@ -1,12 +1,10 @@
 const axios = require('axios');
 
 class HttpClient {
-    constructor(baseURL = '') {
+    constructor(baseUrl = '') {
         this.client = axios.create({
-            baseURL: baseURL,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            baseURL: baseUrl,
+            headers: { 'Content-Type' : 'application/json' }
         });
     }
 
@@ -16,6 +14,7 @@ class HttpClient {
             return response.data;
         } catch (error) {
             this.handleError(error);
+            throw error;
         }
     }
 
@@ -28,7 +27,7 @@ class HttpClient {
         }
     }
 
-    async put(url, data ={}, headers = {}) {
+    async put(url, data = {}, headers = {}) {
         try {
             const response = await this.client.put(url, data, { headers });
             return response.data;
@@ -42,7 +41,7 @@ class HttpClient {
             const response = await this.client.delete(url, { headers });
             return response.data;
         } catch (error) {
-            this.handleError(error)
+            this.handleError(error);
         }
     }
 
@@ -68,23 +67,27 @@ module.exports = class User {
         this.positionId = positionId;
         this.positionRanking = positionRanking;
         this.email = email;
-        this.password = password
+        this.password = password;
     }
-    
-    
+
     static find(email) {
         require('dotenv').config();
-        let httpClient = new HttpClient(process.env.BACKEND_URL);
-        let response = {};
-        httpClient.get(`/employees?email=${email}`).then(item => response = item);
+        let httpClient = new HttpClient(process.env.backend);
+        let response = httpClient.get(`/employees/email/email=${email}`);
         return response;
     }
 
     static save(user) {
         require('dotenv').config();
-        let httpClient = new HttpClient(process.env.BACKEND_URL);
-        let response = {};
-        httpClient.post('/employees', { user }).then(item => response = item);
+        let httpClient = new HttpClient(process.env.backend);
+        let response = httpClient.post('/employees', { user });
+        return response;
+    }
+
+    static getAll() {
+        require('dotenv').config();
+        let httpClient = new HttpClient(process.env.backend);
+        let response = httpClient.get('/employees');
         return response;
     }
 }

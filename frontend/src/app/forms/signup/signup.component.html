@@ -24,7 +24,7 @@
                 <label for="position" class="field-label"> Position </label>
                 <select name="position" id="position" class="br gray-border" formControlName="positionId">
                     <option value="" selected disabled> Select your position </option>
-                    <option [value]="positions.id" *ngFor="let positions of positions"> {{ positions.positionName }} </option>
+                    <option [value]="positions.id" *ngFor="let positions of positions"> {{ positions.name }} </option>
                 </select>
             </div>
             <div class="container">
