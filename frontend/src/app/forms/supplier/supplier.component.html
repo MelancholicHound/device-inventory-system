@@ -12,11 +12,15 @@
         <input type="email" class="form-control" placeholder="Ex: company.address@email.com" formControlName="emailAddress">
     </div>
     <div class="form-field">
-        <label for=""> Phone/Telephone Number </label>
-        <input type="text" class="form-control" placeholder="0000-000-0000" formControlName="contactNumber">
+        <label for=""> Contact Person </label>
+        <input type="text" class="form-control" placeholder="Ex: Juan Dela Cruz" [value]="supplierForm.controls['contactPersonDTO'].value?.name" (input)="onPersonNameChange($event)" >
+    </div>
+    <div class="form-field">
+        <label for=""> Mobile/Telephone Number </label>
+        <input type="text" class="form-control" id="contact" placeholder="Contact Person's Number" [value]="supplierForm.controls['contactPersonDTO'].value?.phoneNumber" (input)="onContactInfoChange($event)">
     </div>
     <div class="buttons">
-        <button type="submit" class="save-btn"> Save </button>
+        <button type="submit" class="save-btn" (click)="saveSupplier()"> Save </button>
         <button type="button" class="go-back-btn" (click)="returnToggle()"> Go Back </button>
     </div>
 </form>

@@ -10,23 +10,13 @@ form {
     width: 100%;
 }
 
-.add-btn {
-    width: 2.15rem;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
+.upload-btn { border-radius: 2px;}
 
-select {
-    width: 300px;
-    padding: 3px;
-}
+select { padding: 3px; }
 
 .date-field { gap: 20px; }
 
-.radio-field {
-    position: relative;
-}
+.radio-field { position: relative; }
 
 .radio-container {
     position: absolute;
@@ -48,6 +38,17 @@ footer {
     height: 2.15rem;
 }
 
+.add-btn,
+.upload-btn {
+    width: 2.15rem;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+select,
+#purchase-req { width: 300px; }
+
 input[type='text'],
 input[type='date'] { padding: 0 5px; }
 
@@ -57,6 +58,7 @@ input[type='date'] { padding: 0 5px; }
 input,
 select,
 .add-btn,
+.upload-btn,
 .radio-container { height: 2.15rem; }
 
 form,

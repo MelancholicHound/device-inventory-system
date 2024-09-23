@@ -32,6 +32,8 @@ export class BatchComponent implements OnInit {
 
     createBatchFormGroup(): FormGroup {
         return new FormGroup({
+            number: new FormControl('', [Validators.required]),
+            file: new FormControl(),
             supplierId: new FormControl('', [Validators.required]),
             serviceCenter: new FormControl('', [Validators.required]),
             dateDelivered: new FormControl('', [Validators.required]),
@@ -43,6 +45,13 @@ export class BatchComponent implements OnInit {
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
         this._params.getSuppliers().subscribe(res => this.suppliers = res);
+
+        let uploadField = document.getElementById('file-upload') as HTMLInputElement;
+        let uploadButton = document.getElementById('upload-btn') as HTMLButtonElement;
+
+        uploadButton.addEventListener('click', () => {
+            uploadField.click();
+        });
     }
 
     returnToggle() {

@@ -1,6 +1,16 @@
 <form action="" [formGroup]="batchForm">
     <div class="supplier-field">
         <div class="form-container">
+            <label for="purchase-req"> PR Number: </label>
+            <input type="text" class="form-control" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
+        </div>
+        <button type="button" class="upload-btn gray-border" id="upload-btn">
+            <span class="material-symbols-rounded"> upload </span>
+        </button>
+        <input type="file" id="file-upload" formControlName="file" hidden>
+    </div>
+    <div class="supplier-field">
+        <div class="form-container">
             <label for="supplier"> Supplier </label>
             <select title="supplier" id="supplier" class="form-control" formControlName="supplierId">
                 <option value="" selected disabled> Select supplier </option>

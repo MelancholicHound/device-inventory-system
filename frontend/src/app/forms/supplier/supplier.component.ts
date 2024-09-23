@@ -1,6 +1,5 @@
 import { Component, OnInit, Output, EventEmitter} from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -29,7 +28,7 @@ export class SupplierComponent implements OnInit {
             supplierName: new FormControl('', [Validators.required]),
             location: new FormControl ('', [Validators.required]),
             emailAddress: new FormControl('', [Validators.required, Validators.email]),
-            contactNumber: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$'), Validators.maxLength(11)])
+            contactPersonDTO: new FormControl({ name: '' , phoneNumber: '' })
         });
     }
 
@@ -43,8 +42,23 @@ export class SupplierComponent implements OnInit {
     }
 
     saveSupplier() {
-        this._params.saveSupplier(this.supplierForm.value).subscribe(
-            () => { this.returnToggle(); }
-        );
+        /* this._params.saveSupplier(this.supplierForm.value).subscribe(() => { this.returnToggle(); }); */
+        console.log(this.supplierForm.value);
+    }
+
+    onPersonNameChange(event: any) {
+        const phoneNumber = this.supplierForm.get('contactPersonDTO')?.value.phoneNumber;
+        this.supplierForm.get('contactPersonDTO')?.setValue({
+            name: event.target.value,
+            phoneNumber
+        });
+    }
+
+    onContactInfoChange(event: any) {
+        const name = this.supplierForm.get('contactPersonDTO')?.value.name;
+        this.supplierForm.get('contactPersonDTO')?.setValue({
+            name,
+            phoneNumber: event.target.value
+        });
     }
 }
