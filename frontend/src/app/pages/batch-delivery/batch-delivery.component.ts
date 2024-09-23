@@ -1,5 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -33,7 +32,7 @@ export interface BatchTable {
     styleUrl: './batch-delivery.component.scss'
 })
 
-export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy {
+export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
     dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any;
 
@@ -64,10 +63,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit, OnDestroy 
         closeModal.onclick = function() {
             modal.style.display = 'none';
         }
-    }
-
-    ngOnDestroy(): void {
-
     }
 
     applyFilter(event: Event) {

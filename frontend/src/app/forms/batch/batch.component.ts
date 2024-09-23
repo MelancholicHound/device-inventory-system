@@ -54,7 +54,7 @@ export class BatchComponent implements OnInit {
         this._params.saveBatch(this.batchForm.value).subscribe(
             () => {
                 this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } });
-                this.event.preventDefault();
+                event?.preventDefault();
             }, (error) => { if (error) console.log(this.batchForm.value); }
         );
     }

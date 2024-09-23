@@ -22,15 +22,14 @@ export class SupplierComponent implements OnInit {
 
     supplierForm!: FormGroup;
 
-    constructor(private router: Router,
-                private _params: ParamsService) { }
+    constructor(private _params: ParamsService) { }
 
     createSupplierFormGroup(): FormGroup {
         return new FormGroup({
             supplierName: new FormControl('', [Validators.required]),
             location: new FormControl ('', [Validators.required]),
-            contactNumber: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$'), Validators.maxLength(11)]),
-            emailAddress: new FormControl('', [Validators.required, Validators.email])
+            emailAddress: new FormControl('', [Validators.required, Validators.email]),
+            contactNumber: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$'), Validators.maxLength(11)])
         });
     }
 
@@ -44,6 +43,8 @@ export class SupplierComponent implements OnInit {
     }
 
     saveSupplier() {
-        this._params.saveSupplier(this.supplierForm.value).subscribe();
+        this._params.saveSupplier(this.supplierForm.value).subscribe(
+            () => { this.returnToggle(); }
+        );
     }
 }
