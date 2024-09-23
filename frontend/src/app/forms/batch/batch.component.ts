@@ -51,11 +51,11 @@ export class BatchComponent implements OnInit {
     }
 
     addBatch() {
-        /* this._params.saveBatch(this.batchForm.value).subscribe(
-            () => { this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } }); },
-            (error) => { if (error) console.log(this.batchForm.value); }
-        ); */
-        this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } });
-        this.event.preventDefault();
+        this._params.saveBatch(this.batchForm.value).subscribe(
+            () => {
+                this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } });
+                this.event.preventDefault();
+            }, (error) => { if (error) console.log(this.batchForm.value); }
+        );
     }
 }

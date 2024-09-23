@@ -4,7 +4,7 @@
             <label for="supplier"> Supplier </label>
             <select title="supplier" id="supplier" class="form-control" formControlName="positionId">
                 <option value="" selected disabled> Select supplier </option>
-                <option [value]="supplier.supplierId" *ngFor="let supplier of suppliers"> {{ supplier.supplierName }} </option>
+                <option [value]="supplier.supplierId" *ngFor="let supplier of suppliers"> {{ supplier.name }} </option>
             </select>
         </div>
         <button type="button" class="add-btn" (click)="returnToggle()">
