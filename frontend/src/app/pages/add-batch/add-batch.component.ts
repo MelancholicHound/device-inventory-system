@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -34,7 +34,7 @@ export interface TableDevice {
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
 })
-export class AddBatchComponent implements AfterViewInit, OnInit {
+export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
     displayedColumns: string[] = ['tag', 'device', 'division', 'section', 'settings'];
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
@@ -54,6 +54,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
+    @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
+
     constructor(private router: Router,
                 private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
 
@@ -64,19 +66,12 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     ngOnInit(): void {
         this._params.getBatchDetails(localStorage.getItem('batchcount')).subscribe((data: any) => { this.batchDetails = data });
-        var modal = document.getElementById('add-dev') as HTMLDivElement;
-        var openModal = document.getElementById('open-add-dev') as HTMLButtonElement;
-        var closeModal = document.getElementById('close-add-dev') as HTMLButtonElement;
-
-        openModal.onclick = function() {
-            modal.style.display = 'block';
-        }
-
-        closeModal.onclick = function() {
-            modal.style.display = 'none';
-        }
     }
 
+
+    ngOnDestroy(): void {
+        localStorage.removeItem('batchcount');
+    }
 
     routeSelectedDevice() {
         var selected = document.getElementById('device') as HTMLSelectElement;
@@ -90,7 +85,9 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
     }
 
-    backButton() {
-        this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } });
-    }
+    backButton() { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) }
+
+    openAddDeviceModal() { this.addDeviceModal.nativeElement.style.display = 'block' }
+
+    closeAddDeviceModal() { this.addDeviceModal.nativeElement.style.display = 'none' }
 }

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, ChangeDetectionStrategy, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -48,6 +48,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
+    @ViewChild('addBatchModal') addBatchModal!: ElementRef;
+
     constructor(private _router: Router,
                 private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
 
@@ -57,7 +59,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-        event?.preventDefault();
         this._params.getAllBatches().subscribe((data: BatchTable[]) => {
             const batchData = data.map((item: BatchTable) => {
                 return this._params.getSupplierById(item.supplierId).pipe(
@@ -74,17 +75,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                 this.fetchedData = result;
             });
         });
-        var modal = document.getElementById('add-batch') as HTMLDivElement;
-        var openModal = document.querySelector('.open-add-btn') as HTMLButtonElement;
-        var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
-
-        openModal.onclick = function() {
-            modal.style.display = 'block';
-        }
-
-        closeModal.onclick = function() {
-            modal.style.display = 'none';
-        }
     }
 
     applyFilter(event: Event) {
@@ -105,4 +95,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.toggleBatchForm = !value;
         this.toggleSupplierForm = value;
     }
+
+    openAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'block' }
+
+    closeAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'none' }
 }

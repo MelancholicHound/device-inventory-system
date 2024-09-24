@@ -4,10 +4,10 @@
             <label for="purchase-req"> PR Number: </label>
             <input type="number" class="form-control" min="0" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
         </div>
-        <button type="button" class="upload-btn gray-border" id="upload-btn">
+        <button type="button" class="upload-btn gray-border" (click)="clickUploadField()">
             <span class="material-symbols-rounded"> upload </span>
         </button>
-        <input type="file" id="file-upload" formControlName="file" hidden>
+        <input #fileUpload type="file" formControlName="file" hidden>
     </div>
     <div class="supplier-field">
         <div class="form-container">

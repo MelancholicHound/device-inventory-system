@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
@@ -17,19 +17,18 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit {
-    selected: any; deviceCount: any;
+export class AddDeviceComponent implements OnInit, OnDestroy {
+    selected: any;
 
     constructor(private router: Router) { }
 
     ngOnInit(): void {
-        this.deviceCount = localStorage.getItem('devicecount');
         this.selected = localStorage.getItem('device');
-        localStorage.removeItem('device');
-        localStorage.removeItem('devicecount');
     }
 
-    backButton() {
-        this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } });
+    ngOnDestroy(): void {
+        localStorage.removeItem('device');
     }
+
+    backButton() { this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } }) }
 }

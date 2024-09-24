@@ -6,13 +6,13 @@
         <div class="search-container">
             <input class="gray-border br" type="search" id="search-bar" placeholder="Search">
             <button class="search-btn gray-border br bold" type="submit"> Search </button>
-            <button class="button" class="filter-btn br gray-border" id="filter-btn">
+            <button class="button" class="filter-btn br gray-border" (click)="openFilterModal()">
                 <span class="material-symbols-rounded"> tune </span>
                 <p> Filter </p>
             </button>
         </div>
         <div class="button-container">
-            <button class="primary br gray-border" type="button" id="add-dev">
+            <button class="primary br gray-border" type="button" (click)="openAddDevModal()">
                 <span class="material-symbols-rounded"> add </span>
                 <p> Add </p>
             </button>
@@ -60,11 +60,11 @@
     <mat-paginator [pageSizeOptions]="[5, 10, 15]" aria-label="Select page of devices"></mat-paginator>
   </aside>
 
-  <div class="modal" id="add-device">
+  <div #addDevModal class="modal" id="add-device">
     <div class="modal-content">
         <div class="modal-header">
             <h3> Add a device </h3>
-            <button type="button" class="close-add-dev close-btn">
+            <button type="button" class="close-btn" (click)="closeAddDevModal()">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
@@ -93,11 +93,11 @@
     </div>
   </div>
 
-  <div class="modal" id="filter">
+  <div #filterModal class="modal" id="filter">
     <div class="modal-content">
         <div class="modal-header">
             <h3> Filter </h3>
-            <button class="close-filter close-btn" type="button">
+            <button class="close-btn" type="button" (click)="closeFilterModal()">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>

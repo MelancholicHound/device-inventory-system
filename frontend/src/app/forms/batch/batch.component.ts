@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
@@ -21,6 +21,8 @@ import { ParamsService } from '../../util/services/params.service';
 })
 export class BatchComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
+
+    @ViewChild('fileUpload') fileUpload!: ElementRef;
 
     batchForm!: FormGroup;
     suppliers: any;
@@ -50,11 +52,7 @@ export class BatchComponent implements OnInit {
 
         let checkbox = document.getElementById('not-tested') as HTMLInputElement;
         let testedDate = document.getElementById('date-tested') as HTMLInputElement;
-        let uploadField = document.getElementById('file-upload') as HTMLInputElement;
-        let uploadButton = document.getElementById('upload-btn') as HTMLButtonElement;
         let testedDateControl = this.batchForm.get('dateTested');
-
-        uploadButton.addEventListener('click', () => { uploadField.click(); });
 
         checkbox.addEventListener('change', () => {
             if (checkbox.checked) {
@@ -82,4 +80,6 @@ export class BatchComponent implements OnInit {
             }, (error) => { if (error) this.batchForm.reset() }
         ); */ this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } }); event?.preventDefault();
     }
+
+    clickUploadField() { this.fileUpload.nativeElement.click() }
 }

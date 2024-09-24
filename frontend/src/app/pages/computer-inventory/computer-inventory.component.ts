@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -16,6 +16,7 @@ export interface DeviceTable {
 @Component({
     selector: 'app-computer-inventory',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -28,12 +29,9 @@ export interface DeviceTable {
     styleUrl: './computer-inventory.component.scss'
 })
 
-export class ComputerInventoryComponent implements AfterViewInit, OnInit {
-    @ViewChild(MatPaginator) paginator!: MatPaginator;
-    @ViewChild(MatSort) sort!: MatSort;
-
+export class ComputerInventoryComponent implements AfterViewInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'division', 'section', 'settings'];
-    dataSource!: MatTableDataSource<DeviceTable>;
+    dataSource!: MatTableDataSource<DeviceTable>; fetchedData!: any;
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
         { name: 'Laptop', indicator: 'laptop' },
@@ -44,40 +42,17 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         { name: 'AIO', indicator: 'aio' }
     ];
 
-    fetchedData!: any;
+    @ViewChild(MatPaginator) paginator!: MatPaginator;
+    @ViewChild(MatSort) sort!: MatSort;
 
-    constructor() {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
-    }
+    @ViewChild('addDevModal') addDevModal!: ElementRef;
+    @ViewChild('filterModal') filterModal!: ElementRef;
+
+    constructor() { this.dataSource = new MatTableDataSource(this.fetchedData) }
 
     ngAfterViewInit(): void {
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
-    }
-
-    ngOnInit(): void {
-        var addDev = document.getElementById('add-device') as HTMLDivElement;
-        var filter = document.getElementById('filter') as HTMLDivElement;
-        var openAddDev = document.getElementById('add-dev') as HTMLButtonElement;
-        var openFilter = document.getElementById('filter-btn') as HTMLButtonElement;
-        var closeAddDev = document.querySelector('.close-add-dev') as HTMLButtonElement;
-        var closeFilter = document.querySelector('.close-filter') as HTMLButtonElement;
-
-        openAddDev.onclick = function() {
-            addDev.style.display = 'block';
-        }
-
-        openFilter.onclick = function () {
-            filter.style.display = 'block';
-        }
-
-        closeAddDev.onclick = function() {
-            addDev.style.display = 'none';
-        }
-
-        closeFilter.onclick = function() {
-            filter.style.display = 'none';
-        }
     }
 
     applyFilter(event: Event) {
@@ -88,4 +63,12 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             this.dataSource.paginator.firstPage();
         }
     }
+
+    openAddDevModal() { this.addDevModal.nativeElement.style.display = 'block' }
+
+    closeAddDevModal() { this.addDevModal.nativeElement.style.display = 'none' }
+
+    openFilterModal() { this.filterModal.nativeElement.style.display = 'block' }
+
+    closeFilterModal() { this.filterModal.nativeElement.style.display = 'none' }
 }

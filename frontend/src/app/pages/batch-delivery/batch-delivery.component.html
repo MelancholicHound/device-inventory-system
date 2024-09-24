@@ -7,7 +7,7 @@
           <input matInput class="gray-border br" (keyup)="applyFilter($event)" type="search" id="search-bar" placeholder="Search for batch" #input>
           <button type="submit" class="search-btn bold"> Search </button>
       </div>
-      <button type="button" class="add-btn open-add-btn">
+      <button type="button" class="add-btn" (click)="openAddBatchModal()">
           <span class="material-symbols-rounded"> add </span>
           <p class="add-label"> Add Batch </p>
       </button>
@@ -46,11 +46,11 @@
   <mat-paginator [pageSizeOptions]="[1, 2, 3]" aria-label="Select page of batches"></mat-paginator>
 </aside>
 
-<div class="modal" id="add-batch">
+<div #addBatchModal class="modal">
   <div class="modal-content">
       <div class="modal-header">
           <h3> {{ toggleBatchForm ? 'Add Batch' : 'Supplier Information' }} </h3>
-          <button class="close-btn close-add-batch" type="button">
+          <button class="close-btn" type="button" (click)="closeAddBatchModal()">
               <span class="material-symbols-rounded"> close </span>
           </button>
       </div>
