@@ -29,7 +29,10 @@ export class SupplierComponent implements OnInit {
             location: new FormControl ('', [Validators.required]),
             contactNumber: new FormControl('', [Validators.required]),
             emailAddress: new FormControl('', [Validators.required, Validators.email]),
-            contactPersonDTO: new FormGroup({ name: new FormControl('', [Validators.required]), phoneNumber: new FormControl('', [Validators.required]) })
+            contactPersonDTO: new FormGroup({
+                name: new FormControl('', [Validators.required]),
+                phoneNumber: new FormControl('', [Validators.required])
+            })
         });
     }
 

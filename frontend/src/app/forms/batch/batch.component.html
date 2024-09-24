@@ -1,8 +1,8 @@
 <form action="" [formGroup]="batchForm">
-    <div class="supplier-field">
+    <div class="supplier-field" formGroupName="purchaseRequestDTO">
         <div class="form-container">
             <label for="purchase-req"> PR Number: </label>
-            <input type="text" class="form-control" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
+            <input type="number" class="form-control" min="0" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
         </div>
         <button type="button" class="upload-btn gray-border" id="upload-btn">
             <span class="material-symbols-rounded"> upload </span>
