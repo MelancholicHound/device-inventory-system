@@ -1,23 +1,29 @@
 <form action="" [formGroup]="supplierForm">
     <div class="form-field">
         <label for="supplier"> Supplier </label>
-        <input type="text" class="form-control" placeholder="Company Name" id="supplier" formControlName="supplierName">
+        <input type="text" class="form-control" placeholder="Company Name" id="supplier" formControlName="name">
     </div>
     <div class="form-field">
         <label for="location"> Location </label>
         <input type="text" class="form-control" placeholder="Company Address" id="location" formControlName="location">
     </div>
     <div class="form-field">
-        <label for=""> Email Address </label>
+        <label for=""> Supplier Email Address </label>
         <input type="email" class="form-control" placeholder="Ex: company.address@email.com" formControlName="emailAddress">
     </div>
     <div class="form-field">
-        <label for=""> Contact Person </label>
-        <input type="text" class="form-control" placeholder="Ex: Juan Dela Cruz" [value]="supplierForm.controls['contactPersonDTO'].value?.name" (input)="onPersonNameChange($event)" >
+        <label for=""> Supplier Phone/Telephone Number </label>
+        <input type="email" class="form-control" placeholder="Ex: 0000-000-0000" formControlName="contactNumber">
     </div>
-    <div class="form-field">
-        <label for=""> Mobile/Telephone Number </label>
-        <input type="text" class="form-control" id="contact" placeholder="Contact Person's Number" [value]="supplierForm.controls['contactPersonDTO'].value?.phoneNumber" (input)="onContactInfoChange($event)">
+    <div class="contact-person" formGroupName="contactPersonDTO">
+        <div class="form-field">
+            <label for=""> Contact Person </label>
+            <input type="text" class="form-control" placeholder="Ex: Juan Dela Cruz" formControlName="name">
+        </div>
+        <div class="form-field">
+            <label for=""> Contact Person Mobile/Telephone Number </label>
+            <input type="text" class="form-control" id="contact" placeholder="Ex: 0000-000-0000" formControlName="phoneNumber">
+        </div>
     </div>
     <div class="buttons">
         <button type="submit" class="save-btn" (click)="saveSupplier()"> Save </button>

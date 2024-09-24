@@ -86,7 +86,7 @@ export class ParamsService {
 
     getSuppliers(): Observable<any> {
         return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('supplier')));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
     }
 
     saveSupplier(supplier: Omit<Supplier, 'supplierId'>): Observable<Supplier> {

@@ -1,8 +1,3 @@
-form {
-    flex-direction: column;
-    gap: 15px;
-}
-
 .form-control {
     flex-direction: column;
     width: 100%;
@@ -24,5 +19,12 @@ button {
 }
 
 form,
+.contact-person {
+    flex-direction: column;
+    gap: 15px;
+}
+
+form,
 .form-control,
-.buttons { display: flex; }
+.buttons,
+.contact-person { display: flex; }

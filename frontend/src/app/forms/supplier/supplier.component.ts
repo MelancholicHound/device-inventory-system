@@ -25,10 +25,11 @@ export class SupplierComponent implements OnInit {
 
     createSupplierFormGroup(): FormGroup {
         return new FormGroup({
-            supplierName: new FormControl('', [Validators.required]),
+            name: new FormControl('', [Validators.required]),
             location: new FormControl ('', [Validators.required]),
+            contactNumber: new FormControl('', [Validators.required]),
             emailAddress: new FormControl('', [Validators.required, Validators.email]),
-            contactPersonDTO: new FormControl({ name: '' , phoneNumber: '' })
+            contactPersonDTO: new FormGroup({ name: new FormControl('', [Validators.required]), phoneNumber: new FormControl('', [Validators.required]) })
         });
     }
 
@@ -37,28 +38,11 @@ export class SupplierComponent implements OnInit {
     }
 
     returnToggle() {
-        this.supplierForm.reset();
         this.booleanEvent.emit(true);
+        this.supplierForm.reset();
     }
 
     saveSupplier() {
-        /* this._params.saveSupplier(this.supplierForm.value).subscribe(() => { this.returnToggle(); }); */
-        console.log(this.supplierForm.value);
-    }
-
-    onPersonNameChange(event: any) {
-        const phoneNumber = this.supplierForm.get('contactPersonDTO')?.value.phoneNumber;
-        this.supplierForm.get('contactPersonDTO')?.setValue({
-            name: event.target.value,
-            phoneNumber
-        });
-    }
-
-    onContactInfoChange(event: any) {
-        const name = this.supplierForm.get('contactPersonDTO')?.value.name;
-        this.supplierForm.get('contactPersonDTO')?.setValue({
-            name,
-            phoneNumber: event.target.value
-        });
+        this._params.saveSupplier(this.supplierForm.value).subscribe(() => { this.returnToggle() });
     }
 }
