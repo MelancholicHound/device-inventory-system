@@ -73,6 +73,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
             forkJoin(batchData).subscribe((result: any) => {
                 this.fetchedData = result;
+                localStorage.setItem('batchcount', result.length + 1);
             });
         });
     }

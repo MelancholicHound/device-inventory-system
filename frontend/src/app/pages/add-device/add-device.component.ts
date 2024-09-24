@@ -18,7 +18,7 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
     styleUrl: './add-device.component.scss'
 })
 export class AddDeviceComponent implements OnInit, OnDestroy {
-    selected: any;
+    batchId = localStorage.getItem('batchcount'); selected: any;
 
     constructor(private router: Router) { }
 

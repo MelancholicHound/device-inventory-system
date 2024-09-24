@@ -34,7 +34,7 @@ export interface TableDevice {
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
 })
-export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
+export class AddBatchComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'device', 'division', 'section', 'settings'];
     devices: any[] = [
         { name: 'Computer', indicator: 'computer' },
@@ -68,11 +68,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
         this._params.getBatchDetails(localStorage.getItem('batchcount')).subscribe((data: any) => { this.batchDetails = data });
     }
 
-
-    ngOnDestroy(): void {
-        localStorage.removeItem('batchcount');
-    }
-
     routeSelectedDevice() {
         var selected = document.getElementById('device') as HTMLSelectElement;
         let count = document.getElementById('count') as HTMLInputElement;
@@ -85,7 +80,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit, OnDestroy {
         }
     }
 
-    backButton() { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) }
+    backButton() {
+        this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } });
+        this._params.deleteBatch(localStorage.getItem('batchcount'));
+    }
 
     openAddDeviceModal() { this.addDeviceModal.nativeElement.style.display = 'block' }
 

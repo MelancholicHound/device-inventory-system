@@ -73,12 +73,12 @@ export class BatchComponent implements OnInit {
     }
 
     addBatch() {
-        /* this._params.saveBatch(this.batchForm.value).subscribe(
+        this._params.saveBatch(this.batchForm.value).subscribe(
             () => {
                 this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } });
                 event?.preventDefault();
             }, (error) => { if (error) this.batchForm.reset() }
-        ); */ this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } }); event?.preventDefault();
+        );
     }
 
     clickUploadField() { this.fileUpload.nativeElement.click() }
