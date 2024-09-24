@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -22,6 +22,7 @@ export interface BatchTable {
 @Component({
     selector: 'app-batch-delivery',
     standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatFormFieldModule,
         MatInputModule,
@@ -56,7 +57,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
         event?.preventDefault();
         this._params.getAllBatches().subscribe((data: BatchTable[]) => {
             const batchData = data.map((item: BatchTable) => {
@@ -91,7 +91,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         const filterValue = (event.target as HTMLInputElement).value;
         this.dataSource.filter = filterValue.trim().toLowerCase();
 
-        if (this.dataSource.paginator) {
+        if (this.dataSource?.paginator) {
             this.dataSource.paginator.firstPage();
         }
     }

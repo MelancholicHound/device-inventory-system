@@ -80,6 +80,6 @@ export class BatchComponent implements OnInit {
                 this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } });
                 event?.preventDefault();
             }, (error) => { if (error) this.batchForm.reset() }
-        ); */ this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } });
+        ); */ this.router.navigate(['add-batch'], { queryParams: { main: new Date().getTime() } }); event?.preventDefault();
     }
 }
