@@ -8,6 +8,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+import { ParamsService } from '../../util/services/params.service';
+
 export interface TableDevice {
     tag: string;
     device: string;
@@ -26,6 +28,9 @@ export interface TableDevice {
         MatPaginatorModule,
         NgFor
     ],
+    providers: [
+        ParamsService
+    ],
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
 })
@@ -43,14 +48,14 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     ];
     dataSource!: MatTableDataSource<TableDevice>;
 
-    fetchedData!: any; deviceSelected!: any;
+    batchDetails: any;
+    fetchedData: any; deviceSelected: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(private router: Router) {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
-    }
+    constructor(private router: Router,
+                private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
 
     ngAfterViewInit(): void {
         this.dataSource.paginator = this.paginator;
@@ -58,6 +63,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
+        this._params.getBatchDetails(localStorage.getItem('batchcount')).subscribe((data: any) => { this.batchDetails = data });
         var modal = document.getElementById('add-dev') as HTMLDivElement;
         var openModal = document.getElementById('open-add-dev') as HTMLButtonElement;
         var closeModal = document.getElementById('close-add-dev') as HTMLButtonElement;
@@ -79,7 +85,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             if (selected.value === this.devices[i].name) {
                 this.router.navigate([`/add-device/${this.devices[i].indicator}`], { queryParams: { branch: new Date().getTime() } });
                 localStorage.setItem('device', this.devices[i].name);
-                localStorage.setItem('count', count.value);
+                localStorage.setItem('devicecount', count.value);
             }
         }
     }

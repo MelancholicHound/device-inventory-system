@@ -18,13 +18,15 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
     styleUrl: './add-device.component.scss'
 })
 export class AddDeviceComponent implements OnInit {
-    selected: any;
+    selected: any; deviceCount: any;
 
     constructor(private router: Router) { }
 
     ngOnInit(): void {
+        this.deviceCount = localStorage.getItem('devicecount');
         this.selected = localStorage.getItem('device');
         localStorage.removeItem('device');
+        localStorage.removeItem('devicecount');
     }
 
     backButton() {

@@ -13,16 +13,16 @@
     <div class="batch-container gray-border">
         <div class="batch-details">
             <blockquote>
+                <p> PR Number: </p>
+                <p class="output-label bold"> {{ batchDetails?.purchaseOrderDTO.number }} </p>
+            </blockquote>
+            <blockquote>
                 <p> Batch Number: </p>
-                <p class="output-label bold">  </p>
+                <p class="output-label bold"> {{ batchDetails?.formattedId }} </p>
             </blockquote>
             <blockquote>
                 <p> Date Created: </p>
-                <p class="output-label bold">  </p>
-            </blockquote>
-            <blockquote>
-                <p> Supplier: </p>
-                <p class="output-label bold">  </p>
+                <p class="output-label bold"> {{ batchDetails?.createdAt }} </p>
             </blockquote>
         </div>
         <div class="button-field">

@@ -5,13 +5,16 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { forkJoin, map } from 'rxjs';
 
 import { BatchComponent } from '../../forms/batch/batch.component';
 import { SupplierComponent } from '../../forms/supplier/supplier.component';
 
+import { ParamsService } from '../../util/services/params.service';
+
 export interface BatchTable {
     formattedId: string;
-    supplier: string;
+    supplierId: number;
     dateDelivered: string;
     validUntil: string;
 }
@@ -28,6 +31,9 @@ export interface BatchTable {
         BatchComponent,
         SupplierComponent
     ],
+    providers: [
+        ParamsService
+    ],
     templateUrl: './batch-delivery.component.html',
     styleUrl: './batch-delivery.component.scss'
 })
@@ -41,9 +47,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
-    constructor(private _router: Router) {
-        this.dataSource = new MatTableDataSource(this.fetchedData);
-    }
+    constructor(private _router: Router,
+                private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
 
     ngAfterViewInit(): void {
         this.dataSource.paginator = this.paginator;
@@ -51,7 +56,24 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
+        this.dataSource = new MatTableDataSource(this.fetchedData);
         event?.preventDefault();
+        this._params.getAllBatches().subscribe((data: BatchTable[]) => {
+            const batchData = data.map((item: BatchTable) => {
+                return this._params.getSupplierById(item.supplierId).pipe(
+                    map((supplierData: any) => ({
+                        formattedId: item.formattedId,
+                        supplier: supplierData.name,
+                        dateDelivered: item.dateDelivered,
+                        validUntil: item.validUntil
+                    }))
+                );
+            });
+
+            forkJoin(batchData).subscribe((result: any) => {
+                this.fetchedData = result;
+            });
+        });
         var modal = document.getElementById('add-batch') as HTMLDivElement;
         var openModal = document.querySelector('.open-add-btn') as HTMLButtonElement;
         var closeModal = document.querySelector('.close-add-batch') as HTMLButtonElement;
