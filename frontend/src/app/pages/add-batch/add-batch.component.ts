@@ -1,6 +1,6 @@
-import { Component, AfterViewInit, ViewChild, OnInit, OnDestroy, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -48,8 +48,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     ];
     dataSource!: MatTableDataSource<TableDevice>;
 
-    batchDetails: any;
+    batchDetails: any; batchCounter: any;
+    batchEditDetails: any;
     fetchedData: any; deviceSelected: any;
+    isAddingBatch!: boolean;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -57,7 +59,15 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
-                private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
+                private activeRoute: ActivatedRoute,
+                private _params: ParamsService) {
+                this.dataSource = new MatTableDataSource(this.fetchedData);
+                this.activeRoute.queryParams.subscribe(params => { this.batchCounter = params['count'] });
+                const navigation = this.router.getCurrentNavigation();
+                if (navigation?.extras.state) {
+                  this.batchEditDetails = navigation.extras.state['details'];
+                }
+    }
 
     ngAfterViewInit(): void {
         this.dataSource.paginator = this.paginator;
@@ -65,7 +75,13 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-        this._params.getBatchDetails(localStorage.getItem('batchcount')).subscribe((data: any) => { this.batchDetails = data });
+        if (this.batchCounter) {
+            this._params.getBatchDetails(this.batchCounter).subscribe((data: any) => { this.batchDetails = data });
+            this.isAddingBatch = true;
+        } else if (this.batchEditDetails) {
+            this.batchDetails = this.batchEditDetails;
+            this.isAddingBatch = false;
+        }
     }
 
     routeSelectedDevice() {

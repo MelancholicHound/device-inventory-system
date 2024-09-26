@@ -46,7 +46,7 @@ export interface BatchTable {
 
 export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
-    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any;
+    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any; counter!: number;;
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
 
@@ -78,7 +78,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
             forkJoin(batchData).subscribe((result: any) => {
                 this.fetchedData = result;
-                localStorage.setItem('batchcount', result.length + 1);
+                this.counter = this.fetchedData.length + 1;
             });
         });
     }
@@ -105,4 +105,15 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     openAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'block' }
 
     closeAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'none' }
+
+    onClickEdit(row: any) {
+        this._params.getAllBatches().subscribe((data: any) => {
+            for (let i = 0; i < data.length; i++) {
+                if (row.formattedId === data[i].formattedId) {
+                  this._router.navigate(['add-batch'], { state: { details: data[i] } });
+                  event?.preventDefault();
+                }
+            }
+        });
+    }
 }

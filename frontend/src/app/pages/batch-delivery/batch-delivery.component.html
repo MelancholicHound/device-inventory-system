@@ -36,7 +36,7 @@
                     <span class="material-symbols-rounded"> more_vert </span>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="onClickEdit(row)">
                         Edit
                     </button>
                     <button mat-menu-item>
@@ -64,7 +64,8 @@
         </div>
         <div class="modal-body">
             <batch [hidden]="!toggleBatchForm"
-                  (booleanEvent)="toggleSupplier($event)" />
+                  (booleanEvent)="toggleSupplier($event)"
+                  [batchCounter]="counter" />
             <supplier [hidden]="!toggleSupplierForm"
                       (booleanEvent)="toggleBatch($event)" />
         </div>
