@@ -111,7 +111,7 @@ export class ParamsService {
 
     getBatchDetails(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/batches/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('batches')));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`batches/${id}`)));
     }
 
     deleteBatch(id: any): Observable<any> {
