@@ -78,7 +78,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
-
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
@@ -110,7 +109,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this._params.getBatchDetails(this.batchCounter).subscribe(
                 (data: any) => { this.batchDetails = data }
             );
-            this.aioAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.isAddingBatch = true;
+        } else if (this.batchEditDetails) {
+            this.aioAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -126,7 +128,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.aioData = data;
                 }
             );
-            this.compAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.compAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -142,7 +145,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.compAuth = data;
                 }
             );
-            this.lapAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.lapAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -158,7 +162,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.laptopData = data;
                 }
             );
-            this.prntAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.prntAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -174,7 +179,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.printerData = data;
                 }
             );
-            this.rtAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.rtAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -190,7 +196,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.routerData = data;
                 }
             );
-            this.scanAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.scanAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -206,7 +213,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.scannerData = data;
                 }
             );
-            this.svrAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.svrAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -222,7 +230,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.serverData = data;
                 }
             );
-            this.tabAuth.getAllByBatchId(this.batchCounter).subscribe(
+
+            this.tabAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
                 (data: any) => {
                     const deviceData = data.map((items: TableDevice) => ({
                         tag: items.tag,
@@ -238,10 +247,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.tabletData = data;
                 }
             );
-
-            this.isAddingBatch = true;
-        } else if (this.batchEditDetails) {
-            this.batchDetails = this.batchEditDetails;
             this.isAddingBatch = false;
         }
     }
