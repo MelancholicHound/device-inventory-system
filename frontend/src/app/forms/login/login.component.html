@@ -15,19 +15,19 @@
     </section>
     <section class="buttons-container">
         <button type="submit" class="login-btn br bold" [disabled]="loginForm.invalid" (click)="login()"> Log In </button>
-        <button type="button" class="recover-btn" id="open-recover-btn"> Forgot Password </button>
+        <button type="button" class="recover-btn" (click)="recoverModal.style.display = 'block'"> Forgot Password </button>
     </section>
     <hr>
     <footer>
-        <button type="button" class="signup-btn br bold" (click)="returnToggle()"> Create an account </button>
+        <button type="button" class="signup-btn br bold" (click)="booleanEvent.emit(true)"> Create an account </button>
     </footer>
 </form>
 
-<div class="modal recover-modal">
+<div class="modal" #recoverModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> Account Recovery </h3>
-            <button type="button" class="close-btn" id="close-recover-btn">
+            <button type="button" class="close-btn" (click)="recoverModal.style.display = 'none'">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>

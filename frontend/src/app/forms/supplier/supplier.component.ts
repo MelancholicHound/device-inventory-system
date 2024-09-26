@@ -40,12 +40,7 @@ export class SupplierComponent implements OnInit {
         this.supplierForm = this.createSupplierFormGroup();
     }
 
-    returnToggle() {
-        this.booleanEvent.emit(true);
-        this.supplierForm.reset();
-    }
-
     saveSupplier() {
-        this._params.saveSupplier(this.supplierForm.value).subscribe(() => { this.returnToggle() });
+        this._params.saveSupplier(this.supplierForm.value).subscribe(() => { this.booleanEvent.emit(true) });
     }
 }

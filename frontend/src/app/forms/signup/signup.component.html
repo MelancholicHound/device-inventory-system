@@ -1,7 +1,7 @@
 <form action="" [formGroup]="signupForm">
     <header>
         <h2> Create an account </h2>
-        <button type="button" class="back-btn" id="back-to-login-btn" (click)="returnToggle()">
+        <button type="button" class="back-btn" id="back-to-login-btn" (click)="booleanEvent.emit(true)">
             <i class="material-symbols-rounded"> arrow_back_ios </i>
             <p class="back-btn-label"> Back </p>
         </button>
@@ -52,7 +52,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3> OTP Verification </h3>
-            <button type="button" class="close-btn" (click)="closeOTPModal()">
+            <button type="button" class="close-btn" (click)="signupModal.style.display = 'none'">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>

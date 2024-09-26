@@ -63,12 +63,4 @@ export class ComputerInventoryComponent implements AfterViewInit {
             this.dataSource.paginator.firstPage();
         }
     }
-
-    openAddDevModal() { this.addDevModal.nativeElement.style.display = 'block' }
-
-    closeAddDevModal() { this.addDevModal.nativeElement.style.display = 'none' }
-
-    openFilterModal() { this.filterModal.nativeElement.style.display = 'block' }
-
-    closeFilterModal() { this.filterModal.nativeElement.style.display = 'none' }
 }

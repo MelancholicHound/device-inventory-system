@@ -68,7 +68,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     batchDetails: any; batchCounter: any;
     batchEditDetails: any;
-    fetchedData: any; deviceSelected: any;
+    fetchedData!: any[]; deviceSelected: any;
     isAddingBatch!: boolean;
 
     aioData!: any; computerData!: any;
@@ -112,142 +112,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
             this.isAddingBatch = true;
         } else if (this.batchEditDetails) {
-            this.aioAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'All-In-One',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.aioData = data;
-                }
-            );
-
-            this.compAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Computer',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.compAuth = data;
-                }
-            );
-
-            this.lapAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Laptop',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.laptopData = data;
-                }
-            );
-
-            this.prntAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Printer',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.printerData = data;
-                }
-            );
-
-            this.rtAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Printer',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.routerData = data;
-                }
-            );
-
-            this.scanAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Scanner',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.scannerData = data;
-                }
-            );
-
-            this.svrAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Server',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.serverData = data;
-                }
-            );
-
-            this.tabAuth.getAllByBatchId(this.batchEditDetails.id).subscribe(
-                (data: any) => {
-                    const deviceData = data.map((items: TableDevice) => ({
-                        tag: items.tag,
-                        device: 'Tablet',
-                        division: items.division,
-                        section: items.section
-                    }));
-
-                    forkJoin(deviceData).subscribe((result: any) => {
-                        this.fetchedData.push(...result);
-                    });
-
-                    this.tabletData = data;
-                }
-            );
             this.isAddingBatch = false;
+            this.batchDetails = this.batchEditDetails;
         }
     }
 
@@ -263,12 +129,5 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
     }
 
-    backButton() {
-        this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } });
-        this._params.deleteBatch(localStorage.getItem('batchcount'));
-    }
-
-    openAddDeviceModal() { this.addDeviceModal.nativeElement.style.display = 'block' }
-
-    closeAddDeviceModal() { this.addDeviceModal.nativeElement.style.display = 'none' }
+    backButton() { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) }
 }

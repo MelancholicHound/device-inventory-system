@@ -102,10 +102,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.toggleSupplierForm = value;
     }
 
-    openAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'block' }
-
-    closeAddBatchModal() { this.addBatchModal.nativeElement.style.display = 'none' }
-
     onClickEdit(row: any) {
         this._params.getAllBatches().subscribe((data: any) => {
             for (let i = 0; i < data.length; i++) {

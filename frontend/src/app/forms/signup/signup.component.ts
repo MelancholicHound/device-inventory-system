@@ -91,7 +91,7 @@ export class SignupComponent implements OnInit {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
         this.auth.signup(this.signupForm.value).subscribe(() => {
-            this.openOTPModal();
+            this.signupModal.nativeElement.style.display = 'block';
         }, (error) => {
             if (error.status) {
                 this.signupForm.reset();
@@ -113,10 +113,4 @@ export class SignupComponent implements OnInit {
             }, 3000);
         }, (error) => { console.log(error) });
     }
-
-    returnToggle() { this.booleanEvent.emit(true) }
-
-    openOTPModal() { this.signupModal.nativeElement.style.display = 'block' }
-
-    closeOTPModal() { this.signupModal.nativeElement.style.display = 'none' }
 }

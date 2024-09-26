@@ -4,7 +4,7 @@
             <label for="purchase-req"> PR Number: </label>
             <input type="number" class="form-control" min="0" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
         </div>
-        <button type="button" class="upload-btn gray-border" (click)="clickUploadField()">
+        <button type="button" class="upload-btn gray-border" (click)="fileUpload.click()">
             <span class="material-symbols-rounded"> upload </span>
         </button>
         <input #fileUpload type="file" formControlName="file" hidden>
@@ -17,7 +17,7 @@
                 <option [value]="supplier.id" *ngFor="let supplier of suppliers"> {{ supplier.name }} </option>
             </select>
         </div>
-        <button type="button" class="add-btn" (click)="returnToggle()">
+        <button type="button" class="add-btn" (click)="batchForm.reset(); booleanEvent.emit(true);">
             <span class="material-symbols-rounded"> add </span>
         </button>
     </div>

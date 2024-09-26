@@ -6,13 +6,13 @@
         <div class="search-container">
             <input class="gray-border br" type="search" id="search-bar" placeholder="Search">
             <button class="search-btn gray-border br bold" type="submit"> Search </button>
-            <button class="button" class="filter-btn br gray-border" (click)="openFilterModal()">
+            <button class="button" class="filter-btn br gray-border" (click)="filterModal.style.display = 'block'">
                 <span class="material-symbols-rounded"> tune </span>
                 <p> Filter </p>
             </button>
         </div>
         <div class="button-container">
-            <button class="primary br gray-border" type="button" (click)="openAddDevModal()">
+            <button class="primary br gray-border" type="button" (click)="addDevModal.style.display = 'block'">
                 <span class="material-symbols-rounded"> add </span>
                 <p> Add </p>
             </button>
@@ -60,11 +60,11 @@
     <mat-paginator [pageSizeOptions]="[5, 10, 15]" aria-label="Select page of devices"></mat-paginator>
   </aside>
 
-  <div #addDevModal class="modal" id="add-device">
+  <div class="modal" #addDevModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> Add a device </h3>
-            <button type="button" class="close-btn" (click)="closeAddDevModal()">
+            <button type="button" class="close-btn" (click)="addDevModal.style.display = 'none'">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
@@ -93,11 +93,11 @@
     </div>
   </div>
 
-  <div #filterModal class="modal" id="filter">
+  <div class="modal" #filterModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> Filter </h3>
-            <button class="close-btn" type="button" (click)="closeFilterModal()">
+            <button class="close-btn" type="button" (click)="filterModal.style.display = 'none'">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
