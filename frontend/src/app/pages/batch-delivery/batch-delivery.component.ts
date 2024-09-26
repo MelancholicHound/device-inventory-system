@@ -5,6 +5,9 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu'
+import { MatButtonModule } from '@angular/material/button';
+
 import { forkJoin, map } from 'rxjs';
 
 import { BatchComponent } from '../../forms/batch/batch.component';
@@ -29,6 +32,8 @@ export interface BatchTable {
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
+        MatMenuModule,
+        MatButtonModule,
         BatchComponent,
         SupplierComponent
     ],
