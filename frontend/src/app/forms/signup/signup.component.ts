@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
@@ -25,6 +25,8 @@ import { ParamsService } from '../../util/services/params.service';
 
 export class SignupComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
+
+    @ViewChild('signupModal') signupModal!: ElementRef;
 
     signupForm!: FormGroup; otpForm!: FormGroup;
 
@@ -60,18 +62,6 @@ export class SignupComponent implements OnInit {
         this.signupForm = this.createSignupFormGroup();
         this.otpForm = this.createOTPFormGroup();
 
-        var modal = document.getElementById('otp-signup-modal') as HTMLDivElement;
-        var openModal = document.getElementById('open-signup-btn') as HTMLButtonElement;
-        var closeModal = document.getElementById('close-signup-btn') as HTMLButtonElement;
-
-        openModal.onclick = function() {
-            modal.style.display = 'block';
-        }
-
-        closeModal.onclick = function() {
-            modal.style.display = 'none';
-        }
-
         this.otpForm.get('numOne')?.valueChanges.subscribe(() => {
             let digit = document.getElementById('second-digit') as HTMLInputElement;
             digit.focus();
@@ -101,7 +91,7 @@ export class SignupComponent implements OnInit {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
         this.auth.signup(this.signupForm.value).subscribe(() => {
-            console.log('OTP sent to email.');
+            this.openOTPModal();
         }, (error) => {
             if (error.status) {
                 this.signupForm.reset();
@@ -124,7 +114,9 @@ export class SignupComponent implements OnInit {
         }, (error) => { console.log(error) });
     }
 
-    returnToggle() {
-        this.booleanEvent.emit(true);
-    }
+    returnToggle() { this.booleanEvent.emit(true) }
+
+    openOTPModal() { this.signupModal.nativeElement.style.display = 'block' }
+
+    closeOTPModal() { this.signupModal.nativeElement.style.display = 'none' }
 }

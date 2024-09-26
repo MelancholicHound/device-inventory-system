@@ -10,7 +10,10 @@
 
 .batch-details { gap: 5rem; }
 
-blockquote { gap: 10px; }
+blockquote {
+    gap: 10px;
+    font-size: 90%;
+}
 
 .output-label { text-decoration: underline; }
 

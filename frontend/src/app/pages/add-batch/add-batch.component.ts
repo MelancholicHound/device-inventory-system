@@ -8,7 +8,17 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+import { forkJoin, map } from 'rxjs';
+
 import { ParamsService } from '../../util/services/params.service';
+import { DeviceAioService } from '../../util/services/device-aio.service';
+import { DeviceComputerService } from '../../util/services/device-computer.service';
+import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+import { DevicePrinterService } from '../../util/services/device-printer.service';
+import { DeviceRouterService } from '../../util/services/device-router.service';
+import { DeviceScannerService } from '../../util/services/device-scanner.service';
+import { DeviceServerService } from '../../util/services/device-server.service';
+import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 export interface TableDevice {
     tag: string;
@@ -29,7 +39,15 @@ export interface TableDevice {
         NgFor
     ],
     providers: [
-        ParamsService
+        ParamsService,
+        DeviceAioService,
+        DeviceComputerService,
+        DeviceLaptopService,
+        DevicePrinterService,
+        DeviceRouterService,
+        DeviceScannerService,
+        DeviceServerService,
+        DeviceTabletService
     ],
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
@@ -53,6 +71,11 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     fetchedData: any; deviceSelected: any;
     isAddingBatch!: boolean;
 
+    aioData!: any; computerData!: any;
+    laptopData!: any; printerData!: any;
+    routerData!: any; scannerData!: any;
+    serverData!: any; tabletData!: any;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
 
@@ -60,7 +83,15 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     constructor(private router: Router,
                 private activeRoute: ActivatedRoute,
-                private _params: ParamsService) {
+                private _params: ParamsService,
+                private aioAuth: DeviceAioService,
+                private compAuth: DeviceComputerService,
+                private lapAuth: DeviceLaptopService,
+                private prntAuth: DevicePrinterService,
+                private rtAuth: DeviceRouterService,
+                private scanAuth: DeviceScannerService,
+                private svrAuth: DeviceServerService,
+                private tabAuth: DeviceTabletService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
                 this.activeRoute.queryParams.subscribe(params => { this.batchCounter = params['count'] });
                 const navigation = this.router.getCurrentNavigation();
@@ -76,7 +107,138 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     ngOnInit(): void {
         if (this.batchCounter) {
-            this._params.getBatchDetails(this.batchCounter).subscribe((data: any) => { this.batchDetails = data });
+            this._params.getBatchDetails(this.batchCounter).subscribe(
+                (data: any) => { this.batchDetails = data }
+            );
+            this.aioAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'All-In-One',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.aioData = data;
+                }
+            );
+            this.compAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Computer',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.compAuth = data;
+                }
+            );
+            this.lapAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Laptop',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.laptopData = data;
+                }
+            );
+            this.prntAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Printer',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.printerData = data;
+                }
+            );
+            this.rtAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Printer',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.routerData = data;
+                }
+            );
+            this.scanAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Scanner',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.scannerData = data;
+                }
+            );
+            this.svrAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Server',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.serverData = data;
+                }
+            );
+            this.tabAuth.getAllByBatchId(this.batchCounter).subscribe(
+                (data: any) => {
+                    const deviceData = data.map((items: TableDevice) => ({
+                        tag: items.tag,
+                        device: 'Tablet',
+                        division: items.division,
+                        section: items.section
+                    }));
+
+                    forkJoin(deviceData).subscribe((result: any) => {
+                        this.fetchedData.push(...result);
+                    });
+
+                    this.tabletData = data;
+                }
+            );
+
             this.isAddingBatch = true;
         } else if (this.batchEditDetails) {
             this.batchDetails = this.batchEditDetails;

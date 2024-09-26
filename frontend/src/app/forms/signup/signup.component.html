@@ -48,11 +48,11 @@
     </section>
 </form>
 
-<div class="modal" id="otp-signup-modal">
+<div class="modal" #signupModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> OTP Verification </h3>
-            <button type="button" class="close-btn" id="close-signup-btn">
+            <button type="button" class="close-btn" (click)="closeOTPModal()">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
