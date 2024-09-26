@@ -19,4 +19,9 @@ export class DeviceRouterService {
 
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
+
+    getAllByBatchId(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/routers/batch/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`routers/batch/${id}`)))
+    }
 }

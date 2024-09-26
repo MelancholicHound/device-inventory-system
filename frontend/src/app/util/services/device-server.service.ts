@@ -19,4 +19,9 @@ export class DeviceServerService {
 
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
+
+    getAllByBatchId(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/servers/batch/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`servers/batch/${id}`)));
+    }
 }
