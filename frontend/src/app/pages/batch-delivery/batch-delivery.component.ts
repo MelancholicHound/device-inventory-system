@@ -110,8 +110,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this._params.getAllBatches().subscribe((data: any) => {
             for (let i = 0; i < data.length; i++) {
                 if (row.formattedId === data[i].formattedId) {
-                  this._router.navigate(['add-batch'], { state: { details: data[i] } });
-                  event?.preventDefault();
+                    this._router.navigate(['add-batch'], { state: { details: data[i] }, queryParams: { branch: new Date().getTime() } });
+                    event?.preventDefault();
                 }
             }
         });

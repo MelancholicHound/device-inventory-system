@@ -85,7 +85,7 @@ export class BatchComponent implements OnInit, OnChanges {
                 this.router.navigate(['add-batch'], { queryParams: { count: this.counter } });
                 event?.preventDefault();
             }, (error) => { if (error) this.batchForm.reset() }
-        ); */ this.router.navigate(['add-batch'], { queryParams: { count: this.counter } }); event?.preventDefault();
+        ); */ this.router.navigate(['add-batch'], { queryParams: { count: this.counter, branch: new Date().getTime() } }); event?.preventDefault();
     }
 
     clickUploadField() { this.fileUpload.nativeElement.click() }
