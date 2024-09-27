@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
@@ -17,18 +17,16 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit, OnDestroy {
-    batchId = localStorage.getItem('batchcount'); selected: any;
+export class AddDeviceComponent {
+    batchDetails: any;
+    deviceCount: any; selected: any;
 
-    constructor(private router: Router) { }
-
-    ngOnInit(): void {
-        this.selected = localStorage.getItem('device');
-    }
-
-    ngOnDestroy(): void {
-        localStorage.removeItem('device');
-    }
+    constructor(private router: Router) {
+                const navigation = this.router.getCurrentNavigation();
+                if (navigation?.extras.state) {
+                    this.selected = navigation.extras.state['device'];
+                }
+     }
 
     backButton() { this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } }) }
 }

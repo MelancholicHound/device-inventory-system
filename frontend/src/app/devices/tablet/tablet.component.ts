@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
@@ -39,13 +40,16 @@ export class TabletComponent implements OnInit {
     tabletForm!: FormGroup;
 
     constructor(private params: ParamsService,
-                private tabAuth: DeviceTabletService) { }
+                private router: Router,
+                private tabAuth: DeviceTabletService) {
+                const navigation = this.router.getCurrentNavigation();
+                if (navigation?.extras.state) {
+                    this.deviceCount = navigation.extras.state['count'];
+                }
+    }
 
     ngOnInit(): void {
-        this.deviceCount = localStorage.getItem('count');
-        if (this.deviceCount) {
-            localStorage.removeItem('count');
-        }
+
     }
 
     getTabletBrandValue() {

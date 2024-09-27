@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
+import { state } from '@angular/animations';
 
 @Component({
   selector: 'batch',
@@ -75,11 +76,14 @@ export class BatchComponent implements OnInit, OnChanges {
     }
 
     addBatch() {
-        /* this._params.saveBatch(this.batchForm.value).subscribe(
+        this._params.saveBatch(this.batchForm.value).subscribe(
             () => {
-                this.router.navigate(['add-batch'], { queryParams: { count: this.counter } });
+                this.router.navigate(['add-batch'], {
+                    queryParams: { branch: new Date().getTime() },
+                    state: { addbatch: this.batchForm.value }
+                });
                 event?.preventDefault();
             }, (error) => { if (error) this.batchForm.reset() }
-        ); */ this.router.navigate(['add-batch'], { queryParams: { count: this.counter, branch: new Date().getTime() } }); event?.preventDefault();
+        );
     }
 }

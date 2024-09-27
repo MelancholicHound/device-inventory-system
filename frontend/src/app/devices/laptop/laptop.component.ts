@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
@@ -48,13 +49,16 @@ export class LaptopComponent implements OnInit {
     cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
 
     constructor(private params: ParamsService,
-                private laptopAuth: DeviceLaptopService) { }
+                private router: Router,
+                private laptopAuth: DeviceLaptopService) {
+                const navigation = this.router.getCurrentNavigation();
+                if (navigation?.extras.state) {
+                    this.deviceCount = navigation.extras.state['count'];
+                }
+    }
 
     ngOnInit(): void {
-        this.deviceCount = localStorage.getItem('count');
-        if (this.deviceCount) {
-            localStorage.removeItem('count');
-        }
+
     }
 
     getLaptopBrandValue() {

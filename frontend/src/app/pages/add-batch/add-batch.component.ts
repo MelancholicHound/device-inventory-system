@@ -66,8 +66,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     ];
     dataSource!: MatTableDataSource<TableDevice>;
 
-    batchDetails: any; batchCounter: any;
-    batchEditDetails: any;
+    batchDetails: any;
+    batchEditDetails: any; batchAddDetails: any;
     fetchedData!: any[]; deviceSelected: any;
     isAddingBatch!: boolean;
 
@@ -81,8 +81,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
-                private activeRoute: ActivatedRoute,
-                private _params: ParamsService,
                 private aioAuth: DeviceAioService,
                 private compAuth: DeviceComputerService,
                 private lapAuth: DeviceLaptopService,
@@ -92,10 +90,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 private svrAuth: DeviceServerService,
                 private tabAuth: DeviceTabletService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
-                this.activeRoute.queryParams.subscribe(params => { this.batchCounter = params['count'] });
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
-                  this.batchEditDetails = navigation.extras.state['details'];
+                    this.batchEditDetails = navigation.extras.state['details'];
+                    this.batchAddDetails = navigation.extras.state['addbatch'];
                 }
     }
 
@@ -105,11 +103,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-        if (this.batchCounter) {
-            this._params.getBatchDetails(this.batchCounter).subscribe(
-                (data: any) => { this.batchDetails = data }
-            );
-
+        if (this.batchAddDetails) {
+            this.batchDetails = this.batchAddDetails;
             this.isAddingBatch = true;
         } else if (this.batchEditDetails) {
             this.batchDetails = this.batchEditDetails;
@@ -122,9 +117,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         let count = document.getElementById('count') as HTMLInputElement;
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`/add-device/${this.devices[i].indicator}`], { queryParams: { branch: new Date().getTime() } });
-                localStorage.setItem('device', this.devices[i].name);
-                localStorage.setItem('devicecount', count.value);
+                this.router.navigate([`/add-device/${this.devices[i].indicator}`], {
+                    queryParams: { branch: new Date().getTime() },
+                    state: { device: this.devices[i].name, count: count.value }
+                });
             }
         }
     }

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceScannerService } from '../../util/services/device-scanner.service';
@@ -35,13 +36,16 @@ export class ScannerComponent implements OnInit {
     scannerForm!: FormGroup;
 
     constructor(private params: ParamsService,
-                private scanAuth: DeviceScannerService) { }
+                private router: Router,
+                private scanAuth: DeviceScannerService) {
+                const navigation = this.router.getCurrentNavigation();
+                if (navigation?.extras.state) {
+                    this.deviceCount = navigation.extras.state['count'];
+                }
+    }
 
     ngOnInit(): void {
-        this.deviceCount = localStorage.getItem('count');
-        if (this.deviceCount) {
-            localStorage.removeItem('count');
-        }
+
     }
 
     getScannerBrandValue() {
