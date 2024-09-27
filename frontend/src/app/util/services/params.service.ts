@@ -94,12 +94,12 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`suppliers/${id}`)));
     }
 
-    saveSupplier(supplier: Omit<Supplier, 'supplierId'>): Observable<Supplier> {
+    saveSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
         return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
     }
 
-    saveBatch(batch: Omit<Batch, 'batchId'>): Observable<Batch> {
+    saveBatch(batch: Omit<Batch, 'id'>): Observable<Batch> {
         return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
     }

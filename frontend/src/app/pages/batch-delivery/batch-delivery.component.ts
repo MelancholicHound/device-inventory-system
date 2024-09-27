@@ -46,7 +46,7 @@ export interface BatchTable {
 
 export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
-    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any; counter!: number;;
+    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any; counter!: number;
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
 
@@ -56,7 +56,9 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild('addBatchModal') addBatchModal!: ElementRef;
 
     constructor(private _router: Router,
-                private _params: ParamsService) { this.dataSource = new MatTableDataSource(this.fetchedData); }
+                private _params: ParamsService) {
+                this.dataSource = new MatTableDataSource(this.fetchedData);
+    }
 
     ngAfterViewInit(): void {
         this.dataSource.paginator = this.paginator;
@@ -103,16 +105,17 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     onClickEdit(row: any) {
-        this._params.getAllBatches().subscribe((data: any) => {
-            for (let i = 0; i < data.length; i++) {
-                if (row.formattedId === data[i].formattedId) {
-                    this._router.navigate(['add-batch'], {
-                        queryParams: { branch: new Date().getTime() },
-                        state: { details: data[i] }
-                    });
-                    event?.preventDefault();
+        this._params.getAllBatches().subscribe({
+            next: (data: any) => {
+                for (let i = 0; i < data.length; i++) {
+                    if (row.formattedId === data[i].formattedId) {
+                        this._router.navigate(['add-batch'], {
+                            queryParams: { branch: new Date().getTime() },
+                            state: { details: data[i] }
+                        });
+                    }
                 }
-            }
+            }, error: (error: any) => { console.log(error) }
         });
     }
 }

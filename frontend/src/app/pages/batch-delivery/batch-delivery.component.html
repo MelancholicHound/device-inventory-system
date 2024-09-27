@@ -51,7 +51,7 @@
             <td class="mat-cell" colspan="4"> No data matching the filter: {{ input.value }} </td>
         </tr>
     </table>
-    <mat-paginator [pageSizeOptions]="[1, 2, 3]" aria-label="Select page of batches"></mat-paginator>
+    <mat-paginator [pageSizeOptions]="[5, 10, 15]" aria-label="Select page of batches"></mat-paginator>
 </aside>
 
 <div class="modal" #addBatchModal>
@@ -64,8 +64,7 @@
         </div>
         <div class="modal-body">
             <batch [hidden]="!toggleBatchForm"
-                  (booleanEvent)="toggleSupplier($event)"
-                  [batchCounter]="counter" />
+                  (booleanEvent)="toggleSupplier($event)" />
             <supplier [hidden]="!toggleSupplierForm"
                       (booleanEvent)="toggleBatch($event)" />
         </div>

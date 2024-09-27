@@ -90,11 +90,11 @@ export class SignupComponent implements OnInit {
     signup() {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
-        this.auth.signup(this.signupForm.value).subscribe(() => {
-            this.signupModal.nativeElement.style.display = 'block';
-        }, (error) => {
-            if (error.status) {
+        this.auth.signup(this.signupForm.value).subscribe({
+            next: () => { this.signupModal.nativeElement.style.display = 'block' },
+            error: (error) => {
                 this.signupForm.reset();
+                console.log(error);
             }
         });
     }
@@ -102,15 +102,19 @@ export class SignupComponent implements OnInit {
     sendOTP() {
         let otp = this.otpForm.get('numOne')?.value + this.otpForm.get('numTwo')?.value + this.otpForm.get('numThree')?.value + this.otpForm.get('numFour')?.value;
         let label = document.querySelector('.footer-label') as HTMLParagraphElement;
-        this.auth.verifyOTP(`${otp}`).subscribe(() => {
-            label.textContent = 'OTP verification complete. You may now proceed to login.';
-            label.style.color = '#1d1d1f';
-            setTimeout(() => {
-                const closeModal = document.getElementById('close-signup-btn') as HTMLButtonElement;
-                const backButton = document.getElementById('back-to-login-btn') as HTMLButtonElement;
-                closeModal.click();
-                backButton.click();
-            }, 3000);
-        }, (error) => { console.log(error) });
+        this.auth.verifyOTP(`${otp}`).subscribe({
+            next: () => {
+                label.textContent = 'OTP verification complete. You may now proceed to login.';
+                label.style.color = '#1d1d1f';
+                setTimeout(() => {
+                    this.signupModal.nativeElement.style.display = 'none';
+                    this.booleanEvent.emit(true);
+                }, 2000);
+            },
+            error: (error) => {
+                this.otpForm.reset();
+                console.log(error);
+            }
+        });
     }
 }

@@ -1,10 +1,9 @@
-import { Component, OnInit, OnChanges, SimpleChanges, Output, Input, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
-import { state } from '@angular/animations';
 
 @Component({
   selector: 'batch',
@@ -20,8 +19,7 @@ import { state } from '@angular/animations';
   templateUrl: './batch.component.html',
   styleUrl: './batch.component.scss'
 })
-export class BatchComponent implements OnInit, OnChanges {
-    @Input() batchCounter: any;
+export class BatchComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
 
     @ViewChild('fileUpload') fileUpload!: ElementRef;
@@ -69,21 +67,19 @@ export class BatchComponent implements OnInit, OnChanges {
         });
     }
 
-    ngOnChanges(changes: SimpleChanges): void {
-        if (changes['batchCounter']) {
-            this.counter = changes['batchCounter'].currentValue;
-        }
-    }
-
     addBatch() {
-        this._params.saveBatch(this.batchForm.value).subscribe(
-            () => {
+        this._params.saveBatch(this.batchForm.value).subscribe({
+            next: (data: any) => {
                 this.router.navigate(['add-batch'], {
                     queryParams: { branch: new Date().getTime() },
-                    state: { addbatch: this.batchForm.value }
+                    state: { addbatch: data }
                 });
                 event?.preventDefault();
-            }, (error) => { if (error) this.batchForm.reset() }
-        );
+            },
+            error: (error) => {
+                console.log(error);
+                this.batchForm.reset();
+            }
+        });
     }
 }

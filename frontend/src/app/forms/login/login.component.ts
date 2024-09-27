@@ -37,14 +37,12 @@ export class LoginComponent implements OnInit {
     }
 
     login() {
-        this.auth.login(this.loginForm.value.email, this.loginForm.value.password).subscribe(
-          () => { console.log('Logged'); },
-          (error) => {
-              if (error) {
-                  this.loginForm.reset();
-                  console.log(error);
-              }
-          }
-        );
+        this.auth.login(this.loginForm.value.email, this.loginForm.value.password).subscribe({
+            next: () => { console.log('User Logged In') },
+            error: (error) => {
+                this.loginForm.reset();
+                console.log(error);
+            }
+        });
     }
 }

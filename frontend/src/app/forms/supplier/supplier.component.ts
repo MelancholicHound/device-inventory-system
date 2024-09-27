@@ -41,9 +41,15 @@ export class SupplierComponent implements OnInit {
     }
 
     saveSupplier() {
-        this._params.saveSupplier(this.supplierForm.value).subscribe(() => {
-            this.booleanEvent.emit(true);
-            this.supplierForm.reset();
+        this._params.saveSupplier(this.supplierForm.value).subscribe({
+            next: () => {
+                this.booleanEvent.emit(true);
+                this.supplierForm.reset();
+            },
+            error: (error) => {
+                this.supplierForm.reset();
+                console.log(error);
+            }
         });
     }
 }

@@ -1,14 +1,12 @@
 import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { NgFor } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-
-import { forkJoin, map } from 'rxjs';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
@@ -119,7 +117,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             if (selected.value === this.devices[i].name) {
                 this.router.navigate([`/add-device/${this.devices[i].indicator}`], {
                     queryParams: { branch: new Date().getTime() },
-                    state: { device: this.devices[i].name, count: count.value }
+                    state: { device: this.devices[i].name, count: count.value, batchid: this.batchDetails.id }
                 });
             }
         }
