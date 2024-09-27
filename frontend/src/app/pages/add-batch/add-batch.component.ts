@@ -112,8 +112,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
             this.isAddingBatch = true;
         } else if (this.batchEditDetails) {
-            this.isAddingBatch = false;
             this.batchDetails = this.batchEditDetails;
+            this.isAddingBatch = false;
         }
     }
 
