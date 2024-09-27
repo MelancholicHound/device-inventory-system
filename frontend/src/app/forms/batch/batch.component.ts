@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
@@ -8,6 +8,7 @@ import { ParamsService } from '../../util/services/params.service';
 @Component({
   selector: 'batch',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
       ReactiveFormsModule,
       FormsModule,
