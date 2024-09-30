@@ -139,4 +139,18 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
         return batchField === this.deleteRow?.formattedId;
     }
+
+    deleteBatch(batchId: any) {
+        this._params.getAllBatches().subscribe({
+            next: (data: any) => {
+                for (let i = 0; i < data.length; i++) {
+                    if (batchId === data[i].formattedId) {
+                        this._params.deleteBatch(data[i].id).subscribe();
+                        this.deletePrompt.nativeElement.style.display = 'none';
+                    }
+                }
+            },
+            error: (error: any) => { console.log(error) }
+        });
+    }
 }

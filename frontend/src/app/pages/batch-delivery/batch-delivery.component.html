@@ -79,13 +79,13 @@
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
-        <div class="modal-body delete-msg">
+        <form class="modal-body delete-msg">
             <p class="msg"> This action <b> CANNOT </b> be undone. This will permanently delete Batch ID <b> {{ deleteRow?.formattedId }} </b>. This will also remove all associated data. </p>
-            <form class="prompt" [formGroup]="deleteBatchForm">
+            <div class="prompt" [formGroup]="deleteBatchForm">
                 <label for="batch-type" class="form-label"> Please type Batch ID to confirm </label>
                 <input type="text" id="batch-type" class="form-control" formControlName="batchId">
-            </form>
-            <button class="delete-btn" [disabled]="!deleteBatchForm.dirty || !deleteBatchValidator()"> I understand, delete this batch. </button>
-        </div>
+            </div>
+            <button class="delete-btn" [disabled]="!deleteBatchForm.dirty || !deleteBatchValidator()" (click)="deleteBatch(deleteRow?.formattedId)"> I understand, delete this batch. </button>
+        </form>
     </div>
 </div>
