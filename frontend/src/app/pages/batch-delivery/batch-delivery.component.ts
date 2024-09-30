@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
+import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -33,6 +34,8 @@ export interface BatchTable {
         MatPaginatorModule,
         MatMenuModule,
         MatButtonModule,
+        FormsModule,
+        ReactiveFormsModule,
         BatchComponent,
         SupplierComponent
     ],
@@ -45,7 +48,9 @@ export interface BatchTable {
 
 export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
-    dataSource!: MatTableDataSource<BatchTable>; fetchedData!: any; counter!: number;
+    dataSource!: MatTableDataSource<BatchTable>;
+    fetchedData: any; counter!: number; deleteRow: any;
+    deleteBatchForm!: FormGroup;
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
 
@@ -53,6 +58,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild(MatSort) sort!: MatSort;
 
     @ViewChild('addBatchModal') addBatchModal!: ElementRef;
+    @ViewChild('deletePrompt') deletePrompt!: ElementRef;
 
     constructor(private _router: Router,
                 private _params: ParamsService) {
@@ -65,6 +71,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
+        this.deleteBatchForm = this.createDeleteBatchForm();
         this._params.getAllBatches().subscribe((data: BatchTable[]) => {
             const batchData = data.map((item: BatchTable) => {
                 return this._params.getSupplierById(item.supplierId).pipe(
@@ -82,6 +89,10 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                 this.counter = this.fetchedData.length + 1;
             });
         });
+    }
+
+    createDeleteBatchForm(): FormGroup {
+        return new FormGroup({ batchId: new FormControl('', [Validators.required]) });
     }
 
     applyFilter(event: Event) {
@@ -116,5 +127,16 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                 }
             }, error: (error: any) => { console.log(error) }
         });
+    }
+
+    onClickDelete(row: any) {
+        this.deleteRow = row;
+        this.deletePrompt.nativeElement.style.display = 'block';
+    }
+
+    deleteBatchValidator() {
+        const batchField = this.deleteBatchForm.get('batchId')?.value;
+
+        return batchField === this.deleteRow?.formattedId;
     }
 }

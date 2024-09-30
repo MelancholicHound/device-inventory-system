@@ -39,7 +39,7 @@
                     <button mat-menu-item (click)="onClickEdit(row)">
                         Edit
                     </button>
-                    <button mat-menu-item>
+                    <button mat-menu-item (click)="onClickDelete(row)">
                         Delete
                     </button>
                 </mat-menu>
@@ -67,6 +67,25 @@
                   (booleanEvent)="toggleSupplier($event)" />
             <supplier [hidden]="!toggleSupplierForm"
                       (booleanEvent)="toggleBatch($event)" />
+        </div>
+    </div>
+</div>
+
+<div class="modal" #deletePrompt>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Are you sure? </h3>
+            <button class="close-btn" type="button" (click)="deletePrompt.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body delete-msg">
+            <p class="msg"> This action <b> CANNOT </b> be undone. This will permanently delete Batch ID <b> {{ deleteRow?.formattedId }} </b>. This will also remove all associated data. </p>
+            <form class="prompt" [formGroup]="deleteBatchForm">
+                <label for="batch-type" class="form-label"> Please type Batch ID to confirm </label>
+                <input type="text" id="batch-type" class="form-control" formControlName="batchId">
+            </form>
+            <button class="delete-btn" [disabled]="!deleteBatchForm.dirty || !deleteBatchValidator()"> I understand, delete this batch. </button>
         </div>
     </div>
 </div>

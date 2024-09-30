@@ -103,7 +103,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     ngOnInit(): void {
         if (this.batchAddDetails) {
             this.batchDetails = this.batchAddDetails;
-            console.log(this.batchDetails);
             this.isAddingBatch = true;
         } else if (this.batchEditDetails) {
             this.batchDetails = this.batchEditDetails;
