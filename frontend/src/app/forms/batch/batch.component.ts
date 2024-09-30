@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
+import { tap } from 'rxjs/operators';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -27,7 +28,6 @@ export class BatchComponent implements OnInit {
     batchForm!: FormGroup; counter!: any;
 
     suppliers: any[] = [];
-    private prevSuppliers: any[] = [];
     event!: Event;
 
     constructor(private router: Router,
@@ -49,6 +49,7 @@ export class BatchComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
+        this._params.getSuppliers().subscribe((value: any[]) => { this.suppliers = value });
 
         let checkbox = document.getElementById('not-tested') as HTMLInputElement;
         let testedDate = document.getElementById('date-tested') as HTMLInputElement;

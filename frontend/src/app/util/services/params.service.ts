@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
-import { catchError, first } from 'rxjs/operators';
+import { Observable, BehaviorSubject, timer } from 'rxjs';
+import { catchError, first, switchMap } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
 
@@ -17,12 +17,34 @@ export class ParamsService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private token = localStorage.getItem('token');
 
+    private supplierSubject: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
+
     httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' , 'Authorization' : `Bearer ${this.token}` })
     }
 
     constructor(private http: HttpClient,
-                private errorHandler: ErrorHandlerService) { }
+                private errorHandler: ErrorHandlerService) {
+                this.startPolling();
+    }
+
+    private fetchSuppliers(): Observable<any[]> {
+      return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
+      .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
+    }
+
+    private startPolling() {
+        timer(0, 1000)
+        .pipe(switchMap(() => this.fetchSuppliers()))
+        .subscribe({
+            next: (suppliers: any[]) => {
+                this.supplierSubject.next(suppliers);
+            },
+            error: (error: any) => {
+                console.log(error);
+            }
+        });
+    }
 
     getAllDivisions(): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions`, this.httpOptions)
@@ -84,9 +106,8 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/video-card-capacities')));
     }
 
-    getSuppliers(): Observable<any> {
-        return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
+    getSuppliers(): Observable<any[]> {
+        return this.supplierSubject.asObservable();
     }
 
     getSupplierById(id: number): Observable<any> {
