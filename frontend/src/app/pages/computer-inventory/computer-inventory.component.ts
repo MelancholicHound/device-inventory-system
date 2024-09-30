@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -16,7 +16,6 @@ export interface DeviceTable {
 @Component({
     selector: 'app-computer-inventory',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatFormFieldModule,
         MatInputModule,

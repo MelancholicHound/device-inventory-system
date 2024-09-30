@@ -48,6 +48,7 @@ export class SupplierComponent implements OnInit {
             },
             error: (error) => {
                 this.supplierForm.reset();
+                this.booleanEvent.emit(false);
                 console.log(error);
             }
         });

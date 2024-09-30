@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, OnInit, ChangeDetectionStrategy, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -25,7 +25,6 @@ export interface BatchTable {
 @Component({
     selector: 'app-batch-delivery',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [
         MatFormFieldModule,
         MatInputModule,

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
@@ -8,7 +8,6 @@ import { ParamsService } from '../../util/services/params.service';
 @Component({
   selector: 'batch',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
       ReactiveFormsModule,
       FormsModule,
@@ -25,9 +24,10 @@ export class BatchComponent implements OnInit {
 
     @ViewChild('fileUpload') fileUpload!: ElementRef;
 
-    batchForm!: FormGroup;
-    suppliers: any; counter!: any;
+    batchForm!: FormGroup; counter!: any;
 
+    suppliers: any[] = [];
+    private prevSuppliers: any[] = [];
     event!: Event;
 
     constructor(private router: Router,
@@ -49,7 +49,6 @@ export class BatchComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
-        this._params.getSuppliers().subscribe(res => this.suppliers = res);
 
         let checkbox = document.getElementById('not-tested') as HTMLInputElement;
         let testedDate = document.getElementById('date-tested') as HTMLInputElement;
@@ -67,6 +66,7 @@ export class BatchComponent implements OnInit {
             testedDateControl?.updateValueAndValidity();
         });
     }
+
 
     addBatch() {
         this._params.saveBatch(this.batchForm.value).subscribe({
