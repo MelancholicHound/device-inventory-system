@@ -114,6 +114,21 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.toggleSupplierForm = value;
     }
 
+    onClickView(row: any) {
+        this._params.getAllBatches().subscribe({
+            next: (data: any) => {
+                for (let i = 0; i < data.length; i++) {
+                    if (row.formattedId === data[i].formattedId) {
+                        this._router.navigate(['add-batch'], {
+                            queryParams: { branch: new Date().getTime() },
+                            state: { viewdetails: data[i] }
+                        });
+                    }
+                }
+            }
+        })
+    }
+
     onClickEdit(row: any) {
         this._params.getAllBatches().subscribe({
             next: (data: any) => {
@@ -121,7 +136,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                     if (row.formattedId === data[i].formattedId) {
                         this._router.navigate(['add-batch'], {
                             queryParams: { branch: new Date().getTime() },
-                            state: { details: data[i] }
+                            state: { editdetails: data[i] }
                         });
                     }
                 }

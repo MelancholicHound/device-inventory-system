@@ -65,9 +65,9 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     dataSource!: MatTableDataSource<TableDevice>;
 
     batchDetails: any;
-    batchEditDetails: any; batchAddDetails: any;
+    batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
     fetchedData!: any[]; deviceSelected: any;
-    isAddingBatch!: boolean;
+    isAddingBatch!: boolean; isViewingBatch!: boolean;
 
     aioData!: any; computerData!: any;
     laptopData!: any; printerData!: any;
@@ -90,7 +90,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
-                    this.batchEditDetails = navigation.extras.state['details'];
+                    this.batchViewDetails = navigation.extras.state['viewdetails']
+                    this.batchEditDetails = navigation.extras.state['editdetails'];
                     this.batchAddDetails = navigation.extras.state['addbatch'];
                 }
     }
@@ -104,8 +105,13 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         if (this.batchAddDetails) {
             this.batchDetails = this.batchAddDetails;
             this.isAddingBatch = true;
+            this.isViewingBatch = false;
         } else if (this.batchEditDetails) {
             this.batchDetails = this.batchEditDetails;
+            this.isAddingBatch = false;
+            this.isViewingBatch = false;
+        } else if (this.batchViewDetails) {
+            this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
     }

@@ -3,7 +3,7 @@
         <header class="page-header">
             <a class="page-title"> Batch Delivery </a>
             <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
-            <a class="page-title current"> {{ isAddingBatch ? 'Add' : 'Edit' }} Batch </a>
+            <a class="page-title current"> {{ isViewingBatch ? 'View' : isAddingBatch ? 'Add' : 'Edit' }} Batch </a>
         </header>
         <button type="button" class="back-btn" (click)="backButton()">
             <span class="material-symbols-rounded"> reply </span>
