@@ -4,11 +4,15 @@
             <label for="purchase-req"> PR Number: </label>
             <input type="number" class="form-control" min="0" id="purchase-req" placeholder="Enter PR Number" formControlName="number">
         </div>
-        <button type="button" class="upload-btn gray-border" (click)="fileUpload.click()">
+        <button class="upload-btn gray-border" type="button" (click)="fileUpload.click()" *ngIf="!selectedFile">
             <span class="material-symbols-rounded"> upload </span>
         </button>
-        <input #fileUpload type="file" (change)="onFileSelected($event)" hidden>
+        <button class="cancel-btn gray-border" type="button" (click)="cancelUpload()" *ngIf="selectedFile">
+            <span class="material-symbols-rounded"> block </span>
+        </button>
+        <input #fileUpload type="file" id="file-upload" (change)="onFileSelected($event)" hidden>
     </div>
+    <p class="file-name" *ngIf="selectedFile"> File Name: {{ fileUploaded.name }}</p>
     <div class="supplier-field">
         <div class="form-container">
             <label for="supplier"> Supplier </label>

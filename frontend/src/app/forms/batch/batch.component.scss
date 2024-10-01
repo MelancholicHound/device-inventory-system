@@ -10,7 +10,10 @@ form {
     width: 100%;
 }
 
-.upload-btn { border-radius: 2px; }
+.file-name { font-size: 0.8rem; }
+
+.upload-btn,
+.cancel-btn { border-radius: 2px; }
 
 select { padding: 3px; }
 
@@ -46,7 +49,8 @@ footer {
 }
 
 .add-btn,
-.upload-btn {
+.upload-btn,
+.cancel-btn {
     width: 2.15rem;
     position: absolute;
     bottom: 0;
@@ -67,6 +71,7 @@ input,
 select,
 .add-btn,
 .upload-btn,
+.cancel-btn,
 .radio-container { height: 2.15rem; }
 
 form,

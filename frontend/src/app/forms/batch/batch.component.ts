@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgFor } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -11,7 +11,7 @@ import { ParamsService } from '../../util/services/params.service';
     imports: [
         ReactiveFormsModule,
         FormsModule,
-        NgFor
+        NgFor, NgIf
     ],
     providers: [
         ParamsService
@@ -26,7 +26,7 @@ export class BatchComponent implements OnInit {
 
     batchForm!: FormGroup; counter!: any;
 
-    suppliers: any[] = [];
+    suppliers: any[] = []; fileUploaded!: File;
     event!: Event; selectedFile: string = '';
 
     constructor(private router: Router,
@@ -78,6 +78,7 @@ export class BatchComponent implements OnInit {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
             const file = input.files[0];
+            this.fileUploaded = input.files[0];
             const reader = new FileReader();
 
             reader.onload = () => {
@@ -89,11 +90,15 @@ export class BatchComponent implements OnInit {
         }
     }
 
+    cancelUpload() {
+        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+        fileInput.value = '';
+        this.selectedFile = '';
+    }
+
     addBatch() {
         this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
-        console.log(this.batchForm.value);
-
-        /* this._params.saveBatch(this.batchForm.value).subscribe({
+        this._params.saveBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], {
                     queryParams: { branch: new Date().getTime() },
@@ -106,6 +111,6 @@ export class BatchComponent implements OnInit {
                 this.batchForm.reset();
                 return;
             }
-        }); */
+        });
     }
 }
