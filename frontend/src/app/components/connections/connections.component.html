@@ -1,6 +1,9 @@
 <section>
     <div class="form-field" *ngFor="let connection of fetchedConnections">
-        <input type="checkbox" id="check-box">
-        <label for="check-box"> {{ connection.connectionName }} </label>
+        <input type="checkbox"
+               id="check-box"
+               [checked]="connection.checked"
+               (change)="onCheckboxChange(connection, $event)">
+        <label for="check-box"> {{ connection.name }} </label>
     </div>
 </section>

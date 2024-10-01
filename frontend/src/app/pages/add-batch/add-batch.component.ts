@@ -124,7 +124,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             if (selected.value === this.devices[i].name) {
                 this.router.navigate([`/add-device/${this.devices[i].indicator}`], {
                     queryParams: { branch: new Date().getTime() },
-                    state: { device: this.devices[i].name, count: count.value, batchid: this.batchDetails.id }
+                    state: { device: this.devices[i].name, count: count.value, batchnumber: this.batchDetails.id, batchid: this.batchDetails.formattedId }
                 });
             }
         }

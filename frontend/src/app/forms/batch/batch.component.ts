@@ -32,20 +32,6 @@ export class BatchComponent implements OnInit {
     constructor(private router: Router,
                 private _params: ParamsService) { }
 
-    createBatchFormGroup(): FormGroup {
-        return new FormGroup({
-            validUntil: new FormControl('', [Validators.required]),
-            dateDelivered: new FormControl('', [Validators.required]),
-            dateTested: new FormControl('', [Validators.required]),
-            supplierId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            serviceCenter: new FormControl('', [Validators.required]),
-            purchaseRequestDTO: new FormGroup({
-                number: new FormControl('', [Validators.required]),
-                file: new FormControl()
-            })
-        });
-    }
-
     private bufferToHex(buffer: ArrayBuffer): string {
         const bytes = new Uint8Array(buffer);
         return Array.from(bytes)
@@ -71,6 +57,20 @@ export class BatchComponent implements OnInit {
             }
 
             testedDateControl?.updateValueAndValidity();
+        });
+    }
+
+    createBatchFormGroup(): FormGroup {
+        return new FormGroup({
+            validUntil: new FormControl('', [Validators.required]),
+            dateDelivered: new FormControl('', [Validators.required]),
+            dateTested: new FormControl('', [Validators.required]),
+            supplierId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            serviceCenter: new FormControl('', [Validators.required]),
+            purchaseRequestDTO: new FormGroup({
+                number: new FormControl('', [Validators.required]),
+                file: new FormControl()
+            })
         });
     }
 

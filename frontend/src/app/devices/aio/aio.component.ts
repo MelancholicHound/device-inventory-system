@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
+import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
     selector: 'app-aio',
@@ -23,7 +24,7 @@ import { DeviceAioService } from '../../util/services/device-aio.service';
 })
 export class AioComponent implements OnInit {
     device = { name: 'AIO', indicator: 'aio' };
-    deviceCount!: any;
+    deviceCount: any; batchId: any; batchNumber: any;
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
     isAIOBrandToggled: boolean = false;
@@ -54,6 +55,8 @@ export class AioComponent implements OnInit {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
+                    this.batchNumber = navigation.extras.state['batchnumber'];
+                    this.batchId = navigation.extras.state['batchid'];
                 }
     }
 
@@ -61,37 +64,35 @@ export class AioComponent implements OnInit {
 
     }
 
-    forSubmissionAIO(): FormGroup {
-        return new FormGroup({
-            batchId: new FormControl(''),
-            sectionId: new FormControl(`${this.secId}`),
-            upsId: new FormControl(''),
-            peripheralIds: new FormControl([]),
-            storageRequests: new FormControl(`${this.storageIds}`),
-            ramIds: new FormControl(`${this.ramIds}`),
-            videoCardRequest: new FormControl(`${this.gpuId}`),
-            cpuRequest: new FormControl(`${this.cpuReq}`),
-            brandId: new FormControl(`${this.aioBrandId}`),
-            deviceSoftwarerequest: new FormControl(''),
-            connectionIds: new FormControl(`${this.connsIds}`),
-            model: new FormControl(``)
-        })
-    }
-
     createAIOFormGroup(): FormGroup {
         return new FormGroup({
-            aioBrand: new FormControl('', [Validators.required]),
-            aioModel: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            division: new FormControl('', [Validators.required]),
-            section: new FormControl('', [Validators.required]),
-            procBrand: new FormControl('', [Validators.required]),
-            procSeries: new FormControl('', [Validators.required]),
-            procModel: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            ramSize: new FormControl('', [Validators.required]),
-            screenSize: new FormControl('', [Validators.required]),
-            videoCard: new FormControl('', [Validators.required]),
-            storageType: new FormControl('', [Validators.required]),
-            storageSize: new FormControl('', [Validators.required])
+            batchId: new FormControl(this.batchNumber, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+            peripheralIds: new FormArray([], [Validators.required , Validators.pattern('^[0-9]*$')]),
+            storageRequests: new FormArray([
+                new FormGroup({
+                    capacityId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+                    type: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')])
+                })
+            ], [Validators.required]),
+            ramRequests: new FormArray([
+                new FormGroup({ capacityId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]) })
+            ], [Validators.required]),
+            videoCardRequest: new FormArray([], [Validators.required]),
+            cpuRequest: new FormGroup({
+                cpuBrandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+                cpuBrandSeriesId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+                cpuModifier: new FormControl('', [Validators.required])
+            }),
+            brandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+            deviceSoftwareRequest: new FormGroup({
+                operatingSystemId: new FormControl([Validators.pattern('^[0-9]*$')]),
+                productivityToolId: new FormControl([Validators.pattern('^[0-9]*$')]),
+                securityId: new FormControl([Validators.pattern('^[0-9]*$')])
+            }),
+            connectionIds: new FormArray([]),
+            model: new FormControl('', [Validators.required]),
+            screenSize: new FormControl([], [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 

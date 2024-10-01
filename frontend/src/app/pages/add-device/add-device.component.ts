@@ -5,6 +5,8 @@ import { PeripheralsComponent } from '../../components/peripherals/peripherals.c
 import { ConnectionsComponent } from '../../components/connections/connections.component';
 import { SoftwaresComponent } from '../../components/softwares/softwares.component';
 
+
+
 @Component({
     selector: 'app-add-device',
     standalone: true,
@@ -18,8 +20,8 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
     styleUrl: './add-device.component.scss'
 })
 export class AddDeviceComponent {
-    batchDetails: any;
-    deviceCount: any; selected: any;
+    batchDetails: any; deviceCount: any; selected: any;
+    connections: any[] = [];
 
     constructor(private router: Router) {
                 const navigation = this.router.getCurrentNavigation();
@@ -28,5 +30,9 @@ export class AddDeviceComponent {
                 }
      }
 
-    backButton() { this.router.navigate(['/add-batch'], { queryParams: { ref: new Date().getTime() } }) }
+    onConnectionChanges(checkedIds: number[]): void {
+        this.connections = checkedIds;
+    }
+
+    backButton() { this.router.navigate(['add-batch'], { queryParams: { branch: new Date().getTime() } }) }
 }
