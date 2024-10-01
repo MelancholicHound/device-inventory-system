@@ -79,6 +79,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
+                private _params: ParamsService,
                 private aioAuth: DeviceAioService,
                 private compAuth: DeviceComputerService,
                 private lapAuth: DeviceLaptopService,
@@ -129,5 +130,22 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
     }
 
-    backButton() { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) }
+    backButton() {
+        if (this.batchAddDetails) {
+            this._params.getAllBatches().subscribe({
+                next: (data: any) => {
+                    for (let i = 0; i < data.length; i++) {
+                        if (this.batchDetails.formattedId === data[i].formattedId) {
+                            this._params.deleteBatch(data[i].id).subscribe({
+                                next: () => { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) },
+                                error: (error: any) => { console.log(error) }
+                            });
+                        }
+                    }
+                }
+            });
+        } else {
+            this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } });
+        }
+    }
 }
