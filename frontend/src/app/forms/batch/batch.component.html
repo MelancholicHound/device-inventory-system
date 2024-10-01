@@ -7,7 +7,7 @@
         <button type="button" class="upload-btn gray-border" (click)="fileUpload.click()">
             <span class="material-symbols-rounded"> upload </span>
         </button>
-        <input #fileUpload type="file" formControlName="file" hidden>
+        <input #fileUpload type="file" (change)="onFileSelected($event)" hidden>
     </div>
     <div class="supplier-field">
         <div class="form-container">

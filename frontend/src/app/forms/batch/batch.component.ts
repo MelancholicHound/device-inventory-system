@@ -2,23 +2,22 @@ import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor } from '@angular/common';
-import { tap } from 'rxjs/operators';
 
 import { ParamsService } from '../../util/services/params.service';
 
 @Component({
-  selector: 'batch',
-  standalone: true,
-  imports: [
-      ReactiveFormsModule,
-      FormsModule,
-      NgFor
-  ],
-  providers: [
-      ParamsService
-  ],
-  templateUrl: './batch.component.html',
-  styleUrl: './batch.component.scss'
+    selector: 'batch',
+    standalone: true,
+    imports: [
+        ReactiveFormsModule,
+        FormsModule,
+        NgFor
+    ],
+    providers: [
+        ParamsService
+    ],
+    templateUrl: './batch.component.html',
+    styleUrl: './batch.component.scss'
 })
 export class BatchComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
@@ -28,7 +27,7 @@ export class BatchComponent implements OnInit {
     batchForm!: FormGroup; counter!: any;
 
     suppliers: any[] = [];
-    event!: Event;
+    event!: Event; selectedFile: string = '';
 
     constructor(private router: Router,
                 private _params: ParamsService) { }
@@ -41,10 +40,17 @@ export class BatchComponent implements OnInit {
             supplierId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             serviceCenter: new FormControl('', [Validators.required]),
             purchaseRequestDTO: new FormGroup({
-                number: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-                file: new FormControl('')
+                number: new FormControl('', [Validators.required]),
+                file: new FormControl()
             })
         });
+    }
+
+    private bufferToHex(buffer: ArrayBuffer): string {
+        const bytes = new Uint8Array(buffer);
+        return Array.from(bytes)
+        .map((byte) => ('0' + byte.toString(16)).slice(-2))
+        .join('');
     }
 
     ngOnInit(): void {
@@ -68,9 +74,26 @@ export class BatchComponent implements OnInit {
         });
     }
 
+    onFileSelected(event: any): void {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files.length > 0) {
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                const arrayBuffer = reader.result as ArrayBuffer;
+                this.selectedFile = this.bufferToHex(arrayBuffer);
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+    }
 
     addBatch() {
-        this._params.saveBatch(this.batchForm.value).subscribe({
+        this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
+        console.log(this.batchForm.value);
+
+        /* this._params.saveBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], {
                     queryParams: { branch: new Date().getTime() },
@@ -81,7 +104,8 @@ export class BatchComponent implements OnInit {
             error: (error) => {
                 console.log(error);
                 this.batchForm.reset();
+                return;
             }
-        });
+        }); */
     }
 }
