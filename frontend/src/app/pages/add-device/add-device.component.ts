@@ -34,5 +34,5 @@ export class AddDeviceComponent {
         this.connections = checkedIds;
     }
 
-    backButton() { this.router.navigate(['add-batch'], { queryParams: { branch: new Date().getTime() } }) }
+    backButton() { this.router.navigate(['add-batch']) }
 }

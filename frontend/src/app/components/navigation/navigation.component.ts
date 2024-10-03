@@ -34,14 +34,14 @@ export class NavigationComponent {
             batchDelivery.classList.add('active');
             computerInventory.classList.remove('active');
             selectTab.selectedIndex = 0;
-            this.router.navigate(['batch-delivery'], { queryParams: { main: new Date().getTime() } });
+            this.router.navigate(['batch-delivery']);
         });
 
         computerInventory.addEventListener("click", () => {
             batchDelivery.classList.remove('active');
             computerInventory.classList.add('active');
             selectTab.selectedIndex = 0;
-            this.router.navigate(['computer-inventory'], { queryParams: { main: new Date().getTime() } });
+            this.router.navigate(['computer-inventory']);
         });
     }
 }

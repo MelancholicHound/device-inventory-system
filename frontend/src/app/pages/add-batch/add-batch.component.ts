@@ -122,10 +122,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         let count = document.getElementById('count') as HTMLInputElement;
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`/add-device/${this.devices[i].indicator}`], {
-                    queryParams: { branch: new Date().getTime() },
-                    state: { device: this.devices[i].name, count: count.value, batchnumber: this.batchDetails.id, batchid: this.batchDetails.formattedId }
-                });
+                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: { device: this.devices[i].name, count: count.value, batchnumber: this.batchDetails.id, batchid: this.batchDetails.formattedId } });
             }
         }
     }
@@ -137,7 +134,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     for (let i = 0; i < data.length; i++) {
                         if (this.batchDetails.formattedId === data[i].formattedId) {
                             this._params.deleteBatch(data[i].id).subscribe({
-                                next: () => { this.router.navigate(['/batch-delivery'], { queryParams: { main: new Date().getTime() } }) },
+                                next: () => { this.router.navigate(['batch-delivery']) },
                                 error: (error: any) => { console.log(error) }
                             });
                         }
