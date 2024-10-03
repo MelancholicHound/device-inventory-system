@@ -81,6 +81,11 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('connections')));
     }
 
+    getPeripherals(): Observable<any> {
+        return this.http.get<any>(`${this.url}/peripherals`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('peripherals')))
+    }
+
     getAllProcBrand(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/cpu-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/cpu-brands')));

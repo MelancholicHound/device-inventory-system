@@ -21,7 +21,7 @@ import { SoftwaresComponent } from '../../components/softwares/softwares.compone
 })
 export class AddDeviceComponent {
     batchDetails: any; deviceCount: any; selected: any;
-    connections: any[] = [];
+    connections: any[] = []; peripherals: any;
 
     constructor(private router: Router) {
                 const navigation = this.router.getCurrentNavigation();

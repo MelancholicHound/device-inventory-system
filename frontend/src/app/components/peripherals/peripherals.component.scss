@@ -1,51 +1,36 @@
 section {
-    flex-direction: column;
+    padding: 5px;
     gap: 15px;
+    width: 100%;
 }
 
 .form-field {
     align-items: center;
-    gap: 5px;
+    gap: 15px;
+}
+
+.brand-form {
+    margin-top: 5px;
 }
 
 .input-field {
-    justify-content: space-between;
-    margin-top: 10px;
-    align-items: end;
+    flex-direction: row;
 }
 
-select {
-    width: 150px;
-}
-
-.brand-dropdown { flex-direction: column; }
-
-.brand-form {
-    align-items: end;
-    gap: 10px;
-}
-
-.add-btn {
-    width: 50px;
-    align-items: center;
-    justify-content: center;
-}
+input[type='number'] { width: 100px; }
 
 input[type='checkbox'] {
     width: 20px;
     height: 20px;
 }
 
-input[type='number'] {
-    padding: 5px;
-    width: 100px;
-}
-
-.add-btn,
-select { height: 2rem; }
+section,
+.brand-form { flex-direction: column; }
 
 section,
 .form-field,
+.brand-form,
 .input-field,
-.brand-dropdown,
-.brand-form { display: flex; }
+blockquote {
+    display: flex;
+}

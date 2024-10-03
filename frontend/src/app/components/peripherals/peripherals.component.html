@@ -1,46 +1,25 @@
 <section>
-    <div class="form-field">
-        <input type="checkbox" id="w-keyboard">
-        <label for="w-keyboard"> with keyboard </label>
-    </div>
-    <div class="form-field">
-        <input type="checkbox" id="w-mouse">
-        <label for="w-mouse"> with mouse </label>
-    </div>
-    <div class="form-container">
-        <div class="form-field">
-            <input type="checkbox" id="w-ups">
-            <label for="w-ups"> with UPS </label>
-        </div>
-        <div class="input-field">
-            <blockquote class="brand-form">
-                <span class="brand-dropdown">
-                    <label for="ups-brand"> Brand: </label>
-                    <select title="" id="ups-brand">
-                        <option [value]="" disabled selected> Select option </option>
-                        <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
-                    </select>
-                </span>
-                <button class="add-brand-btn" type="button">
-                    <span class="material-symbols-rounded"> add </span>
-                </button>
-            </blockquote>
-            <blockquote class="form-field">
-                <input type="number" min="0" id="volts">
-                <label for="volts"> kVA </label>
-            </blockquote>
-        </div>
+    <div class="form-field" *ngFor="let peripheral of fetchedData">
+        <input type="checkbox" id="keyboard">
+        <label for="keyboard"> with {{ peripheral.name }} </label>
     </div>
     <div class="form-control">
         <div class="form-field">
-            <input type="checkbox" id="w-monitor">
-            <label for="w-monitor"> with monitor </label>
+            <input type="checkbox" id="ups">
+            <label for="ups"> with UPS </label>
         </div>
-        <div class="input-field">
-            <blockquote class="form-field">
-                <input type="number" min="0" id="inches">
-                <label for="inches"> " (inches) </label>
-            </blockquote>
+        <div class="brand-form">
+            <label for="ups-brand"> Brand: </label>
+            <div class="input-field">
+                <select title="" id="ups-brand">
+                    <option value="" selected disabled> Select brand </option>
+                    <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
+                </select>
+                <blockquote>
+                    <input type="number" id="volts">
+                    <label for="volts"> kVA </label>
+                </blockquote>
+            </div>
         </div>
     </div>
 </section>
