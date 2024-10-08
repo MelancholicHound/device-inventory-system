@@ -16,7 +16,7 @@ import { ServerComponent } from './devices/server/server.component';
 import { TabletComponent } from './devices/tablet/tablet.component';
 
 export const routes: Routes = [
-    { path: 'add-batch' , component: AddBatchComponent },
+    { path: 'add-batch' , component: AddBatchComponent, data: { reuse: true } },
     { path: 'add-device' , component: AddDeviceComponent,
       children: [
          { path: 'aio' , component: AioComponent },

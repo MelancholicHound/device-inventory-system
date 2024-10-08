@@ -82,14 +82,14 @@
             <form class="device-form" action="">
                 <div class="form-field">
                     <label for="device"> Device </label>
-                    <select title="device" class="form-control" id="device">
+                    <select title="device" class="form-control" id="device" #device>
                         <option [value]="" selected disabled> Select a device </option>
                         <option [value]="device.name" *ngFor="let device of devices"> {{ device.name }} </option>
                     </select>
                 </div>
                 <div class="form-field">
                     <label for="count"> Device count </label>
-                    <input type="number" class="form-control" id="count" min="0">
+                    <input type="number" class="form-control" id="count" min="0" #count>
                 </div>
                 <div class="btn-container">
                     <button type="button" class="add-dev-btn" (click)="routeSelectedDevice()"> Add </button>

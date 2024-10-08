@@ -123,7 +123,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                     }
                 }
             }
-        })
+        });
     }
 
     onClickEdit(row: any) {
@@ -156,6 +156,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                     if (batchId === data[i].formattedId) {
                         this._params.deleteBatch(data[i].id).subscribe();
                         this.deletePrompt.nativeElement.style.display = 'none';
+                        window.location.reload();
                     }
                 }
             },
