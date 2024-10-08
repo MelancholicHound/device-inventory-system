@@ -16,7 +16,7 @@
                     <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
                 </select>
                 <blockquote>
-                    <input type="number" id="volts">
+                    <input type="number" class="form-input" min="0" id="volts">
                     <label for="volts"> kVA </label>
                 </blockquote>
             </div>

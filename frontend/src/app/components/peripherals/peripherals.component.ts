@@ -21,8 +21,7 @@ export class PeripheralsComponent implements OnInit {
     fetchedData: any; fetchedUPSBrand: any;
 
     constructor(private params: ParamsService,
-                private specs: SpecsService
-    ) { }
+                private specs: SpecsService) { }
 
     ngOnInit(): void {
         this.params.getPeripherals().subscribe({
@@ -40,6 +39,7 @@ export class PeripheralsComponent implements OnInit {
             },
             error: (error: any) => { console.log(error) }
         });
+
         this.specs.getUPSBrand().subscribe({
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }

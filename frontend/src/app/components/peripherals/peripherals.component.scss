@@ -10,11 +10,13 @@ section {
 }
 
 .brand-form {
-    margin-top: 5px;
+    margin-top: 10px;
+    gap: 5px;
 }
 
 .input-field {
     flex-direction: row;
+    justify-content: space-between;
 }
 
 input[type='number'] { width: 100px; }
@@ -22,6 +24,15 @@ input[type='number'] { width: 100px; }
 input[type='checkbox'] {
     width: 20px;
     height: 20px;
+}
+
+select { width: 150px; }
+
+.form-input { padding: 5px; }
+
+blockquote {
+    align-items: center;
+    gap: 5px;
 }
 
 section,
