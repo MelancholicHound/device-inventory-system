@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
 
 @Component({
     selector: 'app-peripherals',
@@ -10,7 +11,8 @@ import { ParamsService } from '../../util/services/params.service';
         NgFor
     ],
     providers: [
-        ParamsService
+        ParamsService,
+        SpecsService
     ],
     templateUrl: './peripherals.component.html',
     styleUrl: './peripherals.component.scss'
@@ -18,10 +20,12 @@ import { ParamsService } from '../../util/services/params.service';
 export class PeripheralsComponent implements OnInit {
     fetchedData: any; fetchedUPSBrand: any;
 
-    constructor(private _params: ParamsService) { }
+    constructor(private params: ParamsService,
+                private specs: SpecsService
+    ) { }
 
     ngOnInit(): void {
-        this._params.getPeripherals().subscribe({
+        this.params.getPeripherals().subscribe({
             next: (data: any) => {
                 this.fetchedData = data.map((object: any) => ({
                     id: object.id,
@@ -36,7 +40,7 @@ export class PeripheralsComponent implements OnInit {
             },
             error: (error: any) => { console.log(error) }
         });
-        this._params.getUPSBrand().subscribe({
+        this.specs.getUPSBrand().subscribe({
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }
         });

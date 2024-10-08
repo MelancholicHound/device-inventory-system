@@ -46,6 +46,7 @@ export class ParamsService {
         });
     }
 
+    //GET
     getAllDivisions(): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
@@ -54,11 +55,6 @@ export class ParamsService {
     getSectionsById(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${id}/sections`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`divisions/${id}/sections`)));
-    }
-
-    getUPSBrand(): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/ups-brands`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/ups-brands')));
     }
 
     getOS(): Observable<any> {
@@ -86,31 +82,6 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('peripherals')))
     }
 
-    getAllProcBrand(): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/cpu-brands`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/cpu-brands')));
-    }
-
-    getProcSeriesById(id: any): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/cpu-brands/${id}/series`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/cpu-brands/${id}/series`)));
-    }
-
-    getRamCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/ram-capacities`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('part/ram-capacities')));
-    }
-
-    getStorageCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/storage-capacities`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('part/storage-capacities')));
-    }
-
-    getVideoCardCapacities(): Observable<any> {
-        return this.http.get<any>(`${this.url}/part/video-card-capacities`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('part/video-card-capacities')));
-    }
-
     getSuppliers(): Observable<any[]> {
         return this.supplierSubject.asObservable();
     }
@@ -118,16 +89,6 @@ export class ParamsService {
     getSupplierById(id: number): Observable<any> {
         return this.http.get<any>(`${this.url}/suppliers/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`suppliers/${id}`)));
-    }
-
-    saveSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
-        return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
-    }
-
-    saveBatch(batch: Omit<Batch, 'id'>): Observable<Batch> {
-        return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
     }
 
     getAllBatches(): Observable<any> {
@@ -140,6 +101,18 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`batches/${id}`)));
     }
 
+    //POST
+    postSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
+        return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
+    }
+
+    postBatch(batch: Omit<Batch, 'id'>): Observable<Batch> {
+        return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
+    }
+
+    //DELETE
     deleteBatch(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/batches/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`batches/${id}`)));

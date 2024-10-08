@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
 
 @Component({
     selector: 'batch',
@@ -14,7 +15,8 @@ import { ParamsService } from '../../util/services/params.service';
         NgFor, NgIf
     ],
     providers: [
-        ParamsService
+        ParamsService,
+        SpecsService
     ],
     templateUrl: './batch.component.html',
     styleUrl: './batch.component.scss'
@@ -30,7 +32,8 @@ export class BatchComponent implements OnInit {
     event!: Event; selectedFile: string = '';
 
     constructor(private router: Router,
-                private _params: ParamsService) { }
+                private params: ParamsService,
+                private specs: SpecsService) { }
 
     private bufferToHex(buffer: ArrayBuffer): string {
         const bytes = new Uint8Array(buffer);
@@ -41,7 +44,7 @@ export class BatchComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
-        this._params.getSuppliers().subscribe((value: any[]) => { this.suppliers = value });
+        this.params.getSuppliers().subscribe((value: any[]) => { this.suppliers = value });
 
         let checkbox = document.getElementById('not-tested') as HTMLInputElement;
         let testedDate = document.getElementById('date-tested') as HTMLInputElement;
@@ -98,7 +101,7 @@ export class BatchComponent implements OnInit {
 
     addBatch() {
         this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
-        this._params.saveBatch(this.batchForm.value).subscribe({
+        this.params.postBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
                 event?.preventDefault();

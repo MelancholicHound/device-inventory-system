@@ -4,6 +4,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { DeviceComputerService } from '../../util/services/device-computer.servi
     ],
     providers: [
         ParamsService,
+        SpecsService,
         DeviceComputerService
     ],
     templateUrl: './computer.component.html',
@@ -44,6 +46,7 @@ export class ComputerComponent implements OnInit {
     cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
 
     constructor(private params: ParamsService,
+                private specs: SpecsService,
                 private router: Router,
                 private compAuth: DeviceComputerService) {
                 const navigation = this.router.getCurrentNavigation();
@@ -68,7 +71,7 @@ export class ComputerComponent implements OnInit {
 
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
-        this.params.getProcSeriesById(value.value).subscribe(res => this.fetchedProcSeries = res);
+        this.specs.getProcSeriesById(value.value).subscribe(res => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
     }
 

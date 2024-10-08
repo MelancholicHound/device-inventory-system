@@ -4,8 +4,8 @@ import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
-import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
     selector: 'app-aio',
@@ -17,6 +17,7 @@ import { FocusMonitor } from '@angular/cdk/a11y';
     ],
     providers: [
         ParamsService,
+        SpecsService,
         DeviceAioService
     ],
     templateUrl: './aio.component.html',
@@ -50,6 +51,7 @@ export class AioComponent implements OnInit {
     cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
 
     constructor(private params: ParamsService,
+                private specs: SpecsService,
                 private router: Router,
                 private aioAuth: DeviceAioService) {
                 const navigation = this.router.getCurrentNavigation();
@@ -61,13 +63,13 @@ export class AioComponent implements OnInit {
     }
 
     ngOnInit(): void {
-
+        this.aioForm = this.createAIOFormGroup();
     }
 
     createAIOFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(this.batchNumber, [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(`${this.batchNumber}`, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(`${this.secId}`, [Validators.required, Validators.pattern('^[0-9]*$')]),
             peripheralIds: new FormArray([], [Validators.required , Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([
                 new FormGroup({
@@ -113,7 +115,7 @@ export class AioComponent implements OnInit {
 
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
-        this.params.getProcSeriesById(value.value).subscribe(res => this.fetchedProcSeries = res);
+        this.specs.getProcSeriesById(value.value).subscribe((res: any) => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
     }
 
@@ -171,5 +173,10 @@ export class AioComponent implements OnInit {
         let clonedElement = ramSizeField?.cloneNode(true) as HTMLElement;
         let childCount = ram?.childElementCount;
         ram?.insertBefore(clonedElement, ram.children[childCount! - 1]);
+    }
+
+    saveAIOBrand() {
+        let brandInput = document.getElementById('aio-brand-input') as HTMLInputElement;
+
     }
 }

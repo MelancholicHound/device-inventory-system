@@ -21,7 +21,7 @@ export class SupplierComponent implements OnInit {
 
     supplierForm!: FormGroup;
 
-    constructor(private _params: ParamsService) { }
+    constructor(private params: ParamsService) { }
 
     createSupplierFormGroup(): FormGroup {
         return new FormGroup({
@@ -41,7 +41,7 @@ export class SupplierComponent implements OnInit {
     }
 
     saveSupplier() {
-        this._params.saveSupplier(this.supplierForm.value).subscribe({
+        this.params.postSupplier(this.supplierForm.value).subscribe({
             next: () => {
                 this.booleanEvent.emit(true);
                 this.supplierForm.reset();
