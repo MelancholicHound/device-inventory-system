@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Router } from '@angular/router';
 
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, tap, first } from 'rxjs/operators';
@@ -24,8 +23,7 @@ export class AuthService {
     }
 
     constructor(private http: HttpClient,
-                private errorHandler: ErrorHandlerService,
-                private router: Router) { }
+                private errorHandler: ErrorHandlerService) { }
 
     signup(user: Omit<User, 'id'>): Observable<User> {
         return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOptions)

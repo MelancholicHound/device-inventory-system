@@ -20,12 +20,19 @@ export class DeviceAioService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any) : Observable<any> {
         return this.http.get<any>(`${this.url}/all-in-ones/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`all-in-ones/batch/${id}`)));
     }
 
-    saveAIOBrand(brand: string): Observable<any> {
+    getAIOBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/aio-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/aio-brands')));
+    }
+
+    //POST
+    postAIOBrand(brand: string): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/aio/aio-brands?brand=${brand}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/aio/aio-brands?brand=${brand}`)));
     }

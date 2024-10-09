@@ -23,11 +23,11 @@
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="aio-brand" class="form-control" (change)="getAIOBrandValue()" *ngIf="!isAIOBrandToggled" formControlName="brandId">
+                        <select title="aio-brand" id="aio-brand" class="form-control" (change)="getAIOBrandValue()" *ngIf="!isAIOBrandToggled">
                             <option [value]="" selected disabled> Select AIO brand </option>
                             <option [value]="aiobrand.id" *ngFor="let aiobrand of fetchedAIOBrand"> {{ aiobrand.brand }} </option>
                         </select>
-                        <input type="text" class="form-control input-form" id="aio-brand-input" *ngIf="isAIOBrandToggled" placeholder="Input AIO Brand">
+                        <input type="text" class="form-control input-form" (blur)="onAIOBrandInput($event)" *ngIf="isAIOBrandToggled" placeholder="Input AIO Brand">
                     </div>
                     <button class="add-btn" type="button" (click)="toggleAIOBrandField()">
                         <span class="material-symbols-rounded add-aio-brand" [class.rotate]="isAIOBrandAnimated"> add </span>
@@ -41,14 +41,14 @@
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
                         <option [value]="" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
                         <option [value]="" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -68,7 +68,7 @@
                                 <option [value]="" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
-                            <input type="text" class="processors input-form" *ngIf="isProcBrandToggled" placeholder="Input brand">
+                            <input type="text" class="processors input-form" (blur)="onProcBrandInput($event)" *ngIf="isProcBrandToggled" placeholder="Input brand">
                             <label for="proc-brand"> Brand </label>
                         </div>
                         <button class="add-btn" type="button" id="brand-field" (click)="toggleProcBrandField()">
@@ -81,7 +81,7 @@
                                 <option [value]="" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
-                            <input type="text" class="processors input-form" *ngIf="isProcSeriesToggled" placeholder="Input series">
+                            <input type="text" class="processors input-form" (blur)="onProcSeriesInput(procBrandId, $event)" *ngIf="isProcSeriesToggled" placeholder="Input series">
                             <label for="proc-series"> Series </label>
                         </div>
                         <button class="add-btn" type="button" id="series-field" (click)="toggleProcSeriesField()">
@@ -106,7 +106,7 @@
                 <p class="label"> Video Card </p>
                 <div class="size-field">
                     <label for="gpu-size"> Size: </label>
-                    <input type="number" class="input-form" id="gpu-size" min="0">
+                    <input type="number" class="input-form" id="gpu-size" (blur)="onGPUInput($event)" list="gpu" min="0">
                     <p> GB </p>
                 </div>
             </div>
@@ -114,7 +114,7 @@
                 <p class="label"> RAM </p>
                 <div class="size-field" id="ram-field">
                     <label for="ram-size"> Size: </label>
-                    <input type="number" class="input-form" id="ram-size" min="0">
+                    <input type="number" class="input-form" id="ram-size" (blur)="onRAMInput($event)" list="ramsize" min="0">
                     <p> GB </p>
                 </div>
                 <div class="size-field top-gap">
@@ -127,7 +127,7 @@
             <div class="form-container">
                 <p class="label"> Storage </p>
                 <div class="input-container">
-                    <label for="storage"> Type: </label>
+                    <label class="type" for="storage"> Type: </label>
                     <select title="storage-type" class="form-control" id="type">
                         <option value="" selected disabled> Select option </option>
                         <option value="hdd"> HDD </option>
@@ -139,19 +139,19 @@
                 </div>
                 <div class="size-field top-gap">
                     <label for="storage-size"> Size: </label>
-                    <input type="number" class="input-form" id="storage-size">
+                    <input type="number" class="input-form" id="storage-size" (blur)="onStorageInput($event)" list="storage" min="0">
                     <p> GB </p>
                 </div>
             </div>
         </div>
     </div>
-    <datalist id="ram">
-        <option [value]="ram" *ngFor="let ram of fetchedRAM"></option>
+    <datalist id="ramsize">
+        <option *ngFor="let ram of fetchedRAM"> {{ ram.capacity }} </option>
     </datalist>
     <datalist id="storage">
-        <option [value]="storage" *ngFor="let storage of fetchedStorage"></option>
+        <option *ngFor="let storage of fetchedStorage"> {{ storage.capacity }} </option>
     </datalist>
     <datalist id="gpu">
-        <option [value]="gpu" *ngFor="let gpu of fetchedGPU"></option>
+        <option *ngFor="let gpu of fetchedGPU"> {{ gpu.capacity }} </option>
     </datalist>
 </form>

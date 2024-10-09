@@ -1,19 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
-
-import { Supplier } from '../models/Supplier';
-import { Batch } from '../models/Batch';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SpecsService {
-    private url = 'http://192.168.1.86:80802/api/v1/dis';
+    private url = 'http://192.168.1.86:8082/api/v1/dis';
     private token = localStorage.getItem('token');
 
     httpOptions: { headers: HttpHeaders } = {
@@ -25,8 +22,8 @@ export class SpecsService {
 
     //GET
     getUPSBrand(): Observable<any> {
-        return this.http.get<any>(`${this.url}/specs/ups-brand`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/ups-brand')));
+        return this.http.get<any>(`${this.url}/specs/ups-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/ups-brands')));
     }
 
     getAllProcBrands(): Observable<any> {
@@ -55,7 +52,36 @@ export class SpecsService {
     }
 
     //POST
+    postProcBrand(brand: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/cpu-brands?brand=${brand}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/cpu-brands?brand=${brand}`)));
+    }
 
+    postProcSeries(id: any, series: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/cpu-brands/${id}/series?series=${series}`, this.httpOptions)
+        .pipe(first(), catchError((error: any) => {
+            if (error.status === 400 && error.error & error.error.message) {
+                this.errorHandler.handleError('Error on posting processor series: ', error.error.message);
+            }
+            return new Observable((observer) => { observer.error(error) });
+        }))
+    }
+
+    postRAMCapacity(capacity: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/part/ram-capacities?capacity=${capacity}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/ram-capacities?capacity=${capacity}`)));
+    }
+
+    postGPUCapacity(capacity: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/storage-capacities?capacity=${capacity}`)));
+    }
+
+    postStorageCapacity(capacity: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/storage-capacities?capacity=${capacity}`)));
+    }
 
     //DELETE
+
 }

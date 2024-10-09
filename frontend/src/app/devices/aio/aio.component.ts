@@ -48,8 +48,6 @@ export class AioComponent implements OnInit {
 
     aioForm!: FormGroup;
 
-    cpuReq = { cpuBrandId: this.procBrandId, cpuBrandSeriesId: this.procSeriesId, cpuModifier: this.procModel };
-
     constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
@@ -64,6 +62,36 @@ export class AioComponent implements OnInit {
 
     ngOnInit(): void {
         this.aioForm = this.createAIOFormGroup();
+
+        this.aioAuth.getAIOBrands().subscribe({
+            next: (data: any[]) => { this.fetchedAIOBrand = data },
+            error: (error: any) => { console.log(error) }
+        });
+
+        this.params.getAllDivisions().subscribe({
+            next: (data: any[]) => { this.fetchedDivision = data },
+            error: (error: any) => { console.log(error) }
+        });
+
+        this.specs.getAllProcBrands().subscribe({
+            next: (data: any[]) => { this.fetchedProcBrand = data },
+            error: (error: any) => { console.log(error) }
+        });
+
+        this.specs.getRAMCapacities().subscribe({
+            next: (data: any[]) => { this.fetchedRAM = data },
+            error: (error: any) => { console.log(error) }
+        });
+
+        this.specs.getStorageCapacities().subscribe({
+            next: (data: any[]) => { this.fetchedStorage = data },
+            error: (error: any) => { console.log(error) }
+        });
+
+        this.specs.getVideoCardCapacities().subscribe({
+            next: (data: any[]) => { this.fetchedGPU = data },
+            error: (error: any) => { console.log(error) }
+        });
     }
 
     createAIOFormGroup(): FormGroup {
@@ -86,7 +114,7 @@ export class AioComponent implements OnInit {
                 cpuBrandSeriesId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuModifier: new FormControl('', [Validators.required])
             }),
-            brandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl(`${this.aioBrandId}`, [Validators.required, Validators.pattern('^[0-9]*$')]),
             deviceSoftwareRequest: new FormGroup({
                 operatingSystemId: new FormControl([Validators.pattern('^[0-9]*$')]),
                 productivityToolId: new FormControl([Validators.pattern('^[0-9]*$')]),
@@ -98,8 +126,9 @@ export class AioComponent implements OnInit {
         });
     }
 
+    //GET
     getAIOBrandValue() {
-        let value = document.getElementById('brand-name') as HTMLOptionElement;
+        let value = document.getElementById('aio-brand') as HTMLOptionElement;
         this.aioBrandId = value.value;
     }
 
@@ -152,6 +181,86 @@ export class AioComponent implements OnInit {
         }
     }
 
+    //POST
+    onAIOBrandInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+          this.aioAuth.postAIOBrand(inputElement.value).subscribe({
+              next: (res: any) => { this.aioBrandId = res.id },
+              error: (error: any) => { console.log(error) }
+          });
+        }
+    }
+
+    onProcBrandInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.specs.postProcBrand(inputElement.value).subscribe({
+                next: (res: any) => { this.procBrandId = res.id },
+                error: (error: any) => { console.log(error) }
+            });
+        }
+    }
+
+    onProcSeriesInput(id: any, event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.specs.postProcSeries(id, inputElement.value).subscribe({
+                next: (res: any) => { this.procSeriesId = res.id },
+                error: (error: any) => { console.log(error) }
+            });
+        }
+    }
+
+    onRAMInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            for (let i = 0; i < this.fetchedRAM.length; i++) {
+                if (inputElement.value !== this.fetchedRAM[i].capacity) {
+                    this.specs.postRAMCapacity(inputElement.value).subscribe({
+                        next: (res: any) => { this.ramIds.push(res.id) },
+                        error: (error: any) => { console.log(error) }
+                    });
+                } else if (inputElement.value === this.fetchedRAM[i].capacity) {
+                    this.ramIds.push(this.fetchedRAM[i].id);
+                }
+            }
+        }
+    }
+
+    onGPUInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            for (let i = 0; i < this.fetchedGPU.length; i++) {
+                if (inputElement.value !== this.fetchedGPU[i].capacity) {
+                    this.specs.postGPUCapacity(inputElement.value).subscribe({
+                        next: (res: any) => { this.gpuId = res.id },
+                        error: (error: any) => { console.log(error) }
+                    });
+                } else if (inputElement.value === this.fetchedGPU[i].capacity) {
+                    this.gpuId = this.fetchedGPU[i].id;
+                }
+            }
+        }
+    }
+
+    onStorageInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            for (let i = 0; i < this.fetchedStorage.length; i++) {
+                if (inputElement.value !== this.fetchedStorage[i].capacity) {
+                    this.specs.postStorageCapacity(inputElement.value).subscribe({
+                        next: (res: any) => { this.storageIds.push(res.id) },
+                        error: (error: any) => { console.log(error) }
+                    });
+                } else if (inputElement.value === this.fetchedStorage[i].capacity) {
+                    this.storageIds.push(this.fetchedStorage[i].id);
+                }
+            }
+        }
+    }
+
+    //Other functions
     toggleAIOBrandField() {
         this.isAIOBrandToggled = !this.isAIOBrandToggled;
         this.isAIOBrandAnimated = !this.isAIOBrandAnimated;
@@ -173,10 +282,5 @@ export class AioComponent implements OnInit {
         let clonedElement = ramSizeField?.cloneNode(true) as HTMLElement;
         let childCount = ram?.childElementCount;
         ram?.insertBefore(clonedElement, ram.children[childCount! - 1]);
-    }
-
-    saveAIOBrand() {
-        let brandInput = document.getElementById('aio-brand-input') as HTMLInputElement;
-
     }
 }
