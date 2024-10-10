@@ -122,7 +122,12 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         let count = document.getElementById('count') as HTMLInputElement;
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: { device: this.devices[i].name, count: count.value, batchnumber: this.batchDetails.id, batchid: this.batchDetails.formattedId } });
+                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
+                    device: this.devices[i].name,
+                    count: count.value,
+                    batchnumber: this.batchDetails.id,
+                    batchid: this.batchDetails.formattedId
+                } });
                 this.addDeviceModal.nativeElement.style.display = 'none';
                 selected.selectedIndex = 0; count.value = '';
             }

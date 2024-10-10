@@ -95,15 +95,23 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         return new FormGroup({ batchId: new FormControl('', [Validators.required]) });
     }
 
-    applyFilter(event: Event) {
-        const filterValue = (event.target as HTMLInputElement).value;
-        this.dataSource.filter = filterValue.trim().toLowerCase();
-
-        if (this.dataSource?.paginator) {
-            this.dataSource.paginator.firstPage();
-        }
+    //DELETE
+    deleteBatch(batchId: any) {
+        this._params.getAllBatches().subscribe({
+            next: (data: any) => {
+                for (let i = 0; i < data.length; i++) {
+                    if (batchId === data[i].formattedId) {
+                        this._params.deleteBatch(data[i].id).subscribe();
+                        this.deletePrompt.nativeElement.style.display = 'none';
+                        window.location.reload();
+                    }
+                }
+            },
+            error: (error: any) => { console.log(error) }
+        });
     }
 
+    //Togglers
     toggleBatch(value: boolean): void {
         this.toggleBatchForm = value;
         this.toggleSupplierForm = !value;
@@ -114,6 +122,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.toggleSupplierForm = value;
     }
 
+    //Click events
     onClickView(row: any) {
         this._params.getAllBatches().subscribe({
             next: (data: any) => {
@@ -143,24 +152,19 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.deletePrompt.nativeElement.style.display = 'block';
     }
 
+    //Other functions
+    applyFilter(event: Event) {
+        const filterValue = (event.target as HTMLInputElement).value;
+        this.dataSource.filter = filterValue.trim().toLowerCase();
+
+        if (this.dataSource?.paginator) {
+            this.dataSource.paginator.firstPage();
+        }
+    }
+
     deleteBatchValidator() {
         const batchField = this.deleteBatchForm.get('batchId')?.value;
 
         return batchField === this.deleteRow?.formattedId;
-    }
-
-    deleteBatch(batchId: any) {
-        this._params.getAllBatches().subscribe({
-            next: (data: any) => {
-                for (let i = 0; i < data.length; i++) {
-                    if (batchId === data[i].formattedId) {
-                        this._params.deleteBatch(data[i].id).subscribe();
-                        this.deletePrompt.nativeElement.style.display = 'none';
-                        window.location.reload();
-                    }
-                }
-            },
-            error: (error: any) => { console.log(error) }
-        });
     }
 }

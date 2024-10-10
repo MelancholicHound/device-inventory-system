@@ -119,28 +119,31 @@
                 </div>
                 <div class="size-field top-gap">
                     <p class="label"> Size: </p>
-                    <button class="add-btn" type="button" id="add-ram" (click)="addRam()">
+                    <button class="add-btn" type="button" id="add-ram" (click)="addRAM()">
                         <span class="material-symbols-rounded"> add </span>
                     </button>
                 </div>
             </div>
-            <div class="form-container">
-                <p class="label"> Storage </p>
-                <div class="input-container">
-                    <label class="type" for="storage"> Type: </label>
+            <div class="form-container" id="storage">
+                <p> Storage </p>
+                <div class="input-container" id="type-container">
+                    <label class="type" for="type"> Type: </label>
                     <select title="storage-type" class="form-control" id="type">
                         <option value="" selected disabled> Select option </option>
-                        <option value="hdd"> HDD </option>
-                        <option value="ssd"> SSD </option>
+                        <option value="HDD"> HDD </option>
+                        <option value="SSD"> SSD </option>
                     </select>
-                    <button type="button" class="add-btn">
+                </div>
+                <div class="size-field" id="size-container">
+                    <label for="storage-size"> Size: </label>
+                    <input type="number" class="input-form" id="storage-size" list="storage" min="0">
+                    <p> GB </p>
+                </div>
+                <div class="size-field">
+                    <p> Add storage? </p>
+                    <button type="button" class="add-btn" (click)="addStorage()">
                         <span class="material-symbols-rounded"> add </span>
                     </button>
-                </div>
-                <div class="size-field top-gap">
-                    <label for="storage-size"> Size: </label>
-                    <input type="number" class="input-form" id="storage-size" (blur)="onStorageInput($event)" list="storage" min="0">
-                    <p> GB </p>
                 </div>
             </div>
         </div>
