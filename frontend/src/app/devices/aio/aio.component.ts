@@ -58,33 +58,33 @@ export class AioComponent implements OnInit {
         this.aioForm = this.createAIOFormGroup();
 
         this.aioAuth.getAIOBrands().subscribe({
-            next: (data: any[]) => { this.fetchedAIOBrand = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedAIOBrand = data,
+            error: (error: any) => console.log(error)
         });
 
         this.params.getAllDivisions().subscribe({
-            next: (data: any[]) => { this.fetchedDivision = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedDivision = data,
+            error: (error: any) => console.log(error)
         });
 
         this.specs.getAllProcBrands().subscribe({
-            next: (data: any[]) => { this.fetchedProcBrand = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedProcBrand = data,
+            error: (error: any) => console.log(error)
         });
 
         this.specs.getRAMCapacities().subscribe({
-            next: (data: any[]) => { this.fetchedRAM = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedRAM = data,
+            error: (error: any) => console.log(error)
         });
 
         this.specs.getStorageCapacities().subscribe({
-            next: (data: any[]) => { this.fetchedStorage = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedStorage = data,
+            error: (error: any) => console.log(error)
         });
 
         this.specs.getVideoCardCapacities().subscribe({
-            next: (data: any[]) => { this.fetchedGPU = data },
-            error: (error: any) => { console.log(error) }
+            next: (data: any[]) => this.fetchedGPU = data,
+            error: (error: any) => console.log(error)
         });
     }
 
@@ -92,15 +92,8 @@ export class AioComponent implements OnInit {
         return new FormGroup({
             batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            storageRequests: new FormArray([
-                new FormGroup({
-                    capacityId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
-                    type: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')])
-                })
-            ], [Validators.required]),
-            ramRequests: new FormArray([
-                new FormGroup({ capacityId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]) })
-            ], [Validators.required]),
+            storageRequests: new FormArray([], [Validators.required]),
+            ramRequests: new FormArray([], [Validators.required]),
             videoCardRequest: new FormGroup({ capacityId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]) }),
             cpuRequest: new FormGroup({
                 cpuBrandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -132,13 +125,7 @@ export class AioComponent implements OnInit {
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
         this.specs.getProcSeriesById(value.value).subscribe((res: any) => this.fetchedProcSeries = res);
-        this.aioForm.get('cpuRequest.cpuBrandId')?.setValue(value.value);
         this.procBrandId = value.value;
-    }
-
-    getProcSeries() {
-        let value = document.getElementById('proc-series') as HTMLOptionElement;
-        this.aioForm.get('cpuRequest.cpuBrandSeriesId')?.setValue(value.value);
     }
 
     //POST
@@ -146,8 +133,8 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
           this.aioAuth.postAIOBrand(inputElement.value).subscribe({
-              next: (res: any) => { this.aioForm.get('brandId')?.setValue(res.id) },
-              error: (error: any) => { console.log(error) }
+              next: (res: any) => this.aioForm.get('brandId')?.setValue(res.id),
+              error: (error: any) => console.log(error)
           });
         }
     }
@@ -156,8 +143,8 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcBrand(inputElement.value).subscribe({
-                next: (res: any) => { this.aioForm.get('cpuRequest.cpuBrandId')?.setValue(res.id) },
-                error: (error: any) => { console.log(error) }
+                next: (res: any) => this.aioForm.get('cpuRequest')?.setValue({ cpuBrandId: res.id }),
+                error: (error: any) => console.log(error)
             });
         }
     }
@@ -166,8 +153,8 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcSeries(id, inputElement.value).subscribe({
-                next: (res: any) => { this.aioForm.get('cpuRequest.cpuBrandSeriesId')?.setValue(res.id) },
-                error: (error: any) => { console.log(error) }
+                next: (res: any) => this.aioForm.get('cpuRequest')?.setValue({ cpuBrandSeriesId: res.id }),
+                error: (error: any) => console.log(error)
             });
         }
     }
@@ -175,43 +162,84 @@ export class AioComponent implements OnInit {
     onProcModiefierInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
-            this.aioForm.get('cpuRequest.cpuModifier')?.setValue(inputElement.value);
+            this.aioForm.get('cpuRequest')?.setValue({ cpuModifier: inputElement.value });
         }
     }
 
     onRAMInput(event: Event): void {
-        const inputElement = event.target as HTMLInputElement;
-        if (inputElement.value !== '') {
+        let inputElement = event.target as HTMLInputElement;
+        let intValue = parseInt(inputElement.value, 10);
+        let ramArray = this.aioForm.get('ramRequests') as FormArray;
+
+        if (intValue) {
             for (let i = 0; i < this.fetchedRAM.length; i++) {
-                if (inputElement.value !== this.fetchedRAM[i].capacity) {
-                    this.specs.postRAMCapacity(inputElement.value).subscribe({
-                        next: (res: any) => {
-                            let ramArray = this.aioForm.get('ramRequests') as FormArray;
-                            ramArray.push(new FormGroup({ capacityId: new FormControl(res.id, [Validators.required, Validators.pattern('^[0-9]*$')]) }));
-                        },
-                        error: (error: any) => { console.log(error) }
-                    });
-                } else if (inputElement.value === this.fetchedRAM[i].capacity) {
-                    let ramArray = this.aioForm.get('ramRequests') as FormArray;
-                    ramArray.push(new FormGroup({ capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')]) }));
+                if (intValue === this.fetchedRAM[i].capacity) {
+                    ramArray.push(new FormGroup({
+                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')]) }));
+                    break;
+                } else if (intValue !== this.fetchedRAM[i].capacity) {
+                    if (i === this.fetchedRAM.length) {
+                        this.specs.postRAMCapacity(intValue).subscribe({
+                            next: (res: any) => {
+                                ramArray.push(new FormGroup({
+                                    capacityId: new FormControl(res.id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                                }));
+                            },
+                            error: (error: any) => console.log(error)
+                        });
+                        break;
+                    }
                 }
             }
         }
     }
 
     onGPUInput(event: Event): void {
-        const inputElement = event.target as HTMLInputElement;
-        if (inputElement.value !== '') {
+        let inputElement = event.target as HTMLInputElement;
+        let intValue = parseInt(inputElement.value, 10);
+
+        if (intValue) {
             for (let i = 0; i < this.fetchedGPU.length; i++) {
-                if (inputElement.value !== this.fetchedGPU[i].capacity) {
-                    this.specs.postGPUCapacity(inputElement.value).subscribe({
-                        next: (res: any) => {
-                            this.aioForm.get('videoCardRequest.capacityId')?.setValue(res.id);
-                        },
-                        error: (error: any) => { console.log(error) }
-                    });
-                } else if (inputElement.value === this.fetchedGPU[i].capacity) {
-                    this.aioForm.get('videoCardRequest.capacityId')?.setValue(this.fetchedGPU[i].id);
+                if (intValue === this.fetchedGPU[i].capacity) {
+                    this.aioForm.get('videoCardRequest')?.setValue({ capacityId: this.fetchedGPU[i].id });
+                } else if (intValue !== this.fetchedGPU[i].capacity) {
+                    if (i === this.fetchedGPU.length) {
+                        this.specs.postGPUCapacity(intValue).subscribe({
+                            next: (res: any) => this.aioForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
+                            error: (error: any) => console.log(error)
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    onStorageInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+        let typeSelect = document.getElementById('type') as HTMLOptionElement;
+        let sizeValue = parseInt(inputElement.value, 10);
+        let storageArray = this.aioForm.get('storageRequests') as FormArray;
+
+        if (sizeValue && typeSelect.value) {
+            for (let i = 0; i < this.fetchedStorage.length; i++) {
+                if (sizeValue === this.fetchedStorage[i].capacity) {
+                    storageArray.push(new FormGroup({
+                        capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
+                        type: new FormControl(typeSelect.value, [Validators.required])
+                    }));
+                    break;
+                } else if (sizeValue !== this.fetchedStorage[i].capacity) {
+                    if (i === this.fetchedStorage.length) {
+                        this.specs.postStorageCapacity(sizeValue).subscribe({
+                            next: (res: any) => {
+                                storageArray.push(new FormGroup({
+                                    capacityId: new FormControl(res.id, [Validators.required]),
+                                    type: new FormControl(typeSelect.value, [Validators.required])
+                                }))
+                            },
+                            error: (error: any) => console.log(error)
+                        });
+                    }
                 }
             }
         }
@@ -240,62 +268,46 @@ export class AioComponent implements OnInit {
     addRAM() {
         const ram = document.getElementById('ram');
         const ramSizeField = document.getElementById('ram-field');
-
         const clonedElement = ramSizeField?.cloneNode(true) as HTMLElement;
-
         const childCount = ram?.childElementCount;
 
+        const newId = `ram-size-${childCount}`;
+
+        const clonedInput = clonedElement.querySelector('input');
+        if (clonedInput) {
+            clonedInput.id = newId;
+            clonedInput.value = '';
+
+            clonedInput.addEventListener('blur', (event) => this.onRAMInput(event));
+        }
+
         ram?.insertBefore(clonedElement, ram.children[childCount! - 1]);
+        console.log(this.aioForm.value);
     }
 
     addStorage() {
         const storage = document.getElementById('storage');
-
-        const storageCap = document.getElementById('storage-size') as HTMLInputElement;
-        const storageType = document.getElementById('type') as HTMLOptionElement;
-
-        const storageArray = this.aioForm.get('storageRequests') as FormArray;
-
-        this.specs.getStorageCapacities().subscribe({
-            next: (data: any) => {
-                let equalData: any;
-                for (let i = 0; i < data.length; i++) {
-                    if (storageCap.value === data[i].capacity) {
-                        equalData = data[i];
-                        break;
-                    }
-                }
-
-                if (equalData) {
-                    storageArray.push(new FormGroup({
-                        capacityId: new FormControl(equalData.id, [Validators.required]),
-                        type: new FormControl(storageType.value, [Validators.required])
-                    }));
-                } else if (!equalData) {
-                    this.specs.postStorageCapacity(storageCap).subscribe({
-                        next: (res: any) => {
-                            storageArray.push(new FormGroup({
-                                capacityId: new FormControl(res.id, [Validators.required]),
-                                type: new FormControl(storageType.value, [Validators.required])
-                            }));
-                        },
-                        error: (error: any) => { console.log(error) }
-                    });
-                }
-            },
-            error: (error: any) => { console.log(error) }
-        });
-
         const typeContainer = document.getElementById('type-container');
         const sizeContainer = document.getElementById('size-container');
 
         const clonedTypeEl = typeContainer?.cloneNode(true) as HTMLElement;
         const clonedSizeEl = sizeContainer?.cloneNode(true) as HTMLElement;
-
         const childCount = storage?.childElementCount;
 
-        storage?.insertBefore(clonedSizeEl, storage.children[childCount! - 1]);
-        storage?.insertBefore(clonedTypeEl, storage.children[childCount! - 1]);
+        const newId = `storage-size-${childCount}`;
 
+        const clonedTypeSelect = clonedTypeEl.querySelector('select');
+        const clonedSizeInput = clonedSizeEl.querySelector('input');
+        if (clonedTypeSelect && clonedSizeInput) {
+            clonedTypeSelect.id = newId;
+            clonedSizeInput.id = newId;
+            clonedTypeSelect.selectedIndex = 0;
+            clonedSizeInput.value = '';
+
+            clonedSizeInput.addEventListener('blur', (event) => this.onStorageInput(event));
+        }
+
+        storage?.insertBefore(clonedTypeEl, storage.children[storage?.childElementCount! - 1]);
+        storage?.insertBefore(clonedSizeEl, storage.children[storage?.childElementCount! - 1]);
     }
 }

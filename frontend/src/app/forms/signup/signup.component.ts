@@ -32,9 +32,7 @@ export class SignupComponent implements OnInit {
 
     positions!: any;
 
-    constructor(private router: Router,
-                private auth: AuthService,
-                private params: ParamsService) { }
+    constructor(private auth: AuthService) { }
 
     createSignupFormGroup(): FormGroup {
         return new FormGroup({

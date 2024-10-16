@@ -54,32 +54,52 @@ export class SpecsService {
     //POST
     postProcBrand(brand: any): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/cpu-brands?brand=${brand}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/cpu-brands?brand=${brand}`)));
+        .pipe(first(), catchError((error: any) => {
+            if (error === 400 && error.error && error.error.message) {
+                this.errorHandler.handleError('Error on posting processor brand: ', error.error.message);
+            }
+            return new Observable((observer) => { observer.error(error) });
+        }));
     }
 
     postProcSeries(id: any, series: any): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/cpu-brands/${id}/series?series=${series}`, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error.status === 400 && error.error & error.error.message) {
+            if (error.status === 400 && error.error && error.error.message) {
                 this.errorHandler.handleError('Error on posting processor series: ', error.error.message);
             }
             return new Observable((observer) => { observer.error(error) });
-        }))
+        }));
     }
 
     postRAMCapacity(capacity: any): Observable<any> {
         return this.http.post<any>(`${this.url}/part/ram-capacities?capacity=${capacity}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/ram-capacities?capacity=${capacity}`)));
+        .pipe(first(), catchError((error: any) => {
+            if (error === 400 && error.error && error.error.message) {
+                this.errorHandler.handleError('Error on posting RAM capacity: ', error.error.message);
+            }
+            return new Observable((observer) => { observer.error(error) });
+        }));
     }
 
     postGPUCapacity(capacity: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/storage-capacities?capacity=${capacity}`)));
+        return this.http.post<any>(`${this.url}/part/video-card-capacities?capacity=${capacity}`, this.httpOptions)
+        .pipe(first(), catchError((error: any) => {
+            if (error === 400 && error.error && error.error.message) {
+                this.errorHandler.handleError('Error on posting video card capacity: ', error.error.message);
+            }
+            return new Observable((observer) => { observer.error(error) });
+        }));
     }
 
     postStorageCapacity(capacity: any): Observable<any> {
         return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`part/storage-capacities?capacity=${capacity}`)));
+        .pipe(first(), catchError((error: any) => {
+            if (error === 400 && error.error && error.error.message) {
+                this.errorHandler.handleError('Error on posting storage capacity: ', error.error.message);
+            }
+            return new Observable((observer) => { observer.error(error) });
+        }));
     }
 
     //DELETE
