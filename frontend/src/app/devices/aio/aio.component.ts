@@ -26,10 +26,10 @@ import { DeviceAioService } from '../../util/services/device-aio.service';
 export class AioComponent implements OnInit {
     device = { name: 'AIO', indicator: 'aio' };
     deviceCount: any; batchId: any; batchNumber: any;
-    procBrandId: any;
+    procBrandId: any; childCount!: any
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
-    isAIOBrandToggled: boolean = false;
+    isAIOBrandToggled: boolean = false; isAddingStorage: boolean = false;
 
     isProcBrandAnimated: boolean = false; isProcSeriesAnimated: boolean = false;
     isAIOBrandAnimated: boolean = false;
@@ -216,18 +216,28 @@ export class AioComponent implements OnInit {
 
     onStorageInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let typeSelect = document.getElementById('type') as HTMLOptionElement;
+        let typeSelect = document.getElementById('type') as HTMLSelectElement;
         let sizeValue = parseInt(inputElement.value, 10);
         let storageArray = this.aioForm.get('storageRequests') as FormArray;
 
         if (sizeValue && typeSelect.value) {
             for (let i = 0; i < this.fetchedStorage.length; i++) {
                 if (sizeValue === this.fetchedStorage[i].capacity) {
-                    storageArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
-                        type: new FormControl(typeSelect.value, [Validators.required])
-                    }));
-                    break;
+                    if (this.childCount) {
+                        let typeSelectIndex = document.getElementById(`type-${this.childCount}`) as HTMLSelectElement;
+                        storageArray.push(new FormGroup({
+                            capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
+                            type: new FormControl(typeSelectIndex.value, [Validators.required])
+                        }));
+                        this.childCount = null;
+                        break;
+                    } else {
+                        storageArray.push(new FormGroup({
+                            capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
+                            type: new FormControl(typeSelect.value, [Validators.required])
+                        }));
+                        break;
+                    }
                 } else if (sizeValue !== this.fetchedStorage[i].capacity) {
                     if (i === this.fetchedStorage.length) {
                         this.specs.postStorageCapacity(sizeValue).subscribe({
@@ -235,7 +245,7 @@ export class AioComponent implements OnInit {
                                 storageArray.push(new FormGroup({
                                     capacityId: new FormControl(res.id, [Validators.required]),
                                     type: new FormControl(typeSelect.value, [Validators.required])
-                                }))
+                                }));
                             },
                             error: (error: any) => console.log(error)
                         });
@@ -246,7 +256,7 @@ export class AioComponent implements OnInit {
     }
 
     postAIOSpecs(): void {
-
+        console.log(this.aioForm.value);
     }
 
     //Other functions
@@ -282,7 +292,6 @@ export class AioComponent implements OnInit {
         }
 
         ram?.insertBefore(clonedElement, ram.children[childCount! - 1]);
-        console.log(this.aioForm.value);
     }
 
     addStorage() {
@@ -292,16 +301,17 @@ export class AioComponent implements OnInit {
 
         const clonedTypeEl = typeContainer?.cloneNode(true) as HTMLElement;
         const clonedSizeEl = sizeContainer?.cloneNode(true) as HTMLElement;
-        const childCount = storage?.childElementCount;
+        this.childCount = storage?.childElementCount;
 
-        const newId = `storage-size-${childCount}`;
+        const newIdSize = `storage-size-${this.childCount}`;
+        const newIdType = `type-${this.childCount}`
 
         const clonedTypeSelect = clonedTypeEl.querySelector('select');
         const clonedSizeInput = clonedSizeEl.querySelector('input');
         if (clonedTypeSelect && clonedSizeInput) {
-            clonedTypeSelect.id = newId;
-            clonedSizeInput.id = newId;
-            clonedTypeSelect.selectedIndex = 0;
+            clonedTypeSelect.id = newIdType;
+            clonedSizeInput.id = newIdSize;
+            clonedTypeSelect.value = '';
             clonedSizeInput.value = '';
 
             clonedSizeInput.addEventListener('blur', (event) => this.onStorageInput(event));

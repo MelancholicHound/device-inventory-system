@@ -16,7 +16,7 @@ import { ParamsService } from '../../util/services/params.service';
     styleUrl: './connections.component.scss'
 })
 export class ConnectionsComponent implements OnInit {
-    @Output() checkboxStateChanged = new EventEmitter<number[]>();
+    @Output() connectionsStateChanged = new EventEmitter<number[]>();
 
     fetchedConnections!: any;
 
@@ -34,7 +34,7 @@ export class ConnectionsComponent implements OnInit {
         .filter((i: any) => i.checked)
         .map((i: any) => i.id);
 
-        this.checkboxStateChanged.emit(checkIds);
+        this.connectionsStateChanged.emit(checkIds);
     }
 
 }

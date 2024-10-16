@@ -16,7 +16,7 @@
                     <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postAIOSpecs()"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">
@@ -64,7 +64,7 @@
                 <div class="input-field" formGroupName="cpuRequest">
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled" formControlName="cpuBrandId">
+                            <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
                                 <option [value]="" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
@@ -77,7 +77,7 @@
                     </div>
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-series" class="processors" id="proc-series" *ngIf="!isProcSeriesToggled" formControlName="cpuBrandSeriesId">
+                            <select title="proc-series" class="processors" id="proc-series" *ngIf="!isProcSeriesToggled">
                                 <option [value]="" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
@@ -89,7 +89,7 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" formControlName="cpuModifier">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>

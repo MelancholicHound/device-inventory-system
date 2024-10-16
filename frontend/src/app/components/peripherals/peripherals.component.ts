@@ -3,6 +3,7 @@ import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
     selector: 'app-peripherals',
@@ -18,12 +19,16 @@ import { SpecsService } from '../../util/services/specs.service';
     styleUrl: './peripherals.component.scss'
 })
 export class PeripheralsComponent implements OnInit {
+    @Output() peripheralsStateChanged = new EventEmitter<number[]>();
+
     fetchedData: any; fetchedUPSBrand: any;
+    upsForm!: FormGroup;
 
     constructor(private params: ParamsService,
                 private specs: SpecsService) { }
 
     ngOnInit(): void {
+        this.upsForm = this.createUPSFormGroup();
         this.params.getPeripherals().subscribe({
             next: (data: any) => {
                 this.fetchedData = data.map((object: any) => ({
@@ -43,6 +48,16 @@ export class PeripheralsComponent implements OnInit {
         this.specs.getUPSBrand().subscribe({
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }
+        });
+    }
+
+    createUPSFormGroup(): FormGroup {
+        return new FormGroup({
+            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl('', [Validators.required]),
+            kilovolts: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 }
