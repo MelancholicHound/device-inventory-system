@@ -35,7 +35,7 @@
                 </div>
                 <div class="form-container">
                     <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model" placeholder="Input AIO model">
+                    <input type="text" class="form-control" id="model" placeholder="Input AIO model" formControlName="model">
                 </div>
             </div>
             <div class="destination">
@@ -61,7 +61,7 @@
         <div class="specs-container">
             <div class="form-container">
                 <p class="label"> Processor </p>
-                <div class="input-field" formGroupName="cpuRequest">
+                <div class="input-field">
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
@@ -77,7 +77,7 @@
                     </div>
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-series" class="processors" id="proc-series" *ngIf="!isProcSeriesToggled">
+                            <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled">
                                 <option [value]="" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
@@ -89,7 +89,7 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onProcModifierInput($event)">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>
@@ -98,7 +98,7 @@
                 <p class="label"> Screen Size </p>
                 <div class="size-field">
                     <label for="screen-size"> Size: </label>
-                    <input type="number" class="input-form" id="screen-size" min="0">
+                    <input type="number" class="input-form" id="screen-size" min="0" formControlName="screenSize">
                     <p> " (inches) </p>
                 </div>
             </div>
@@ -106,7 +106,7 @@
                 <p class="label"> Video Card </p>
                 <div class="size-field">
                     <label for="gpu-size"> Size: </label>
-                    <input type="number" class="input-form" id="gpu-size" list="gpu" min="0">
+                    <input type="number" class="input-form" id="gpu-size" list="gpu" min="0" (blur)="onGPUInput($event)">
                     <p> GB </p>
                 </div>
             </div>

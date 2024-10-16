@@ -109,7 +109,7 @@ export class AioComponent implements OnInit {
     //GET
     getAIOBrandValue() {
         let value = document.getElementById('aio-brand') as HTMLOptionElement;
-        this.aioForm.get('batchId')?.setValue(value.value);
+        this.aioForm.patchValue({ brandId: parseInt(value.value, 10) });
     }
 
     getDivisionValue() {
@@ -119,13 +119,19 @@ export class AioComponent implements OnInit {
 
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
-        this.aioForm.get('sectionId')?.setValue(value.value);
+        this.aioForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
         this.specs.getProcSeriesById(value.value).subscribe((res: any) => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
+        this.aioForm.patchValue({ cpuRequest: { cpuBrandId: parseInt(value.value, 10) } });
+    }
+
+    getProcSeries() {
+        let value = document.getElementById('proc-series') as HTMLOptionElement;
+        this.aioForm.patchValue({ cpuRequest: { cpuBrandSeriesId: parseInt(value.value, 10) } });
     }
 
     //POST
@@ -133,7 +139,7 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
           this.aioAuth.postAIOBrand(inputElement.value).subscribe({
-              next: (res: any) => this.aioForm.get('brandId')?.setValue(res.id),
+              next: (res: any) => this.aioForm.patchValue({ brandId: res.id }),
               error: (error: any) => console.log(error)
           });
         }
@@ -143,7 +149,7 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcBrand(inputElement.value).subscribe({
-                next: (res: any) => this.aioForm.get('cpuRequest')?.setValue({ cpuBrandId: res.id }),
+                next: (res: any) => this.aioForm.patchValue({ cpuRequest: { cpuBrandId: res.id } }),
                 error: (error: any) => console.log(error)
             });
         }
@@ -153,16 +159,16 @@ export class AioComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcSeries(id, inputElement.value).subscribe({
-                next: (res: any) => this.aioForm.get('cpuRequest')?.setValue({ cpuBrandSeriesId: res.id }),
+                next: (res: any) => this.aioForm.patchValue({ cpuRequest: { cpuBrandSeriesId: res.id } }),
                 error: (error: any) => console.log(error)
             });
         }
     }
 
-    onProcModiefierInput(event: Event): void {
+    onProcModifierInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
-            this.aioForm.get('cpuRequest')?.setValue({ cpuModifier: inputElement.value });
+            this.aioForm.patchValue({ cpuRequest: { cpuModifier: inputElement.value } });
         }
     }
 
