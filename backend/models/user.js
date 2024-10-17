@@ -73,7 +73,7 @@ module.exports = class User {
     static find(email) {
         require('dotenv').config();
         let httpClient = new HttpClient(process.env.backend);
-        let response = httpClient.get(`/employees/email/email=${email}`);
+        let response = httpClient.get(`/employees/email/${email}`)
         return response;
     }
 

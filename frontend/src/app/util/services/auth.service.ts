@@ -13,7 +13,7 @@ import { User } from '../models/User';
 })
 export class AuthService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
-    private reserveUrl = 'http://192.168.1.87:4000/auth';
+    private reserveUrl = 'http://192.168.1.87:4100/auth';
 
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     userLogged$: Observable<boolean> = this.isUserLoggedIn.asObservable();

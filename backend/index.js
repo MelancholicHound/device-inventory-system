@@ -6,7 +6,7 @@ const authRoutes = require('./routes/auth');
 const errorController = require('./controllers/error');
 
 const app = express();
-const ports = process.env.port || 4000;
+const ports = 4100;
 
 app.use(cors());
 app.use(bodyParser.json());

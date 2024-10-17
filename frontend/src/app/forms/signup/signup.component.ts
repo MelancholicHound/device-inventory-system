@@ -100,7 +100,7 @@ export class SignupComponent implements OnInit {
     sendOTP() {
         let otp = this.otpForm.get('numOne')?.value + this.otpForm.get('numTwo')?.value + this.otpForm.get('numThree')?.value + this.otpForm.get('numFour')?.value;
         let label = document.querySelector('.footer-label') as HTMLParagraphElement;
-        this.auth.verifyOTP(`${otp}`).subscribe({
+        this.auth.verifyOTP(otp).subscribe({
             next: () => {
                 label.textContent = 'OTP verification complete. You may now proceed to login.';
                 label.style.color = '#1d1d1f';
