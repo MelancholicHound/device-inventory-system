@@ -14,7 +14,10 @@ export class DeviceLaptopService {
     private token = localStorage.getItem('token');
 
     httpOptions: { headers: HttpHeaders } = {
-        headers: new HttpHeaders({ 'Content-Type' : 'application/json', 'Authorization' : `Bearer ${this.token}` })
+        headers: new HttpHeaders({
+            'Content-Type' : 'application/json',
+            'Authorization' : `Bearer ${this.token}`
+        })
     }
 
     constructor(private http: HttpClient,

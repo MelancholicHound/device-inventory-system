@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
@@ -14,8 +14,13 @@ export class DeviceAioService {
     private token = localStorage.getItem('token');
 
     httpOptions: { headers: HttpHeaders } = {
-        headers: new HttpHeaders({ 'Content-Type' : 'application/json', 'Authorization' : `Bearer ${this.token}` })
+        headers: new HttpHeaders({
+            'Content-Type' : 'application/json',
+            'Authorization' : `Bearer ${this.token}`
+        })
     }
+
+    httpParams = new HttpParams();
 
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
