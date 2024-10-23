@@ -3,6 +3,7 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, F
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
@@ -16,6 +17,7 @@ import { DeviceAioService } from '../../util/services/device-aio.service';
         FormsModule
     ],
     providers: [
+        AuthService,
         ParamsService,
         SpecsService,
         DeviceAioService
@@ -42,7 +44,8 @@ export class AioComponent implements OnInit {
 
     aioForm!: FormGroup;
 
-    constructor(private params: ParamsService,
+    constructor(private auth: AuthService,
+                private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
                 private aioAuth: DeviceAioService) {

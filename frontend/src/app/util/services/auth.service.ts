@@ -16,6 +16,7 @@ export class AuthService {
     private reserveUrl = 'http://192.168.1.87:4100/auth';
 
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    deviceDetails: BehaviorSubject<any> = new BehaviorSubject<any>([]);
     userLogged$: Observable<boolean> = this.isUserLoggedIn.asObservable();
 
     httpOptions: { headers: HttpHeaders } = {
@@ -54,5 +55,9 @@ export class AuthService {
     getEmployeePositions(): Observable<any> {
         return this.http.get<any>(`${this.url}/positions`)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('positions')));
+    }
+
+    dataStore(form: any) {
+        this.deviceDetails.next(form);
     }
 }
