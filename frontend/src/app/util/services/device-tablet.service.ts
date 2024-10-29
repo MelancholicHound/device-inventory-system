@@ -23,8 +23,14 @@ export class DeviceTabletService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/tablets/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`tablets/batch/${id}`)));
+    }
+
+    getTabletBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/tablet-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/tablet-brands')));
     }
 }

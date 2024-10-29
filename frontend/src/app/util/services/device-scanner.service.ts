@@ -23,8 +23,14 @@ export class DeviceScannerService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/scanners/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`scanners/batch/${id}`)));
+    }
+
+    getScannerBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/scanner-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/scanner-brands')));
     }
 }

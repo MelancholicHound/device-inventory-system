@@ -29,7 +29,7 @@ export class DevicePrinterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`printers/batch/${id}`)));
     }
 
-    getPrinterBrand(): Observable<any> {
+    getPrinterBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/printer-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/printer-brands')));
     }
