@@ -141,10 +141,10 @@ export class AioComponent implements OnInit {
     onAIOBrandInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
-          this.aioAuth.postAIOBrand(inputElement.value).subscribe({
-              next: (res: any) => this.aioForm.patchValue({ brandId: res.id }),
-              error: (error: any) => console.log(error)
-          });
+            this.aioAuth.postAIOBrand(inputElement.value).subscribe({
+                next: (res: any) => this.aioForm.patchValue({ brandId: res.id }),
+                error: (error: any) => console.log(error)
+            });
         }
     }
 
@@ -184,7 +184,8 @@ export class AioComponent implements OnInit {
             for (let i = 0; i < this.fetchedRAM.length; i++) {
                 if (intValue === this.fetchedRAM[i].capacity) {
                     ramArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')]) }));
+                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                    }));
                     break;
                 } else if (intValue !== this.fetchedRAM[i].capacity) {
                     if (i === this.fetchedRAM.length) {
@@ -196,7 +197,6 @@ export class AioComponent implements OnInit {
                             },
                             error: (error: any) => console.log(error)
                         });
-                        break;
                     }
                 }
             }
@@ -211,6 +211,7 @@ export class AioComponent implements OnInit {
             for (let i = 0; i < this.fetchedGPU.length; i++) {
                 if (intValue === this.fetchedGPU[i].capacity) {
                     this.aioForm.get('videoCardRequest')?.setValue({ capacityId: this.fetchedGPU[i].id });
+                    break;
                 } else if (intValue !== this.fetchedGPU[i].capacity) {
                     if (i === this.fetchedGPU.length) {
                         this.specs.postGPUCapacity(intValue).subscribe({
@@ -294,8 +295,7 @@ export class AioComponent implements OnInit {
 
         const clonedInput = clonedElement.querySelector('input');
         if (clonedInput) {
-            clonedInput.id = newId;
-            clonedInput.value = '';
+            clonedInput.id = newId; clonedInput.value = '';
 
             clonedInput.addEventListener('blur', (event) => this.onRAMInput(event));
         }
@@ -318,10 +318,8 @@ export class AioComponent implements OnInit {
         const clonedTypeSelect = clonedTypeEl.querySelector('select');
         const clonedSizeInput = clonedSizeEl.querySelector('input');
         if (clonedTypeSelect && clonedSizeInput) {
-            clonedTypeSelect.id = newIdType;
-            clonedSizeInput.id = newIdSize;
-            clonedTypeSelect.value = '';
-            clonedSizeInput.value = '';
+            clonedTypeSelect.id = newIdType; clonedSizeInput.id = newIdSize;
+            clonedTypeSelect.value = ''; clonedSizeInput.value = '';
 
             clonedSizeInput.addEventListener('blur', (event) => this.onStorageInput(event));
         }

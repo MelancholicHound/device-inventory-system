@@ -23,8 +23,14 @@ export class DevicePrinterService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/printers/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`printers/batch/${id}`)))
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`printers/batch/${id}`)));
+    }
+
+    getPrinterBrand(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/printer-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/printer-brands')));
     }
 }

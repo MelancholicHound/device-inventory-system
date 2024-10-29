@@ -23,8 +23,20 @@ export class DeviceLaptopService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/laptops/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`laptops/batch/${id}`)))
+    }
+
+    getLaptopBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/laptop-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/laptop-brands')));
+    }
+
+    //POST
+    postLaptopBrand(brand: string): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/laptop-brands`, this.httpOptions) //configure url (for params)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/laptop-brands')));
     }
 }
