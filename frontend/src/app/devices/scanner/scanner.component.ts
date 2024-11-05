@@ -23,15 +23,12 @@ import { DeviceScannerService } from '../../util/services/device-scanner.service
 })
 export class ScannerComponent implements OnInit {
     device = { name: 'Scanner', indicator: 'scanner' };
-    deviceCount!: any;
+    deviceCount: any; batchId: any; batchNumber: any;
 
     isScannerBrandToggled: boolean = false; isScannerBrandAnimated: boolean = false;
 
     fetchedScannerBrand!: any; fetchedType!: any;
     fetchedDivision!: any; fetchedSection!: any;
-
-    scannerBrandId!: any;
-    secId!: any;
 
     scannerForm!: FormGroup;
 
@@ -45,14 +42,21 @@ export class ScannerComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.scannerForm = this.createScannerFormGroup();
 
+        this.scanAuth.getScannerBrands().subscribe({
+            next: (data: any[]) => this.fetchedScannerBrand = data,
+            error: (error: any) => console.log(error)
+        });
+
+        //GET request of scanner type from scanAuth
     }
 
-    getScannerBrandValue() {
-        let value = document.getElementById('brand-name') as HTMLOptionElement;
-        this.scannerBrandId = value.value;
+    createScannerFormGroup(): FormGroup {
+        return new FormGroup({ });
     }
 
+    //GET
     getDivisionValue() {
         let value = document.getElementById('division') as HTMLOptionElement;
         this.params.getSectionsById(value.value).subscribe(res => this.fetchedSection = res);
@@ -60,13 +64,14 @@ export class ScannerComponent implements OnInit {
 
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
-        this.secId = value.value;
+        this.scannerForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
     getScannerType() {
 
     }
 
+    //Other functions
     toggleScannerBrandField() {
         this.isScannerBrandToggled = !this.isScannerBrandToggled;
         this.isScannerBrandAnimated = !this.isScannerBrandAnimated;

@@ -113,7 +113,7 @@ export class ComputerComponent implements OnInit {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
         this.specs.getProcSeriesById(value.value).subscribe(res => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
-        this.compForm.patchValue({ cpuRequest: { cpurBrandId: parseInt(value.value, 10) } });
+        this.compForm.patchValue({ cpuRequest: { cpuBrandId: parseInt(value.value, 10) } });
     }
 
     getProcSeries() {
@@ -126,7 +126,7 @@ export class ComputerComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcBrand(inputElement.value).subscribe({
-                next: (res: any) => this.compForm.patchValue({ cpuRequest: { cpurBrandId: res.id } }),
+                next: (res: any) => this.compForm.patchValue({ cpuRequest: { cpuBrandId: res.id } }),
                 error: (error: any) => console.log(error)
             });
         }

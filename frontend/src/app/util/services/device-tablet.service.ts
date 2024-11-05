@@ -33,4 +33,20 @@ export class DeviceTabletService {
         return this.http.get<any>(`${this.url}/specs/tablet-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/tablet-brands')));
     }
+
+    getChipsetBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/chipset-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
+    }
+
+    //POST
+    postTabletBrand(brand: string): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/tablet-brands?brand=${brand}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/tablet-brands')));
+    }
+
+    postChipsetBrand(brand: string): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/chipset-brands?brand=${brand}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
+    }
 }

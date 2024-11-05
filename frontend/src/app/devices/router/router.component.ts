@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceRouterService } from '../../util/services/device-router.service';
+import { validateHorizontalPosition } from '@angular/cdk/overlay';
 
 @Component({
     selector: 'app-router',
@@ -23,21 +24,18 @@ import { DeviceRouterService } from '../../util/services/device-router.service';
 })
 export class RouterComponent implements OnInit {
     device = { name: 'Router', indicator: 'router' };
-    deviceCount!: any;
+    deviceCount!: any; batchId: any; batchNumber: any;
 
     isRouterBrandToggled: boolean = false; isRouterBrandAnimated: boolean = false;
 
-    fetchedRouterBrand!: any;
+    fetchedRouterBrand!: any; fetchedNetSpeed!: any; fetchedAntenna!: any;
     fetchedDivision!: any; fetchedSection!: any;
-
-    routerBrandId!: any;
-    secId!: any;
 
     routerForm!: FormGroup;
 
     constructor(private params: ParamsService,
                 private router: Router,
-                private routeAuth: DeviceRouterService) {
+                private routerAuth: DeviceRouterService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
@@ -45,12 +43,37 @@ export class RouterComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.routerForm = this.createRouterFormGroup();
 
+        this.routerAuth.getRouterBrands().subscribe({
+            next: (data: any[]) => this.fetchedRouterBrand = data,
+            error: (error: any) => console.log(error)
+        });
+
+        this.params.getAllDivisions().subscribe({
+            next: (data: any[]) => this.fetchedDivision = data,
+            error: (error: any) => console.log(error)
+        });
+
+        //GET request of network speed from routerAuth
+
+        //GET request of number of antennas from routerAuth
     }
 
-    getRouterBrandValue() {
-        let value = document.getElementById('brand-name') as HTMLOptionElement;
-        this.routerBrandId = value.value;
+    createRouterFormGroup(): FormGroup {
+        return new FormGroup({
+            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl('', [Validators.required]),
+            networkSpeedId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            numberOfAntennaId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+        });
+    }
+
+    //GET
+    getLaptopBrandValue() {
+        let value = document.getElementById('') as HTMLOptionElement;
+        this.routerForm.patchValue({ brandId: parseInt(value.value, 10) });
     }
 
     getDivisionValue() {
@@ -59,14 +82,11 @@ export class RouterComponent implements OnInit {
     }
 
     getSectionValue() {
-        let value = document.getElementById('section') as HTMLOptionElement;
-        this.secId = value.value;
+        let value = document.getElementById('') as HTMLOptionElement;
+        this.routerForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
-    getPrinterType() {
-
-    }
-
+    //Other functions
     toggleRouterBrandField() {
         this.isRouterBrandToggled = !this.isRouterBrandToggled;
         this.isRouterBrandAnimated = !this.isRouterBrandAnimated;

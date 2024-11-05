@@ -25,7 +25,7 @@
                         <label for="aio-brand" class="label"> Brand Name </label>
                         <select title="aio-brand" id="aio-brand" class="form-control" (change)="getAIOBrandValue()" *ngIf="!isAIOBrandToggled">
                             <option [value]="" selected disabled> Select AIO brand </option>
-                            <option [value]="aiobrand.id" *ngFor="let aiobrand of fetchedAIOBrand"> {{ aiobrand.brand }} </option>
+                            <option [value]="aio.id" *ngFor="let aio of fetchedAIOBrand"> {{ aio.brand }} </option>
                         </select>
                         <input type="text" class="form-control input-form" (blur)="onAIOBrandInput($event)" *ngIf="isAIOBrandToggled" placeholder="Input AIO Brand">
                     </div>
@@ -114,7 +114,7 @@
                 <p class="label"> RAM </p>
                 <div class="size-field" id="ram-field">
                     <label for="ram-size"> Size: </label>
-                    <input type="number" class="input-form" id="ram-size" (blur)="onRAMInput($event)" list="ramsize" min="0">
+                    <input type="number" class="input-form" id="ram-size" list="ramsize" min="0" (blur)="onRAMInput($event)">
                     <p> GB </p>
                 </div>
                 <div class="size-field top-gap">
@@ -136,7 +136,7 @@
                 </div>
                 <div class="size-field" id="size-container">
                     <label for="storage-size"> Size: </label>
-                    <input type="number" class="input-form size-input" id="storage-size" (blur)="onStorageInput($event)" list="storagesize" min="0">
+                    <input type="number" class="input-form size-input" id="storage-size" list="storagesize" min="0" (blur)="onStorageInput($event)">
                     <p> GB </p>
                 </div>
                 <div class="size-field">

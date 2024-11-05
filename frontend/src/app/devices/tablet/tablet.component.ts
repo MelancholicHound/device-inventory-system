@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 @Component({
@@ -23,7 +24,7 @@ import { DeviceTabletService } from '../../util/services/device-tablet.service';
 })
 export class TabletComponent implements OnInit {
     device = { name: 'Tablet', indicator: 'tablet' };
-    deviceCount!: any;
+    deviceCount!: any; batchId: any; batchNumber: any;
 
     isChipsetBrandToggled: boolean = false; isChipsetBrandAnimated: boolean = false;
     isTabletBrandToggled: boolean = false; isTabletBrandAnimated: boolean = false;
@@ -32,16 +33,12 @@ export class TabletComponent implements OnInit {
     fetchedDivision!: any; fetchedSection!: any;
     fetchedStorage!: any; fetchedRAM!: any;
 
-    tabletBrandId!: any;
-    secId!: any;
-
-    chipsetBrandId!: any;
-
     tabletForm!: FormGroup;
 
     constructor(private params: ParamsService,
+                private specs: SpecsService,
                 private router: Router,
-                private tabAuth: DeviceTabletService) {
+                private tabletAuth: DeviceTabletService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
@@ -49,29 +46,120 @@ export class TabletComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.tabletForm = this.createTabletFormGroup();
 
+        this.tabletAuth.getTabletBrands().subscribe({
+            next: (res: any[]) => this.fetchedTabletBrand = res,
+            error: (error: any) => console.log(error)
+        });
+
+        this.params.getAllDivisions().subscribe({
+            next: (res: any[]) => this.fetchedDivision = res,
+            error: (error: any) => console.log(error)
+        });
+
+        this.tabletAuth.getChipsetBrands().subscribe({
+            next: (res: any[]) => this.fetchedChipsetBrand = res,
+            error: (error: any) => console.log(error)
+        });
+
+        this.specs.getRAMCapacities().subscribe({
+            next: (res: any[]) => this.fetchedRAM = res,
+            error: (error: any) => console.log(error)
+        });
+
+        this.specs.getStorageCapacities().subscribe({
+            next: (res: any[]) => this.fetchedStorage = res,
+            error: (error: any) => console.log(error)
+        });
     }
 
+    createTabletFormGroup(): FormGroup {
+        return new FormGroup({
+            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandSeries: new FormControl('', [Validators.required]),
+            chipsetRequest: new FormGroup({
+                brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+                chipsetModel: new FormControl('', [Validators.required])
+            }),
+            screenSize: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            storageRequests: new FormArray([], [Validators.required]),
+            ramRequests: new FormArray([], [Validators.required])
+        });
+    }
+
+    //GET
     getTabletBrandValue() {
-        let value = document.getElementById('brand-name') as HTMLOptionElement;
-        this.tabletBrandId = value.value;
+        let value = document.getElementById('tablet-brand') as HTMLOptionElement;
+        this.tabletForm.patchValue({ brandId: parseInt(value.value, 10) });
     }
 
     getDivisionValue() {
         let value = document.getElementById('division') as HTMLOptionElement;
-        this.params.getSectionsById(value.value).subscribe(res => this.fetchedSection = res);
+        this.params.getSectionsById(value.value).subscribe((res: any[]) => this.fetchedSection = res)
     }
 
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
-        this.secId = value.value;
+        this.tabletForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
-    getProcBrand() {
+    getChipsetBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
-        this.chipsetBrandId = value.value;
+        this.tabletForm.patchValue({ chipsetRequest: { brandId: parseInt(value.value, 10) } });
     }
 
+    //POST
+    onTabletBrandInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.tabletAuth.postTabletBrand(inputElement.value).subscribe({
+                next: (res: any) => this.tabletForm.patchValue({ brandId: res.id }),
+                error: (error: any) => console.log(error)
+            });
+        }
+    }
+
+    onChipsetBrandInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.tabletAuth.postChipsetBrand(inputElement.value).subscribe({
+                next: (res: any) => this.tabletForm.patchValue({ chipsetRequest: { brandId: res.id } }),
+                error: (error: any) => console.log(error)
+            });
+        }
+    }
+
+    onRAMInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+        let intValue = parseInt(inputElement.value, 10);
+        let ramArray = this.tabletForm.get('ramRequests') as FormArray;
+
+        if (intValue) {
+            for (let i = 0; i < this.fetchedRAM.length; i++) {
+                if (intValue === this.fetchedRAM[i].capacity) {
+                    ramArray.push(new FormGroup({
+                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                    }));
+                    break;
+                } else if (intValue !== this.fetchedRAM[i].capacity) {
+                    if (i === this.fetchedRAM.length) {
+                        this.specs.postRAMCapacity(intValue).subscribe({
+                            next: (res: any) => {
+                                ramArray.push(new FormGroup({
+                                    capacityId: new FormControl(res.id, [Validators.required])
+                                }));
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    //Other functions
     toggleTabletBrandField() {
         this.isTabletBrandToggled = !this.isTabletBrandToggled;
         this.isTabletBrandAnimated = !this.isTabletBrandAnimated;

@@ -33,4 +33,6 @@ export class DeviceScannerService {
         return this.http.get<any>(`${this.url}/specs/scanner-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/scanner-brands')));
     }
+
+    //GET request of scanner type
 }

@@ -33,4 +33,12 @@ export class DevicePrinterService {
         return this.http.get<any>(`${this.url}/specs/printer-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/printer-brands')));
     }
+
+    //GET request of printer type
+
+    //POST
+    postPrinterBrand(brand: string): Observable<any> {
+        return this.http.post<any>(`${this.url}/specs/printer-brands?brand=${brand}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/printer-brands')));
+    }
 }

@@ -33,4 +33,8 @@ export class DeviceRouterService {
         return this.http.get<any>(`${this.url}/specs/router-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/router-brands')));
     }
+
+    //GET request of network speed
+
+    //GET request of number of antennas
 }

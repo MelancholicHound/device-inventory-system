@@ -23,7 +23,7 @@
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="aio-brand" class="form-control" (change)="getRouterBrandValue()" *ngIf="!isRouterBrandToggled">
+                        <select title="aio-brand" id="aio-brand" class="form-control" *ngIf="!isRouterBrandToggled">
                             <option [value]="" selected disabled> Select router brand </option>
                             <option [value]="routebrand.id" *ngFor="let routebrand of fetchedRouterBrand"> {{ routebrand.brand }} </option>
                         </select>

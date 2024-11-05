@@ -110,7 +110,7 @@ export class LaptopComponent implements OnInit {
 
     //GET
     getLaptopBrandValue() {
-        let value = document.getElementById('brand-name') as HTMLOptionElement;
+        let value = document.getElementById('laptop-brand') as HTMLOptionElement;
         this.laptopForm.patchValue({ brandId: parseInt(value.value, 10) });
     }
 

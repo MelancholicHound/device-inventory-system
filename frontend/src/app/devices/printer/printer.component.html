@@ -1,4 +1,4 @@
-<form action="">
+<form action="" [formGroup]="printerForm">
     <div class="card gray-border device-info">
         <h1> Device Information </h1>
         <div class="details">
@@ -23,11 +23,11 @@
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="aio-brand" class="form-control" (change)="getLaptopBrandValue()" *ngIf="!isPrinterBrandToggled">
+                        <select title="aio-brand" id="print-brand" class="form-control" (change)="getPrinterBrandValue()" *ngIf="!isPrinterBrandToggled">
                             <option [value]="" selected disabled> Select printer brand </option>
-                            <option [value]="lapbrand.id" *ngFor="let lapbrand of fetchedPrinterBrand"> {{ lapbrand.brand }} </option>
+                            <option [value]="printer.id" *ngFor="let printer of fetchedPrinterBrand"> {{ printer.brand }} </option>
                         </select>
-                        <input type="text" class="form-control input-form" *ngIf="isPrinterBrandToggled" placeholder="Input printer brand">
+                        <input type="text" class="form-control input-form" (blur)="onPrinterBrandInput($event)" *ngIf="isPrinterBrandToggled" placeholder="Input printer brand">
                     </div>
                     <button class="add-btn" type="button" (click)="togglePrinterBrandField()">
                         <span class="material-symbols-rounded add-aio-brand" [class.rotate]="isPrinterBrandAnimated"> add </span>
@@ -35,20 +35,20 @@
                 </div>
                 <div class="form-container">
                     <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model" placeholder="Input printer model">
+                    <input type="text" class="form-control" id="model" placeholder="Input printer model" formControlName="model">
                 </div>
             </div>
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
                         <option [value]="" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
                         <option [value]="" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -63,12 +63,12 @@
                 <p class="label"> Printer Type </p>
                 <div class="input-field">
                     <div class="input-container">
-                        <select title="proc-brand" class="form-control" id="proc-brand" (change)="getPrinterType()">
+                        <select title="proc-brand" class="form-control" id="proc-brand">
                             <option [value]="" selected disabled> Select brand option </option>
                             <option [value]="type.id" *ngFor="let type of fetchedType"> {{ type.type }} </option>
                         </select>
                         <div class="size-field">
-                            <input type="radio" id="scanner">
+                            <input type="checkbox" id="scanner">
                             <label for="scanner"> with scanner </label>
                         </div>
                     </div>
