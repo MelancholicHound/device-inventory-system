@@ -33,38 +33,19 @@
             </div>
         </span>
         <div class="input-container">
-            <input type="email" class="form-control br gray-border" placeholder=" " id="email-add" formControlName="email">
+            <input type="email" class="form-control br gray-border" placeholder=" " id="email-add" formControlName="email" (blur)="emailControl?.markAllAsTouched()" [ngClass]="{ 'error-border': emailControl?.invalid && emailControl?.touched && emailControl?.value }">
             <label for="email-add" class="form-label"> Email Address </label>
         </div>
         <div class="input-container">
-            <input type="password" class="form-control br gray-border" placeholder=" " id="password" autocomplete="off" formControlName="password">
+            <input type="password" class="form-control br gray-border" placeholder=" " id="password" autocomplete="off" formControlName="password" [ngClass]="{ 'error-border': !passwordMatchValidator() && (signupForm.get('password')?.value && signupForm.get('confirmPassword')?.value) }">
             <label for="password" class="form-label"> Password </label>
         </div>
         <div class="input-container">
-            <input type="password" class="form-control br gray-border" placeholder=" " id="confirm-password" autocomplete="off" formControlName="confirmPassword">
+            <input type="password" class="form-control br gray-border" placeholder=" " id="confirm-password" autocomplete="off" formControlName="confirmPassword" [ngClass]="{ 'error-border': !passwordMatchValidator() && (signupForm.get('password')?.value && signupForm.get('confirmPassword')?.value) }">
             <label for="confirm-password" class="form-label"> Confirm password </label>
         </div>
         <button type="submit" class="submit-btn" id="open-signup-btn" [disabled]="signupForm.invalid || !passwordMatchValidator()" (click)="signup()"> Submit </button>
+        <p class="warning" *ngIf="emailControl?.invalid && emailControl?.touched && emailControl?.value"> Invalid input. Please try a valid email. </p>
+        <p class="warning" *ngIf="!passwordMatchValidator() && (signupForm.get('password')?.value && signupForm.get('confirmPassword')?.value)"> Your password doesn't match. Please try again </p>
     </section>
 </form>
-
-<div class="modal" #signupModal>
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3> OTP Verification </h3>
-            <button type="button" class="close-btn" (click)="signupModal.style.display = 'none'">
-                <span class="material-symbols-rounded"> close </span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form action="" class="otp-form" [formGroup]="otpForm">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="first-digit" formControlName="numOne">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="second-digit" formControlName="numTwo">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="third-digit" formControlName="numThree">
-                <input type="text" class="otp-control" maxlength="1" placeholder="•" pattern="\d+" id="fourth-digit" formControlName="numFour">
-            </form>
-            <button type="submit" class="otp-button" [disabled]="otpForm.invalid" (click)="sendOTP()"> Send OTP </button>
-        </div>
-        <p class="footer-label gray-text"> We sent you an email. Please check to see your OTP. </p>
-    </div>
-</div>

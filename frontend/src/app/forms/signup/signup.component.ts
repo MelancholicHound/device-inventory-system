@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
@@ -10,10 +10,10 @@ import { ParamsService } from '../../util/services/params.service';
     selector: 'app-signup',
     standalone: true,
     imports: [
+        CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        NgIf,
-        NgFor
+        NgIf, NgFor,
     ],
     providers: [
         AuthService,
@@ -47,35 +47,16 @@ export class SignupComponent implements OnInit {
         });
     }
 
-    createOTPFormGroup(): FormGroup {
-        return new FormGroup({
-            numOne: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numTwo: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numThree: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')]),
-            numFour: new FormControl('', [Validators.required, Validators.maxLength(1), Validators.pattern('^[0-9]*$')])
-        });
-    }
-
     ngOnInit(): void {
         this.signupForm = this.createSignupFormGroup();
-        this.otpForm = this.createOTPFormGroup();
-
-        this.otpForm.get('numOne')?.valueChanges.subscribe(() => {
-            let digit = document.getElementById('second-digit') as HTMLInputElement;
-            digit.focus();
-        });
-        this.otpForm.get('numTwo')?.valueChanges.subscribe(() => {
-            let digit = document.getElementById('third-digit') as HTMLInputElement;
-            digit.focus();
-        });
-        this.otpForm.get('numThree')?.valueChanges.subscribe(() => {
-            let digit = document.getElementById('fourth-digit') as HTMLInputElement;
-            digit.focus();
-        });
 
         this.auth.getEmployeePositions().subscribe((positions) => {
             this.positions = positions;
         });
+    }
+
+    get emailControl() {
+        return this.signupForm.get('email');
     }
 
     passwordMatchValidator() {
@@ -89,28 +70,9 @@ export class SignupComponent implements OnInit {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
         this.auth.signup(this.signupForm.value).subscribe({
-            next: () => { this.signupModal.nativeElement.style.display = 'block' },
+            next: () =>  console.log('Success!'),
             error: (error) => {
                 this.signupForm.reset();
-                console.log(error);
-            }
-        });
-    }
-
-    sendOTP() {
-        let otp = this.otpForm.get('numOne')?.value + this.otpForm.get('numTwo')?.value + this.otpForm.get('numThree')?.value + this.otpForm.get('numFour')?.value;
-        let label = document.querySelector('.footer-label') as HTMLParagraphElement;
-        this.auth.verifyOTP(otp).subscribe({
-            next: () => {
-                label.textContent = 'OTP verification complete. You may now proceed to login.';
-                label.style.color = '#1d1d1f';
-                setTimeout(() => {
-                    this.signupModal.nativeElement.style.display = 'none';
-                    this.booleanEvent.emit(true);
-                }, 2000);
-            },
-            error: (error) => {
-                this.otpForm.reset();
                 console.log(error);
             }
         });

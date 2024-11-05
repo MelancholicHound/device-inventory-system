@@ -43,6 +43,12 @@ input[type='number'] {
 
 select { width: 17rem; }
 
+.warning {
+    text-align: center;
+    color: #dc2626;
+    font-weight: 700;
+}
+
 .container {
     flex-direction: column;
     gap: 3px;
@@ -65,42 +71,4 @@ header,
 .form-field,
 .container { display: flex; }
 
-//Modal styles
-.modal-body {
-    margin-top: 2.5rem;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-evenly;
-}
-
-.otp-form {
-    width: 100%;
-    justify-content: center;
-    gap: 10px;
-}
-
-.otp-control {
-    width: 50px;
-    height: 3rem;
-    text-align: center;
-}
-
-.otp-form {
-    display: flex;
-}
-
-.otp-button {
-    width: 150px;
-    height: 50px;
-    font-weight: 700;
-    color: #F5F5F7;
-    background-color: #5F67FF;
-    border: none;
-    border-radius: 3px;
-}
-
-.footer-label {
-    text-align: center;
-    color: #808080;
-}
-
+.error-border { border: 2px solid #dc2626; }

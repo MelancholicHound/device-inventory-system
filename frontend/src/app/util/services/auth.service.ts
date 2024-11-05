@@ -13,7 +13,6 @@ import { User } from '../models/User';
 })
 export class AuthService {
     private url = 'http://192.168.250.147:8082/api/v1/dis';
-    private reserveUrl = 'http://192.168.250.118:4100/auth';
 
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     deviceDetails: BehaviorSubject<any> = new BehaviorSubject<any>([]);
@@ -27,16 +26,8 @@ export class AuthService {
                 private errorHandler: ErrorHandlerService) { }
 
     signup(user: Omit<User, 'id'>): Observable<User> {
-        return this.http.post<User>(`${this.reserveUrl}/signup`, user, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<User>('signup')));
-    }
-
-    verifyOTP(otp: any): Observable<any> {
-        return this.http.post<any>(`${this.reserveUrl}/signup/otp`, { otp }, this.httpOptions)
-        .pipe(first(), catchError((error) => {
-              if (error.status === 400 && error.error) {
-                  this.errorHandler.handleError('Authentication failed: ', error.error.message);
-              } return error; }));
+        return this.http.post<User>(`${this.url}/register`, user, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('register')));
     }
 
     login(email: Pick<User, 'email'>, password: Pick<User, 'password'>): Observable<any> {
