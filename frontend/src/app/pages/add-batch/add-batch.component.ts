@@ -112,6 +112,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this.isAddingBatch = false;
             this.isViewingBatch = false;
         } else if (this.batchViewDetails) {
+            this.batchDetails = this.batchViewDetails;
             this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
@@ -149,6 +150,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 },
                 error: (error: any) => { console.log(error) }
             });
-        } else { this.router.navigate(['/batch-delivery']) }
+        } else {
+          this.router.navigate(['/batch-delivery'])
+        }
     }
 }
