@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceRouterService } from '../../util/services/device-router.service';
-import { validateHorizontalPosition } from '@angular/cdk/overlay';
 
 @Component({
     selector: 'app-router',
@@ -55,13 +54,20 @@ export class RouterComponent implements OnInit {
             error: (error: any) => console.log(error)
         });
 
-        //GET request of network speed from routerAuth
+        this.routerAuth.getNetworkSpeed().subscribe({
+            next: (data: any[]) => this.fetchedNetSpeed = data,
+            error: (error: any) => console.log(error)
+        });
 
-        //GET request of number of antennas from routerAuth
+        this.routerAuth.getNumberOfAntennas().subscribe({
+            next: (data: any[]) => this.fetchedAntenna = data,
+            error: (error: any) => console.log(error)
+        });
     }
 
     createRouterFormGroup(): FormGroup {
         return new FormGroup({
+            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl('', [Validators.required]),
@@ -71,8 +77,8 @@ export class RouterComponent implements OnInit {
     }
 
     //GET
-    getLaptopBrandValue() {
-        let value = document.getElementById('') as HTMLOptionElement;
+    getRouterBrandValue() {
+        let value = document.getElementById('router-brand') as HTMLOptionElement;
         this.routerForm.patchValue({ brandId: parseInt(value.value, 10) });
     }
 
@@ -82,8 +88,66 @@ export class RouterComponent implements OnInit {
     }
 
     getSectionValue() {
-        let value = document.getElementById('') as HTMLOptionElement;
+        let value = document.getElementById('section') as HTMLOptionElement;
         this.routerForm.patchValue({ sectionId: parseInt(value.value, 10) });
+    }
+
+    //POST
+    onRouterBrandInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+
+        if (inputElement.value !== '') {
+            this.routerAuth.postRouterBrandInput(inputElement.value).subscribe({
+                next: (res: any) => this.routerForm.patchValue({ brandId: res.id }),
+                error: (error: any) => console.log(error)
+            });
+        }
+    }
+
+    onNetworkSpeedInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+        let intValue = parseInt(inputElement.value, 10);
+
+        if (intValue) {
+            for (let i = 0; i < this.fetchedNetSpeed.length; i++) {
+                if (intValue === this.fetchedNetSpeed[i].networkSpeedByMbps) {
+                    this.routerForm.patchValue({ networkSpeedId: this.fetchedNetSpeed[i].id });
+                    break;
+                } else if (intValue !== this.fetchedNetSpeed[i].networkSpeedByMbps) {
+                    if (i === this.fetchedNetSpeed.length) {
+                        this.routerAuth.postRouterBrandInput(intValue).subscribe({
+                            next: (res: any) => this.routerForm.patchValue({ networkSpeedId: res.id }),
+                            error: (error: any) => console.log(error)
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    onAntennasInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+        let intValue = parseInt(inputElement.value, 10);
+
+        if (intValue) {
+            for (let i = 0; i < this.fetchedAntenna.length; i++) {
+                if (intValue === this.fetchedAntenna[i].numberOfAntenna) {
+                    this.routerForm.patchValue({ numberOfAntennaId: this.fetchedAntenna[i].id });
+                    break;
+                } else if (intValue !== this.fetchedAntenna[i].numberOfAntenna) {
+                    if (i === this.fetchedAntenna.length) {
+                        this.routerAuth.postNumberOfAntennas(intValue).subscribe({
+                            next: (res: any) => this.routerForm.patchValue({ numberOfAntennaId: res.id }),
+                            error: (error: any) => console.log(error)
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    postRouterSpecs(): void {
+        console.log(this.routerForm.value);
     }
 
     //Other functions

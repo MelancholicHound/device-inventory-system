@@ -43,15 +43,19 @@ input[type='number'] {
 
 select { width: 17rem; }
 
-.warning {
-    text-align: center;
-    color: #dc2626;
-    font-weight: 700;
-}
+.warning { color: #dc2626; }
+
+.success { color: #16a34a; }
 
 .container {
     flex-direction: column;
     gap: 3px;
+}
+
+.success,
+.warning {
+    text-align: center;
+    font-weight: 700;
 }
 
 input.form-control,

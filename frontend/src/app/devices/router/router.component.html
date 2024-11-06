@@ -1,4 +1,4 @@
-<form action="">
+<form action="" [formGroup]="routerForm">
     <div class="card gray-border device-info">
         <h1> Device Information </h1>
         <div class="details">
@@ -16,18 +16,18 @@
                     <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postRouterSpecs()"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">
                 <div class="brand-container">
                     <div class="form-container">
-                        <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="aio-brand" class="form-control" *ngIf="!isRouterBrandToggled">
+                        <label for="router-brand" class="label"> Brand Name </label>
+                        <select title="aio-brand" id="router-brand" class="form-control" *ngIf="!isRouterBrandToggled" (change)="getRouterBrandValue()">
                             <option [value]="" selected disabled> Select router brand </option>
                             <option [value]="routebrand.id" *ngFor="let routebrand of fetchedRouterBrand"> {{ routebrand.brand }} </option>
                         </select>
-                        <input type="text" class="form-control input-form" *ngIf="isRouterBrandToggled" placeholder="Input router brand">
+                        <input type="text" class="form-control input-form" *ngIf="isRouterBrandToggled" placeholder="Input router brand" (blur)="onRouterBrandInput($event)">
                     </div>
                     <button class="add-btn" type="button" (click)="toggleRouterBrandField()">
                         <span class="material-symbols-rounded add-aio-brand" [class.rotate]="isRouterBrandAnimated"> add </span>
@@ -35,20 +35,20 @@
                 </div>
                 <div class="form-container">
                     <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model" placeholder="Input router model">
+                    <input type="text" class="form-control" id="model" placeholder="Input router model" formControlName="model">
                 </div>
             </div>
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
                         <option [value]="" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
                         <option [value]="" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -63,7 +63,7 @@
                 <p class="label"> Network Speed </p>
                 <div class="input-field">
                     <div class="size-field">
-                        <input type="number" class="input-form" min="0" id="net-speed">
+                        <input type="number" class="input-form" id="net-speed" min="0" list="netspeed" (blur)="onNetworkSpeedInput($event)">
                         <label for="net-speed"> mb/s </label>
                     </div>
                 </div>
@@ -72,11 +72,17 @@
                 <p class="label"> Number of antennas </p>
                 <div class="input-field">
                     <div class="size-field">
-                        <input type="number" class="input-form" min="0" id="net-speed">
+                        <input type="number" class="input-form" id="antennas" min="0" list="ants" (blur)="onAntennasInput($event)">
                         <label for="net-speed"> antenna/s </label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <datalist id="netspeed">
+        <option *ngFor="let speed of fetchedNetSpeed"> {{ speed.networkSpeedByMbps }} </option>
+    </datalist>
+    <datalist id="ants">
+        <option *ngFor="let antennas of fetchedAntenna"> {{ antennas.numberOfAntenna }} </option>
+    </datalist>
 </form>

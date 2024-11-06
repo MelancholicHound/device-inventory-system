@@ -32,6 +32,7 @@ export class SignupComponent implements OnInit {
     signupForm!: FormGroup; otpForm!: FormGroup;
 
     positions!: any;
+    successSignup!: boolean;
 
     constructor(private auth: AuthService) { }
 
@@ -71,7 +72,12 @@ export class SignupComponent implements OnInit {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
         this.auth.signup(this.signupForm.value).subscribe({
-            next: () =>  this.booleanEvent.emit(true),
+            next: () =>  {
+                this.successSignup = true;
+                setTimeout(() => {
+                    this.booleanEvent.emit(true)
+                }, 3000);
+            },
             error: (error) => {
                 this.signupForm.reset();
                 console.log(error);

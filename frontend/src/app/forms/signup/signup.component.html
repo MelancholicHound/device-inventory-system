@@ -47,5 +47,6 @@
         <button type="submit" class="submit-btn" id="open-signup-btn" [disabled]="signupForm.invalid || !passwordMatchValidator()" (click)="signup()"> Submit </button>
         <p class="warning" *ngIf="emailControl?.invalid && emailControl?.touched && emailControl?.value"> Invalid input. Please try a valid email. </p>
         <p class="warning" *ngIf="!passwordMatchValidator() && (signupForm.get('password')?.value && signupForm.get('confirmPassword')?.value)"> Your password doesn't match. Please try again </p>
+        <p class="success" *ngIf="successSignup"> Registration successful. Redirecting to login. </p>
     </section>
 </form>

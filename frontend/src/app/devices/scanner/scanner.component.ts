@@ -34,7 +34,7 @@ export class ScannerComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private router: Router,
-                private scanAuth: DeviceScannerService) {
+                private scannerAuth: DeviceScannerService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
@@ -44,19 +44,38 @@ export class ScannerComponent implements OnInit {
     ngOnInit(): void {
         this.scannerForm = this.createScannerFormGroup();
 
-        this.scanAuth.getScannerBrands().subscribe({
+        this.params.getAllDivisions().subscribe({
+            next: (data: any[]) => this.fetchedDivision = data,
+            error: (error: any) => console.log(error)
+        });
+
+        this.scannerAuth.getScannerBrands().subscribe({
             next: (data: any[]) => this.fetchedScannerBrand = data,
             error: (error: any) => console.log(error)
         });
 
-        //GET request of scanner type from scanAuth
+        this.scannerAuth.getScannerType().subscribe({
+            next: (data: any[]) => this.fetchedType = data,
+            error: (error: any) => console.log(error)
+        });
     }
 
     createScannerFormGroup(): FormGroup {
-        return new FormGroup({ });
+        return new FormGroup({
+            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl('', [Validators.required]),
+            scannerTypeId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+        });
     }
 
     //GET
+    getScannerBrandValue() {
+        let value = document.getElementById('scanner-brand') as HTMLOptionElement;
+        this.scannerForm.patchValue({ brandId: parseInt(value.value, 10) });
+    }
+
     getDivisionValue() {
         let value = document.getElementById('division') as HTMLOptionElement;
         this.params.getSectionsById(value.value).subscribe(res => this.fetchedSection = res);
@@ -67,8 +86,25 @@ export class ScannerComponent implements OnInit {
         this.scannerForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
-    getScannerType() {
+    getScannerTypeValue() {
+        let value = document.getElementById('scanner-type') as HTMLOptionElement;
+        this.scannerForm.patchValue({ scannerTypeId: parseInt(value.value, 10) });
+    }
 
+    //POST
+    onScannerBrandInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+
+        if (inputElement.value !== '') {
+            this.scannerAuth.postScannerBrand(inputElement.value).subscribe({
+                next: (res: any) => this.scannerForm.patchValue({ brandId: res.id }),
+                error: (error: any) => console.log(error)
+            });
+        }
+    }
+
+    postScannerSpecs(): void {
+        console.log(this.scannerForm.value);
     }
 
     //Other functions

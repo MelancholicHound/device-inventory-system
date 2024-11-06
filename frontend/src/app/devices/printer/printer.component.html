@@ -16,18 +16,18 @@
                     <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postPrinterSpecs()"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="print-brand" class="form-control" (change)="getPrinterBrandValue()" *ngIf="!isPrinterBrandToggled">
+                        <select title="aio-brand" id="print-brand" class="form-control" *ngIf="!isPrinterBrandToggled" (change)="getPrinterBrandValue()">
                             <option [value]="" selected disabled> Select printer brand </option>
                             <option [value]="printer.id" *ngFor="let printer of fetchedPrinterBrand"> {{ printer.brand }} </option>
                         </select>
-                        <input type="text" class="form-control input-form" (blur)="onPrinterBrandInput($event)" *ngIf="isPrinterBrandToggled" placeholder="Input printer brand">
+                        <input type="text" class="form-control input-form" *ngIf="isPrinterBrandToggled" placeholder="Input printer brand" (blur)="onPrinterBrandInput($event)">
                     </div>
                     <button class="add-btn" type="button" (click)="togglePrinterBrandField()">
                         <span class="material-symbols-rounded add-aio-brand" [class.rotate]="isPrinterBrandAnimated"> add </span>
@@ -60,15 +60,15 @@
         <h1> Specifications </h1>
         <div class="specs-container">
             <div class="form-container">
-                <p class="label"> Printer Type </p>
+                <label class="label" for="printer-type"> Printer Type </label>
                 <div class="input-field">
                     <div class="input-container">
-                        <select title="proc-brand" class="form-control" id="proc-brand">
+                        <select title="proc-brand" class="form-control" id="printer-type" (change)="getPrinterTypeValue()">
                             <option [value]="" selected disabled> Select brand option </option>
                             <option [value]="type.id" *ngFor="let type of fetchedType"> {{ type.type }} </option>
                         </select>
                         <div class="size-field">
-                            <input type="checkbox" id="scanner">
+                            <input type="checkbox" id="scanner" formControlName="withScanner">
                             <label for="scanner"> with scanner </label>
                         </div>
                     </div>

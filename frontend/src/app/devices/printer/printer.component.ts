@@ -34,7 +34,7 @@ export class PrinterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private router: Router,
-                private printAuth: DevicePrinterService) {
+                private printerAuth: DevicePrinterService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
@@ -49,7 +49,15 @@ export class PrinterComponent implements OnInit {
             error: (error: any) => console.log(error)
         });
 
-        //GET request of printer type from printAuth
+        this.printerAuth.getPrinterBrands().subscribe({
+            next: (data: any[]) => this.fetchedPrinterBrand = data,
+            error: (error: any) => console.log(error)
+        });
+
+        this.printerAuth.getPrinterTypes().subscribe({
+            next: (data: any[]) => this.fetchedType = data,
+            error: (error: any) => console.log(error)
+        });
     }
 
     createPrinterFormGroup(): FormGroup {
@@ -59,7 +67,7 @@ export class PrinterComponent implements OnInit {
             brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl('', [Validators.required]),
             printerTypeId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            withScanner: new FormControl()
+            withScanner: new FormControl(false, [Validators.required])
         });
     }
 
@@ -79,15 +87,24 @@ export class PrinterComponent implements OnInit {
         this.printerForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
+    getPrinterTypeValue() {
+        let value = document.getElementById('printer-type') as HTMLOptionElement;
+        this.printerForm.patchValue({ printerTypeId: parseInt(value.value, 10) });
+    }
+
     //POST
     onPrinterBrandInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
-            this.printAuth.postPrinterBrand(inputElement.value).subscribe({
+            this.printerAuth.postPrinterBrand(inputElement.value).subscribe({
                 next: (res: any) => this.printerForm.patchValue({ brandId: res.id }),
                 error: (error: any) => console.log(error)
             });
         }
+    }
+
+    postPrinterSpecs(): void {
+        console.log(this.printerForm.value);
     }
 
     //Other functions

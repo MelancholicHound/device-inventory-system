@@ -1,4 +1,4 @@
-<form action="">
+<form action="" [formGroup]="scannerForm">
     <div class="card gray-border device-info">
         <h1> Device Information </h1>
         <div class="details">
@@ -16,14 +16,14 @@
                     <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postScannerSpecs()"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">
                 <div class="brand-container">
                     <div class="form-container">
-                        <label for="aio-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="aio-brand" class="form-control" *ngIf="!isScannerBrandToggled">
+                        <label for="scanner-brand" class="label"> Brand Name </label>
+                        <select title="aio-brand" id="scanner-brand" class="form-control" *ngIf="!isScannerBrandToggled" (change)="getScannerBrandValue()">
                             <option [value]="" selected disabled> Select scanner brand </option>
                             <option [value]="scanbrand.id" *ngFor="let scanbrand of fetchedScannerBrand"> {{ scanbrand.brand }} </option>
                         </select>
@@ -35,20 +35,20 @@
                 </div>
                 <div class="form-container">
                     <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model" placeholder="Input scanner model">
+                    <input type="text" class="form-control" id="model" placeholder="Input scanner model" formControlName="model">
                 </div>
             </div>
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
                         <option [value]="" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
                         <option [value]="" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -60,11 +60,11 @@
         <h1> Specifications </h1>
         <div class="specs-container">
             <div class="form-container">
-                <p class="label"> Scanner Type </p>
+                <label class="label" for="scanner-type"> Scanner Type </label>
                 <div class="input-field">
-                    <select title="proc-brand" class="form-control" id="proc-brand" (change)="getScannerType()">
+                    <select title="proc-brand" class="form-control" id="scanner-type" (change)="getScannerTypeValue()">
                         <option [value]="" selected disabled> Select option </option>
-                        <option [value]="type.id" *ngFor="let type of fetchedType"> {{ type.type }} </option>
+                        <option [value]="type.id" *ngFor="let type of fetchedType"> {{ type.scannerType }} </option>
                     </select>
                 </div>
             </div>
