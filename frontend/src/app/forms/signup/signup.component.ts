@@ -5,6 +5,7 @@ import { NgFor, NgIf } from '@angular/common';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-signup',
@@ -70,7 +71,7 @@ export class SignupComponent implements OnInit {
         this.signupForm.removeControl('confirmPassword');
         this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
         this.auth.signup(this.signupForm.value).subscribe({
-            next: () =>  console.log('Success!'),
+            next: () =>  this.booleanEvent.emit(true),
             error: (error) => {
                 this.signupForm.reset();
                 console.log(error);

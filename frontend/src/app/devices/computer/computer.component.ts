@@ -39,13 +39,13 @@ export class ComputerComponent implements OnInit {
     fetchedProcBrand!: any; fetchedProcSeries!: any;
     fetchedRAM!: any; fetchedStorage!: any; fetchedGPU!: any;
 
-    compForm!: FormGroup;
+    computerForm!: FormGroup;
 
     constructor(private auth: AuthService,
                 private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private compAuth: DeviceComputerService) {
+                private computerAuth: DeviceComputerService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.deviceCount = navigation.extras.state['count'];
@@ -55,7 +55,7 @@ export class ComputerComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        this.compForm = this.createCompFormGroup();
+        this.computerForm = this.createCompFormGroup();
 
         this.params.getAllDivisions().subscribe({
             next: (data: any[]) => this.fetchedDivision = data,
@@ -106,19 +106,19 @@ export class ComputerComponent implements OnInit {
 
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
-        this.compForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.computerForm.patchValue({ sectionId: parseInt(value.value, 10) });
     }
 
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
         this.specs.getProcSeriesById(value.value).subscribe(res => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
-        this.compForm.patchValue({ cpuRequest: { cpuBrandId: parseInt(value.value, 10) } });
+        this.computerForm.patchValue({ cpuRequest: { cpuBrandId: parseInt(value.value, 10) } });
     }
 
     getProcSeries() {
         let value = document.getElementById('proc-series') as HTMLOptionElement;
-        this.compForm.patchValue({ cpuRequest: { cpuBrandSeriesId: parseInt(value.value, 10) } });
+        this.computerForm.patchValue({ cpuRequest: { cpuBrandSeriesId: parseInt(value.value, 10) } });
     }
 
     //POST
@@ -126,7 +126,7 @@ export class ComputerComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcBrand(inputElement.value).subscribe({
-                next: (res: any) => this.compForm.patchValue({ cpuRequest: { cpuBrandId: res.id } }),
+                next: (res: any) => this.computerForm.patchValue({ cpuRequest: { cpuBrandId: res.id } }),
                 error: (error: any) => console.log(error)
             });
         }
@@ -136,7 +136,7 @@ export class ComputerComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.specs.postProcSeries(id, inputElement.value).subscribe({
-                next: (res: any) => this.compForm.patchValue({ cpuRequest: { cpuBrandSeriesId: res.id } }),
+                next: (res: any) => this.computerForm.patchValue({ cpuRequest: { cpuBrandSeriesId: res.id } }),
                 error: (error: any) => console.log(error)
             });
         }
@@ -145,14 +145,14 @@ export class ComputerComponent implements OnInit {
     onProcModifierInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
-            this.compForm.patchValue({ cpuRequest: { cpuModifier: inputElement.value } });
+            this.computerForm.patchValue({ cpuRequest: { cpuModifier: inputElement.value } });
         }
     }
 
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let intValue = parseInt(inputElement.value, 10);
-        let ramArray = this.compForm.get('ramRequests') as FormArray;
+        let ramArray = this.computerForm.get('ramRequests') as FormArray;
 
         if (intValue) {
             for (let i = 0; i < this.fetchedRAM.length; i++) {
@@ -185,12 +185,12 @@ export class ComputerComponent implements OnInit {
         if (intValue) {
             for (let i = 0; i < this.fetchedGPU.length; i++) {
                 if (intValue === this.fetchedGPU[i].capacity) {
-                    this.compForm.get('videoCardRequest')?.setValue({ capacityId: this.fetchedGPU[i].id });
+                    this.computerForm.get('videoCardRequest')?.setValue({ capacityId: this.fetchedGPU[i].id });
                     break;
                 } else if (intValue !== this.fetchedGPU[i].capacity) {
                     if (i === this.fetchedGPU.length) {
                         this.specs.postGPUCapacity(intValue).subscribe({
-                            next: (res: any) => this.compForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
+                            next: (res: any) => this.computerForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
                             error: (error: any) => console.log(error)
                         });
                     }
@@ -203,7 +203,7 @@ export class ComputerComponent implements OnInit {
         let inputElement = event.target as HTMLInputElement;
         let typeSelect = document.getElementById('type') as HTMLSelectElement;
         let sizeValue = parseInt(inputElement.value, 10);
-        let storageArray = this.compForm.get('storageRequests') as FormArray;
+        let storageArray = this.computerForm.get('storageRequests') as FormArray;
 
         if (sizeValue && typeSelect.value) {
             for (let i = 0; i < this.fetchedStorage.length; i++) {
@@ -242,7 +242,7 @@ export class ComputerComponent implements OnInit {
     }
 
     postCompSpecs(): void {
-        console.log(this.compForm.value);
+        console.log(this.computerForm.value);
     }
 
     //Other functions

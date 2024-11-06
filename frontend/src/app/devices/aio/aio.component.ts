@@ -117,7 +117,7 @@ export class AioComponent implements OnInit {
 
     getDivisionValue() {
         let value = document.getElementById('division') as HTMLOptionElement;
-        this.params.getSectionsById(value.value).subscribe(res => this.fetchedSection = res);
+        this.params.getSectionsById(value.value).subscribe((res: any[])=> this.fetchedSection = res);
     }
 
     getSectionValue() {
@@ -127,7 +127,7 @@ export class AioComponent implements OnInit {
 
     getProcBrand() {
         let value = document.getElementById('proc-brand') as HTMLOptionElement;
-        this.specs.getProcSeriesById(value.value).subscribe((res: any) => this.fetchedProcSeries = res);
+        this.specs.getProcSeriesById(value.value).subscribe((res: any[]) => this.fetchedProcSeries = res);
         this.procBrandId = value.value;
         this.aioForm.patchValue({ cpuRequest: { cpuBrandId: parseInt(value.value, 10) } });
     }
