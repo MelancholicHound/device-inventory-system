@@ -16,39 +16,39 @@
                     <p class="output-label"> {{ deviceCount }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postTabletSpecs()"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="tablet-brand" class="label"> Brand Name </label>
-                        <select title="tablet-brand" id="tablet-brand" class="form-control" *ngIf="!isTabletBrandToggled">
-                            <option [value]="" selected disabled> Select AIO brand </option>
+                        <select title="tablet-brand" id="tablet-brand" class="form-control" *ngIf="!isTabletBrandToggled" (change)="getTabletBrandValue()">
+                            <option [value]="" selected disabled> Select tablet brand </option>
                             <option [value]="tablet.id" *ngFor="let tablet of fetchedTabletBrand"> {{ tablet.brand }} </option>
                         </select>
-                        <input type="text" class="form-control input-form" *ngIf="isTabletBrandToggled" placeholder="Input AIO Brand">
+                        <input type="text" class="form-control input-form" *ngIf="isTabletBrandToggled" placeholder="Input tablet brand" (blur)="onTabletBrandInput($event)">
                     </div>
                     <button class="add-btn" type="button" (click)="toggleTabletBrandField()">
                         <span class="material-symbols-rounded add-aio-brand" [class.rotate]="isTabletBrandAnimated"> add </span>
                     </button>
                 </div>
                 <div class="form-container">
-                    <label for="model" class="label"> Model </label>
-                    <input type="text" class="form-control" id="model" placeholder="Input AIO model">
+                    <label for="model" class="label"> Series </label>
+                    <input type="text" class="form-control" id="model" placeholder="Input tablet series" formControlName="brandSeries">
                 </div>
             </div>
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
                         <option [value]="" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
                         <option [value]="" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -64,11 +64,11 @@
                 <div class="input-field">
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-brand" class="processors" id="proc-brand" *ngIf="!isChipsetBrandToggled">
+                            <select title="proc-brand" class="processors" id="proc-brand" *ngIf="!isChipsetBrandToggled" (change)="getChipsetBrand()">
                                 <option [value]="" selected disabled> Select brand option </option>
                                 <option [value]="chipbrand.id" *ngFor="let chipbrand of fetchedChipsetBrand"> {{ chipbrand.brand }} </option>
                             </select>
-                            <input type="text" class="processors input-form" *ngIf="isChipsetBrandToggled" placeholder="Input brand">
+                            <input type="text" class="processors input-form" *ngIf="isChipsetBrandToggled" placeholder="Input brand" (blur)="onChipsetBrandInput($event)">
                             <label for="proc-brand"> Brand </label>
                         </div>
                         <button class="add-btn" type="button" id="brand-field" (click)="toggleChipsetBrandField()">
@@ -76,7 +76,7 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onChipsetModelInput($event)">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>
@@ -85,7 +85,7 @@
                 <p class="label"> Screen Size </p>
                 <div class="size-field">
                     <label for="screen-size"> Size: </label>
-                    <input type="number" class="input-form" id="screen-size" min="0">
+                    <input type="number" class="input-form" id="screen-size" min="0" formControlName="screenSize">
                     <p> " (inches) </p>
                 </div>
             </div>
@@ -93,24 +93,24 @@
                 <p class="label"> RAM </p>
                 <div class="size-field" id="ram-field">
                     <label for="ram-size"> Size: </label>
-                    <input type="number" class="input-form" id="ram-size" min="0">
+                    <input type="number" class="input-form" id="ram-size" list="ramsize" min="0" (blur)="onRAMInput($event)">
                     <p> GB </p>
                 </div>
             </div>
             <div class="form-container">
                 <p class="label"> Storage </p>
-                <div class="size-field top-gap">
+                <div class="size-field">
                     <label for="storage-size"> Size: </label>
-                    <input type="number" class="input-form" id="storage-size">
+                    <input type="number" class="input-form" id="storage-size" list="storagesize" min="0" (blur)="onStorageInput($event)">
                     <p> GB </p>
                 </div>
             </div>
         </div>
     </div>
-    <datalist id="ram">
-        <option [value]="ram" *ngFor="let ram of fetchedRAM"></option>
+    <datalist id="ramsize">
+        <option *ngFor="let ram of fetchedRAM"> {{ ram.capacity }} </option>
     </datalist>
-    <datalist id="storage">
-        <option [value]="storage" *ngFor="let storage of fetchedStorage"></option>
+    <datalist id="storagesize">
+        <option *ngFor="let storage of fetchedStorage"> {{ storage.capacity }} </option>
     </datalist>
 </form>

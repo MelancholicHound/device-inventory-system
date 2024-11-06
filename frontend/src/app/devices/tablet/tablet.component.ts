@@ -132,6 +132,13 @@ export class TabletComponent implements OnInit {
         }
     }
 
+    onChipsetModelInput(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.tabletForm.patchValue({ chipsetRequest: { chipsetModel: inputElement.value } });
+        }
+    }
+
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let intValue = parseInt(inputElement.value, 10);
@@ -141,7 +148,7 @@ export class TabletComponent implements OnInit {
             for (let i = 0; i < this.fetchedRAM.length; i++) {
                 if (intValue === this.fetchedRAM[i].capacity) {
                     ramArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                        capacityId: new FormControl(this.fetchedRAM[i].id)
                     }));
                     break;
                 } else if (intValue !== this.fetchedRAM[i].capacity) {
@@ -149,7 +156,7 @@ export class TabletComponent implements OnInit {
                         this.specs.postRAMCapacity(intValue).subscribe({
                             next: (res: any) => {
                                 ramArray.push(new FormGroup({
-                                    capacityId: new FormControl(res.id, [Validators.required])
+                                    capacityId: new FormControl(res.id)
                                 }));
                             }
                         })
@@ -157,6 +164,32 @@ export class TabletComponent implements OnInit {
                 }
             }
         }
+    }
+
+    onStorageInput(event: Event): void {
+        let inputElement = event.target as HTMLInputElement;
+        let sizeValue = parseInt(inputElement.value, 10);
+        let storageArray = this.tabletForm.get('storageRequests') as FormArray;
+
+        if (inputElement.value !== '') {
+            for (let i = 0; i < this.fetchedStorage.length; i++) {
+                if (sizeValue === this.fetchedStorage[i].capacity) {
+                    storageArray.push(new FormGroup({ capacityId: new FormControl(this.fetchedStorage[i].id) }));
+                    break;
+                } else if (sizeValue !== this.fetchedStorage[i].capacity) {
+                    if (i === this.fetchedStorage.length) {
+                        this.specs.postStorageCapacity(sizeValue).subscribe({
+                            next: (res: any) => storageArray.push(new FormGroup({ capacityId: new FormControl(res.id) })),
+                            error: (error: any) => console.log(error)
+                        });
+                    }
+                }
+            }
+        }
+    }
+
+    postTabletSpecs(): void {
+        console.log(this.tabletForm.value);
     }
 
     //Other functions
