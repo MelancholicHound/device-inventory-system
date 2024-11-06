@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -11,6 +13,8 @@ import { AuthService } from '../../util/services/auth.service';
     selector: 'app-add-device',
     standalone: true,
     imports: [
+        CommonModule,
+        FormsModule,
         RouterOutlet,
         PeripheralsComponent,
         ConnectionsComponent,
@@ -25,7 +29,7 @@ import { AuthService } from '../../util/services/auth.service';
 export class AddDeviceComponent implements OnInit {
     batchDetails: any; deviceCount: any; selected: any;
     connections: any[] = []; peripherals: any;
-    deviceDetails: any;
+    deviceDetails: any; isChecked!: boolean;
 
     constructor(private router: Router,
                 private auth: AuthService) {
@@ -48,8 +52,12 @@ export class AddDeviceComponent implements OnInit {
         }, 2000);
     }
 
-    onConnectionChanges(checkedIds: number[]): void {
-        this.connections = checkedIds;
+    onPeripheralsChanges(peripheralsIds: number[]): void {
+        this.peripherals = peripheralsIds;
+    }
+
+    onConnectionChanges(connectionsIds: number[]): void {
+        this.connections = connectionsIds;
     }
 
     backButton() { this.router.navigate(['add-batch']) }

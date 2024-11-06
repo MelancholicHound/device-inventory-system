@@ -91,3 +91,8 @@ input[type='checkbox']:checked + .slider:before {
 .slider.round:before {
     border-radius: 50%;
 }
+
+.isChecked {
+    pointer-events: none;
+    color: #808080;
+}
