@@ -55,6 +55,39 @@ export class AddDeviceComponent implements OnInit {
         }, 200);
     }
 
+    onTogglePeripherals(event: Event): void {
+        let state = event.target as HTMLInputElement;
+        let cardBody = document.getElementById('peripherals-body') as HTMLDivElement;
+
+        if (state.checked) {
+            cardBody.classList.add('toggled');
+        } else {
+            cardBody.classList.remove('toggled')
+        }
+    }
+
+    onToggleConnections(event: Event): void {
+        let state = event.target as HTMLInputElement;
+        let cardBody = document.getElementById('connections-body') as HTMLDivElement;
+
+        if (state.checked) {
+            cardBody.classList.add('toggled');
+        } else {
+            cardBody.classList.remove('toggled')
+        }
+    }
+
+    onToggleSoftwares(event: Event): void {
+        let state = event.target as HTMLInputElement;
+        let cardBody = document.getElementById('softwares-body') as HTMLDivElement;
+
+        if (state.checked) {
+            cardBody.classList.add('toggled');
+        } else {
+            cardBody.classList.remove('toggled')
+        }
+    }
+
     onPeripheralsChanges(peripheralsIds: number[]): void {
         this.peripherals = peripheralsIds;
     }

@@ -18,11 +18,11 @@
             <div class="card-header">
                 <h1> Peripherals </h1>
                 <label class="switch">
-                    <input type="checkbox" id="toggler-peripherals" checked>
+                    <input type="checkbox" id="toggler-peripherals" checked [ngClass]="">
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="card-body">
+            <div class="peripherals-body">
                 <app-peripherals />
             </div>
         </div>
@@ -34,7 +34,7 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="card-body">
+            <div class="connections-body">
                 <app-connections (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>
         </div>
@@ -46,7 +46,7 @@
                   <span class="slider round"></span>
               </label>
           </div>
-          <div class="card-body">
+          <div class="softwares-body">
               <app-softwares />
           </div>
       </div>
