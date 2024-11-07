@@ -135,6 +135,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
     }
 
+    //To be configured into a warning modal
     backButton() {
         if (this.batchAddDetails) {
             this._params.getAllBatches().subscribe({

@@ -60,9 +60,9 @@
             </button>
         </div>
         <div class="modal-body">
-            <batch [hidden]="!toggleBatchForm"
+            <batch *ngIf="toggleBatchForm"
                   (booleanEvent)="toggleSupplier($event)" />
-            <supplier [hidden]="!toggleSupplierForm"
+            <supplier *ngIf="toggleSupplierForm"
                       (booleanEvent)="toggleBatch($event)" />
         </div>
     </div>

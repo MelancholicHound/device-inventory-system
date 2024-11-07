@@ -16,8 +16,8 @@
     <div class="supplier-field">
         <div class="form-container">
             <label for="supplier"> Supplier </label>
-            <select title="supplier" id="supplier" class="form-control" formControlName="supplierId">
-                <option value="" selected disabled> Select supplier </option>
+            <select title="supplier" id="supplier" class="form-control" (change)="getSupplierValue()">
+                <option [value]="" selected disabled> Select supplier </option>
                 <option [value]="supplier.id" *ngFor="let supplier of suppliers"> {{ supplier.name }} </option>
             </select>
         </div>

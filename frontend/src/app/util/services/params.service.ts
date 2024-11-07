@@ -17,8 +17,6 @@ export class ParamsService {
     private url = 'http://192.168.250.147:8082/api/v1/dis';
     private token = localStorage.getItem('token');
 
-    private supplierSubject: BehaviorSubject<any[]> = new BehaviorSubject<any[]>([]);
-
     httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({
             'Content-Type' : 'application/json' ,
@@ -27,27 +25,7 @@ export class ParamsService {
     }
 
     constructor(private http: HttpClient,
-                private errorHandler: ErrorHandlerService) {
-                this.startPolling();
-    }
-
-    private fetchSuppliers(): Observable<any[]> {
-      return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
-      .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
-    }
-
-    private startPolling() {
-        timer(0, 1000)
-        .pipe(switchMap(() => this.fetchSuppliers()))
-        .subscribe({
-            next: (suppliers: any[]) => {
-                this.supplierSubject.next(suppliers);
-            },
-            error: (error: any) => {
-                console.log(error);
-            }
-        });
-    }
+                private errorHandler: ErrorHandlerService) { }
 
     //GET
     getAllDivisions(): Observable<any> {
@@ -86,7 +64,8 @@ export class ParamsService {
     }
 
     getSuppliers(): Observable<any[]> {
-        return this.supplierSubject.asObservable();
+        return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
     }
 
     getSupplierById(id: number): Observable<any> {

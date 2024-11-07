@@ -77,6 +77,13 @@ export class BatchComponent implements OnInit {
         });
     }
 
+    //GET
+    getSupplierValue() {
+        let value = document.getElementById('supplier') as HTMLOptionElement;
+        this.batchForm.patchValue({ supplierId: parseInt(value.value, 10) });
+    }
+
+    //POST
     onFileSelected(event: any): void {
         const input = event.target as HTMLInputElement;
         if (input.files && input.files.length > 0) {
@@ -93,6 +100,7 @@ export class BatchComponent implements OnInit {
         }
     }
 
+    //Other functions
     cancelUpload() {
         const fileInput = document.getElementById('file-upload') as HTMLInputElement;
         fileInput.value = '';

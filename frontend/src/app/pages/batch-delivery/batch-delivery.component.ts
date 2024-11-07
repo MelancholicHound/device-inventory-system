@@ -1,4 +1,5 @@
 import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
@@ -27,6 +28,7 @@ export interface BatchTable {
     selector: 'app-batch-delivery',
     standalone: true,
     imports: [
+        CommonModule,
         MatFormFieldModule,
         MatInputModule,
         MatTableModule,
