@@ -31,6 +31,8 @@ export class AddDeviceComponent implements OnInit {
     connections: any[] = []; peripherals: any;
     deviceDetails: any; isChecked!: boolean;
 
+    fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
+
     constructor(private router: Router,
                 private auth: AuthService) {
                 const navigation = this.router.getCurrentNavigation();
@@ -50,8 +52,7 @@ export class AddDeviceComponent implements OnInit {
             if (this.deviceDetails) {
 
             }
-        }, 2000);
-        console.log(this.batchDetails);
+        }, 200);
     }
 
     onPeripheralsChanges(peripheralsIds: number[]): void {

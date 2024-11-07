@@ -113,12 +113,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this.batchDetails = this.batchEditDetails;
             this.isAddingBatch = false;
             this.isViewingBatch = false;
-            console.log(this.batchDetails, 'Edit');
         } else if (this.batchViewDetails) {
             this.batchDetails = this.batchViewDetails;
             this.isViewingBatch = true;
             this.isAddingBatch = false;
-            console.log(this.batchDetails, 'View');
         }
 
         if (this.state === 'ADD') {
@@ -140,11 +138,11 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             if (selected.value === this.devices[i].name) {
                 this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
                     device: this.devices[i].name,
-                    count: count.value,
                     batchdetails: this.batchDetails,
-                    batchnumber: this.batchDetails.id,
-                    batchid: this.batchDetails.formattedId
-                } });
+                    count: count.value,
+                    batchnumber: this.batchDetails.formattedId,
+                    batchid: this.batchDetails.id
+                }});
                 this.addDeviceModal.nativeElement.style.display = 'none';
                 selected.selectedIndex = 0; count.value = '';
             }

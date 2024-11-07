@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
@@ -48,16 +48,13 @@ export class AioComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private aioAuth: DeviceAioService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                    this.batchNumber = navigation.extras.state['batchnumber'];
-                    this.batchId = navigation.extras.state['batchid'];
-                }
-    }
+                private aioAuth: DeviceAioService) { }
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.aioForm = this.createAIOFormGroup();
 
         this.aioAuth.getAIOBrands().subscribe({
@@ -266,7 +263,8 @@ export class AioComponent implements OnInit {
     }
 
     postAIOSpecs(): void {
-        console.log(this.aioForm.value);
+        this.aioForm.patchValue({ batchId: this.batchId });
+        this.auth.dataStore(this.aioForm.value);
     }
 
     //Other functions

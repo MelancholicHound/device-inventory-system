@@ -12,14 +12,26 @@
             <label for="ups-brand"> Brand: </label>
             <div class="input-field">
                 <select title="" id="ups-brand">
-                    <option value="" selected disabled> Select brand </option>
+                    <option [value]="" selected disabled> Select brand </option>
                     <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
                 </select>
-                <blockquote>
-                    <input type="number" class="form-input" min="0" id="volts">
-                    <label for="volts"> kVA </label>
-                </blockquote>
+                <button type="button" class="add-btn" (click)="addUPSModal.style.display = 'block'">
+                    <span class="material-symbols-rounded"> add </span>
+                </button>
             </div>
         </div>
     </div>
 </section>
+<div class="modal" #addUPSModal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Add UPS </h3>
+            <button class="close-btn" type="button" (click)="addUPSModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+
+        </div>
+    </div>
+</div>

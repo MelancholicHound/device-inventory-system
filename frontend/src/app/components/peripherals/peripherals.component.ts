@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
 import { NgFor } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
@@ -60,4 +60,24 @@ export class PeripheralsComponent implements OnInit {
             kilovolts: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
+
+    //GET
+    getUPSBrandValue() {
+        let value = document.getElementById('ups-brand') as HTMLOptionElement;
+        console.log(value.value);
+    }
+
+    //POST
+    onCheckboxChange(peripherals: any, event: Event): void {
+        const input = event.target as HTMLInputElement;
+        peripherals.checked = input.checked;
+
+        const checkedIds = this.fetchedData
+        .filter((i: any) => i.checked)
+        .map((i: any) => i.id);
+
+        this.peripheralsStateChanged.emit(checkedIds);
+    }
+
+
 }
