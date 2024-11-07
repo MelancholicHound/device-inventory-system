@@ -18,6 +18,11 @@ span {
     gap: 15px;
 }
 
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 .brand-form {
     margin-top: 10px;
     gap: 5px;

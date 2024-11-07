@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { Component, OnInit, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
@@ -9,7 +9,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
     selector: 'app-peripherals',
     standalone: true,
     imports: [
-        NgFor
+        CommonModule
     ],
     providers: [
         ParamsService,
@@ -18,17 +18,21 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
     templateUrl: './peripherals.component.html',
     styleUrl: './peripherals.component.scss'
 })
-export class PeripheralsComponent implements OnInit {
+export class PeripheralsComponent implements OnInit, OnChanges {
     @Output() peripheralsStateChanged = new EventEmitter<number[]>();
+    @Input() isEnabled: boolean = true;
 
     fetchedData: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
+
+    enabled = true;
 
     constructor(private params: ParamsService,
                 private specs: SpecsService) { }
 
     ngOnInit(): void {
         this.upsForm = this.createUPSFormGroup();
+
         this.params.getPeripherals().subscribe({
             next: (data: any) => {
                 this.fetchedData = data.map((object: any) => ({
@@ -49,6 +53,12 @@ export class PeripheralsComponent implements OnInit {
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }
         });
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isEnabled']) {
+            this.enabled = changes['isEnabled'].currentValue;
+        }
     }
 
     createUPSFormGroup(): FormGroup {

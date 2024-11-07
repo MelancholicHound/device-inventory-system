@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+
+import { BehaviorSubject } from 'rxjs';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -33,6 +35,10 @@ export class AddDeviceComponent implements OnInit {
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
 
+    isPeripheralToggled: boolean = true;
+    isConnectionToggled: boolean = true;
+    isSoftwareToggled: boolean = true;
+
     constructor(private router: Router,
                 private auth: AuthService) {
                 const navigation = this.router.getCurrentNavigation();
@@ -55,37 +61,16 @@ export class AddDeviceComponent implements OnInit {
         }, 200);
     }
 
-    onTogglePeripherals(event: Event): void {
-        let state = event.target as HTMLInputElement;
-        let cardBody = document.getElementById('peripherals-body') as HTMLDivElement;
-
-        if (state.checked) {
-            cardBody.classList.add('toggled');
-        } else {
-            cardBody.classList.remove('toggled')
-        }
+    onTogglePeripherals() {
+        this.isPeripheralToggled = !this.isPeripheralToggled;
     }
 
-    onToggleConnections(event: Event): void {
-        let state = event.target as HTMLInputElement;
-        let cardBody = document.getElementById('connections-body') as HTMLDivElement;
-
-        if (state.checked) {
-            cardBody.classList.add('toggled');
-        } else {
-            cardBody.classList.remove('toggled')
-        }
+    onToggleConnections() {
+        this.isConnectionToggled = !this.isConnectionToggled;
     }
 
-    onToggleSoftwares(event: Event): void {
-        let state = event.target as HTMLInputElement;
-        let cardBody = document.getElementById('softwares-body') as HTMLDivElement;
-
-        if (state.checked) {
-            cardBody.classList.add('toggled');
-        } else {
-            cardBody.classList.remove('toggled')
-        }
+    onToggleSoftwares() {
+        this.isSoftwareToggled = !this.isSoftwareToggled;
     }
 
     onPeripheralsChanges(peripheralsIds: number[]): void {

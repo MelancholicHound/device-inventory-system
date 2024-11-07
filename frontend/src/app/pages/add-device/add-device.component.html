@@ -18,36 +18,36 @@
             <div class="card-header">
                 <h1> Peripherals </h1>
                 <label class="switch">
-                    <input type="checkbox" id="toggler-peripherals" checked [ngClass]="">
+                    <input type="checkbox" id="toggler-peripherals" checked (change)="onTogglePeripherals()">
                     <span class="slider round"></span>
                 </label>
             </div>
             <div class="peripherals-body">
-                <app-peripherals />
+                <app-peripherals [isEnabled]="isPeripheralToggled" />
             </div>
         </div>
         <div class="card gray-border">
             <div class="card-header">
                 <h1> Connections </h1>
                 <label class="switch">
-                    <input type="checkbox" id="toggler-connections" checked>
+                    <input type="checkbox" id="toggler-connections" checked (change)="onToggleConnections()">
                     <span class="slider round"></span>
                 </label>
             </div>
             <div class="connections-body">
-                <app-connections (connectionsStateChanged)="onConnectionChanges($event)" />
+                <app-connections [isEnabled]="isConnectionToggled" (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>
         </div>
         <div class="card gray-border">
           <div class="card-header">
               <h1> Softwares </h1>
               <label class="switch">
-                  <input type="checkbox" id="toggler-softwares" checked>
+                  <input type="checkbox" id="toggler-softwares" checked (change)="onToggleSoftwares()">
                   <span class="slider round"></span>
               </label>
           </div>
           <div class="softwares-body">
-              <app-softwares />
+              <app-softwares [isEnabled]="isSoftwareToggled" />
           </div>
       </div>
     </footer>

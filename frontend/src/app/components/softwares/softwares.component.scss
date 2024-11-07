@@ -17,6 +17,11 @@ section {
     justify-content: center;
 }
 
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 select { width: 100%; }
 
 select,

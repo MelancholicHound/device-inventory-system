@@ -1,4 +1,4 @@
-<section>
+<section [ngClass]="{ 'disabled': !enabled }">
     <div class="form-field" *ngFor="let connection of fetchedConnections">
         <input type="checkbox"
                id="check-box"

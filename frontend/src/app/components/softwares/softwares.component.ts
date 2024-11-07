@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -7,7 +7,7 @@ import { ParamsService } from '../../util/services/params.service';
   selector: 'app-softwares',
   standalone: true,
   imports: [
-      NgFor
+      CommonModule
   ],
   providers: [
       ParamsService
@@ -15,8 +15,11 @@ import { ParamsService } from '../../util/services/params.service';
   templateUrl: './softwares.component.html',
   styleUrl: './softwares.component.scss'
 })
-export class SoftwaresComponent implements OnInit {
+export class SoftwaresComponent implements OnInit, OnChanges {
+    @Input() isEnabled: boolean = true;
     fetchedOS!: any; fetchedSecurity!: any; fetchedProdTool!: any;
+
+    enabled = true;
 
     constructor(private params: ParamsService) { }
 
@@ -24,5 +27,11 @@ export class SoftwaresComponent implements OnInit {
         this.params.getOS().subscribe(res => this.fetchedOS = res);
         this.params.getSecurity().subscribe(res => this.fetchedSecurity = res);
         this.params.getProdTools().subscribe(res => this.fetchedProdTool = res);
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isEnabled']) {
+            this.enabled = changes['isEnabled'].currentValue;
+        }
     }
 }

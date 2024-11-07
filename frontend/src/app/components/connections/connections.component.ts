@@ -1,5 +1,5 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { Component, OnInit, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -7,7 +7,7 @@ import { ParamsService } from '../../util/services/params.service';
     selector: 'app-connections',
     standalone: true,
     imports: [
-        NgFor
+        CommonModule
     ],
     providers: [
         ParamsService
@@ -15,15 +15,24 @@ import { ParamsService } from '../../util/services/params.service';
     templateUrl: './connections.component.html',
     styleUrl: './connections.component.scss'
 })
-export class ConnectionsComponent implements OnInit {
+export class ConnectionsComponent implements OnInit, OnChanges {
     @Output() connectionsStateChanged = new EventEmitter<number[]>();
+    @Input() isEnabled: boolean = true;
 
     fetchedConnections!: any;
+
+    enabled = true;
 
     constructor(private params: ParamsService) { }
 
     ngOnInit(): void {
         this.params.getConnections().subscribe(res => this.fetchedConnections = res);
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        if (changes['isEnabled']) {
+            this.enabled = changes['isEnabled'].currentValue;
+        }
     }
 
     onCheckboxChange(connection: any, event: Event): void {

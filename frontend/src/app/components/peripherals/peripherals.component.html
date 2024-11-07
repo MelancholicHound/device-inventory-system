@@ -1,4 +1,4 @@
-<section>
+<section [ngClass]="{ 'disabled': !enabled }">
     <div class="form-field" *ngFor="let peripheral of fetchedData">
         <input type="checkbox" id="keyboard">
         <label for="keyboard"> with {{ peripheral.name }} </label>
