@@ -65,6 +65,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     dataSource!: MatTableDataSource<TableDevice>;
 
     batchDetails: any;
+    state: any = localStorage.getItem('state');
     batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
     fetchedData!: any[]; deviceSelected: any;
     isAddingBatch!: boolean; isViewingBatch!: boolean;
@@ -94,6 +95,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     this.batchViewDetails = navigation.extras.state['viewdetails']
                     this.batchEditDetails = navigation.extras.state['editdetails'];
                     this.batchAddDetails = navigation.extras.state['addbatch'];
+                    this.batchDetails = navigation.extras.state['batchdetails'];
                 }
     }
 
@@ -111,8 +113,21 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this.batchDetails = this.batchEditDetails;
             this.isAddingBatch = false;
             this.isViewingBatch = false;
+            console.log(this.batchDetails, 'Edit');
         } else if (this.batchViewDetails) {
             this.batchDetails = this.batchViewDetails;
+            this.isViewingBatch = true;
+            this.isAddingBatch = false;
+            console.log(this.batchDetails, 'View');
+        }
+
+        if (this.state === 'ADD') {
+            this.isAddingBatch = true;
+            this.isViewingBatch = false;
+        } else if (this.state === 'EDIT') {
+            this.isAddingBatch = false;
+            this.isViewingBatch = false;
+        } else if (this.state === 'VIEW') {
             this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
@@ -126,6 +141,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
                     device: this.devices[i].name,
                     count: count.value,
+                    batchdetails: this.batchDetails,
                     batchnumber: this.batchDetails.id,
                     batchid: this.batchDetails.formattedId
                 } });
@@ -152,7 +168,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 error: (error: any) => { console.log(error) }
             });
         } else {
-          this.router.navigate(['/batch-delivery'])
+          this.router.navigate(['/batch-delivery']);
         }
     }
 }

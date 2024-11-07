@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgIf } from '@angular/common';
 
-import { BehaviorSubject } from 'rxjs';
-
 import { LoginComponent } from './forms/login/login.component';
 import { SignupComponent } from './forms/signup/signup.component';
 import { NavigationComponent } from './components/navigation/navigation.component';

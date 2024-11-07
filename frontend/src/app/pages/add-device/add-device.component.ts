@@ -36,6 +36,7 @@ export class AddDeviceComponent implements OnInit {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
+                    this.batchDetails = navigation.extras.state['batchdetails'];
                 }
     }
 
@@ -50,6 +51,7 @@ export class AddDeviceComponent implements OnInit {
 
             }
         }, 2000);
+        console.log(this.batchDetails);
     }
 
     onPeripheralsChanges(peripheralsIds: number[]): void {
@@ -60,5 +62,9 @@ export class AddDeviceComponent implements OnInit {
         this.connections = connectionsIds;
     }
 
-    backButton() { this.router.navigate(['add-batch']) }
+    backButton() {
+        this.router.navigate(['add-batch'], {
+          state: { batchdetails: this.batchDetails }
+      });
+    }
 }

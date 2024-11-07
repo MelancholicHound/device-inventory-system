@@ -131,6 +131,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                 for (let i = 0; i < data.length; i++) {
                     if (row.formattedId === data[i].formattedId) {
                         this._router.navigate(['add-batch'], { state: { viewdetails: data[i] } });
+                        localStorage.setItem('state', 'VIEW');
                     }
                 }
             }
@@ -143,6 +144,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
                 for (let i = 0; i < data.length; i++) {
                     if (row.formattedId === data[i].formattedId) {
                         this._router.navigate(['add-batch'], { state: { editdetails: data[i] } });
+                        localStorage.setItem('state', 'EDIT');
                     }
                 }
             }, error: (error: any) => { console.log(error) }
