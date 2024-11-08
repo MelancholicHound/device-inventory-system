@@ -13,6 +13,7 @@
         </button>
     </nav>
     <router-outlet />
+    <p> {{ deviceDetails }} </p>
     <footer class="toggler-container">
         <div class="card gray-border">
             <div class="card-header">
@@ -22,7 +23,7 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="peripherals-body">
+            <div class="card-body">
                 <app-peripherals [isEnabled]="isPeripheralToggled" />
             </div>
         </div>
@@ -34,7 +35,7 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            <div class="connections-body">
+            <div class="card-body">
                 <app-connections [isEnabled]="isConnectionToggled" (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>
         </div>
@@ -46,7 +47,7 @@
                   <span class="slider round"></span>
               </label>
           </div>
-          <div class="softwares-body">
+          <div class="card-body">
               <app-softwares [isEnabled]="isSoftwareToggled" />
           </div>
       </div>

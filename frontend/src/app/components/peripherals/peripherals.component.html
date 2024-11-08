@@ -11,7 +11,7 @@
         <div class="brand-form">
             <label for="ups-brand"> Brand: </label>
             <div class="input-field">
-                <select title="" id="ups-brand">
+                <select title="" id="ups-brand" (change)="getUPSBrandValue()">
                     <option [value]="" selected disabled> Select brand </option>
                     <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
                 </select>

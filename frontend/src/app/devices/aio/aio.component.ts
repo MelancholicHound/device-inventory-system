@@ -90,19 +90,19 @@ export class AioComponent implements OnInit {
 
     createAIOFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required]),
-            videoCardRequest: new FormGroup({ capacityId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]) }),
+            videoCardRequest: new FormGroup({ capacityId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]) }),
             cpuRequest: new FormGroup({
                 cpuBrandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuBrandSeriesId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuModifier: new FormControl('', [Validators.required])
             }),
-            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl('', [Validators.required]),
-            screenSize: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+            screenSize: new FormControl([Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 
@@ -264,7 +264,7 @@ export class AioComponent implements OnInit {
 
     postAIOSpecs(): void {
         this.aioForm.patchValue({ batchId: this.batchId });
-        this.auth.dataStore(this.aioForm.value);
+        localStorage.setItem('device', JSON.stringify(this.aioForm.value));
     }
 
     //Other functions

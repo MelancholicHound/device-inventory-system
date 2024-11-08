@@ -19,7 +19,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
     styleUrl: './peripherals.component.scss'
 })
 export class PeripheralsComponent implements OnInit, OnChanges {
-    @Output() peripheralsStateChanged = new EventEmitter<number[]>();
+    @Output() peripheralsStateChanged: EventEmitter<number[]> = new EventEmitter<number[]>();
+    @Output() upsBrandId: EventEmitter<number> = new EventEmitter<number>();
     @Input() isEnabled: boolean = true;
 
     fetchedData: any; fetchedUPSBrand: any;
@@ -74,7 +75,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     //GET
     getUPSBrandValue() {
         let value = document.getElementById('ups-brand') as HTMLOptionElement;
-        console.log(value.value);
+        this.upsBrandId.emit(parseInt(value.value, 10));
     }
 
     //POST
