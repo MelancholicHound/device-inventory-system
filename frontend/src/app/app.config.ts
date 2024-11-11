@@ -1,11 +1,13 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-
-import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
+
+import { routes } from './app.routes';
+import { appReducer } from './util/store/app.reducer';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -13,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideAnimationsAsync(),
     provideHttpClient(withInterceptorsFromDi()),
-    provideStore(),
+    provideStore({ app: appReducer }),
     provideEffects()
-]
+    ]
 };

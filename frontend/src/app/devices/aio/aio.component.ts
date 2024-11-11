@@ -1,12 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
+
+import { Store } from '@ngrx/store';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-aio',
@@ -48,7 +52,8 @@ export class AioComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private aioAuth: DeviceAioService) { }
+                private aioAuth: DeviceAioService,
+                private store: Store) { }
 
     ngOnInit(): void {
         this.batchId = history.state.batchid;
@@ -264,7 +269,7 @@ export class AioComponent implements OnInit {
 
     postAIOSpecs(): void {
         this.aioForm.patchValue({ batchId: this.batchId });
-        this.auth.dataStore(this.aioForm.value);
+        this.store.dispatch(updateChildData({ childId: 'aio', data: this.aioForm.value }));
     }
 
     //Other functions

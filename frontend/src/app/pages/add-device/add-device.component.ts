@@ -1,13 +1,16 @@
 import { Component, OnInit, DoCheck } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
-import { FormsModule, FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
+import { FormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
+
+import { Store } from '@ngrx/store';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
 import { SoftwaresComponent } from '../../components/softwares/softwares.component';
 
 import { AuthService } from '../../util/services/auth.service';
+import { AppState } from '../../util/store/app.reducer';
 
 @Component({
     selector: 'app-add-device',
@@ -29,7 +32,8 @@ import { AuthService } from '../../util/services/auth.service';
 export class AddDeviceComponent implements OnInit, DoCheck {
     batchDetails: any; deviceCount: any; selected: any;
     connections: any[] = []; peripherals: any;
-    isChecked!: boolean; deviceDetails!: any;
+    isChecked!: boolean;
+    deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
 
@@ -42,7 +46,8 @@ export class AddDeviceComponent implements OnInit, DoCheck {
     isSoftwareToggled: boolean = true;
 
     constructor(private router: Router,
-                private auth: AuthService) {
+                private auth: AuthService,
+                private store: Store<{ app: AppState }>) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
@@ -51,10 +56,14 @@ export class AddDeviceComponent implements OnInit, DoCheck {
     }
 
     ngOnInit(): void {
-
+        this.store.select('app').subscribe((state) => {
+            this.deviceDetails = state.childData;
+            console.log(this.deviceDetails);
+        });
     }
 
     ngDoCheck(): void {
+
     }
 
     deviceFormGroup(formObject: any): FormGroup {
