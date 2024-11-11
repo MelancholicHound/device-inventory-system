@@ -264,7 +264,7 @@ export class AioComponent implements OnInit {
 
     postAIOSpecs(): void {
         this.aioForm.patchValue({ batchId: this.batchId });
-        localStorage.setItem('device', JSON.stringify(this.aioForm.value));
+        this.auth.dataStore(this.aioForm.value);
     }
 
     //Other functions

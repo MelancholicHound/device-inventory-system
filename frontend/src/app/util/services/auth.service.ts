@@ -12,9 +12,10 @@ import { User } from '../models/User';
     providedIn: 'root'
 })
 export class AuthService {
-    private url = 'http://192.168.250.170:8082/api/v1/dis';
+    private url = 'http://192.168.1.86:8082/api/v1/dis';
 
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    deviceDetails: BehaviorSubject<any> = new BehaviorSubject<any>([]);
 
     httpOptions: { headers: HttpHeaders } = {
         headers: new HttpHeaders({ 'Content-Type' : 'application/json' })
@@ -44,5 +45,9 @@ export class AuthService {
     getEmployeePositions(): Observable<any> {
         return this.http.get<any>(`${this.url}/positions`)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('positions')));
+    }
+
+    dataStore(form: any) {
+        this.deviceDetails.next(form);
     }
 }

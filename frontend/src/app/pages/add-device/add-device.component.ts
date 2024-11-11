@@ -29,14 +29,13 @@ import { AuthService } from '../../util/services/auth.service';
 export class AddDeviceComponent implements OnInit, DoCheck {
     batchDetails: any; deviceCount: any; selected: any;
     connections: any[] = []; peripherals: any;
-    isChecked!: boolean;
+    isChecked!: boolean; deviceDetails!: any;
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
 
     deviceForm!: FormGroup;
 
     device = localStorage.getItem('device');
-    deviceDetails = JSON.stringify(this.device);
 
     isPeripheralToggled: boolean = true;
     isConnectionToggled: boolean = true;
@@ -56,7 +55,6 @@ export class AddDeviceComponent implements OnInit, DoCheck {
     }
 
     ngDoCheck(): void {
-
     }
 
     deviceFormGroup(formObject: any): FormGroup {
