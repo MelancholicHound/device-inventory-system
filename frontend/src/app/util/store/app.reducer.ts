@@ -12,8 +12,8 @@ export const initialState: AppState = {
 
 export const appReducer = createReducer(
     initialState,
-    on(updateChildData, (state, { childId, data }) => ({
+    on(updateChildData, (state, { data }) => ({
         ...state,
-        childData: { ...state.childData, [childId]: data }
+        childData: { ...state.childData, data }
     }))
 );

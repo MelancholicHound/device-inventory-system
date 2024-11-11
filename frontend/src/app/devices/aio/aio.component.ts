@@ -269,7 +269,7 @@ export class AioComponent implements OnInit {
 
     postAIOSpecs(): void {
         this.aioForm.patchValue({ batchId: this.batchId });
-        this.store.dispatch(updateChildData({ childId: 'aio', data: this.aioForm.value }));
+        this.store.dispatch(updateChildData({ data: this.aioForm.value }));
     }
 
     //Other functions
