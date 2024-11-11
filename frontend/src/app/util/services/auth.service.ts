@@ -12,7 +12,7 @@ import { User } from '../models/User';
     providedIn: 'root'
 })
 export class AuthService {
-    private url = 'http://192.168.250.146:8082/api/v1/dis';
+    private url = 'http://192.168.250.170:8082/api/v1/dis';
 
     private isUserLoggedIn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
