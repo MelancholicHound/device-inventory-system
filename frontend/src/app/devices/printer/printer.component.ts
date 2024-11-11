@@ -3,8 +3,12 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } 
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { Store } from '@ngrx/store';
+
 import { ParamsService } from '../../util/services/params.service';
 import { DevicePrinterService } from '../../util/services/device-printer.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-printer',
@@ -34,14 +38,14 @@ export class PrinterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private router: Router,
-                private printerAuth: DevicePrinterService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                }
-    }
+                private printerAuth: DevicePrinterService,
+                private store: Store) { }
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.printerForm = this.createPrinterFormGroup();
 
         this.params.getAllDivisions().subscribe({
@@ -104,7 +108,8 @@ export class PrinterComponent implements OnInit {
     }
 
     postPrinterSpecs(): void {
-        console.log(this.printerForm.value);
+        this.printerForm.patchValue({ batchId: this.batchId });
+        this.store.dispatch(updateChildData({ data: this.printerForm.value }));
     }
 
     //Other functions

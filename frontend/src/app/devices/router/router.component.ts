@@ -3,8 +3,12 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } 
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { Store } from '@ngrx/store';
+
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceRouterService } from '../../util/services/device-router.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-router',
@@ -34,12 +38,8 @@ export class RouterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private router: Router,
-                private routerAuth: DeviceRouterService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                }
-    }
+                private routerAuth: DeviceRouterService,
+                private store: Store) { }
 
     ngOnInit(): void {
         this.routerForm = this.createRouterFormGroup();
@@ -147,7 +147,8 @@ export class RouterComponent implements OnInit {
     }
 
     postRouterSpecs(): void {
-        console.log(this.routerForm.value);
+        this.routerForm.patchValue({ batchId: this.batchId });
+        this.store.dispatch(updateChildData({ data: this.routerForm.value }));
     }
 
     //Other functions

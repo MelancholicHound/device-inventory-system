@@ -3,10 +3,14 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, F
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { Store } from '@ngrx/store';
+
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-laptop',
@@ -47,16 +51,14 @@ export class LaptopComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private laptopAuth: DeviceLaptopService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                    this.batchNumber = navigation.extras.state['batchnumber'];
-                    this.batchId = navigation.extras.state['batchid'];
-                }
-    }
+                private laptopAuth: DeviceLaptopService,
+                private store: Store) {}
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.laptopForm = this.createLaptopFormGroup();
 
         this.laptopAuth.getLaptopBrands().subscribe({
@@ -265,7 +267,8 @@ export class LaptopComponent implements OnInit {
     }
 
     postLaptopSpecs(): void {
-        console.log(this.laptopForm.value);
+        this.laptopForm.patchValue({ batchId: this.batchId });
+        this.store.dispatch(updateChildData({ data: this.laptopForm.value }));
     }
 
     //Other function

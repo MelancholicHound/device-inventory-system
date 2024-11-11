@@ -1,12 +1,16 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
+
+import { Store } from '@ngrx/store';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-computer',
@@ -45,16 +49,14 @@ export class ComputerComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private computerAuth: DeviceComputerService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                    this.batchNumber = navigation.extras.state['batchnumber'];
-                    this.batchId = navigation.extras.state['batchid'];
-                }
-    }
+                private computerAuth: DeviceComputerService,
+                private store: Store) { }
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.computerForm = this.createCompFormGroup();
 
         this.params.getAllDivisions().subscribe({
@@ -242,7 +244,8 @@ export class ComputerComponent implements OnInit {
     }
 
     postCompSpecs(): void {
-        console.log(this.computerForm.value);
+        this.computerForm.patchValue({ batchId: this.batchId });
+        this.store.dispatch(updateChildData({ data: this.computerForm.value }));
     }
 
     //Other functions

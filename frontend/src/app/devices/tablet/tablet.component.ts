@@ -3,9 +3,13 @@ import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, F
 import { NgFor, NgIf } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { Store } from '@ngrx/store';
+
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
+
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-tablet',
@@ -38,14 +42,14 @@ export class TabletComponent implements OnInit {
     constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private router: Router,
-                private tabletAuth: DeviceTabletService) {
-                const navigation = this.router.getCurrentNavigation();
-                if (navigation?.extras.state) {
-                    this.deviceCount = navigation.extras.state['count'];
-                }
-    }
+                private tabletAuth: DeviceTabletService,
+                private store: Store) { }
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.tabletForm = this.createTabletFormGroup();
 
         this.tabletAuth.getTabletBrands().subscribe({
@@ -189,7 +193,8 @@ export class TabletComponent implements OnInit {
     }
 
     postTabletSpecs(): void {
-        console.log(this.tabletForm.value);
+        this.tabletForm.patchValue({ batchId: this.batchId });
+        this.store.dispatch(updateChildData({ data: this.tabletForm.value }));
     }
 
     //Other functions
