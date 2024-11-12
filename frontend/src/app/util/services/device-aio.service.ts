@@ -40,7 +40,8 @@ export class DeviceAioService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/aio/aio-brands?brand=${brand}`)));
     }
 
-    saveDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/all-in-ones`, this.httpOptions)
+    postDevice(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/all-in-ones`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 }

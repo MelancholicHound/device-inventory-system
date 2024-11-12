@@ -37,15 +37,7 @@ export interface TableDevice {
         NgFor
     ],
     providers: [
-        ParamsService,
-        DeviceAioService,
-        DeviceComputerService,
-        DeviceLaptopService,
-        DevicePrinterService,
-        DeviceRouterService,
-        DeviceScannerService,
-        DeviceServerService,
-        DeviceTabletService
+        ParamsService
     ],
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
@@ -80,15 +72,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
-                private _params: ParamsService,
-                private aioAuth: DeviceAioService,
-                private compAuth: DeviceComputerService,
-                private lapAuth: DeviceLaptopService,
-                private prntAuth: DevicePrinterService,
-                private rtAuth: DeviceRouterService,
-                private scanAuth: DeviceScannerService,
-                private svrAuth: DeviceServerService,
-                private tabAuth: DeviceTabletService) {
+                private _params: ParamsService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {

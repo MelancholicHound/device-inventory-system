@@ -23,8 +23,15 @@ export class DeviceServerService {
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
+    //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/servers/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`servers/batch/${id}`)));
+    }
+
+    //POST
+    postDevice(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/server`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/server')));
     }
 }

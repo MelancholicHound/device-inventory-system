@@ -1,6 +1,5 @@
 import { createReducer, on } from "@ngrx/store";
 import { updateChildData } from "./app.actions";
-import { state } from "@angular/animations";
 
 export interface AppState {
     childData: { [key: string]: any };

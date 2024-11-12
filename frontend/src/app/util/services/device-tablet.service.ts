@@ -49,4 +49,9 @@ export class DeviceTabletService {
         return this.http.post<any>(`${this.url}/specs/chipset-brands?brand=${brand}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
     }
+
+    postDevice(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/tablet`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablet')));
+    }
 }

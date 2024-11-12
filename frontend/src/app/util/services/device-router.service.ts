@@ -59,4 +59,9 @@ export class DeviceRouterService {
         return this.http.post<any>(`${this.url}/router-antennas?antennaNumber=${antennas}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('router-antennas')));
     }
+
+    postDevice(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/router`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/router')));
+    }
 }

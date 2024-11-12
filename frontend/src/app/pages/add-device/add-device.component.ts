@@ -12,6 +12,15 @@ import { ConnectionsComponent } from '../../components/connections/connections.c
 import { SoftwaresComponent } from '../../components/softwares/softwares.component';
 
 import { AuthService } from '../../util/services/auth.service';
+import { DeviceAioService } from '../../util/services/device-aio.service';
+import { DeviceComputerService } from '../../util/services/device-computer.service';
+import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+import { DevicePrinterService } from '../../util/services/device-printer.service';
+import { DeviceRouterService } from '../../util/services/device-router.service';
+import { DeviceScannerService } from '../../util/services/device-scanner.service';
+import { DeviceServerService } from '../../util/services/device-server.service';
+import { DeviceTabletService } from '../../util/services/device-tablet.service';
+
 import { AppState } from '../../util/store/app.reducer';
 
 @Component({
@@ -26,7 +35,15 @@ import { AppState } from '../../util/store/app.reducer';
         SoftwaresComponent
     ],
     providers: [
-        AuthService
+        AuthService,
+        DeviceAioService,
+        DeviceComputerService,
+        DeviceLaptopService,
+        DevicePrinterService,
+        DeviceRouterService,
+        DeviceScannerService,
+        DeviceServerService,
+        DeviceTabletService
     ],
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
@@ -48,7 +65,15 @@ export class AddDeviceComponent implements OnInit {
 
     constructor(private router: Router,
                 private auth: AuthService,
-                private store: Store<{ app: AppState }>) {
+                private store: Store<{ app: AppState }>,
+                private aioAuth: DeviceAioService,
+                private computerAuth: DeviceComputerService,
+                private laptopAuth: DeviceLaptopService,
+                private printerAuth: DevicePrinterService,
+                private routerAuth: DeviceRouterService,
+                private scannerAuth: DeviceScannerService,
+                private serverAuth: DeviceServerService,
+                private tabletAuth: DeviceTabletService) {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
@@ -65,6 +90,26 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
+            switch(this.selected) {
+                case 'Computer':
+                    return this.computerAuth.postDevice(this.deviceForm.value);
+                case 'Laptop':
+                    return this.laptopAuth.postDevice(this.deviceForm.value);
+                case 'Tablet':
+                    return this.tabletAuth.postDevice(this.deviceForm.value);
+                case 'Printer':
+                    return this.printerAuth.postDevice(this.deviceForm.value);
+                case 'Router':
+                    return this.routerAuth.postDevice(this.deviceForm.value);
+                case 'Scanner':
+                    return this.scannerAuth.postDevice(this.deviceForm.value);
+                case 'AIO':
+                    return this.aioAuth.postDevice(this.deviceForm.value);
+                case 'Server':
+                    return this.serverAuth.postDevice(this.deviceForm.value);
+                default:
+                    return console.error(`${this.selected} device doesn't exist`);
+            }
         });
     }
 
@@ -78,7 +123,6 @@ export class AddDeviceComponent implements OnInit {
     }
 
     deviceFormGroup(formObject: any): FormGroup {
-
         Object.keys(formObject).forEach((key) => {
             const value = formObject[key];
 
