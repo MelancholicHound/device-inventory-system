@@ -20,8 +20,6 @@ export class DeviceAioService {
         })
     }
 
-    httpParams = new HttpParams();
-
     constructor(private http: HttpClient,
                 private errorHandler: ErrorHandlerService) { }
 
@@ -40,5 +38,9 @@ export class DeviceAioService {
     postAIOBrand(brand: string): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/aio/aio-brands?brand=${brand}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/aio/aio-brands?brand=${brand}`)));
+    }
+
+    saveDevice(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/all-in-ones`, this.httpOptions)
     }
 }
