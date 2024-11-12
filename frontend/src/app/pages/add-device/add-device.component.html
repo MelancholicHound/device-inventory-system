@@ -23,7 +23,7 @@
                 </label>
             </div>
             <div class="card-body">
-                <app-peripherals [isEnabled]="isPeripheralToggled" />
+                <app-peripherals [isEnabled]="isPeripheralToggled" (peripheralsStateChanged)="onPeripheralsChanges($event)" (upsBrandId)="onUPSBrandIdSubmit($event)" />
             </div>
         </div>
         <div class="card gray-border">

@@ -23,7 +23,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     @Output() upsBrandId: EventEmitter<number> = new EventEmitter<number>();
     @Input() isEnabled: boolean = true;
 
-    fetchedData: any; fetchedUPSBrand: any;
+    fetchedPeripherals: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
 
     enabled = true;
@@ -36,14 +36,14 @@ export class PeripheralsComponent implements OnInit, OnChanges {
 
         this.params.getPeripherals().subscribe({
             next: (data: any) => {
-                this.fetchedData = data.map((object: any) => ({
+                this.fetchedPeripherals = data.map((object: any) => ({
                     id: object.id,
                     name: object.name.toLowerCase()
                 }));
 
-                for (let i = 0; i < this.fetchedData.length; i++) {
-                    if (this.fetchedData[i].name === 'e pen') {
-                        this.fetchedData[i].name = 'E Pen';
+                for (let i = 0; i < this.fetchedPeripherals.length; i++) {
+                    if (this.fetchedPeripherals[i].name === 'e pen') {
+                        this.fetchedPeripherals[i].name = 'E Pen';
                     }
                 }
             },
@@ -83,7 +83,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
         const input = event.target as HTMLInputElement;
         peripherals.checked = input.checked;
 
-        const checkedIds = this.fetchedData
+        const checkedIds = this.fetchedPeripherals
         .filter((i: any) => i.checked)
         .map((i: any) => i.id);
 

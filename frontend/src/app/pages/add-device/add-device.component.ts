@@ -1,9 +1,11 @@
-import { Component, OnInit, DoCheck } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
-import { FormsModule, FormGroup, FormArray, FormControl } from '@angular/forms';
+import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 
 import { Store } from '@ngrx/store';
+
+import { filter, map } from 'rxjs/operators';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -29,13 +31,14 @@ import { AppState } from '../../util/store/app.reducer';
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit, DoCheck {
+export class AddDeviceComponent implements OnInit {
     batchDetails: any; deviceCount: any; selected: any;
     connections: any[] = []; peripherals: any;
     isChecked!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
+    upsId: any;
 
     deviceForm!: FormGroup;
 
@@ -51,25 +54,36 @@ export class AddDeviceComponent implements OnInit, DoCheck {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
+                    this.fetchedCount = navigation.extras.state['count'];
                     this.batchDetails = navigation.extras.state['batchdetails'];
                 }
     }
 
     ngOnInit(): void {
-        this.store.select('app').subscribe((state) => {
-            this.deviceDetails = state.childData;
-            console.log(this.deviceDetails);
+        this.deviceForm = this.createDeviceFormGroup();
+
+        this.store.select('app').pipe(
+            map(state => state.childData),
+            filter(updateChildData => Object.keys(updateChildData).length > 0)
+        ).subscribe((updateChildData) => {
+
+            this.deviceDetails = updateChildData['data'];
         });
     }
 
-    ngDoCheck(): void {
-
+    createDeviceFormGroup(): FormGroup {
+        return new FormGroup({
+            upsId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            peripheralIds: new FormArray([], [Validators.required]),
+            deviceSoftwareRequest: new FormArray([], [Validators.required]),
+            connectionIds: new FormArray([], [Validators.required])
+        });
     }
 
     deviceFormGroup(formObject: any): FormGroup {
         const formGroup = new FormGroup({});
 
-        Object.keys(formObject).forEach(key => {
+        Object.keys(formObject).forEach((key) => {
             const value = formObject[key];
 
             if (Array.isArray(value)) {
@@ -95,7 +109,7 @@ export class AddDeviceComponent implements OnInit, DoCheck {
     createFormGroup(object: any): FormGroup {
         const group = new FormGroup({});
 
-        Object.keys(object).forEach(key => {
+        Object.keys(object).forEach((key) => {
             const value = object[key];
 
             if (Array.isArray(value)) {
@@ -127,7 +141,8 @@ export class AddDeviceComponent implements OnInit, DoCheck {
     }
 
     onUPSBrandIdSubmit(id: number): void {
-
+        this.upsId = id;
+        console.log(id);
     }
 
     onConnectionChanges(connectionsIds: number[]): void {

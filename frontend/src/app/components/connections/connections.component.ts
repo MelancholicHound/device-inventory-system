@@ -35,6 +35,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
         }
     }
 
+    //POST
     onCheckboxChange(connection: any, event: Event): void {
         const input = event.target as HTMLInputElement;
         connection.checked = input.checked;
