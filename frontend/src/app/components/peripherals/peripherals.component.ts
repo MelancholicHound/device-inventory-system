@@ -26,6 +26,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     fetchedPeripherals: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
 
+
     enabled: boolean = true;
     enabledUPS: boolean = false;
 
