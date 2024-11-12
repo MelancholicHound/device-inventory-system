@@ -8,10 +8,10 @@
     </div>
     <div class="form-control">
         <div class="form-field">
-            <input type="checkbox" id="ups">
+            <input type="checkbox" id="ups" (change)="changeUPS($event)">
             <label for="ups"> with UPS </label>
         </div>
-        <div class="brand-form">
+        <div class="brand-form" [ngClass]="{ 'disabled': !enabledUPS }">
             <label for="ups-brand"> Brand: </label>
             <div class="input-field">
                 <select title="" id="ups-brand" (change)="getUPSBrandValue()">

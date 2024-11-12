@@ -32,7 +32,16 @@ export class ConnectionsComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['isEnabled']) {
             this.enabled = changes['isEnabled'].currentValue;
+            if (!this.enabled) {
+                this.uncheckAll();
+            }
         }
+    }
+
+    uncheckAll(): void {
+        this.fetchedConnections.forEach((connection: any) => {
+            connection.checked = false;
+        });
     }
 
     //POST

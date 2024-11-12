@@ -26,7 +26,8 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     fetchedPeripherals: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
 
-    enabled = true;
+    enabled: boolean = true;
+    enabledUPS: boolean = false;
 
     constructor(private params: ParamsService,
                 private specs: SpecsService) { }
@@ -59,6 +60,9 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['isEnabled']) {
             this.enabled = changes['isEnabled'].currentValue;
+            if (!this.enabled) {
+                this.uncheckAll();
+            }
         }
     }
 
@@ -69,6 +73,12 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl('', [Validators.required]),
             kilovolts: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+        });
+    }
+
+    uncheckAll(): void {
+        this.fetchedPeripherals.forEach((connection: any) => {
+            connection.checked = false;
         });
     }
 
@@ -88,6 +98,19 @@ export class PeripheralsComponent implements OnInit, OnChanges {
         .map((i: any) => i.id);
 
         this.peripheralsStateChanged.emit(checkedIds);
+    }
+
+    //Other functions
+    changeUPS(event: Event) {
+        let inputElement = event.target as HTMLInputElement;
+
+        if (inputElement.checked) {
+            this.enabledUPS = true;
+        } else {
+            this.enabledUPS = false;
+            let upsBrandSelect = document.getElementById('ups-brand') as HTMLSelectElement;
+            upsBrandSelect.selectedIndex = 0;
+        }
     }
 
 
