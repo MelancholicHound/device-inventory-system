@@ -18,7 +18,7 @@ import { ParamsService } from '../../util/services/params.service';
   styleUrl: './softwares.component.scss'
 })
 export class SoftwaresComponent implements OnInit, OnChanges {
-    @Output() softwareStateChanged: EventEmitter<FormGroup> = new EventEmitter<FormGroup>();
+    @Output() softwareStateChanged: EventEmitter<any> = new EventEmitter<any>();
     @Input() isEnabled: boolean = true;
     fetchedOS!: any; fetchedSecurity!: any; fetchedProdTool!: any;
 
@@ -48,6 +48,7 @@ export class SoftwaresComponent implements OnInit, OnChanges {
                 security.selectedIndex = 0;
                 prodTools.selectedIndex = 0;
 
+                this.softwareForm.reset();
                 this.softwareStateChanged.emit(this.softwareForm.value);
             }
         }

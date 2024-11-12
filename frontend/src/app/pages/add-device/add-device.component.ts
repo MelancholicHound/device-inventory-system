@@ -33,12 +33,10 @@ import { AppState } from '../../util/store/app.reducer';
 })
 export class AddDeviceComponent implements OnInit {
     batchDetails: any; deviceCount: any; selected: any;
-    connections: any[] = []; peripherals: any;
     isChecked!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
-    upsId: any;
 
     deviceForm!: FormGroup;
 
@@ -66,8 +64,7 @@ export class AddDeviceComponent implements OnInit {
             map(state => state.childData),
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
-
-            this.deviceDetails = updateChildData['data'];
+            this.deviceFormGroup(updateChildData['data']);
         });
     }
 
@@ -81,7 +78,6 @@ export class AddDeviceComponent implements OnInit {
     }
 
     deviceFormGroup(formObject: any): FormGroup {
-        const formGroup = new FormGroup({});
 
         Object.keys(formObject).forEach((key) => {
             const value = formObject[key];
@@ -95,15 +91,15 @@ export class AddDeviceComponent implements OnInit {
                         return new FormControl(item);
                     })
                 );
-                formGroup.addControl(key, formArray);
+                this.deviceForm.addControl(key, formArray);
             } else if (typeof value === 'object' && value !== null) {
-                formGroup.addControl(key, this.createFormGroup(value));
+                this.deviceForm.addControl(key, this.createFormGroup(value));
             } else {
-                formGroup.addControl(key, new FormControl(value));
+                this.deviceForm.addControl(key, new FormControl(value));
             }
         });
 
-        return formGroup;
+        return this.deviceForm;
     }
 
     createFormGroup(object: any): FormGroup {
@@ -136,17 +132,30 @@ export class AddDeviceComponent implements OnInit {
         this.isSoftwareToggled = !this.isSoftwareToggled;
     }
 
-    onPeripheralsChanges(peripheralsIds: number[]): void {
-        this.peripherals = peripheralsIds;
+    onPeripheralsChanges(peripheralIds: number[]): void {
+        let peripheralsArray = this.deviceForm.get('peripheralIds') as FormArray;
+
+        peripheralsArray.clear();
+        peripheralsArray.push(peripheralIds);
+    }
+
+    onConnectionChanges(connectionIds: number[]): void {
+        let connectionsArray = this.deviceForm.get('connectionIds') as FormArray;
+
+        connectionsArray.clear();
+        connectionsArray.push(new FormControl(connectionIds));
+    }
+
+    onSoftwareChanges(softwareIds: any[]): void {
+        let softwaresArray = this.deviceForm.get('connectionIds') as FormArray;
+
+        softwaresArray.clear();
+        softwaresArray.push(new FormControl(softwareIds));
     }
 
     onUPSBrandIdSubmit(id: number): void {
-        this.upsId = id;
-        console.log(id);
-    }
-
-    onConnectionChanges(connectionsIds: number[]): void {
-        this.connections = connectionsIds;
+        this.deviceForm.patchValue({ upsId: id });
+        console.log(this.deviceForm.value);
     }
 
     backButton() {

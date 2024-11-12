@@ -18,36 +18,49 @@
             <div class="card-header">
                 <h1> Peripherals </h1>
                 <label class="switch">
-                    <input type="checkbox" id="toggler-peripherals" checked (change)="onTogglePeripherals()">
+                    <input type="checkbox"
+                           id="toggler-peripherals"
+                           checked
+                           (change)="onTogglePeripherals()">
                     <span class="slider round"></span>
                 </label>
             </div>
             <div class="card-body">
-                <app-peripherals [isEnabled]="isPeripheralToggled" (peripheralsStateChanged)="onPeripheralsChanges($event)" (upsBrandId)="onUPSBrandIdSubmit($event)" />
+                <app-peripherals [isEnabled]="isPeripheralToggled"
+                                 (peripheralsStateChanged)="onPeripheralsChanges($event)"
+                                 (upsBrandId)="onUPSBrandIdSubmit($event)" />
             </div>
         </div>
         <div class="card gray-border">
             <div class="card-header">
                 <h1> Connections </h1>
                 <label class="switch">
-                    <input type="checkbox" id="toggler-connections" checked (change)="onToggleConnections()">
+                    <input type="checkbox"
+                           id="toggler-connections"
+                           checked
+                           (change)="onToggleConnections()">
                     <span class="slider round"></span>
                 </label>
             </div>
             <div class="card-body">
-                <app-connections [isEnabled]="isConnectionToggled" (connectionsStateChanged)="onConnectionChanges($event)" />
+                <app-connections [isEnabled]="isConnectionToggled"
+                                 (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>
         </div>
         <div class="card gray-border">
           <div class="card-header">
               <h1> Softwares </h1>
               <label class="switch">
-                  <input type="checkbox" id="toggler-softwares" checked (change)="onToggleSoftwares()">
+                  <input type="checkbox"
+                         id="toggler-softwares"
+                         checked
+                         (change)="onToggleSoftwares()">
                   <span class="slider round"></span>
               </label>
           </div>
           <div class="card-body">
-              <app-softwares [isEnabled]="isSoftwareToggled" />
+              <app-softwares [isEnabled]="isSoftwareToggled"
+                             (softwareStateChanged)="onSoftwareChanges($event)" />
           </div>
       </div>
     </footer>
