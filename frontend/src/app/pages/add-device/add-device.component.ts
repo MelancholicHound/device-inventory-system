@@ -90,25 +90,30 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
-            switch(this.selected) {
-                case 'Computer':
-                    return this.computerAuth.postDevice(this.deviceForm.value);
-                case 'Laptop':
-                    return this.laptopAuth.postDevice(this.deviceForm.value);
-                case 'Tablet':
-                    return this.tabletAuth.postDevice(this.deviceForm.value);
-                case 'Printer':
-                    return this.printerAuth.postDevice(this.deviceForm.value);
-                case 'Router':
-                    return this.routerAuth.postDevice(this.deviceForm.value);
-                case 'Scanner':
-                    return this.scannerAuth.postDevice(this.deviceForm.value);
-                case 'AIO':
-                    return this.aioAuth.postDevice(this.deviceForm.value);
-                case 'Server':
-                    return this.serverAuth.postDevice(this.deviceForm.value);
-                default:
-                    return console.error(`${this.selected} device doesn't exist`);
+            for (let i = 1; i <= this.deviceCount; i++) {
+                if (this.selected === 'Computer') {
+                    this.computerAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Laptop') {
+                    this.laptopAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Tablet') {
+                    this.tabletAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Printer') {
+                    this.printerAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Router') {
+                    this.routerAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Scanner') {
+                    this.scannerAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'AIO') {
+                    this.aioAuth.postDevice(this.deviceForm.value);
+                } else if (this.selected === 'Server') {
+                    this.serverAuth.postDevice(this.deviceForm.value);
+                }
+
+                if (i === this.deviceCount) {
+                    this.router.navigate(['add-batch'], {
+                        state: { batchdetails: this.batchDetails }
+                    });
+                }
             }
         });
     }
@@ -205,6 +210,6 @@ export class AddDeviceComponent implements OnInit {
     backButton() {
         this.router.navigate(['add-batch'], {
           state: { batchdetails: this.batchDetails }
-      });
+        });
     }
 }

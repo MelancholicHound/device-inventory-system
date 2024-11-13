@@ -9,14 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { ParamsService } from '../../util/services/params.service';
-import { DeviceAioService } from '../../util/services/device-aio.service';
-import { DeviceComputerService } from '../../util/services/device-computer.service';
-import { DeviceLaptopService } from '../../util/services/device-laptop.service';
-import { DevicePrinterService } from '../../util/services/device-printer.service';
-import { DeviceRouterService } from '../../util/services/device-router.service';
-import { DeviceScannerService } from '../../util/services/device-scanner.service';
-import { DeviceServerService } from '../../util/services/device-server.service';
-import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 export interface TableDevice {
     tag: string;

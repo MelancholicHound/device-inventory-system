@@ -1,4 +1,4 @@
-<!-- @if (!isAuthenticated) {
+@if (!isAuthenticated) {
   <main class="initial">
       <div class="card gray-border">
           <img src="images/IMISS.png" alt="logo">
@@ -6,10 +6,11 @@
           <app-signup *ngIf="toggleSignupForm" (booleanEvent)="toggleLogin($event)"/>
       </div>
   </main>
-} @else { -->
+} @else {
   <main class="landing">
       <app-navigation />
       <aside>
           <router-outlet />
       </aside>
   </main>
+}
