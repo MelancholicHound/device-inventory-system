@@ -9,6 +9,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { ParamsService } from '../../util/services/params.service';
+import { DeviceAioService } from '../../util/services/device-aio.service';
+import { DeviceComputerService } from '../../util/services/device-computer.service';
+import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+import { DevicePrinterService } from '../../util/services/device-printer.service';
+import { DeviceRouterService } from '../../util/services/device-router.service';
+import { DeviceScannerService } from '../../util/services/device-scanner.service';
+import { DeviceServerService } from '../../util/services/device-server.service';
+import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 export interface TableDevice {
     tag: string;
@@ -29,7 +37,15 @@ export interface TableDevice {
         NgFor
     ],
     providers: [
-        ParamsService
+        ParamsService,
+        DeviceAioService,
+        DeviceComputerService,
+        DeviceLaptopService,
+        DevicePrinterService,
+        DeviceRouterService,
+        DeviceScannerService,
+        DeviceServerService,
+        DeviceTabletService
     ],
     templateUrl: './add-batch.component.html',
     styleUrl: './add-batch.component.scss'
@@ -64,7 +80,15 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
-                private _params: ParamsService) {
+                private _params: ParamsService,
+                private aioAuth: DeviceAioService,
+                private computerAuth: DeviceComputerService,
+                private laptopAuth: DeviceLaptopService,
+                private printerAuth: DevicePrinterService,
+                private routerAuth: DeviceRouterService,
+                private scannerAuth: DeviceScannerService,
+                private serverAuth: DeviceServerService,
+                private tabletAuth: DeviceTabletService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
@@ -94,6 +118,46 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
+
+        this.aioAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.computerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.laptopAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.printerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.routerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.scannerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.serverAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
+
+        this.tabletAuth.getAllByBatchId(this.batchDetails.id).subscribe({
+            next: (data: any) => console.log(data),
+            error: (error: any) => console.log(error)
+        });
 
         if (this.state === 'ADD') {
             this.isAddingBatch = true;
