@@ -67,7 +67,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     batchDetails: any;
     state: any = localStorage.getItem('state');
     batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
-    fetchedData!: any[]; deviceSelected: any;
+    fetchedData!: any;
+    deviceSelected: any;
     isAddingBatch!: boolean; isViewingBatch!: boolean;
 
     aioData!: any; computerData!: any;
@@ -120,42 +121,109 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
 
         this.aioAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: TableDevice[]) => {
+
+
+                this.fetchedData.push();
+            },
             error: (error: any) => console.log(error)
         });
 
         this.computerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'COMPUTER',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.laptopAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'LAPTOP',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.printerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'PRINTER',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.routerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'ROUTER',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.scannerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'SCANNER',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.serverAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'SERVER',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 
         this.tabletAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any) => console.log(data),
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.id,
+                    device: 'TABLET',
+                    division: item.division,
+                    section: item.section
+                }));
+
+                this.fetchedData.push(...payload);
+            },
             error: (error: any) => console.log(error)
         });
 

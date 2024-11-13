@@ -84,7 +84,7 @@ export class RouterComponent implements OnInit {
 
     getDivisionValue() {
         let value = document.getElementById('division') as HTMLOptionElement;
-        this.params.getSectionsById(value.value).subscribe(res => this.fetchedSection = res);
+        this.params.getSectionsByDivisionId(value.value).subscribe((res: any[]) => this.fetchedSection = res);
     }
 
     getSectionValue() {

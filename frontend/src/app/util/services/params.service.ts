@@ -33,9 +33,19 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
     }
 
-    getSectionsById(id: any): Observable<any> {
+    getDivisionById(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/divisions/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
+    }
+
+    getSectionsByDivisionId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${id}/sections`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`divisions/${id}/sections`)));
+    }
+
+    getSectionById(divId: any,secId: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/divisions/${divId}/sections/${secId}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
     }
 
     getOS(): Observable<any> {
