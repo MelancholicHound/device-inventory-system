@@ -2,6 +2,8 @@ import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { forkJoin, map, switchMap } from 'rxjs';
+
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -64,14 +66,19 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         { name: 'AIO', indicator: 'aio' },
         { name: 'Server', indicator: 'server' }
     ];
+
     dataSource!: MatTableDataSource<DeviceTable>;
 
     batchDetails: any;
     state: any = localStorage.getItem('state');
     batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
-    fetchedData: any[] = [];
+    fetchedData: DeviceTable[] = [];
     deviceSelected: any;
     isAddingBatch!: boolean; isViewingBatch!: boolean;
+
+    fetchedAIO: any; fetchedComputer: any; fetchedLaptop: any;
+    fetchedPrinter: any; fetchedRouter: any; fetchedScanner: any;
+    fetchedServer: any; fetchedTablet: any;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -118,118 +125,82 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             this.isAddingBatch = false;
         }
 
-        this.aioAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'ALL-IN-ONE',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            }
-        })
-
-        this.computerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'COMPUTER',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        forkJoin([
+            this.aioAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'ALL-IN-ONE'))
+            ),
+            this.computerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'COMPUTER'))
+            ),
+            this.laptopAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'LAPTOP'))
+            ),
+            this.printerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'PRINTER'))
+            ),
+            this.routerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'ROUTER'))
+            ),
+            this.scannerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'SCANNER'))
+            ),
+            this.serverAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'SERVER'))
+            ),
+            this.tabletAuth.getAllByBatchId(this.batchDetails.id).pipe(
+                map((data: any[]) => this.mapData(data, 'TABLET'))
+            )
+        ]).subscribe({
+            next: (results: any[]) => this.fetchedData = [
+                ...results[0], ...results[1],
+                ...results[2], ...results[3],
+                ...results[4], ...results[5],
+                ...results[6], ...results[7]
+            ],
             error: (error: any) => console.log(error)
         });
 
-        this.laptopAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'LAPTOP',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        this.laptopAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'LAPTOP'))
+        ).subscribe({
+            next: (result: any) => this.fetchedLaptop = result,
             error: (error: any) => console.log(error)
         });
 
-        this.printerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'PRINTER',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        this.printerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'PRINTER'))
+        ).subscribe({
+            next: (result: any) => this.fetchedPrinter = result,
             error: (error: any) => console.log(error)
         });
 
-        this.routerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'ROUTER',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        this.routerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'ROUTER'))
+        ).subscribe({
+            next: (result: any) => this.fetchedRouter = result,
             error: (error: any) => console.log(error)
         });
 
-        this.scannerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'SCANNER',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        this.scannerAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'SCANNER'))
+        ).subscribe({
+            next: (result: any) => this.fetchedScanner = result,
             error: (error: any) => console.log(error)
         });
 
-        this.serverAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'SERVER',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-            },
+        this.serverAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'SERVER'))
+        ).subscribe({
+            next: (result: any) => this.fetchedServer = result,
             error: (error: any) => console.log(error)
         });
 
-        this.tabletAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: any[]) => {
-                const payload = data.map((item) => ({
-                    tag: item.tag,
-                    device: 'TABLET',
-                    division: item.sectionDTO.divisionId,
-                    section: item.sectionDTO.name
-                }));
-
-                this.fetchedData.push(...payload);
-                console.log(this.fetchedData);
-            },
+        this.tabletAuth.getAllByBatchId(this.batchDetails.id).pipe(
+            map((data: any[]) => this.mapData(data, 'TABLET'))
+        ).subscribe({
+            next: (result: any) => this.fetchedTablet = result,
             error: (error: any) => console.log(error)
-        })
-
+        });
 
 
         if (this.state === 'ADD') {
@@ -260,6 +231,15 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 selected.selectedIndex = 0; count.value = '';
             }
         }
+    }
+
+    mapData(data: any[], deviceType: string) {
+        return data.map((item) => ({
+            tag: item.tag,
+            device: deviceType,
+            division: item.sectionDTO.divisionId,
+            section: item.sectionDTO.name
+        }));
     }
 
     //To be configured into a warning modal

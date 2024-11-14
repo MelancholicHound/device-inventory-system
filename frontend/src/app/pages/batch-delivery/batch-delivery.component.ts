@@ -53,7 +53,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
     dataSource!: MatTableDataSource<BatchTable>;
 
-    counter!: number; deleteRow: any;
+    deleteRow: any;
     fetchedData: any[] = [];
     deleteBatchForm!: FormGroup;
 
@@ -65,7 +65,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild('addBatchModal') addBatchModal!: ElementRef;
     @ViewChild('deletePrompt') deletePrompt!: ElementRef;
 
-    constructor(private _router: Router,
+    constructor(private router: Router,
                 private _params: ParamsService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
     }
@@ -91,8 +91,6 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
             forkJoin(batchData).subscribe((result: any) => {
                 this.fetchedData = result;
-                console.log(this.fetchedData)
-                this.counter = this.fetchedData.length + 1;
             });
         });
     }
@@ -134,7 +132,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
             next: (data: any) => {
                 for (let i = 0; i < data.length; i++) {
                     if (row.formattedId === data[i].formattedId) {
-                        this._router.navigate(['add-batch'], { state: { viewdetails: data[i] } });
+                        this.router.navigate(['add-batch'], { state: { viewdetails: data[i] } });
                         localStorage.setItem('state', 'VIEW');
                     }
                 }
@@ -147,7 +145,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
             next: (data: any) => {
                 for (let i = 0; i < data.length; i++) {
                     if (row.formattedId === data[i].formattedId) {
-                        this._router.navigate(['add-batch'], { state: { editdetails: data[i] } });
+                        this.router.navigate(['add-batch'], { state: { editdetails: data[i] } });
                         localStorage.setItem('state', 'EDIT');
                     }
                 }
