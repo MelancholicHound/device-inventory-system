@@ -1,12 +1,13 @@
 import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
@@ -18,10 +19,10 @@ import { DeviceScannerService } from '../../util/services/device-scanner.service
 import { DeviceServerService } from '../../util/services/device-server.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
-export interface TableDevice {
+export interface DeviceTable {
     tag: string;
     device: string;
-    division: string;
+    division: number;
     section: string;
 }
 
@@ -29,12 +30,13 @@ export interface TableDevice {
     selector: 'app-add-batch',
     standalone: true,
     imports: [
+        CommonModule,
         MatFormFieldModule,
-        MatInputModule,
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
-        NgFor
+        MatMenuModule,
+        MatButtonModule
     ],
     providers: [
         ParamsService,
@@ -62,22 +64,18 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         { name: 'AIO', indicator: 'aio' },
         { name: 'Server', indicator: 'server' }
     ];
-    dataSource!: MatTableDataSource<TableDevice>;
+    dataSource!: MatTableDataSource<DeviceTable>;
 
     batchDetails: any;
     state: any = localStorage.getItem('state');
     batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
-    fetchedData!: any;
+    fetchedData: any[] = [];
     deviceSelected: any;
     isAddingBatch!: boolean; isViewingBatch!: boolean;
 
-    aioData!: any; computerData!: any;
-    laptopData!: any; printerData!: any;
-    routerData!: any; scannerData!: any;
-    serverData!: any; tabletData!: any;
-
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
+
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
@@ -121,21 +119,25 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         }
 
         this.aioAuth.getAllByBatchId(this.batchDetails.id).subscribe({
-            next: (data: TableDevice[]) => {
+            next: (data: any[]) => {
+                const payload = data.map((item) => ({
+                    tag: item.tag,
+                    device: 'ALL-IN-ONE',
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
+                }));
 
-
-                this.fetchedData.push();
-            },
-            error: (error: any) => console.log(error)
-        });
+                this.fetchedData.push(...payload);
+            }
+        })
 
         this.computerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'COMPUTER',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -146,10 +148,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.laptopAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'LAPTOP',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -160,10 +162,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.printerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'PRINTER',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -174,10 +176,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.routerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'ROUTER',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -188,10 +190,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.scannerAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'SCANNER',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -202,10 +204,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.serverAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'SERVER',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
@@ -216,16 +218,19 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         this.tabletAuth.getAllByBatchId(this.batchDetails.id).subscribe({
             next: (data: any[]) => {
                 const payload = data.map((item) => ({
-                    tag: item.id,
+                    tag: item.tag,
                     device: 'TABLET',
-                    division: item.division,
-                    section: item.section
+                    division: item.sectionDTO.divisionId,
+                    section: item.sectionDTO.name
                 }));
 
                 this.fetchedData.push(...payload);
+                console.log(this.fetchedData);
             },
             error: (error: any) => console.log(error)
-        });
+        })
+
+
 
         if (this.state === 'ADD') {
             this.isAddingBatch = true;

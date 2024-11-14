@@ -2,6 +2,7 @@ import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -51,7 +52,9 @@ export interface BatchTable {
 export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['formattedId', 'supplier', 'dateDelivered', 'validUntil', 'settings'];
     dataSource!: MatTableDataSource<BatchTable>;
-    fetchedData: any; counter!: number; deleteRow: any;
+
+    counter!: number; deleteRow: any;
+    fetchedData: any[] = [];
     deleteBatchForm!: FormGroup;
 
     toggleBatchForm: boolean = true; toggleSupplierForm: boolean = false;
@@ -88,6 +91,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
             forkJoin(batchData).subscribe((result: any) => {
                 this.fetchedData = result;
+                console.log(this.fetchedData)
                 this.counter = this.fetchedData.length + 1;
             });
         });

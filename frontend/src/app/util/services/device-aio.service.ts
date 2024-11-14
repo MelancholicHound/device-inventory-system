@@ -25,7 +25,7 @@ export class DeviceAioService {
 
     //GET
     getAllByBatchId(id: any) : Observable<any> {
-        return this.http.get<any>(`${this.url}/all-in-ones/batch/${id}`, this.httpOptions)
+        return this.http.get<any>(`${this.url}/device/all-in-ones/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`all-in-ones/batch/${id}`)));
     }
 

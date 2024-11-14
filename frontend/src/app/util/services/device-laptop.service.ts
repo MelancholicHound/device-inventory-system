@@ -25,7 +25,7 @@ export class DeviceLaptopService {
 
     //GET
     getAllByBatchId(id: any): Observable<any> {
-        return this.http.get<any>(`${this.url}/laptops/batch/${id}`, this.httpOptions)
+        return this.http.get<any>(`${this.url}/device/laptops/batch/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`laptops/batch/${id}`)))
     }
 
