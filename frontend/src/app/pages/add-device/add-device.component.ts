@@ -49,7 +49,7 @@ import { AppState } from '../../util/store/app.reducer';
     styleUrl: './add-device.component.scss'
 })
 export class AddDeviceComponent implements OnInit {
-    batchDetails: any; deviceCount: any; selected: any;
+    batchDetails: any; selected: any;
     isChecked!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
@@ -90,8 +90,7 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
-            console.log(this.deviceForm.value);
-            for (let i = 1; i <= this.deviceCount; i++) {
+            for (let i = 1; i <= this.fetchedCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => this.backButton(),
@@ -125,7 +124,7 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'AIO') {
                     this.aioAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => this.backButton(),
-                        error: (error: any) => console.log(error)
+                        error: (error: any) => console.log('HI')
                     });
                 } else if (this.selected === 'Server') {
                     this.serverAuth.postDevice(this.deviceForm.value).subscribe({
@@ -134,7 +133,7 @@ export class AddDeviceComponent implements OnInit {
                     });
                 }
 
-                if (i === this.deviceCount) {
+                if (i === this.fetchedCount) {
                     this.router.navigate(['add-batch'], {
                         state: { batchdetails: this.batchDetails }
                     });
@@ -221,7 +220,7 @@ export class AddDeviceComponent implements OnInit {
     }
 
     onSoftwareChanges(softwareIds: any[]): void {
-        let softwaresArray = this.deviceForm.get('connectionIds') as FormArray;
+        let softwaresArray = this.deviceForm.get('deviceSoftwareRequest') as FormArray;
 
         softwaresArray.clear();
         softwaresArray.push(new FormControl(softwareIds));
