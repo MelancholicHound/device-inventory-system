@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
 
@@ -41,7 +40,6 @@ export class TabletComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private specs: SpecsService,
-                private router: Router,
                 private tabletAuth: DeviceTabletService,
                 private store: Store) { }
 

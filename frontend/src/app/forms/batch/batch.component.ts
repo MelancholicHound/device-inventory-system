@@ -100,18 +100,13 @@ export class BatchComponent implements OnInit {
         }
     }
 
-    //Other functions
-    cancelUpload() {
-        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-        fileInput.value = '';
-        this.selectedFile = '';
-    }
-
     addBatch() {
         this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
+        console.log(this.batchForm.value)
         this.params.postBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
+                localStorage.setItem('state', 'ADD');
                 event?.preventDefault();
             },
             error: (error) => {
@@ -120,5 +115,12 @@ export class BatchComponent implements OnInit {
                 return;
             }
         });
+    }
+
+    //Other functions
+    cancelUpload() {
+        const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+        fileInput.value = '';
+        this.selectedFile = '';
     }
 }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
 
@@ -37,11 +36,14 @@ export class RouterComponent implements OnInit {
     routerForm!: FormGroup;
 
     constructor(private params: ParamsService,
-                private router: Router,
                 private routerAuth: DeviceRouterService,
                 private store: Store) { }
 
     ngOnInit(): void {
+        this.batchId = history.state.batchid;
+        this.deviceCount = history.state.count;
+        this.batchNumber = history.state.batchnumber;
+
         this.routerForm = this.createRouterFormGroup();
 
         this.routerAuth.getRouterBrands().subscribe({

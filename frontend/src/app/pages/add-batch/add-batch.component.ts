@@ -163,49 +163,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             error: (error: any) => console.log(error)
         });
 
-        this.laptopAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'LAPTOP'))
-        ).subscribe({
-            next: (result: any) => this.fetchedLaptop = result,
-            error: (error: any) => console.log(error)
-        });
-
-        this.printerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'PRINTER'))
-        ).subscribe({
-            next: (result: any) => this.fetchedPrinter = result,
-            error: (error: any) => console.log(error)
-        });
-
-        this.routerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'ROUTER'))
-        ).subscribe({
-            next: (result: any) => this.fetchedRouter = result,
-            error: (error: any) => console.log(error)
-        });
-
-        this.scannerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'SCANNER'))
-        ).subscribe({
-            next: (result: any) => this.fetchedScanner = result,
-            error: (error: any) => console.log(error)
-        });
-
-        this.serverAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'SERVER'))
-        ).subscribe({
-            next: (result: any) => this.fetchedServer = result,
-            error: (error: any) => console.log(error)
-        });
-
-        this.tabletAuth.getAllByBatchId(this.batchDetails.id).pipe(
-            map((data: any[]) => this.mapData(data, 'TABLET'))
-        ).subscribe({
-            next: (result: any) => this.fetchedTablet = result,
-            error: (error: any) => console.log(error)
-        });
-
-
         if (this.state === 'ADD') {
             this.isAddingBatch = true;
             this.isViewingBatch = false;

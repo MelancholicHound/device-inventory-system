@@ -92,21 +92,61 @@ export class AddDeviceComponent implements OnInit {
             this.deviceFormGroup(updateChildData['data']);
             for (let i = 1; i <= this.deviceCount; i++) {
                 if (this.selected === 'Computer') {
-                    this.computerAuth.postDevice(this.deviceForm.value);
+                    this.computerAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Laptop') {
-                    this.laptopAuth.postDevice(this.deviceForm.value);
+                    this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                              state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Tablet') {
-                    this.tabletAuth.postDevice(this.deviceForm.value);
+                    this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Printer') {
-                    this.printerAuth.postDevice(this.deviceForm.value);
+                    this.printerAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Router') {
-                    this.routerAuth.postDevice(this.deviceForm.value);
+                    this.routerAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Scanner') {
-                    this.scannerAuth.postDevice(this.deviceForm.value);
+                    this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'AIO') {
-                    this.aioAuth.postDevice(this.deviceForm.value);
+                    this.aioAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 } else if (this.selected === 'Server') {
-                    this.serverAuth.postDevice(this.deviceForm.value);
+                    this.serverAuth.postDevice(this.deviceForm.value).subscribe({
+                        next: () => this.router.navigate(['add-batch'], {
+                            state: { batchdetails: this.batchDetails }
+                        }),
+                        error: (error: any) => console.log(error)
+                    });
                 }
 
                 if (i === this.deviceCount) {
@@ -185,7 +225,7 @@ export class AddDeviceComponent implements OnInit {
         let peripheralsArray = this.deviceForm.get('peripheralIds') as FormArray;
 
         peripheralsArray.clear();
-        peripheralsArray.push(peripheralIds);
+        peripheralsArray.push(new FormControl(peripheralIds));
     }
 
     onConnectionChanges(connectionIds: number[]): void {

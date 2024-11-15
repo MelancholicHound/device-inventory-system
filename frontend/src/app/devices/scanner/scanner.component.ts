@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgFor, NgIf } from '@angular/common';
-import { Router } from '@angular/router';
 
 import { Store } from '@ngrx/store';
 
@@ -37,7 +36,6 @@ export class ScannerComponent implements OnInit {
     scannerForm!: FormGroup;
 
     constructor(private params: ParamsService,
-                private router: Router,
                 private scannerAuth: DeviceScannerService,
                 private store: Store) {}
 
