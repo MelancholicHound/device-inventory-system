@@ -56,9 +56,9 @@ export class SoftwaresComponent implements OnInit, OnChanges {
 
     createSoftwareFormGroup(): FormGroup {
         return new FormGroup({
-            operatingSystemId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            productivityToolId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            securityId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+            operatingSystemId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            productivityToolId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            securityId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 

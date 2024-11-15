@@ -90,61 +90,46 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
+            console.log(this.deviceForm.value);
             for (let i = 1; i <= this.deviceCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Laptop') {
                     this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                              state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Tablet') {
                     this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Printer') {
                     this.printerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Router') {
                     this.routerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Scanner') {
                     this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'AIO') {
                     this.aioAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Server') {
                     this.serverAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.router.navigate(['add-batch'], {
-                            state: { batchdetails: this.batchDetails }
-                        }),
+                        next: () => this.backButton(),
                         error: (error: any) => console.log(error)
                     });
                 }
@@ -160,7 +145,7 @@ export class AddDeviceComponent implements OnInit {
 
     createDeviceFormGroup(): FormGroup {
         return new FormGroup({
-            upsId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            upsId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             peripheralIds: new FormArray([], [Validators.required]),
             deviceSoftwareRequest: new FormArray([], [Validators.required]),
             connectionIds: new FormArray([], [Validators.required])

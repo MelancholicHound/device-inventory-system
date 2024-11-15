@@ -78,15 +78,15 @@ export class TabletComponent implements OnInit {
 
     createTabletFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            brandSeries: new FormControl('', [Validators.required]),
+            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandSeries: new FormControl(null, [Validators.required]),
             chipsetRequest: new FormGroup({
-                brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-                chipsetModel: new FormControl('', [Validators.required])
+                brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+                chipsetModel: new FormControl(null, [Validators.required])
             }),
-            screenSize: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            screenSize: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required])
         });

@@ -64,11 +64,11 @@ export class ScannerComponent implements OnInit {
 
     createScannerFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            model: new FormControl('', [Validators.required]),
-            scannerTypeId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl(null, [Validators.required]),
+            scannerTypeId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 

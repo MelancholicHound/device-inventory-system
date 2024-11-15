@@ -98,7 +98,7 @@
                 <p class="label"> Screen Size </p>
                 <div class="size-field">
                     <label for="screen-size"> Size: </label>
-                    <input type="number" class="input-form" id="screen-size" min="0" formControlName="screenSize">
+                    <input type="number" class="input-form" id="screen-size" min="0" formControlName="screenSizeByInches">
                     <p> " (inches) </p>
                 </div>
             </div>
@@ -149,13 +149,13 @@
         </div>
     </div>
     <datalist id="ramsize">
-        <option *ngFor="let ram of fetchedRAM"></option>
+        <option *ngFor="let ram of fetchedRAM"> {{ ram.capacity }} </option>
     </datalist>
     <datalist id="storagesize">
-        <option *ngFor="let storage of fetchedStorage"></option>
+        <option *ngFor="let storage of fetchedStorage"> {{ storage.capacity }} </option>
     </datalist>
     <datalist id="gpu">
-        <option *ngFor="let gpu of fetchedGPU"></option>
+        <option *ngFor="let gpu of fetchedGPU"> {{ gpu.capacity }} </option>
     </datalist>
 </form>
 

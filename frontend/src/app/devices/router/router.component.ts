@@ -69,12 +69,12 @@ export class RouterComponent implements OnInit {
 
     createRouterFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            model: new FormControl('', [Validators.required]),
-            networkSpeedId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            numberOfAntennaId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')])
+            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl(null, [Validators.required]),
+            networkSpeedId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            numberOfAntennaId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
         });
     }
 

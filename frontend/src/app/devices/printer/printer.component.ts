@@ -64,11 +64,11 @@ export class PrinterComponent implements OnInit {
 
     createPrinterFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            brandId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            model: new FormControl('', [Validators.required]),
-            printerTypeId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            model: new FormControl(null, [Validators.required]),
+            printerTypeId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             withScanner: new FormControl(false, [Validators.required])
         });
     }
