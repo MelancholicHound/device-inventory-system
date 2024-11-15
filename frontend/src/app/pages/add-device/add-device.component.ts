@@ -93,42 +93,42 @@ export class AddDeviceComponent implements OnInit {
             for (let i = 1; i <= this.fetchedCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Laptop') {
                     this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Tablet') {
                     this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Printer') {
                     this.printerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Router') {
                     this.routerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Scanner') {
                     this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'AIO') {
                     this.aioAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
-                        error: (error: any) => console.log('HI')
+                        next: () => console.log(i),
+                        error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Server') {
                     this.serverAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => this.backButton(),
+                        next: () => console.log(i),
                         error: (error: any) => console.log(error)
                     });
                 }
@@ -144,10 +144,10 @@ export class AddDeviceComponent implements OnInit {
 
     createDeviceFormGroup(): FormGroup {
         return new FormGroup({
-            upsId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
-            peripheralIds: new FormArray([], [Validators.required]),
-            deviceSoftwareRequest: new FormArray([], [Validators.required]),
-            connectionIds: new FormArray([], [Validators.required])
+            upsId: new FormControl(0, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            peripheralIds: new FormControl(null, [Validators.required]),
+            deviceSoftwareRequest: new FormControl(null, [Validators.required]),
+            connectionIds: new FormControl(null, [Validators.required])
         });
     }
 
@@ -206,24 +206,15 @@ export class AddDeviceComponent implements OnInit {
     }
 
     onPeripheralsChanges(peripheralIds: number[]): void {
-        let peripheralsArray = this.deviceForm.get('peripheralIds') as FormArray;
-
-        peripheralsArray.clear();
-        peripheralsArray.push(new FormControl(peripheralIds));
+        this.deviceForm.patchValue({ peripheralIds: peripheralIds});
     }
 
     onConnectionChanges(connectionIds: number[]): void {
-        let connectionsArray = this.deviceForm.get('connectionIds') as FormArray;
-
-        connectionsArray.clear();
-        connectionsArray.push(new FormControl(connectionIds));
+        this.deviceForm.patchValue({ connectionIds: connectionIds });
     }
 
     onSoftwareChanges(softwareIds: any[]): void {
-        let softwaresArray = this.deviceForm.get('deviceSoftwareRequest') as FormArray;
-
-        softwaresArray.clear();
-        softwaresArray.push(new FormControl(softwareIds));
+        this.deviceForm.patchValue({ deviceSoftwareRequest: softwareIds });
     }
 
     onUPSBrandIdSubmit(id: number): void {
