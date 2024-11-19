@@ -39,6 +39,11 @@ export class DevicePrinterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('printer-types')));
     }
 
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/printers`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
+    }
+
     //POST
     postPrinterBrand(brand: string): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/printer-brands?brand=${brand}`, this.httpOptions)
@@ -46,7 +51,7 @@ export class DevicePrinterService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/printer`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printer')));
+        return this.http.post<any>(`${this.url}/device/printers`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
     }
 }

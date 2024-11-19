@@ -29,6 +29,11 @@ export class DeviceAioService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`all-in-ones/batch/${id}`)));
     }
 
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/all-in-ones`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
     getAIOBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/aio-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/aio-brands')));

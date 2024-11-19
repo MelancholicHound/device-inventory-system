@@ -26,7 +26,12 @@ export class DeviceLaptopService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/laptops/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`laptops/batch/${id}`)))
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`laptops/batch/${id}`)));
+    }
+
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/laptops`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops')));
     }
 
     getLaptopBrands(): Observable<any> {
@@ -41,7 +46,7 @@ export class DeviceLaptopService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/laptop`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptop')));
+        return this.http.post<any>(`${this.url}/device/laptops`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops')));
     }
 }

@@ -2,7 +2,7 @@ import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { forkJoin, map, switchMap } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';

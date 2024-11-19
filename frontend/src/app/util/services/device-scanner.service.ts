@@ -39,6 +39,11 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('scanner-types')));
     }
 
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/scanners`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
+    }
+
     //POST
     postScannerBrand(brand: any): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/scanner-brands?brand=${brand}`, this.httpOptions)
@@ -46,7 +51,7 @@ export class DeviceScannerService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/scanner`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanner')));
+        return this.http.post<any>(`${this.url}/device/scanners`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
     }
 }

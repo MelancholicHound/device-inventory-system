@@ -29,9 +29,14 @@ export class DeviceComputerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`computers/batch/${id}`)));
     }
 
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/computers`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computer')));
+    }
+
     //POST
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/computer`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computer')));
+        return this.http.post<any>(`${this.url}/device/computers`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computers')));
     }
 }

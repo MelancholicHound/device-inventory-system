@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
@@ -44,6 +44,11 @@ export class DeviceRouterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('router-antennas')));
     }
 
+    getAllDevice(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/routers`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+    }
+
     //POST
     postRouterBrandInput(brand: any): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/router-brands?brand=${brand}`, this.httpOptions)
@@ -61,7 +66,7 @@ export class DeviceRouterService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/router`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/router')));
+        return this.http.post<any>(`${this.url}/device/routers`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
     }
 }
