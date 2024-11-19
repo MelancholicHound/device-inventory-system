@@ -86,7 +86,7 @@ export class TabletComponent implements OnInit {
                 brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 chipsetModel: new FormControl(null, [Validators.required])
             }),
-            screenSize: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            screenSize: new FormControl('', [Validators.required]),
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required])
         });
@@ -176,12 +176,18 @@ export class TabletComponent implements OnInit {
         if (inputElement.value !== '') {
             for (let i = 0; i < this.fetchedStorage.length; i++) {
                 if (sizeValue === this.fetchedStorage[i].capacity) {
-                    storageArray.push(new FormGroup({ capacityId: new FormControl(this.fetchedStorage[i].id) }));
+                    storageArray.push(new FormGroup({
+                        capacityId: new FormControl(this.fetchedStorage[i].id),
+                        type: new FormControl('HDD')
+                    }));
                     break;
                 } else if (sizeValue !== this.fetchedStorage[i].capacity) {
                     if (i === this.fetchedStorage.length) {
                         this.specs.postStorageCapacity(sizeValue).subscribe({
-                            next: (res: any) => storageArray.push(new FormGroup({ capacityId: new FormControl(res.id) })),
+                            next: (res: any) => storageArray.push(new FormGroup({
+                                capacityId: new FormControl(res.id),
+                                type: new FormControl('HDD')
+                            })),
                             error: (error: any) => console.log(error)
                         });
                     }
@@ -192,6 +198,7 @@ export class TabletComponent implements OnInit {
 
     postTabletSpecs(): void {
         this.tabletForm.patchValue({ batchId: this.batchId });
+        this.tabletForm.patchValue({ screenSize: String(this.tabletForm.get('screenSize')?.value) }, { emitEvent: false });
         this.store.dispatch(updateChildData({ data: this.tabletForm.value }));
     }
 

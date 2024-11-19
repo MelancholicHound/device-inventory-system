@@ -89,12 +89,12 @@ export class AddDeviceComponent implements OnInit {
             map(state => state.childData),
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
-            this.deviceFormGroup(updateChildData['data']);
-            console.log(this.deviceForm.value);
             for (let i = 0; i < this.fetchedCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -104,6 +104,8 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Laptop') {
                     this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -113,6 +115,9 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Tablet') {
                     this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceForm.removeControl('deviceSoftwareRequest');
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -122,6 +127,11 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Printer') {
                     this.printerAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceForm.removeControl('peripheralIds');
+                            this.deviceForm.removeControl('connectionIds');
+                            this.deviceForm.removeControl('deviceSoftwareRequest');
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -131,6 +141,11 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Router') {
                     this.routerAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceForm.removeControl('peripheralIds');
+                            this.deviceForm.removeControl('connectionIds');
+                            this.deviceForm.removeControl('deviceSoftwareRequest');
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -140,6 +155,11 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Scanner') {
                     this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceForm.removeControl('peripheralIds');
+                            this.deviceForm.removeControl('connectionIds');
+                            this.deviceForm.removeControl('deviceSoftwareRequest');
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -149,6 +169,8 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'AIO') {
                     this.aioAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -158,6 +180,11 @@ export class AddDeviceComponent implements OnInit {
                 } else if (this.selected === 'Server') {
                     this.serverAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
+                            this.deviceForm.removeControl('peripheralIds');
+                            this.deviceForm.removeControl('connectionIds');
+                            this.deviceForm.removeControl('deviceSoftwareRequest');
+                            this.deviceFormGroup(updateChildData['data']);
+                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -233,7 +260,7 @@ export class AddDeviceComponent implements OnInit {
     }
 
     onPeripheralsChanges(peripheralIds: number[]): void {
-        this.deviceForm.patchValue({ peripheralIds: peripheralIds});
+        this.deviceForm.patchValue({ peripheralIds: peripheralIds });
     }
 
     onConnectionChanges(connectionIds: number[]): void {

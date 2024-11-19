@@ -76,6 +76,28 @@
                 </div>
             </div>
             <div class="form-container">
+                <p class="label"> Motherboard </p>
+                <div class="input-field">
+                    <div class="input-container">
+                        <div class="labeled-field">
+                            <select title="proc-brand" class="processors" id="mobo-brand" (change)="getMoboBrand()" *ngIf="!isMoboBrandToggled">
+                                <option [value]="" selected disabled> Select brand option </option>
+                                <option [value]="mobobrand.id" *ngFor="let mobobrand of fetchedMoboBrand"> {{ mobobrand.brand }} </option>
+                            </select>
+                            <input type="text" class="processors input-form" *ngIf="isMoboBrandToggled" placeholder="Input brand" (blur)="onProcBrandInput($event)">
+                            <label for="proc-brand"> Brand </label>
+                        </div>
+                        <button class="add-btn" type="button" id="brand-field" (click)="toggleMoboBrandField()">
+                            <span class="material-symbols-rounded" [class.rotate]="isMoboBrandAnimated"> add </span>
+                        </button>
+                    </div>
+                    <div class="labeled-field">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onMoboModel($event)">
+                        <label for="proc-model"> Model </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-container">
                 <p class="label"> Video Card </p>
                 <div class="size-field">
                     <label for="gpu-size"> Size: </label>
@@ -103,8 +125,8 @@
                     <label class="type" for="type"> Type: </label>
                     <select title="storage-type" class="form-control" id="type">
                         <option value="" selected disabled> Select option </option>
-                        <option value="hdd"> HDD </option>
-                        <option value="ssd"> SSD </option>
+                        <option value="HDD"> HDD </option>
+                        <option value="SSD"> SSD </option>
                     </select>
                 </div>
                 <div class="size-field" id="size-container">

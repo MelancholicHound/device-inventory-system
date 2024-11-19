@@ -39,6 +39,11 @@ export class SpecsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/cpu-brands/${id}/series`)));
     }
 
+    getAllMoboBrands(): Observable<any> {
+        return this.http.get<any>(`${this.url}/specs/motherboard-brands`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/motherboard-brands')));
+    }
+
     getRAMCapacities(): Observable<any> {
         return this.http.get<any>(`${this.url}/part/ram-capacities`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('part/ram-capacities')));

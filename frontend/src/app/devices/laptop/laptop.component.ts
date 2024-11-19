@@ -98,7 +98,7 @@ export class LaptopComponent implements OnInit {
             ramRequests: new FormArray([], [Validators.required]),
             videoCardRequest: new FormGroup({ capacityId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]) }),
             cpuRequest: new FormGroup({
-                cpurBrandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+                cpuBrandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuBrandSeriesId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuModifier: new FormControl(null, [Validators.required])
             }),

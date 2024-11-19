@@ -183,6 +183,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     routeSelectedDevice() {
         var selected = document.getElementById('device') as HTMLSelectElement;
         let count = document.getElementById('count') as HTMLInputElement;
+
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
                 this.router.navigate([`/add-device/${this.devices[i].indicator}`], { state: {
@@ -192,8 +193,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     batchnumber: this.batchDetails.formattedId,
                     batchid: this.batchDetails.id
                 }});
-                this.addDeviceModal.nativeElement.style.display = 'none';
-                selected.selectedIndex = 0; count.value = '';
             }
         }
     }
@@ -209,22 +208,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     //To be configured into a warning modal
     backButton() {
-        if (localStorage.getItem('state') === 'ADD') {
-            this._params.getAllBatches().subscribe({
-                next: (data: any) => {
-                    for (let i = 0; i < data.length; i++) {
-                        if (this.batchDetails.formattedId === data[i].formattedId) {
-                            this._params.deleteBatch(data[i].id).subscribe({
-                                next: () => { this.router.navigate(['/batch-delivery']) },
-                                error: (error: any) => { console.log(error) }
-                            });
-                        }
-                    }
-                },
-                error: (error: any) => { console.log(error) }
-            });
-        } else {
-          this.router.navigate(['/batch-delivery']);
-        }
+        this.router.navigate(['/batch-delivery']);
     }
 }

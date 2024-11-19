@@ -34,12 +34,16 @@ export class ComputerComponent implements OnInit {
     procBrandId: any; childCount: any;
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
+    isMoboBrandToggled: boolean = false;
+
     isProcBrandAnimated: boolean = false; isProcSeriesAnimated: boolean = false;
+    isMoboBrandAnimated: boolean = false;
     isAddingStorage: boolean = false;
 
     fetchedDivision!: any; fetchedSection!: any;
 
     fetchedProcBrand!: any; fetchedProcSeries!: any;
+    fetchedMoboBrand!: any;
     fetchedRAM!: any; fetchedStorage!: any; fetchedGPU!: any;
 
     computerForm!: FormGroup;
@@ -67,6 +71,11 @@ export class ComputerComponent implements OnInit {
             error: (error: any) => console.log(error)
         });
 
+        this.specs.getAllMoboBrands().subscribe({
+            next: (data: any[]) => this.fetchedMoboBrand = data,
+            error: (error: any) => console.log(error)
+        });
+
         this.specs.getRAMCapacities().subscribe({
             next: (data: any[]) => this.fetchedRAM = data,
             error: (error: any) => console.log(error)
@@ -90,10 +99,15 @@ export class ComputerComponent implements OnInit {
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required]),
             videoCardRequest: new FormGroup({ capacityId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]) }),
+            brandId: new FormControl(1, [Validators.required]), //brandId just provided
             cpuRequest: new FormGroup({
                 cpuBrandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuBrandSeriesId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 cpuModifier: new FormControl(null, [Validators.required])
+            }),
+            motherBoardRequest: new FormGroup({
+                motherBoardBrandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+                motherBoardModel: new FormControl(null, [Validators.required])
             })
         });
     }
@@ -121,6 +135,11 @@ export class ComputerComponent implements OnInit {
         this.computerForm.patchValue({ cpuRequest: { cpuBrandSeriesId: parseInt(value.value, 10) } });
     }
 
+    getMoboBrand() {
+        let value = document.getElementById('mobo-brand') as HTMLOptionElement;
+        this.computerForm.patchValue({ motherBoardRequest: { motherBoardBrandId: parseInt(value.value, 10) } });
+    }
+
     //POST
     onProcBrandInput(event: Event): void {
         const inputElement = event.target as HTMLInputElement;
@@ -146,6 +165,13 @@ export class ComputerComponent implements OnInit {
         const inputElement = event.target as HTMLInputElement;
         if (inputElement.value !== '') {
             this.computerForm.patchValue({ cpuRequest: { cpuModifier: inputElement.value } });
+        }
+    }
+
+    onMoboModel(event: Event): void {
+        const inputElement = event.target as HTMLInputElement;
+        if (inputElement.value !== '') {
+            this.computerForm.patchValue({ motherBoardRequest: { motherBoardModel: inputElement.value } });
         }
     }
 
@@ -255,6 +281,11 @@ export class ComputerComponent implements OnInit {
     toggleProcSeriesField() {
         this.isProcSeriesToggled = !this.isProcSeriesToggled;
         this.isProcSeriesAnimated = !this.isProcSeriesAnimated;
+    }
+
+    toggleMoboBrandField() {
+        this.isMoboBrandToggled = !this.isMoboBrandToggled;
+        this.isMoboBrandAnimated = !this.isMoboBrandAnimated;
     }
 
     addRam() {

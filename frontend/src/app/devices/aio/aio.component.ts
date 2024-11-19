@@ -177,27 +177,24 @@ export class AioComponent implements OnInit {
 
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let intValue = parseInt(inputElement.value, 10);
         let ramArray = this.aioForm.get('ramRequests') as FormArray;
 
-        if (intValue) {
-            for (let i = 0; i < this.fetchedRAM.length; i++) {
-                if (intValue === this.fetchedRAM[i].capacity) {
-                    ramArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
-                    }));
-                    break;
-                } else if (intValue !== this.fetchedRAM[i].capacity) {
-                    if (i === this.fetchedRAM.length) {
-                        this.specs.postRAMCapacity(intValue).subscribe({
-                            next: (res: any) => {
-                                ramArray.push(new FormGroup({
-                                    capacityId: new FormControl(res.id, [Validators.required, Validators.pattern('^[0-9]*$')])
-                                }));
-                            },
-                            error: (error: any) => console.log(error)
-                        });
-                    }
+        for (let i = 0; i < this.fetchedRAM.length; i++) {
+            if (inputElement.value === this.fetchedRAM[i].capacity) {
+                ramArray.push(new FormGroup({
+                    capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                }));
+                break;
+            } else if (inputElement.value !== this.fetchedRAM[i].capacity) {
+                if (i === this.fetchedRAM.length - 1) {
+                    this.specs.postRAMCapacity(inputElement.value).subscribe({
+                        next: (res: any) => {
+                            ramArray.push(new FormGroup({
+                                capacityId: new FormControl(res.id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                            }));
+                        },
+                        error: (error: any) => console.log(error)
+                    });
                 }
             }
         }

@@ -13,7 +13,6 @@ h1 { font-size: 23px; }
 input { padding: 5px; }
 
 .details {
-    width: 100%;
     margin-bottom: 20px;
 }
 
@@ -63,7 +62,7 @@ blockquote { gap: 10px; }
 
 .labeled-field { flex-direction: column; }
 
-.processors { width: 220px; }
+.processors { width: 205px; }
 
 .input-container { gap: 10px; }
 
@@ -74,7 +73,11 @@ input[type='number'] { width: 80px; }
 #storage-size { margin-left: 7px; }
 
 .classification,
-.details { justify-content: space-between; }
+.details {
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
 .details,
 .brand-container { align-items: end; }

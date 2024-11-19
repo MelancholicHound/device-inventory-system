@@ -19,6 +19,11 @@ input { padding: 5px; }
 
 .device-tag { gap: 80px; }
 
+header {
+    width: 100%;
+    justify-content: space-between;
+}
+
 blockquote { gap: 10px; }
 
 .output-label {
@@ -67,18 +72,26 @@ blockquote { gap: 10px; }
 
 .input-container { gap: 10px }
 
-input[type='number'] { width: 80px; }
+input[type='number'] {
+    width: 80px;
+}
 
 .size-input { margin-left: 7px; }
 
 .classification,
-.details { justify-content: space-between; }
+.details {
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
 .details,
 .brand-container { align-items: end; }
 
 .destination,
-.identification { gap: 70px; }
+.identification {
+    gap: 70px;
+}
 
 .size-field,
 .type { gap: 8px; }
@@ -110,7 +123,8 @@ blockquote,
 .labeled-field,
 .input-container,
 .size-field,
-.type  { display: flex; }
+.type,
+header  { display: flex; }
 
 .rotate {
     animation-name: animate-add-btn;
@@ -127,4 +141,16 @@ blockquote,
     60% { transform: rotate(27deg); }
     80% { transform: rotate(36deg); }
     100% { transform: rotate(45deg); }
+}
+
+@media (max-width: 1421px) {
+    .destination {
+        gap: 130px;
+    }
+}
+
+@media (max-width: 1280px) {
+    .processors {
+        width: 150px;
+    }
 }
