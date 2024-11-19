@@ -90,7 +90,7 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
-            let count: number = 0;
+            console.log(this.deviceForm.value);
             for (let i = 0; i < this.fetchedCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
