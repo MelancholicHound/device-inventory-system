@@ -71,7 +71,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     batchDetails: any;
     state: any = localStorage.getItem('state');
-    batchEditDetails: any; batchAddDetails: any; batchViewDetails: any;
     fetchedData: DeviceTable[] = [];
     deviceSelected: any;
     isAddingBatch!: boolean; isViewingBatch!: boolean;
@@ -98,10 +97,19 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
-                    this.batchViewDetails = navigation.extras.state['viewdetails']
-                    this.batchEditDetails = navigation.extras.state['editdetails'];
-                    this.batchAddDetails = navigation.extras.state['addbatch'];
-                    this.batchDetails = navigation.extras.state['batchdetails'];
+                    if (navigation.extras.state['viewdetails']) {
+                        this.batchDetails = navigation.extras.state['viewdetails'];
+                        navigation.extras.state['viewdetails'] = undefined;
+                    } else if (navigation.extras.state['editdetails']) {
+                        this.batchDetails = navigation.extras.state['editdetails'];
+                        navigation.extras.state['editdetails'] = undefined;
+                    } else if (navigation.extras.state['addbatch']) {
+                        this.batchDetails = navigation.extras.state['addbatch'];
+                        navigation.extras.state['addbatch'] = undefined;
+                    } else if (navigation.extras.state['batchdetails']) {
+                        this.batchDetails = navigation.extras.state['batchdetails'];
+                        navigation.extras.state['batchdetails'] = undefined;
+                    }
                 }
     }
 
@@ -111,16 +119,13 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-        if (this.batchAddDetails) {
-            this.batchDetails = this.batchAddDetails;
+        if (localStorage.getItem('state') === 'ADD') {
             this.isAddingBatch = true;
             this.isViewingBatch = false;
-        } else if (this.batchEditDetails) {
-            this.batchDetails = this.batchEditDetails;
+        } else if (localStorage.getItem('state') === 'EDIT') {
             this.isAddingBatch = false;
             this.isViewingBatch = false;
-        } else if (this.batchViewDetails) {
-            this.batchDetails = this.batchViewDetails;
+        } else if (localStorage.getItem('state') === 'VIEW') {
             this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
@@ -180,7 +185,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         let count = document.getElementById('count') as HTMLInputElement;
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
+                this.router.navigate([`/add-device/${this.devices[i].indicator}`], { state: {
                     device: this.devices[i].name,
                     batchdetails: this.batchDetails,
                     count: count.value,
@@ -204,13 +209,13 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     //To be configured into a warning modal
     backButton() {
-        if (this.batchAddDetails) {
+        if (localStorage.getItem('state') === 'ADD') {
             this._params.getAllBatches().subscribe({
                 next: (data: any) => {
                     for (let i = 0; i < data.length; i++) {
                         if (this.batchDetails.formattedId === data[i].formattedId) {
                             this._params.deleteBatch(data[i].id).subscribe({
-                                next: () => { this.router.navigate(['batch-delivery']) },
+                                next: () => { this.router.navigate(['/batch-delivery']) },
                                 error: (error: any) => { console.log(error) }
                             });
                         }

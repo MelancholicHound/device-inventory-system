@@ -90,52 +90,79 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe((updateChildData) => {
             this.deviceFormGroup(updateChildData['data']);
-            for (let i = 1; i <= this.fetchedCount; i++) {
+            let count: number = 0;
+            for (let i = 0; i < this.fetchedCount; i++) {
                 if (this.selected === 'Computer') {
                     this.computerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Laptop') {
                     this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Tablet') {
                     this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Printer') {
                     this.printerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Router') {
                     this.routerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Scanner') {
                     this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'AIO') {
                     this.aioAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
                     });
                 } else if (this.selected === 'Server') {
                     this.serverAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => console.log(i),
+                        next: () => {
+                            if (i === this.fetchedCount - 1) {
+                                this.backButton();
+                            }
+                        },
                         error: (error: any) => console.log(error)
-                    });
-                }
-
-                if (i === this.fetchedCount) {
-                    this.router.navigate(['add-batch'], {
-                        state: { batchdetails: this.batchDetails }
                     });
                 }
             }
@@ -219,11 +246,10 @@ export class AddDeviceComponent implements OnInit {
 
     onUPSBrandIdSubmit(id: number): void {
         this.deviceForm.patchValue({ upsId: id });
-        console.log(this.deviceForm.value);
     }
 
     backButton() {
-        this.router.navigate(['add-batch'], {
+        this.router.navigate(['/add-batch'], {
           state: { batchdetails: this.batchDetails }
         });
     }
