@@ -235,7 +235,7 @@ export class AioComponent implements OnInit {
         let matchingStorage = this.fetchedStorage.find((storage: any) => storage.capacity === parseInt(inputElement.value, 10));
 
         if (matchingStorage) {
-            const type = this.childCount
+            let type = this.childCount
             ? (document.getElementById(`type-${this.childCount}`) as HTMLSelectElement)?.value
             : typeSelect.value;
 

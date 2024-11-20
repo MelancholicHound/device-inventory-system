@@ -64,19 +64,19 @@ export class SoftwaresComponent implements OnInit, OnChanges {
 
     onOperatingSystemChange() {
         let operatingSystem = document.getElementById('os') as HTMLOptionElement;
-        this.softwareForm.patchValue({operatingSystemId: operatingSystem.value });
+        this.softwareForm.patchValue({ operatingSystemId: parseInt(operatingSystem.value, 10) });
         this.softwareStateChanged.emit(this.softwareForm.value);
     }
 
     onSecurityChange() {
         let security = document.getElementById('security') as HTMLOptionElement;
-        this.softwareForm.patchValue({ securityId: security.value });
+        this.softwareForm.patchValue({ securityId: parseInt(security.value, 10) });
         this.softwareStateChanged.emit(this.softwareForm.value);
     }
 
     onProductivityToolsChange() {
         let prodTools = document.getElementById('prod-tool') as HTMLOptionElement;
-        this.softwareForm.patchValue({ productivityToolId: prodTools.value });
+        this.softwareForm.patchValue({ productivityToolId: parseInt(prodTools.value, 10) });
         this.softwareStateChanged.emit(this.softwareForm.value);
     }
 }
