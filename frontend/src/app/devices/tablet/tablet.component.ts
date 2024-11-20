@@ -86,7 +86,7 @@ export class TabletComponent implements OnInit {
                 brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
                 chipsetModel: new FormControl(null, [Validators.required])
             }),
-            screenSize: new FormControl('', [Validators.required]),
+            screenSize: new FormControl(null, [Validators.required]),
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required])
         });
@@ -145,11 +145,6 @@ export class TabletComponent implements OnInit {
         let inputElement = event.target as HTMLInputElement;
         let ramArray = this.tabletForm.get('ramRequests') as FormArray;
 
-        if (isNaN(parseInt(inputElement.value, 10))) {
-            console.error('Invalid RAM capacity input');
-            return;
-        }
-
         let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
 
         if (matchingRAM) {
@@ -171,11 +166,6 @@ export class TabletComponent implements OnInit {
     onStorageInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let storageArray = this.tabletForm.get('storageRequests') as FormArray;
-
-        if (isNaN(parseInt(inputElement.value, 10))) {
-            console.error('Invalid input');
-            return;
-        }
 
         let matchingStorage = this.fetchedStorage.find((storage: any) => storage.capacity === parseInt(inputElement.value, 10));
 
@@ -199,7 +189,7 @@ export class TabletComponent implements OnInit {
 
     postTabletSpecs(): void {
         this.tabletForm.patchValue({ batchId: this.batchId });
-        this.tabletForm.patchValue({ screenSize: String(this.tabletForm.get('screenSize')?.value) }, { emitEvent: false });
+        this.tabletForm.patchValue({ screenSize: String(this.tabletForm.get('screenSize')?.value) });
         this.store.dispatch(updateChildData({ data: this.tabletForm.value }));
     }
 

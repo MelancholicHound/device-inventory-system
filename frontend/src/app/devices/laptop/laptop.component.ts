@@ -46,11 +46,10 @@ export class LaptopComponent implements OnInit {
 
     laptopForm!: FormGroup;
 
-    constructor(private auth: AuthService,
-                private params: ParamsService,
+    constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private laptopAuth: DeviceLaptopService,
-                private store: Store) {}
+                private store: Store) { }
 
     ngOnInit(): void {
         this.batchId = history.state.batchid;
@@ -178,11 +177,6 @@ export class LaptopComponent implements OnInit {
         let inputElement = event.target as HTMLInputElement;
         let ramArray = this.laptopForm.get('ramRequests') as FormArray;
 
-        if (isNaN(parseInt(inputElement.value, 10))) {
-            console.error('Invalid RAM capacity input');
-            return;
-        }
-
         let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
 
         if (matchingRAM) {
@@ -204,11 +198,6 @@ export class LaptopComponent implements OnInit {
     onGPUInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
 
-        if (isNaN(parseInt(inputElement.value, 10))) {
-            console.error('Invalid GPU capacity input');
-            return;
-        }
-
         let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
 
         if (matchingGPU) {
@@ -225,11 +214,6 @@ export class LaptopComponent implements OnInit {
         let inputElement = event.target as HTMLInputElement;
         let typeSelect = document.getElementById('type') as HTMLSelectElement;
         let storageArray = this.laptopForm.get('storageRequests') as FormArray;
-
-        if (isNaN(parseInt(inputElement.value, 10)) || !typeSelect.value) {
-            console.error('Invalid input or storage type not selected');
-            return;
-        }
 
         let matchingStorage = this.fetchedStorage.find((storage: any) => storage.capacity === parseInt(inputElement.value, 10));
 

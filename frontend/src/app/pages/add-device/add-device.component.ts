@@ -78,18 +78,14 @@ export class AddDeviceComponent implements OnInit {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
-                    navigation.extras.state['device'] = undefined;
-
                     this.fetchedCount = navigation.extras.state['count'];
-                    navigation.extras.state['count'] = undefined;
-
                     this.batchDetails = navigation.extras.state['batchdetails'];
-                    navigation.extras.state['batchdetails'] = undefined;
                 }
     }
 
     ngOnInit(): void {
         this.deviceForm = this.createDeviceFormGroup();
+
 
         this.store.select('app').pipe(
             map(state => state.childData),
@@ -108,9 +104,9 @@ export class AddDeviceComponent implements OnInit {
 
             const removableControls: any = {
                 Tablet: ['deviceSoftwareRequest'],
-                Printer: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
-                Router: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
-                Scanner: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
+                Printer: ['connectionIds', 'deviceSoftwareRequest'],
+                Router: ['connectionIds', 'deviceSoftwareRequest'],
+                Scanner: ['connectionIds', 'deviceSoftwareRequest'],
                 Server: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest']
             };
 
@@ -122,6 +118,8 @@ export class AddDeviceComponent implements OnInit {
                     controls.forEach((control: any) => this.deviceForm.removeControl(control));
 
                     this.deviceFormGroup(updateChildData['data']);
+
+                    console.log(this.deviceForm.value);
 
                     currentAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
