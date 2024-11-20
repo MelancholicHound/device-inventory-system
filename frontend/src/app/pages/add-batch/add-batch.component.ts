@@ -175,7 +175,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`/add-device/${this.devices[i].indicator}`], { state: {
+                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
                     device: this.devices[i].name,
                     batchdetails: this.batchDetails,
                     count: count.value,
@@ -197,6 +197,6 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     //To be configured into a warning modal
     backButton() {
-        this.router.navigate(['/batch-delivery']);
+        this.router.navigate(['batch-delivery']);
     }
 }

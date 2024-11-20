@@ -86,7 +86,6 @@ export class AddDeviceComponent implements OnInit {
     ngOnInit(): void {
         this.deviceForm = this.createDeviceFormGroup();
 
-
         this.store.select('app').pipe(
             map(state => state.childData),
             filter(updateChildData => Object.keys(updateChildData).length > 0)
@@ -122,7 +121,7 @@ export class AddDeviceComponent implements OnInit {
                     console.log(this.deviceForm.value);
 
                     currentAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
+                        complete: () => {
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
@@ -214,7 +213,7 @@ export class AddDeviceComponent implements OnInit {
     }
 
     backButton() {
-        this.router.navigate(['/add-batch'], {
+        this.router.navigate(['add-batch'], {
           state: { batchdetails: this.batchDetails }
         });
     }

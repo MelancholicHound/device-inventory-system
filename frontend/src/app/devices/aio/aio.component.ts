@@ -51,10 +51,10 @@ export class AioComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private aioAuth: DeviceAioService,
-                private store: Store) {}
+                private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
+        this.batchId = history.state.batchid
         this.deviceCount = history.state.count;
         this.batchNumber = history.state.batchnumber;
 
