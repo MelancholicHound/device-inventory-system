@@ -52,27 +52,27 @@ export class TabletComponent implements OnInit {
 
         this.tabletAuth.getTabletBrands().subscribe({
             next: (res: any[]) => this.fetchedTabletBrand = res,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.params.getAllDivisions().subscribe({
             next: (res: any[]) => this.fetchedDivision = res,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.tabletAuth.getChipsetBrands().subscribe({
             next: (res: any[]) => this.fetchedChipsetBrand = res,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getRAMCapacities().subscribe({
             next: (res: any[]) => this.fetchedRAM = res,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getStorageCapacities().subscribe({
             next: (res: any[]) => this.fetchedStorage = res,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
     }
 
@@ -119,7 +119,7 @@ export class TabletComponent implements OnInit {
         if (inputElement.value !== '') {
             this.tabletAuth.postTabletBrand(inputElement.value).subscribe({
                 next: (res: any) => this.tabletForm.patchValue({ brandId: res.id }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -129,7 +129,7 @@ export class TabletComponent implements OnInit {
         if (inputElement.value !== '') {
             this.tabletAuth.postChipsetBrand(inputElement.value).subscribe({
                 next: (res: any) => this.tabletForm.patchValue({ chipsetRequest: { brandId: res.id } }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -143,56 +143,55 @@ export class TabletComponent implements OnInit {
 
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let intValue = parseInt(inputElement.value, 10);
         let ramArray = this.tabletForm.get('ramRequests') as FormArray;
 
-        if (intValue) {
-            for (let i = 0; i < this.fetchedRAM.length; i++) {
-                if (intValue === this.fetchedRAM[i].capacity) {
+        if (isNaN(parseInt(inputElement.value, 10))) {
+            console.error('Invalid RAM capacity input');
+            return;
+        }
+
+        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
+
+        if (matchingRAM) {
+            ramArray.push(new FormGroup({
+                capacityId: new FormControl(matchingRAM.id, [Validators.required])
+            }));
+        } else {
+            this.specs.postRAMCapacity(inputElement.value).subscribe({
+                next: (res: any) => {
                     ramArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedRAM[i].id)
+                        capacityId: new FormControl(res.id, [Validators.required])
                     }));
-                    break;
-                } else if (intValue !== this.fetchedRAM[i].capacity) {
-                    if (i === this.fetchedRAM.length) {
-                        this.specs.postRAMCapacity(intValue).subscribe({
-                            next: (res: any) => {
-                                ramArray.push(new FormGroup({
-                                    capacityId: new FormControl(res.id)
-                                }));
-                            }
-                        })
-                    }
-                }
-            }
+                },
+                error: (error: any) => console.error(error)
+            });
         }
     }
 
     onStorageInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let sizeValue = parseInt(inputElement.value, 10);
         let storageArray = this.tabletForm.get('storageRequests') as FormArray;
 
-        if (inputElement.value !== '') {
-            for (let i = 0; i < this.fetchedStorage.length; i++) {
-                if (sizeValue === this.fetchedStorage[i].capacity) {
+        if (isNaN(parseInt(inputElement.value, 10))) {
+            console.error('Invalid input');
+            return;
+        }
+
+        let matchingStorage = this.fetchedStorage.find((storage: any) => storage.capacity === parseInt(inputElement.value, 10));
+
+        if (matchingStorage) {
+            storageArray.push(new FormGroup({
+                capacityId: new FormControl(matchingStorage.id, [Validators.required])
+            }));
+        } else {
+            this.specs.postStorageCapacity(inputElement.value).subscribe({
+                next: (res: any) => {
                     storageArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedStorage[i].id),
-                        type: new FormControl('HDD')
+                        capacityId: new FormControl(res.id, [Validators.required])
                     }));
-                    break;
-                } else if (sizeValue !== this.fetchedStorage[i].capacity) {
-                    if (i === this.fetchedStorage.length) {
-                        this.specs.postStorageCapacity(sizeValue).subscribe({
-                            next: (res: any) => storageArray.push(new FormGroup({
-                                capacityId: new FormControl(res.id),
-                                type: new FormControl('HDD')
-                            })),
-                            error: (error: any) => console.log(error)
-                        });
-                    }
-                }
-            }
+                },
+                error: (error: any) => console.error(error)
+            });
         }
     }
 

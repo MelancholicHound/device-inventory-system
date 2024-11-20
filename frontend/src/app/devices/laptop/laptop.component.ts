@@ -61,32 +61,32 @@ export class LaptopComponent implements OnInit {
 
         this.laptopAuth.getLaptopBrands().subscribe({
             next: (data: any[]) => this.fetchedLaptopBrand = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.params.getAllDivisions().subscribe({
             next: (data: any[]) => this.fetchedDivision = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getAllProcBrands().subscribe({
             next: (data: any[]) => this.fetchedProcBrand = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getRAMCapacities().subscribe({
             next: (data: any[]) => this.fetchedRAM = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getStorageCapacities().subscribe({
             next: (data: any[]) => this.fetchedStorage = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.specs.getVideoCardCapacities().subscribe({
             next: (data: any[]) => this.fetchedGPU = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
     }
 
@@ -142,7 +142,7 @@ export class LaptopComponent implements OnInit {
         if (inputElement.value !== '') {
             this.laptopAuth.postLaptopBrand(inputElement.value).subscribe({
                 next: (res: any) => this.laptopForm.patchValue({ brandId: res.id }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -152,7 +152,7 @@ export class LaptopComponent implements OnInit {
         if (inputElement.value !== '') {
             this.specs.postProcBrand(inputElement.value).subscribe({
                 next: (res: any) => this.laptopForm.patchValue({ cpuRequest: { cpuBrandId: res.id } }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -162,7 +162,7 @@ export class LaptopComponent implements OnInit {
         if (inputElement.value !== '') {
             this.specs.postProcSeries(id, inputElement.value).subscribe({
                 next: (res: any) => this.laptopForm.patchValue({ cpuRequest: { cpuBrandSeriesId: res.id } }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -176,91 +176,84 @@ export class LaptopComponent implements OnInit {
 
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let intValue = parseInt(inputElement.value, 10);
         let ramArray = this.laptopForm.get('ramRequests') as FormArray;
 
-        if (intValue) {
-            for (let i = 0; i < this.fetchedRAM.length; i++) {
-                if (intValue === this.fetchedRAM[i].capacity) {
+        if (isNaN(parseInt(inputElement.value, 10))) {
+            console.error('Invalid RAM capacity input');
+            return;
+        }
+
+        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
+
+        if (matchingRAM) {
+            ramArray.push(new FormGroup({
+                capacityId: new FormControl(matchingRAM.id, [Validators.required])
+            }));
+        } else {
+            this.specs.postRAMCapacity(inputElement.value).subscribe({
+                next: (res: any) => {
                     ramArray.push(new FormGroup({
-                        capacityId: new FormControl(this.fetchedRAM[i].id, [Validators.required, Validators.pattern('^[0-9]*$')])
+                        capacityId: new FormControl(res.id, [Validators.required])
                     }));
-                    break;
-                } else if (intValue !== this.fetchedRAM[i].capacity) {
-                    if (i === this.fetchedRAM.length) {
-                        this.specs.postRAMCapacity(intValue).subscribe({
-                            next: (res: any) => {
-                                ramArray.push(new FormGroup({
-                                    capacityId: new FormControl(res.id, [Validators.required, Validators.pattern('^[0-9]*$')])
-                                }));
-                            },
-                            error: (error: any) => console.log(error)
-                        });
-                    }
-                }
-            }
+                },
+                error: (error: any) => console.error(error)
+            });
         }
     }
 
     onGPUInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
-        let intValue = parseInt(inputElement.value, 10);
 
-        if (intValue) {
-            for (let i = 9; i < this.fetchedGPU.length; i++) {
-                if (intValue === this.fetchedGPU[i].capacity) {
-                    this.laptopForm.get('videoCardRequest')?.setValue({ capacityId: this.fetchedGPU[i].id });
-                    break;
-                } else if (intValue !== this.fetchedGPU[i].capacity) {
-                    if (i === this.fetchedGPU.length) {
-                        this.specs.postGPUCapacity(intValue).subscribe({
-                            next: (res: any) => this.laptopForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
-                            error: (error: any) => console.log(error)
-                        });
-                    }
-                }
-            }
+        if (isNaN(parseInt(inputElement.value, 10))) {
+            console.error('Invalid GPU capacity input');
+            return;
+        }
+
+        let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
+
+        if (matchingGPU) {
+            this.laptopForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
+        } else {
+            this.specs.postGPUCapacity(inputElement.value).subscribe({
+                next: (res: any) => this.laptopForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
+                error: (error: any) => console.error(error)
+            });
         }
     }
 
     onStorageInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let typeSelect = document.getElementById('type') as HTMLSelectElement;
-        let sizeValue = parseInt(inputElement.value, 10);
         let storageArray = this.laptopForm.get('storageRequests') as FormArray;
 
-        if (sizeValue && typeSelect.value) {
-            for (let i = 0; i < this.fetchedStorage.length; i++) {
-                if (sizeValue === this.fetchedStorage[i].capacity) {
-                    if (this.childCount) {
-                        let typeSelectIndex = document.getElementById(`type-${this.childCount}`) as HTMLSelectElement;
-                        storageArray.push(new FormGroup({
-                            capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
-                            type: new FormControl(typeSelectIndex.value, [Validators.required])
-                        }));
-                        this.childCount = null;
-                        break;
-                    } else {
-                        storageArray.push(new FormGroup({
-                            capacityId: new FormControl(this.fetchedStorage[i].id, [Validators.required]),
-                            type: new FormControl(typeSelect.value, [Validators.required])
-                        }));
-                        break;
-                    }
-                } else if (sizeValue !== this.fetchedStorage[i].capacity) {
-                    if (i === this.fetchedStorage.length) {
-                        this.specs.postStorageCapacity(sizeValue).subscribe({
-                            next: (res: any) => {
-                                storageArray.push(new FormGroup({
-                                    capacityId: new FormControl(res.id, [Validators.required]),
-                                    type: new FormControl(typeSelect.value, [Validators.required])
-                                }));
-                            },
-                            error: (error: any) => console.log(error)
-                        });
-                    }
-                }
-            }
+        if (isNaN(parseInt(inputElement.value, 10)) || !typeSelect.value) {
+            console.error('Invalid input or storage type not selected');
+            return;
+        }
+
+        let matchingStorage = this.fetchedStorage.find((storage: any) => storage.capacity === parseInt(inputElement.value, 10));
+
+        if (matchingStorage) {
+            const type = this.childCount
+            ? (document.getElementById(`type-${this.childCount}`) as HTMLSelectElement)?.value
+            : typeSelect.value;
+
+            storageArray.push(new FormGroup({
+                capacityId: new FormControl(matchingStorage.id, [Validators.required]),
+                type: new FormControl(type, [Validators.required])
+            }));
+
+            this.childCount = null;
+        } else {
+            this.specs.postStorageCapacity(inputElement.value).subscribe({
+                next: (res: any) => {
+                    storageArray.push(new FormGroup({
+                        capacityId: new FormControl(res.id, [Validators.required]),
+                        type: new FormControl(typeSelect.value, [Validators.required])
+                    }));
+                },
+                error: (error: any) => console.error(error)
+            });
         }
     }
 

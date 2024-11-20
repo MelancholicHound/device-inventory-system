@@ -48,17 +48,17 @@ export class PrinterComponent implements OnInit {
 
         this.params.getAllDivisions().subscribe({
             next: (data: any[]) => this.fetchedDivision = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.printerAuth.getPrinterBrands().subscribe({
             next: (data: any[]) => this.fetchedPrinterBrand = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.printerAuth.getPrinterTypes().subscribe({
             next: (data: any[]) => this.fetchedType = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
     }
 
@@ -100,7 +100,7 @@ export class PrinterComponent implements OnInit {
         if (inputElement.value !== '') {
             this.printerAuth.postPrinterBrand(inputElement.value).subscribe({
                 next: (res: any) => this.printerForm.patchValue({ brandId: res.id }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }

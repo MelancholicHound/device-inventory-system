@@ -48,22 +48,22 @@ export class RouterComponent implements OnInit {
 
         this.routerAuth.getRouterBrands().subscribe({
             next: (data: any[]) => this.fetchedRouterBrand = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.params.getAllDivisions().subscribe({
             next: (data: any[]) => this.fetchedDivision = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.routerAuth.getNetworkSpeed().subscribe({
             next: (data: any[]) => this.fetchedNetSpeed = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.routerAuth.getNumberOfAntennas().subscribe({
             next: (data: any[]) => this.fetchedAntenna = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
     }
 
@@ -101,7 +101,7 @@ export class RouterComponent implements OnInit {
         if (inputElement.value !== '') {
             this.routerAuth.postRouterBrandInput(inputElement.value).subscribe({
                 next: (res: any) => this.routerForm.patchValue({ brandId: res.id }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
@@ -119,7 +119,7 @@ export class RouterComponent implements OnInit {
                     if (i === this.fetchedNetSpeed.length) {
                         this.routerAuth.postRouterBrandInput(intValue).subscribe({
                             next: (res: any) => this.routerForm.patchValue({ networkSpeedId: res.id }),
-                            error: (error: any) => console.log(error)
+                            error: (error: any) => console.error(error)
                         });
                     }
                 }
@@ -140,7 +140,7 @@ export class RouterComponent implements OnInit {
                     if (i === this.fetchedAntenna.length) {
                         this.routerAuth.postNumberOfAntennas(intValue).subscribe({
                             next: (res: any) => this.routerForm.patchValue({ numberOfAntennaId: res.id }),
-                            error: (error: any) => console.log(error)
+                            error: (error: any) => console.error(error)
                         });
                     }
                 }

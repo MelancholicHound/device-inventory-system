@@ -48,17 +48,17 @@ export class ScannerComponent implements OnInit {
 
         this.params.getAllDivisions().subscribe({
             next: (data: any[]) => this.fetchedDivision = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.scannerAuth.getScannerBrands().subscribe({
             next: (data: any[]) => this.fetchedScannerBrand = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
 
         this.scannerAuth.getScannerType().subscribe({
             next: (data: any[]) => this.fetchedType = data,
-            error: (error: any) => console.log(error)
+            error: (error: any) => console.error(error)
         });
     }
 
@@ -100,7 +100,7 @@ export class ScannerComponent implements OnInit {
         if (inputElement.value !== '') {
             this.scannerAuth.postScannerBrand(inputElement.value).subscribe({
                 next: (res: any) => this.scannerForm.patchValue({ brandId: res.id }),
-                error: (error: any) => console.log(error)
+                error: (error: any) => console.error(error)
             });
         }
     }
