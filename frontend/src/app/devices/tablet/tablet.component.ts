@@ -181,13 +181,15 @@ export class TabletComponent implements OnInit {
 
         if (matchingStorage) {
             storageArray.push(new FormGroup({
-                capacityId: new FormControl(matchingStorage.id, [Validators.required])
+                capacityId: new FormControl(matchingStorage.id, [Validators.required]),
+                type: new FormControl('HDD', [Validators.required])
             }));
         } else {
             this.specs.postStorageCapacity(inputElement.value).subscribe({
                 next: (res: any) => {
                     storageArray.push(new FormGroup({
-                        capacityId: new FormControl(res.id, [Validators.required])
+                        capacityId: new FormControl(res.id, [Validators.required]),
+                        type: new FormControl('HDD', [Validators.required])
                     }));
                 },
                 error: (error: any) => console.error(error)

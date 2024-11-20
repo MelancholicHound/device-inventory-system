@@ -167,21 +167,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             },
             error: (error: any) => console.log(error)
         });
-
-        if (this.state === 'ADD') {
-            this.isAddingBatch = true;
-            this.isViewingBatch = false;
-        } else if (this.state === 'EDIT') {
-            this.isAddingBatch = false;
-            this.isViewingBatch = false;
-        } else if (this.state === 'VIEW') {
-            this.isViewingBatch = true;
-            this.isAddingBatch = false;
-        }
     }
 
     routeSelectedDevice() {
-        var selected = document.getElementById('device') as HTMLSelectElement;
+        let selected = document.getElementById('device') as HTMLSelectElement;
         let count = document.getElementById('count') as HTMLInputElement;
 
         for (let i = 0; i < this.devices.length; i++) {

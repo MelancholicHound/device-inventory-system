@@ -5,7 +5,7 @@ import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@ang
 
 import { Store } from '@ngrx/store';
 
-import { filter, map } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -22,6 +22,7 @@ import { DeviceServerService } from '../../util/services/device-server.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 import { AppState } from '../../util/store/app.reducer';
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-add-device',
@@ -77,8 +78,13 @@ export class AddDeviceComponent implements OnInit {
                 const navigation = this.router.getCurrentNavigation();
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
+                    navigation.extras.state['device'] = undefined;
+
                     this.fetchedCount = navigation.extras.state['count'];
+                    navigation.extras.state['count'] = undefined;
+
                     this.batchDetails = navigation.extras.state['batchdetails'];
+                    navigation.extras.state['batchdetails'] = undefined;
                 }
     }
 
@@ -88,108 +94,42 @@ export class AddDeviceComponent implements OnInit {
         this.store.select('app').pipe(
             map(state => state.childData),
             filter(updateChildData => Object.keys(updateChildData).length > 0)
-        ).subscribe((updateChildData) => {
+        ).subscribe(updateChildData => {
+            const authServices: any = {
+                Computer: this.computerAuth,
+                Laptop: this.laptopAuth,
+                Tablet: this.tabletAuth,
+                Printer: this.printerAuth,
+                Router: this.routerAuth,
+                Scanner: this.scannerAuth,
+                AIO: this.aioAuth,
+                Server: this.serverAuth
+            };
+
+            const removableControls: any = {
+                Tablet: ['deviceSoftwareRequest'],
+                Printer: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
+                Router: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
+                Scanner: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest'],
+                Server: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest']
+            };
+
             for (let i = 0; i < this.fetchedCount; i++) {
-                if (this.selected === 'Computer') {
+                if (this.selected in authServices) {
+                    const currentAuth = authServices[this.selected];
+                    const controls = removableControls[this.selected] || [];
+
+                    controls.forEach((control: any) => this.deviceForm.removeControl(control));
+
                     this.deviceFormGroup(updateChildData['data']);
-                    this.computerAuth.postDevice(this.deviceForm.value).subscribe({
+
+                    currentAuth.postDevice(this.deviceForm.value).subscribe({
                         next: () => {
-                            console.log(this.deviceForm.value);
                             if (i === this.fetchedCount - 1) {
                                 this.backButton();
                             }
                         },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Laptop') {
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.laptopAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Tablet') {
-                    this.deviceForm.removeControl('deviceSoftwareRequest');
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.tabletAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Printer') {
-                    this.deviceForm.removeControl('peripheralIds');
-                    this.deviceForm.removeControl('connectionIds');
-                    this.deviceForm.removeControl('deviceSoftwareRequest');
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.printerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Router') {
-                    this.deviceForm.removeControl('peripheralIds');
-                    this.deviceForm.removeControl('connectionIds');
-                    this.deviceForm.removeControl('deviceSoftwareRequest');
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.routerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Scanner') {
-                    this.deviceForm.removeControl('peripheralIds');
-                    this.deviceForm.removeControl('connectionIds');
-                    this.deviceForm.removeControl('deviceSoftwareRequest');
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.scannerAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'AIO') {
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.aioAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
-                    });
-                } else if (this.selected === 'Server') {
-                    this.deviceForm.removeControl('peripheralIds');
-                    this.deviceForm.removeControl('connectionIds');
-                    this.deviceForm.removeControl('deviceSoftwareRequest');
-                    this.deviceFormGroup(updateChildData['data']);
-                    this.serverAuth.postDevice(this.deviceForm.value).subscribe({
-                        next: () => {
-                            console.log(this.deviceForm.value);
-                            if (i === this.fetchedCount - 1) {
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.log(error)
+                        error: (error: any) => console.error(error)
                     });
                 }
             }
