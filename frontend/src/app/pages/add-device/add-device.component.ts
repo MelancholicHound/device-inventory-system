@@ -22,7 +22,7 @@ import { DeviceServerService } from '../../util/services/device-server.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 import { AppState } from '../../util/store/app.reducer';
-import { updateChildData } from '../../util/store/app.actions';
+import { clearChildData, updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-add-device',
@@ -123,6 +123,7 @@ export class AddDeviceComponent implements OnInit {
                     currentAuth.postDevice(this.deviceForm.value).subscribe({
                         complete: () => {
                             if (i === this.fetchedCount - 1) {
+                                this.store.dispatch(clearChildData());
                                 this.backButton();
                             }
                         },
