@@ -1,12 +1,19 @@
 import { Component } from '@angular/core';
-import { NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
     selector: 'app-navigation',
     standalone: true,
     imports: [
-        NgFor
+        CommonModule,
+        MatMenuModule,
+        MatButtonModule,
+        MatIconModule
     ],
     templateUrl: './navigation.component.html',
     styleUrl: './navigation.component.scss'
@@ -43,5 +50,9 @@ export class NavigationComponent {
             selectTab.selectedIndex = 0;
             this.router.navigate(['computer-inventory']);
         });
+    }
+
+    logOut(): void {
+        localStorage.removeItem('token');
     }
 }

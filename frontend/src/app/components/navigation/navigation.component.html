@@ -4,9 +4,19 @@
             <img src="images/IMISS.png" alt="logo">
             <h2 class="bold"> DIS </h2>
         </div>
-        <button type="button" class="settings-btn">
+        <button type="button" class="settings-btn" [matMenuTriggerFor]="menu">
             <span class="material-symbols-rounded settings-icon"> more_horiz </span>
         </button>
+        <mat-menu #menu="matMenu">
+            <button mat-menu-item class="settings">
+                <mat-icon class="material-symbols-rounded"> person </mat-icon>
+                <p> Account Details </p>
+            </button>
+            <button mat-menu-item class="settings" (click)="logOut()">
+                <mat-icon class="material-symbols-rounded"> logout </mat-icon>
+                <p> Logout </p>
+            </button>
+        </mat-menu>
     </header>
     <section>
         <h1 class="section-title"> Overview </h1>
