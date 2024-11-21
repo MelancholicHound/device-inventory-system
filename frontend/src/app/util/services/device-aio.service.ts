@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
@@ -26,7 +26,12 @@ export class DeviceAioService {
     //GET
     getAllByBatchId(id: any) : Observable<any> {
         return this.http.get<any>(`${this.url}/device/all-in-ones/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`all-in-ones/batch/${id}`)));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/all-in-ones/batch`)));
+    }
+
+    getById(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/all-in-ones/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 
     getAllDevice(): Observable<any> {

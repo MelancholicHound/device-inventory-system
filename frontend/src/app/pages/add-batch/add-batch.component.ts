@@ -2,7 +2,8 @@ import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { forkJoin, map } from 'rxjs';
+import { forkJoin } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -85,7 +86,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     @ViewChild('addDeviceModal') addDeviceModal!: ElementRef;
 
     constructor(private router: Router,
-                private _params: ParamsService,
+                private params: ParamsService,
                 private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,

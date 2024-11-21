@@ -26,7 +26,12 @@ export class DeviceServerService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/servers/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`servers/batch/${id}`)));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/servers/batch`)));
+    }
+
+    getById(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/servers/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/servers')))
     }
 
     getAllDevice(): Observable<any> {

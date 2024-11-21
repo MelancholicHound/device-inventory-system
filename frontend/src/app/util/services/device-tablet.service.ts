@@ -26,7 +26,12 @@ export class DeviceTabletService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/tablets/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`tablets/batch/${id}`)));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/tablets/batch`)));
+    }
+
+    getById(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/tablets/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
     }
 
     getTabletBrands(): Observable<any> {

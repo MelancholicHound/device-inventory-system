@@ -26,7 +26,12 @@ export class DeviceScannerService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/scanners/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`scanners/batch/${id}`)));
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/scanners/batch`)));
+    }
+
+    getById(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/scanners/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
     }
 
     getScannerBrands(): Observable<any> {

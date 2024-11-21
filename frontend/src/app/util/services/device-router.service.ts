@@ -26,7 +26,12 @@ export class DeviceRouterService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/routers/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`routers/batch/${id}`)))
+        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/routers/batch`)));
+    }
+
+    getByid(id: any): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/routers/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
     }
 
     getRouterBrands(): Observable<any> {
