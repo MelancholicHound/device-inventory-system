@@ -133,7 +133,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
         forkJoin([
             this.aioAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'ALL-IN-ONE'))
+                map((data: any[]) => this.mapData(data, 'AIO'))
             ),
             this.computerAuth.getAllByBatchId(this.batchDetails.id).pipe(
                 map((data: any[]) => this.mapData(data, 'COMPUTER'))
@@ -199,12 +199,57 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     //Click events
     onClickEditDevice(row: any) {
-        console.log(row);
+        let authServices: any = {
+            COMPUTER: this.computerAuth,
+            LAPTOP: this.laptopAuth,
+            TABLET: this.tabletAuth,
+            PRINTER: this.printerAuth,
+            ROUTER: this.routerAuth,
+            SCANNER: this.scannerAuth,
+            AIO: this.aioAuth,
+            SERVER: this.serverAuth
+        };
 
+        if (row.device in authServices) {
+            let currentAuth = authServices[row.device];
+
+            currentAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    let deviceIndicator = this.devices.filter((device: any) => row.device === device.name.toUpperCase());
+                    this.router.navigate([`add-device/${deviceIndicator[0].indicator}`], {
+                        state: {
+                            device: deviceIndicator[0].name,
+                            devicedetails: res,
+                            batchdetails: this.batchDetails,
+                            batchnumber: this.batchDetails.formattedId,
+                            batchid: this.batchDetails.id
+                        }
+                    });
+                }
+            })
+        }
     }
 
     onClickDeleteDevice(row: any) {
-        console.log(row);
+        let authServices: any = {
+            COMPUTER: this.computerAuth,
+            LAPTOP: this.laptopAuth,
+            TABLET: this.tabletAuth,
+            PRINTER: this.printerAuth,
+            ROUTER: this.routerAuth,
+            SCANNER: this.scannerAuth,
+            AIO: this.aioAuth,
+            SERVER: this.serverAuth
+        };
+
+        if (row.device in authServices) {
+            let currentAuth = authServices[row.device];
+
+            currentAuth.deleteById(row.id).subscribe({
+                next: () => location.reload(),
+                error: (error: any) => console.error(error)
+            });
+        }
     }
 
     //To be configured into a warning modal

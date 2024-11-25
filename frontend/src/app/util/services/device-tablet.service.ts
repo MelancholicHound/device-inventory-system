@@ -64,4 +64,10 @@ export class DeviceTabletService {
         return this.http.post<any>(`${this.url}/device/tablets/save-all`, form, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/save-all')));
     }
+
+    //DELETE
+    deleteById(id: any): Observable<any> {
+        return this.http.delete<any>(`${this.url}/device/tablets/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+    }
 }

@@ -54,4 +54,10 @@ export class DeviceAioService {
         return this.http.post<any>(`${this.url}/device/all-in-ones/save-all`, form, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones/save-all')));
     }
+
+    //DELETE
+    deleteById(id: any): Observable<any> {
+        return this.http.delete<any>(`${this.url}/device/all-in-ones/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
 }

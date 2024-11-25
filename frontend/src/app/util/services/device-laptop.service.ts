@@ -54,4 +54,10 @@ export class DeviceLaptopService {
         return this.http.post<any>(`${this.url}/device/laptops/save-all`, form, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops/save-all')));
     }
+
+    //DELETE
+    deleteById(id: any): Observable<any> {
+        return this.http.delete<any>(`${this.url}/device/laptops/${id}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops')));
+    }
 }
