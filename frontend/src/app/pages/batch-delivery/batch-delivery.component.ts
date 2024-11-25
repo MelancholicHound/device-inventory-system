@@ -66,7 +66,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     @ViewChild('deletePrompt') deletePrompt!: ElementRef;
 
     constructor(private router: Router,
-                private _params: ParamsService) {
+                private params: ParamsService) {
                 this.dataSource = new MatTableDataSource(this.fetchedData);
     }
 
@@ -77,9 +77,9 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
     ngOnInit(): void {
         this.deleteBatchForm = this.createDeleteBatchForm();
-        this._params.getAllBatches().subscribe((data: BatchTable[]) => {
+        this.params.getAllBatches().subscribe((data: BatchTable[]) => {
             const batchData = data.map((item: BatchTable) => {
-                return this._params.getSupplierById(item.supplierId).pipe(
+                return this.params.getSupplierById(item.supplierId).pipe(
                     map((supplierData: any) => ({
                         formattedId: item.formattedId,
                         supplier: supplierData.name,
@@ -101,11 +101,11 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
     //DELETE
     deleteBatch(batchId: any) {
-        this._params.getAllBatches().subscribe({
+        this.params.getAllBatches().subscribe({
             next: (data: any) => {
                 for (let i = 0; i < data.length; i++) {
                     if (batchId === data[i].formattedId) {
-                        this._params.deleteBatch(data[i].id).subscribe();
+                        this.params.deleteBatch(data[i].id).subscribe();
                         this.deletePrompt.nativeElement.style.display = 'none';
                         window.location.reload();
                     }
@@ -127,21 +127,8 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
     }
 
     //Click events
-    onClickView(row: any) {
-        this._params.getAllBatches().subscribe({
-            next: (data: any) => {
-                for (let i = 0; i < data.length; i++) {
-                    if (row.formattedId === data[i].formattedId) {
-                        this.router.navigate(['add-batch'], { state: { viewdetails: data[i] } });
-                        localStorage.setItem('state', 'VIEW');
-                    }
-                }
-            }
-        });
-    }
-
     onClickEdit(row: any) {
-        this._params.getAllBatches().subscribe({
+        this.params.getAllBatches().subscribe({
             next: (data: any) => {
                 for (let i = 0; i < data.length; i++) {
                     if (row.formattedId === data[i].formattedId) {

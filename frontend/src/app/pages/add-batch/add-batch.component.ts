@@ -189,11 +189,22 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     mapData(data: any[], deviceType: string) {
         return data.map((item) => ({
+            id: item.id,
             tag: item.tag,
             device: deviceType,
             division: item.sectionDTO.divisionId,
             section: item.sectionDTO.name
         }));
+    }
+
+    //Click events
+    onClickEditDevice(row: any) {
+        console.log(row);
+
+    }
+
+    onClickDeleteDevice(row: any) {
+        console.log(row);
     }
 
     //To be configured into a warning modal

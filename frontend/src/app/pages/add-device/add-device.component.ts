@@ -109,27 +109,27 @@ export class AddDeviceComponent implements OnInit {
                 Server: ['peripheralIds', 'connectionIds', 'deviceSoftwareRequest']
             };
 
-            for (let i = 0; i < this.fetchedCount; i++) {
-                if (this.selected in authServices) {
-                    const currentAuth = authServices[this.selected];
-                    const controls = removableControls[this.selected] || [];
+            if (this.selected in authServices) {
+                let currentAuth = authServices[this.selected];
+                let controls = removableControls[this.selected] || [];
 
-                    controls.forEach((control: any) => this.deviceForm.removeControl(control));
+                controls.forEach((control: any) => this.deviceForm.removeControl(control));
 
-                    this.deviceFormGroup(updateChildData['data']);
+                this.deviceFormGroup(updateChildData['data']);
 
-                    console.log(this.deviceForm.value);
+                let duplicateDeviceEntry = Array.from({ length: this.fetchedCount },
+                    () => ({ ...this.deviceForm.value })
+                );
 
-                    currentAuth.postDevice(this.deviceForm.value).subscribe({
-                        complete: () => {
-                            if (i === this.fetchedCount - 1) {
-                                this.store.dispatch(clearChildData());
-                                this.backButton();
-                            }
-                        },
-                        error: (error: any) => console.error(error)
-                    });
-                }
+                console.log(duplicateDeviceEntry);
+
+                currentAuth.postDevice(duplicateDeviceEntry).subscribe({
+                    next: () => {
+                        this.store.dispatch(clearChildData());
+                        this.backButton();
+                    },
+                    error: (error: any) => console.error(error)
+                });
             }
         });
     }

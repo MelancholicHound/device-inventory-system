@@ -56,7 +56,7 @@ export class DevicePrinterService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/printers`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
+        return this.http.post<any>(`${this.url}/device/printers/save-all`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers/save-all')));
     }
 }

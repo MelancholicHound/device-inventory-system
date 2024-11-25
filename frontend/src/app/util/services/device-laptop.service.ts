@@ -51,7 +51,7 @@ export class DeviceLaptopService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/laptops`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops')));
+        return this.http.post<any>(`${this.url}/device/laptops/save-all`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/laptops/save-all')));
     }
 }

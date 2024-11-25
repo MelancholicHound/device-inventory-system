@@ -56,7 +56,7 @@ export class DeviceScannerService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/scanners`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
+        return this.http.post<any>(`${this.url}/device/scanners/save-all`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners/save-all')));
     }
 }

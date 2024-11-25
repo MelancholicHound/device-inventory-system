@@ -61,7 +61,7 @@ export class DeviceTabletService {
     }
 
     postDevice(form: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/tablets`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+        return this.http.post<any>(`${this.url}/device/tablets/save-all`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/save-all')));
     }
 }
