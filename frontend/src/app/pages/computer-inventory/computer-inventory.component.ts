@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -75,7 +76,8 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     @ViewChild('addDevModal') addDevModal!: ElementRef;
     @ViewChild('filterModal') filterModal!: ElementRef;
 
-    constructor(private aioAuth: DeviceAioService,
+    constructor(private router: Router,
+                private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,
                 private printerAuth: DevicePrinterService,
@@ -140,13 +142,88 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         }
     }
 
-
     mapData(data: any[]) {
         return data.map((item) => ({
+            id: item.id,
             tag: item.tag,
             division: item.sectionDTO.divisionId,
             section: item.sectionDTO.name,
             status: item.condemnedDTO
         }))
+    }
+
+    //Events
+    onClickEdit(row: any) {
+        if (row.tag.includes('PJG-AIO')) {
+            this.aioAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/aio'], {
+                        state: { device: 'AIO', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-COMP')) {
+            this.computerAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/computer'], {
+                        state: { device: 'Computer', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-LAP')) {
+            this.laptopAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/laptop'], {
+                        state: { device: 'Laptop', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-PRNT')) {
+            this.printerAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/printer'], {
+                        state: { device: 'Printer', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-RT')) {
+            this.routerAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/router'], {
+                        state: { device: 'Router', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-SCAN')) {
+            this.scannerAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/scanner'], {
+                        state: { device: 'Scanner', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        } else if (row.tag.includes('PJG-TAB')) {
+            this.tabletAuth.getById(row.id).subscribe({
+                next: (res: any) => {
+                    this.router.navigate(['add-device/tablet'], {
+                        state: { device: 'Tablet', inventorydetails: res },
+                        queryParams: { deviceinventory: true }
+                    });
+                },
+                error: (error: any) => console.error(error)
+            });
+        }
     }
 }

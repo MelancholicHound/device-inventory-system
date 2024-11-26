@@ -52,6 +52,7 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
 export class AddDeviceComponent implements OnInit {
     batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean; isAdding!: boolean;
+    fromComputerInventory: boolean = false;
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
@@ -85,7 +86,8 @@ export class AddDeviceComponent implements OnInit {
                 }
 
                 if (navigation?.extras.queryParams) {
-                    this.isAdding = navigation?.extras.queryParams['isAdding'];
+                    this.isAdding = navigation.extras.queryParams['isAdding'];
+                    this.fromComputerInventory = navigation.extras.queryParams['deviceinventory'];
                 }
 
     }
@@ -219,8 +221,12 @@ export class AddDeviceComponent implements OnInit {
 
     backButton() {
         this.store.dispatch(clearChildData());
-        this.router.navigate(['add-batch'], {
-          state: { batchdetails: this.batchDetails }
-        });
+        if (this.fromComputerInventory) {
+            this.router.navigate(['computer-inventory']);
+        } else {
+            this.router.navigate(['add-batch'], {
+                state: { batchdetails: this.batchDetails }
+            });
+        }
     }
 }

@@ -90,8 +90,8 @@ export class AioComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-            let payload: any = history.state.devicedetails;
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
             this.aioForm.patchValue({ brandId: payload.brandDTO.id });
             this.aioForm.patchValue({ model: payload.model });
