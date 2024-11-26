@@ -61,9 +61,8 @@ export class ScannerComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-            let payload: any = history.state.devicedetails;
-            console.log(payload);
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
             this.scannerForm.patchValue({ brandId: payload.brandDTO.id });
             this.scannerForm.patchValue({ model: payload.model });

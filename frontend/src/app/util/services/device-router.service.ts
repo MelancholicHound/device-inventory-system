@@ -76,6 +76,12 @@ export class DeviceRouterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers/save-all')));
     }
 
+    //PUT
+    updateDevice(form: any, id: any): Observable<any> {
+        return this.http.put<any>(`${this.url}/device/routers/${id}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/routers/${id}`, this.httpOptions)

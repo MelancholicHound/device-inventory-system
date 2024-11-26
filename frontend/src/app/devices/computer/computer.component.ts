@@ -91,8 +91,8 @@ export class ComputerComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-            let payload: any = history.state.devicedetails;
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
             this.computerForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
             this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);

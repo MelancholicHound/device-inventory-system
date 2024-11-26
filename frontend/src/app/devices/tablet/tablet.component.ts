@@ -74,11 +74,33 @@ export class TabletComponent implements OnInit {
             next: (res: any[]) => this.fetchedStorage = res,
             error: (error: any) => console.error(error)
         });
+
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
+
+            this.tabletForm.patchValue({ brandId: payload.brandDTO.id });
+            this.tabletForm.patchValue({ brandSeries: payload.brandSeries });
+
+            this.tabletForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+            this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+            this.tabletForm.patchValue({ sectionId: payload.sectionDTO.id });
+
+            this.tabletForm.patchValue({ chipsetRequest: { brandId: payload.chipsetDTO.brandDTO.id } });
+            this.tabletForm.patchValue({ chipsetRequest: { chipsetModel: payload.chipsetDTO.model } });
+
+            this.tabletForm.patchValue({ screenSize: payload.screenSize });
+
+            let ramInput = document.getElementById('ram-size') as HTMLInputElement;
+            let firstStorageSize = document.getElementById('storage-size') as HTMLInputElement;
+            ramInput.value = payload.ramDTOs[0].capacityDTO.capacity;
+            firstStorageSize.value = payload.storageDTOs[0].capacityDTO.capacity;
+        }
     }
 
     createTabletFormGroup(): FormGroup {
         return new FormGroup({
             batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandSeries: new FormControl(null, [Validators.required]),

@@ -61,8 +61,8 @@ export class PrinterComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-            let payload: any = history.state.devicedetails;
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
             this.printerForm.patchValue({ brandId: payload.brandDTO.id });
             this.printerForm.patchValue({ model: payload.model });

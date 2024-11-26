@@ -88,8 +88,8 @@ export class LaptopComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-          let payload: any = history.state.devicedetails;
+        if (history.state.devicedetails || history.state.inventorydetails) {
+          let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
           this.laptopForm.patchValue({ brandId: payload.brandDTO.id });
           this.laptopForm.patchValue({ model: payload.model });

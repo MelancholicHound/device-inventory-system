@@ -66,8 +66,8 @@ export class RouterComponent implements OnInit {
             error: (error: any) => console.error(error)
         });
 
-        if (history.state.devicedetails) {
-            let payload: any = history.state.devicedetails;
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
             this.routerForm.patchValue({ brandId: payload.brandDTO.id });
             this.routerForm.patchValue({ model: payload.model });

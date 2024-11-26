@@ -45,6 +45,12 @@ export class DeviceServerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/servers/save-all')));
     }
 
+    //PUT
+    updateDevice(form: any, id: any): Observable<any> {
+        return this.http.put<any>(`${this.url}/device/servers/${id}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/servers')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/servers/${id}`, this.httpOptions)

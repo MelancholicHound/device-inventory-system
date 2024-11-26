@@ -60,6 +60,12 @@ export class DevicePrinterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers/save-all')));
     }
 
+    //PUT
+    updateDevice(form: any, id: any): Observable<any> {
+        return this.http.put<any>(`${this.url}/device/printers/${id}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/printers/${id}`, this.httpOptions)

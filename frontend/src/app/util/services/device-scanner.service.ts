@@ -60,6 +60,12 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners/save-all')));
     }
 
+    //PUT
+    updateDevice(form: any, id: any): Observable<any> {
+        return this.http.put<any>(`${this.url}/device/scanners/${id}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/scanners/${id}`, this.httpOptions)
