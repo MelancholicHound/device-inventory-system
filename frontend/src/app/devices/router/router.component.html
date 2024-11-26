@@ -23,8 +23,8 @@
                 <div class="brand-container">
                     <div class="form-container">
                         <label for="router-brand" class="label"> Brand Name </label>
-                        <select title="aio-brand" id="router-brand" class="form-control" *ngIf="!isRouterBrandToggled" (change)="getRouterBrandValue()">
-                            <option [value]="" selected disabled> Select router brand </option>
+                        <select title="aio-brand" id="router-brand" class="form-control" *ngIf="!isRouterBrandToggled" (change)="getRouterBrandValue()" formControlName="brandId">
+                            <option [value]="null" selected disabled> Select router brand </option>
                             <option [value]="routebrand.id" *ngFor="let routebrand of fetchedRouterBrand"> {{ routebrand.brand }} </option>
                         </select>
                         <input type="text" class="form-control input-form" *ngIf="isRouterBrandToggled" placeholder="Input router brand" (blur)="onRouterBrandInput($event)">
@@ -41,15 +41,15 @@
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
-                        <option [value]="" selected disabled> Select division </option>
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()" formControlName="divisionId">
+                        <option [value]="null" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
-                        <option [value]="" selected disabled> Select section </option>
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()" formControlName="sectionId">
+                        <option [value]="null" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
                 </div>
@@ -63,7 +63,7 @@
                 <p class="label"> Network Speed </p>
                 <div class="input-field">
                     <div class="size-field">
-                        <input type="number" class="input-form" id="net-speed" min="0" list="netspeed" (blur)="onNetworkSpeedInput($event)">
+                        <input type="number" class="input-form" id="net-speed" min="0" list="netspeed" (blur)="onNetworkSpeedInput($event)" formControlName="networkSpeedId">
                         <label for="net-speed"> mb/s </label>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                 <p class="label"> Number of antennas </p>
                 <div class="input-field">
                     <div class="size-field">
-                        <input type="number" class="input-form" id="antennas" min="0" list="ants" (blur)="onAntennasInput($event)">
+                        <input type="number" class="input-form" id="antennas" min="0" list="ants" (blur)="onAntennasInput($event)" formControlName="numberOfAntennaId">
                         <label for="net-speed"> antenna/s </label>
                     </div>
                 </div>

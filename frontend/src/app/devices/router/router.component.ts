@@ -65,11 +65,26 @@ export class RouterComponent implements OnInit {
             next: (data: any[]) => this.fetchedAntenna = data,
             error: (error: any) => console.error(error)
         });
+
+        if (history.state.devicedetails) {
+            let payload: any = history.state.devicedetails;
+
+            this.routerForm.patchValue({ brandId: payload.brandDTO.id });
+            this.routerForm.patchValue({ model: payload.model });
+
+            this.routerForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+            this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+            this.routerForm.patchValue({ sectionId: payload.sectionDTO.id });
+
+            this.routerForm.patchValue({ networkSpeedId: payload.networkSpeedDTO.networkSpeedByMbps });
+            this.routerForm.patchValue({ numberOfAntennaId: payload.antennaDTO.numberOfAntenna });
+        }
     }
 
     createRouterFormGroup(): FormGroup {
         return new FormGroup({
             batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl(null, [Validators.required]),
@@ -150,6 +165,7 @@ export class RouterComponent implements OnInit {
 
     postRouterSpecs(): void {
         this.routerForm.patchValue({ batchId: this.batchId });
+        this.routerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.routerForm.value }));
     }
 

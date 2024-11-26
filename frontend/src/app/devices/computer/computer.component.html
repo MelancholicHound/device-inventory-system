@@ -23,14 +23,14 @@
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
                     <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
-                        <option [value]="" selected disabled> Select division </option>
+                        <option [value]="null" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
                     <select title="section" class="form-control" id="section" (change)="getSectionValue()">
-                        <option [value]="" selected disabled> Select section </option>
+                        <option [value]="null" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
                 </div>
@@ -46,7 +46,7 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
-                                <option [value]="" selected disabled> Select brand option </option>
+                                <option [value]="null" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
                             <input type="text" class="processors input-form" *ngIf="isProcBrandToggled" placeholder="Input brand" (blur)="onProcBrandInput($event)">
@@ -59,7 +59,7 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled">
-                                <option [value]="" selected disabled> Select series option </option>
+                                <option [value]="null" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
                             <input type="text" class="processors input-form" *ngIf="isProcSeriesToggled" placeholder="Input series" (blur)="onProcSeriesInput(procBrandId, $event)">
@@ -81,7 +81,7 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-brand" class="processors" id="mobo-brand" (change)="getMoboBrand()" *ngIf="!isMoboBrandToggled">
-                                <option [value]="" selected disabled> Select brand option </option>
+                                <option [value]="null" selected disabled> Select brand option </option>
                                 <option [value]="mobobrand.id" *ngFor="let mobobrand of fetchedMoboBrand"> {{ mobobrand.brand }} </option>
                             </select>
                             <input type="text" class="processors input-form" *ngIf="isMoboBrandToggled" placeholder="Input brand" (blur)="onProcBrandInput($event)">

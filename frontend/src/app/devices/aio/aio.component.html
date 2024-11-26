@@ -26,7 +26,7 @@
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
                         <select title="aio-brand" id="aio-brand" class="form-control" (change)="getAIOBrandValue()" *ngIf="!isAIOBrandToggled" formControlName="brandId">
-                            <option [value]="" selected disabled> Select AIO brand </option>
+                            <option [value]="null" selected disabled> Select AIO brand </option>
                             <option [value]="aio.id" *ngFor="let aio of fetchedAIOBrand"> {{ aio.brand }} </option>
                         </select>
                         <input type="text" class="form-control input-form" (blur)="onAIOBrandInput($event)" *ngIf="isAIOBrandToggled" placeholder="Input AIO Brand">
@@ -44,14 +44,14 @@
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
                     <select title="division" class="form-control" id="division" (change)="getDivisionValue()" formControlName="divisionId">
-                        <option [value]="" selected disabled> Select division </option>
+                        <option [value]="null" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
                     <select title="section" class="form-control" id="section" (change)="getSectionValue()" formControlName="sectionId">
-                        <option [value]="" selected disabled> Select section </option>
+                        <option [value]="null" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
                 </div>
@@ -67,7 +67,7 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled" formControlName="cpuBrandId">
-                                <option [value]="" selected disabled> Select brand option </option>
+                                <option [value]="null" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
                             <input type="text" class="processors input-form" (blur)="onProcBrandInput($event)" *ngIf="isProcBrandToggled" placeholder="Input brand">
@@ -80,7 +80,7 @@
                     <div class="input-container">
                         <div class="labeled-field">
                             <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled" formControlName="cpuBrandSeriesId">
-                                <option [value]="" selected disabled> Select series option </option>
+                                <option [value]="null" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
                             <input type="text" class="processors input-form" (blur)="onProcSeriesInput(procBrandId, $event)" *ngIf="isProcSeriesToggled">

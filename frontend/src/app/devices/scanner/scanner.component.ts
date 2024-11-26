@@ -60,11 +60,26 @@ export class ScannerComponent implements OnInit {
             next: (data: any[]) => this.fetchedType = data,
             error: (error: any) => console.error(error)
         });
+
+        if (history.state.devicedetails) {
+            let payload: any = history.state.devicedetails;
+            console.log(payload);
+
+            this.scannerForm.patchValue({ brandId: payload.brandDTO.id });
+            this.scannerForm.patchValue({ model: payload.model });
+
+            this.scannerForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+            this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+            this.scannerForm.patchValue({ sectionId: payload.sectionDTO.id });
+
+            this.scannerForm.patchValue({ scannerTypeId: payload.scannerTypeDTO.id });
+        }
     }
 
     createScannerFormGroup(): FormGroup {
         return new FormGroup({
             batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl(null, [Validators.required]),
@@ -107,6 +122,7 @@ export class ScannerComponent implements OnInit {
 
     postScannerSpecs(): void {
         this.scannerForm.patchValue({ batchId: this.batchId });
+        this.scannerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.scannerForm.value }));
     }
 

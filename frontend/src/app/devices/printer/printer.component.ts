@@ -63,7 +63,6 @@ export class PrinterComponent implements OnInit {
 
         if (history.state.devicedetails) {
             let payload: any = history.state.devicedetails;
-            console.log(payload)
 
             this.printerForm.patchValue({ brandId: payload.brandDTO.id });
             this.printerForm.patchValue({ model: payload.model });
@@ -123,6 +122,7 @@ export class PrinterComponent implements OnInit {
 
     postPrinterSpecs(): void {
         this.printerForm.patchValue({ batchId: this.batchId });
+        this.printerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.printerForm.value }));
     }
 

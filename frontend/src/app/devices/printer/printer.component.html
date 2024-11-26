@@ -24,7 +24,7 @@
                     <div class="form-container">
                         <label for="aio-brand" class="label"> Brand Name </label>
                         <select title="aio-brand" id="print-brand" class="form-control" *ngIf="!isPrinterBrandToggled" (change)="getPrinterBrandValue()" formControlName="brandId">
-                            <option [value]="" selected disabled> Select printer brand </option>
+                            <option [value]="null" selected disabled> Select printer brand </option>
                             <option [value]="printer.id" *ngFor="let printer of fetchedPrinterBrand"> {{ printer.brand }} </option>
                         </select>
                         <input type="text" class="form-control input-form" *ngIf="isPrinterBrandToggled" placeholder="Input printer brand" (blur)="onPrinterBrandInput($event)">
@@ -42,14 +42,14 @@
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
                     <select title="division" class="form-control" id="division" (change)="getDivisionValue()" formControlName="divisionId">
-                        <option [value]="" selected disabled> Select division </option>
+                        <option [value]="null" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
                     <select title="section" class="form-control" id="section" (change)="getSectionValue()" formControlName="sectionId">
-                        <option [value]="" selected disabled> Select section </option>
+                        <option [value]="null" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
                 </div>
@@ -64,7 +64,7 @@
                 <div class="input-field">
                     <div class="input-container">
                         <select title="proc-brand" class="form-control" id="printer-type" (change)="getPrinterTypeValue()" formControlName="printerTypeId">
-                            <option [value]="" selected disabled> Select brand option </option>
+                            <option [value]="null" selected disabled> Select brand option </option>
                             <option [value]="type.id" *ngFor="let type of fetchedType"> {{ type.type }} </option>
                         </select>
                         <div class="size-field">
