@@ -51,7 +51,7 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
 })
 export class AddDeviceComponent implements OnInit {
     batchDetails: any; selected: any; deviceRequest: any;
-    isChecked!: boolean;
+    isChecked!: boolean; isAdding!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
@@ -76,12 +76,18 @@ export class AddDeviceComponent implements OnInit {
                 private serverAuth: DeviceServerService,
                 private tabletAuth: DeviceTabletService) {
                 const navigation = this.router.getCurrentNavigation();
+
                 if (navigation?.extras.state) {
                     this.selected = navigation.extras.state['device'];
                     this.fetchedCount = navigation.extras.state['count'];
                     this.batchDetails = navigation.extras.state['batchdetails'];
                     this.deviceRequest = navigation.extras.state['devicedetails'];
                 }
+
+                if (navigation?.extras.queryParams) {
+                    this.isAdding = navigation?.extras.queryParams['isAdding'];
+                }
+
     }
 
     ngOnInit(): void {
@@ -92,14 +98,10 @@ export class AddDeviceComponent implements OnInit {
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe(updateChildData => {
             const authServices: any = {
-                Computer: this.computerAuth,
-                Laptop: this.laptopAuth,
-                Tablet: this.tabletAuth,
-                Printer: this.printerAuth,
-                Router: this.routerAuth,
-                Scanner: this.scannerAuth,
-                AIO: this.aioAuth,
-                Server: this.serverAuth
+                Computer: this.computerAuth, Laptop: this.laptopAuth,
+                Tablet: this.tabletAuth, Printer: this.printerAuth,
+                Router: this.routerAuth, Scanner: this.scannerAuth,
+                AIO: this.aioAuth, Server: this.serverAuth
             };
 
             const removableControls: any = {
@@ -141,6 +143,7 @@ export class AddDeviceComponent implements OnInit {
         });
     }
 
+    //FormGroup Manipulation
     deviceFormGroup(formObject: any): FormGroup {
         Object.keys(formObject).forEach((key) => {
             const value = formObject[key];
@@ -184,18 +187,7 @@ export class AddDeviceComponent implements OnInit {
         return group;
     }
 
-    onTogglePeripherals() {
-        this.isPeripheralToggled = !this.isPeripheralToggled;
-    }
-
-    onToggleConnections() {
-        this.isConnectionToggled = !this.isConnectionToggled;
-    }
-
-    onToggleSoftwares() {
-        this.isSoftwareToggled = !this.isSoftwareToggled;
-    }
-
+    //Events
     onPeripheralsChanges(peripheralIds: number[]): void {
         this.deviceForm.patchValue({ peripheralIds: peripheralIds });
     }
@@ -210,6 +202,19 @@ export class AddDeviceComponent implements OnInit {
 
     onUPSBrandIdSubmit(id: number): void {
         this.deviceForm.patchValue({ upsId: id });
+    }
+
+    //Functions
+    onTogglePeripherals() {
+        this.isPeripheralToggled = !this.isPeripheralToggled;
+    }
+
+    onToggleConnections() {
+        this.isConnectionToggled = !this.isConnectionToggled;
+    }
+
+    onToggleSoftwares() {
+        this.isSoftwareToggled = !this.isSoftwareToggled;
     }
 
     backButton() {

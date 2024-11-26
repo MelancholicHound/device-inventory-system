@@ -74,7 +74,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     state: any = localStorage.getItem('state');
     fetchedData: DeviceTable[] = [];
     deviceSelected: any;
-    isAddingBatch!: boolean; isViewingBatch!: boolean;
+    isAddingBatch!: boolean;
 
     fetchedAIO: any; fetchedComputer: any; fetchedLaptop: any;
     fetchedPrinter: any; fetchedRouter: any; fetchedScanner: any;
@@ -122,12 +122,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     ngOnInit(): void {
         if (localStorage.getItem('state') === 'ADD') {
             this.isAddingBatch = true;
-            this.isViewingBatch = false;
         } else if (localStorage.getItem('state') === 'EDIT') {
-            this.isAddingBatch = false;
-            this.isViewingBatch = false;
-        } else if (localStorage.getItem('state') === 'VIEW') {
-            this.isViewingBatch = true;
             this.isAddingBatch = false;
         }
 
@@ -176,38 +171,35 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
         for (let i = 0; i < this.devices.length; i++) {
             if (selected.value === this.devices[i].name) {
-                this.router.navigate([`add-device/${this.devices[i].indicator}`], { state: {
-                    device: this.devices[i].name,
-                    batchdetails: this.batchDetails,
-                    count: count.value,
-                    batchnumber: this.batchDetails.formattedId,
-                    batchid: this.batchDetails.id
-                }});
+                this.router.navigate([`add-device/${this.devices[i].indicator}`], {
+                    state: {
+                        device: this.devices[i].name, batchdetails: this.batchDetails,
+                        count: count.value, batchnumber: this.batchDetails.formattedId,
+                        batchid: this.batchDetails.id
+                    },
+                    queryParams: {
+                        isAdding: this.isAddingBatch
+                    }
+                });
             }
         }
     }
 
     mapData(data: any[], deviceType: string) {
         return data.map((item) => ({
-            id: item.id,
-            tag: item.tag,
-            device: deviceType,
-            division: item.sectionDTO.divisionId,
+            id: item.id, tag: item.tag,
+            device: deviceType, division: item.sectionDTO.divisionId,
             section: item.sectionDTO.name
         }));
     }
 
-    //Click events
+    //Events
     onClickEditDevice(row: any) {
         let authServices: any = {
-            COMPUTER: this.computerAuth,
-            LAPTOP: this.laptopAuth,
-            TABLET: this.tabletAuth,
-            PRINTER: this.printerAuth,
-            ROUTER: this.routerAuth,
-            SCANNER: this.scannerAuth,
-            AIO: this.aioAuth,
-            SERVER: this.serverAuth
+            COMPUTER: this.computerAuth, LAPTOP: this.laptopAuth,
+            TABLET: this.tabletAuth, PRINTER: this.printerAuth,
+            ROUTER: this.routerAuth, SCANNER: this.scannerAuth,
+            AIO: this.aioAuth, SERVER: this.serverAuth
         };
 
         if (row.device in authServices) {
@@ -218,11 +210,12 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                     let deviceIndicator = this.devices.filter((device: any) => row.device === device.name.toUpperCase());
                     this.router.navigate([`add-device/${deviceIndicator[0].indicator}`], {
                         state: {
-                            device: deviceIndicator[0].name,
-                            devicedetails: res,
-                            batchdetails: this.batchDetails,
-                            batchnumber: this.batchDetails.formattedId,
+                            device: deviceIndicator[0].name, devicedetails: res,
+                            batchdetails: this.batchDetails, batchnumber: this.batchDetails.formattedId,
                             batchid: this.batchDetails.id
+                        },
+                        queryParams: {
+                            isAdding: this.isAddingBatch
                         }
                     });
                 }
@@ -232,14 +225,10 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     onClickDeleteDevice(row: any) {
         let authServices: any = {
-            COMPUTER: this.computerAuth,
-            LAPTOP: this.laptopAuth,
-            TABLET: this.tabletAuth,
-            PRINTER: this.printerAuth,
-            ROUTER: this.routerAuth,
-            SCANNER: this.scannerAuth,
-            AIO: this.aioAuth,
-            SERVER: this.serverAuth
+            COMPUTER: this.computerAuth, LAPTOP: this.laptopAuth,
+            TABLET: this.tabletAuth, PRINTER: this.printerAuth,
+            ROUTER: this.routerAuth, SCANNER: this.scannerAuth,
+            AIO: this.aioAuth, SERVER: this.serverAuth
         };
 
         if (row.device in authServices) {

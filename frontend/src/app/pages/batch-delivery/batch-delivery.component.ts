@@ -126,7 +126,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.toggleSupplierForm = value;
     }
 
-    //Click events
+    //Events
     onClickEdit(row: any) {
         this.params.getAllBatches().subscribe({
             next: (data: any) => {
@@ -145,7 +145,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
         this.deletePrompt.nativeElement.style.display = 'block';
     }
 
-    //Other functions
+    //Functions
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
         this.dataSource.filter = filterValue.trim().toLowerCase();
