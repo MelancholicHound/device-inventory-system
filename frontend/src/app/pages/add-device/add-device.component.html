@@ -3,9 +3,9 @@
         <header class="page-header">
             <a class="page-title"> Batch Delivery </a>
             <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
-            <a id="add-batch" class="page-title"> Add Batch </a>
+            <a id="add-batch" class="page-title"> {{ deviceRequest ? 'Edit' : 'Add' }} Batch </a>
             <span class="material-symbols-rounded divider"> arrow_forward_ios </span>
-            <a class="page-title current"> Add {{ selected }} </a>
+            <a class="page-title current"> {{ deviceRequest ? 'Edit' : 'Add' }} {{ selected }} </a>
         </header>
         <button type="button" class="back-btn" (click)="backButton()">
             <span class="material-symbols-rounded"> reply </span>

@@ -50,7 +50,7 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
     styleUrl: './add-device.component.scss'
 })
 export class AddDeviceComponent implements OnInit {
-    batchDetails: any; selected: any;
+    batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
@@ -80,6 +80,7 @@ export class AddDeviceComponent implements OnInit {
                     this.selected = navigation.extras.state['device'];
                     this.fetchedCount = navigation.extras.state['count'];
                     this.batchDetails = navigation.extras.state['batchdetails'];
+                    this.deviceRequest = navigation.extras.state['devicedetails'];
                 }
     }
 
@@ -121,11 +122,8 @@ export class AddDeviceComponent implements OnInit {
                     () => ({ ...this.deviceForm.value })
                 );
 
-                console.log(duplicateDeviceEntry);
-
                 currentAuth.postDevice(duplicateDeviceEntry).subscribe({
                     next: () => {
-                        this.store.dispatch(clearChildData());
                         this.backButton();
                     },
                     error: (error: any) => console.error(error)
@@ -156,6 +154,7 @@ export class AddDeviceComponent implements OnInit {
                         return new FormControl(item);
                     })
                 );
+
                 this.deviceForm.addControl(key, formArray);
             } else if (typeof value === 'object' && value !== null) {
                 this.deviceForm.addControl(key, this.createFormGroup(value));
@@ -214,6 +213,7 @@ export class AddDeviceComponent implements OnInit {
     }
 
     backButton() {
+        this.store.dispatch(clearChildData());
         this.router.navigate(['add-batch'], {
           state: { batchdetails: this.batchDetails }
         });

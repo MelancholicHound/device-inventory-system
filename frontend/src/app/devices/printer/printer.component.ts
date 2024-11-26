@@ -60,11 +60,27 @@ export class PrinterComponent implements OnInit {
             next: (data: any[]) => this.fetchedType = data,
             error: (error: any) => console.error(error)
         });
+
+        if (history.state.devicedetails) {
+            let payload: any = history.state.devicedetails;
+            console.log(payload)
+
+            this.printerForm.patchValue({ brandId: payload.brandDTO.id });
+            this.printerForm.patchValue({ model: payload.model });
+
+            this.printerForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+            this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+            this.printerForm.patchValue({ sectionId: payload.sectionDTO.id });
+
+            this.printerForm.patchValue({ printerTypeId: payload.printerTypeDTO.id });
+            this.printerForm.patchValue({ withScanner: payload.withScanner });
+        }
     }
 
     createPrinterFormGroup(): FormGroup {
         return new FormGroup({
             batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             model: new FormControl(null, [Validators.required]),

@@ -7,8 +7,9 @@ import { catchError, first } from 'rxjs/operators';
 import { ErrorHandlerService } from './error-handler.service';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
+
 export class DeviceRouterService {
     private url = 'http://192.168.1.86:8082/api/v1/dis';
     private token = localStorage.getItem('token');
@@ -29,7 +30,7 @@ export class DeviceRouterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/routers/batch`)));
     }
 
-    getByid(id: any): Observable<any> {
+    getById(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/routers/${id}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
     }

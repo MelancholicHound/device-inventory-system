@@ -87,11 +87,68 @@ export class LaptopComponent implements OnInit {
             next: (data: any[]) => this.fetchedGPU = data,
             error: (error: any) => console.error(error)
         });
+
+        if (history.state.devicedetails) {
+          let payload: any = history.state.devicedetails;
+
+          this.laptopForm.patchValue({ brandId: payload.brandDTO.id });
+          this.laptopForm.patchValue({ model: payload.model });
+
+          this.laptopForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+          this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+          this.laptopForm.patchValue({ sectionId: payload.sectionDTO.id });
+
+          this.laptopForm.patchValue({ cpuRequest: { cpuBrandId: payload.cpuDTO.brandDTO.id } });
+          this.specs.getProcSeriesById(payload.cpuDTO.brandDTO.id).subscribe((res: any[]) => this.fetchedProcSeries = res);
+          this.laptopForm.patchValue({ cpuRequest: { cpuBrandSeriesId: payload.cpuDTO.brandSeriesDTO.id } });
+          this.laptopForm.patchValue({ cpuRequest: { cpuModifier: payload.cpuDTO.cpuModifier } });
+
+          this.laptopForm.patchValue({ screenSize: payload.screenSize });
+          this.laptopForm.patchValue({ videoCardRequest: { capacityId: payload.videoCardDTO.capacityDTO.id } });
+
+          let ramArray: any = payload.ramDTOs;
+          let ramInput = document.getElementById('ram-size') as HTMLInputElement;
+          ramInput.value = payload.ramDTOs[0].capacityDTO.capacity;
+
+          if (ramArray.length > 1) {
+              for (let i = 1; i < ramArray.length; i++) {
+                  this.addRAM();
+
+                  let ram = document.getElementById('ram');
+                  let childCount = ram?.childElementCount! - 1;
+
+                  let newRam = document.getElementById(`ram-size-${childCount}`) as HTMLInputElement;
+                  newRam.value = payload.ramDTOs[i].capacityDTO.capacity;
+              }
+          }
+
+          let storageArray: any = payload.storageDTOs;
+          let firstStorageType = document.getElementById('type') as HTMLSelectElement;
+          let firstStorageSize = document.getElementById('storage-size') as HTMLInputElement;
+          firstStorageType.value = payload.storageDTOs[0].type;
+          firstStorageSize.value = payload.storageDTOs[0].capacityDTO.capacity;
+
+          if (storageArray.length > 1) {
+              for (let i = 1; i < storageArray.length; i++) {
+                  this.addStorage();
+
+                  let storage = document.getElementById('storage');
+                  let childCount = storage?.childElementCount! - 2;
+
+                  let storageSize = document.getElementById(`storage-size-${childCount}`) as HTMLInputElement;
+                  let storageType = document.getElementById(`type-${childCount}`) as HTMLSelectElement;
+
+                  storageSize.value = payload.storageDTOs[i].capacityDTO.capacity;
+                  storageType.value = payload.storageDTOs[i].type;
+              }
+          }
+      }
     }
 
     createLaptopFormGroup(): FormGroup {
         return new FormGroup({
             batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
             ramRequests: new FormArray([], [Validators.required]),
@@ -243,6 +300,7 @@ export class LaptopComponent implements OnInit {
 
     postLaptopSpecs(): void {
         this.laptopForm.patchValue({ batchId: this.batchId });
+        this.laptopForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.laptopForm.value }));
     }
 
@@ -262,7 +320,7 @@ export class LaptopComponent implements OnInit {
         this.isProcSeriesAnimated = !this.isProcSeriesAnimated;
     }
 
-    addRam() {
+    addRAM() {
         const ram = document.getElementById('ram');
         const ramSizeField = document.getElementById('ram-field');
         const clonedElement = ramSizeField?.cloneNode(true) as HTMLElement;
