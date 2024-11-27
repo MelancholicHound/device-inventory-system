@@ -34,9 +34,17 @@ export class DeviceServerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/servers')))
     }
 
-    getAllDevice(): Observable<any> {
-        return this.http.get<any>(`${this.url}/device/servers`, this.httpOptions)
+    getAllDevice(isCondemned: boolean): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/servers?isCondemned=${isCondemned}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/servers')))
+    }
+
+    getAllActiveDevice(): Observable<any> {
+        return this.getAllDevice(false);
+    }
+
+    getAllCondemnedDevice(): Observable<any> {
+        return this.getAllDevice(true);
     }
 
     //POST

@@ -99,28 +99,52 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     ngOnInit(): void {
         forkJoin([
-            this.aioAuth.getAllDevice().pipe(
+            this.aioAuth.getAllActiveDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.computerAuth.getAllDevice().pipe(
+            this.aioAuth.getAllCondemnedDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.laptopAuth.getAllDevice().pipe(
+            this.computerAuth.getAllActiveDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.printerAuth.getAllDevice().pipe(
+            this.computerAuth.getAllCondemnedDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.routerAuth.getAllDevice().pipe(
+            this.laptopAuth.getAllActiveDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.scannerAuth.getAllDevice().pipe(
+            this.laptopAuth.getAllCondemnedDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.serverAuth.getAllDevice().pipe(
+            this.printerAuth.getAllActiveDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             ),
-            this.tabletAuth.getAllDevice().pipe(
+            this.printerAuth.getAllCondemnedDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.routerAuth.getAllActiveDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.routerAuth.getAllCondemnedDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.scannerAuth.getAllActiveDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.scannerAuth.getAllCondemnedDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.serverAuth.getAllActiveDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.serverAuth.getAllCondemnedDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.tabletAuth.getAllActiveDevice().pipe(
+                switchMap((data: any[]) => this.mapData(data))
+            ),
+            this.tabletAuth.getAllCondemnedDevice().pipe(
                 switchMap((data: any[]) => this.mapData(data))
             )
         ]).subscribe({

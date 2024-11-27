@@ -44,9 +44,17 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('scanner-types')));
     }
 
-    getAllDevice(): Observable<any> {
-        return this.http.get<any>(`${this.url}/device/scanners`, this.httpOptions)
+    getAllDevice(isCondemned: boolean): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/scanners?isCondemned=${isCondemned}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
+    }
+
+    getAllActiveDevice(): Observable<any> {
+        return this.getAllDevice(false);
+    }
+
+    getAllCondemnedDevice(): Observable<any> {
+        return this.getAllDevice(true);
     }
 
     //POST

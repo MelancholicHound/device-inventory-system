@@ -44,9 +44,17 @@ export class DeviceTabletService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
     }
 
-    getAllDevice(): Observable<any> {
-        return this.http.get<any>(`${this.url}/device/tablets`, this.httpOptions)
+    getAllDevice(isCondemned: boolean): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/tablets?isCondemned=${isCondemned}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+    }
+
+    getAllActiveDevice(): Observable<any> {
+        return this.getAllDevice(false);
+    }
+
+    getAllCondemnedDevice(): Observable<any> {
+        return this.getAllDevice(true);
     }
 
     //POST

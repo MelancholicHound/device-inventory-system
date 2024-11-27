@@ -34,9 +34,17 @@ export class DeviceAioService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 
-    getAllDevice(): Observable<any> {
-        return this.http.get<any>(`${this.url}/device/all-in-ones`, this.httpOptions)
+    getAllDevice(isCondemned: boolean): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/all-in-ones?isCondemned=${isCondemned}`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    getAllActiveDevice(): Observable<any> {
+        return this.getAllDevice(false);
+    }
+
+    getAllCondemnedDevice(): Observable<any> {
+        return this.getAllDevice(true);
     }
 
     getAIOBrands(): Observable<any> {

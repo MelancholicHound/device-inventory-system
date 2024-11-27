@@ -38,6 +38,34 @@ input[type='search'] {
     background-color: transparent;
 }
 
+.legend {
+    margin: 1rem;
+    float: right;
+    gap: 1rem;
+    width: auto;
+    font-size: 0.9rem;
+}
+
+blockquote {
+    align-items: center;
+    gap: 5px;
+}
+
+.circle {
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    border: 1px solid black;
+}
+
+.active {
+    background-color: #22c55e;
+}
+
+.condemn {
+    background-color: #f44336;
+}
+
 .search-btn,
 .filter-btn { width: 100px; }
 
@@ -50,7 +78,9 @@ section,
 .filter-btn,
 .button-container,
 .primary,
-.secondary { display: flex; }
+.secondary,
+.legend,
+blockquote { display: flex; }
 
 
 //Modal extra styles
