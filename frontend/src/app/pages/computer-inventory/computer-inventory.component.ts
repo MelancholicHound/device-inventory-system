@@ -10,8 +10,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 
-import { forkJoin, map } from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
+import { ParamsService } from '../../util/services/params.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
@@ -42,6 +44,7 @@ export interface DeviceTable {
         MatButtonModule
     ],
     providers: [
+        ParamsService,
         DeviceAioService,
         DeviceComputerService,
         DeviceLaptopService,
@@ -77,6 +80,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     @ViewChild('filterModal') filterModal!: ElementRef;
 
     constructor(private router: Router,
+                private params: ParamsService,
                 private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,
@@ -96,37 +100,32 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     ngOnInit(): void {
         forkJoin([
             this.aioAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.computerAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.laptopAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.printerAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.routerAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.scannerAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.serverAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             ),
             this.tabletAuth.getAllDevice().pipe(
-                map((data: any[]) => this.mapData(data))
+                switchMap((data: any[]) => this.mapData(data))
             )
         ]).subscribe({
             next: (result: any[]) => {
-                this.fetchedData = [
-                    ...result[0], ...result[1],
-                    ...result[2], ...result[3],
-                    ...result[4], ...result[5],
-                    ...result[6], ...result[7]
-                ];
+                this.fetchedData = result.flat();
                 this.dataSource.data = this.fetchedData;
             }
         })
@@ -157,13 +156,15 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     }
 
     mapData(data: any[]) {
-        return data.map((item) => ({
-            id: item.id,
-            tag: item.tag,
-            division: item.sectionDTO.divisionId,
-            section: item.sectionDTO.name,
-            status: item.condemnedDTO
-        }))
+        return Promise.all(data.map(async (item) => {
+            let division = firstValueFrom(this.params.getDivisionById(item.sectionDTO.divisionId));
+
+            return division.then(value => ({
+                id: item.id, tag: item.tag,
+                division: value.name, section: item.sectionDTO.name,
+                status: item.condemnedDTO
+            }));
+        }));
     }
 
     //Events

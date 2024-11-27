@@ -2,8 +2,8 @@ import { Component, AfterViewInit, ViewChild, OnInit, ElementRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { forkJoin } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
+import { forkJoin, firstValueFrom } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -128,43 +128,39 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
         forkJoin([
             this.aioAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'AIO'))
+                switchMap((data: any[]) => this.mapData(data, 'AIO'))
             ),
             this.computerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'COMPUTER'))
+                switchMap((data: any[]) => this.mapData(data, 'COMPUTER'))
             ),
             this.laptopAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'LAPTOP'))
+                switchMap((data: any[]) => this.mapData(data, 'LAPTOP'))
             ),
             this.printerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'PRINTER'))
+                switchMap((data: any[]) => this.mapData(data, 'PRINTER'))
             ),
             this.routerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'ROUTER'))
+                switchMap((data: any[]) => this.mapData(data, 'ROUTER'))
             ),
             this.scannerAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'SCANNER'))
+                switchMap((data: any[]) => this.mapData(data, 'SCANNER'))
             ),
             this.serverAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'SERVER'))
+                switchMap((data: any[]) => this.mapData(data, 'SERVER'))
             ),
             this.tabletAuth.getAllByBatchId(this.batchDetails.id).pipe(
-                map((data: any[]) => this.mapData(data, 'TABLET'))
+                switchMap((data: any[]) => this.mapData(data, 'TABLET'))
             )
         ]).subscribe({
             next: (results: any[]) => {
-                this.fetchedData = [
-                    ...results[0], ...results[1],
-                    ...results[2], ...results[3],
-                    ...results[4], ...results[5],
-                    ...results[6], ...results[7]
-                ];
+                this.fetchedData = results.flat();
                 this.dataSource.data = this.fetchedData;
             },
             error: (error: any) => console.log(error)
         });
     }
 
+    //Functions
     routeSelectedDevice() {
         let selectedDeviceName = (document.getElementById('device') as HTMLSelectElement)?.value;
         let countValue = (document.getElementById('count') as HTMLInputElement)?.value;
@@ -188,10 +184,14 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     }
 
     mapData(data: any[], deviceType: string) {
-        return data.map((item) => ({
-            id: item.id, tag: item.tag,
-            device: deviceType, division: item.sectionDTO.divisionId,
-            section: item.sectionDTO.name
+        return Promise.all(data.map(async (item) => {
+            let division = firstValueFrom(this.params.getDivisionById(item.sectionDTO.divisionId));
+
+            return division.then(value => ({
+                id: item.id, tag: item.tag,
+                device: deviceType, division: value.name,
+                section: item.sectionDTO.name
+            }));
         }));
     }
 
