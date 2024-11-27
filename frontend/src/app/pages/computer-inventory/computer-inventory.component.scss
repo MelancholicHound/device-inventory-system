@@ -84,6 +84,11 @@ blockquote { display: flex; }
 
 
 //Modal extra styles
+.change-part-modal {
+    max-width: 50%;
+    height: auto;
+}
+
 .device-form {
     gap: 15px;
     width: 100%;

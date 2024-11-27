@@ -32,8 +32,7 @@ export class BatchComponent implements OnInit {
     event!: Event; selectedFile: string = '';
 
     constructor(private router: Router,
-                private params: ParamsService,
-                private specs: SpecsService) { }
+                private params: ParamsService) { }
 
     private bufferToHex(buffer: ArrayBuffer): string {
         const bytes = new Uint8Array(buffer);

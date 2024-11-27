@@ -1,6 +1,9 @@
-import { Component, AfterViewInit, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, OnInit, ViewChild, inject, ElementRef } from '@angular/core';
+import { FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
+import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -9,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
+import { MatStepperModule } from '@angular/material/stepper';
 
 import { forkJoin, firstValueFrom } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -35,15 +39,22 @@ export interface DeviceTable {
     standalone: true,
     imports: [
         CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
         MatFormFieldModule,
         MatInputModule,
         MatTableModule,
         MatSortModule,
         MatPaginatorModule,
         MatMenuModule,
-        MatButtonModule
+        MatButtonModule,
+        MatStepperModule
     ],
     providers: [
+        {
+            provide: STEPPER_GLOBAL_OPTIONS,
+            useValue: { showError: true }
+        },
         ParamsService,
         DeviceAioService,
         DeviceComputerService,
@@ -60,24 +71,47 @@ export interface DeviceTable {
 
 export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'division', 'section', 'status', 'settings'];
-    dataSource!: MatTableDataSource<DeviceTable>;
+    dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
     devices: any[] = [
-        { name: 'Computer', indicator: 'computer' },
-        { name: 'Laptop', indicator: 'laptop' },
-        { name: 'Tablet', indicator: 'tablet' },
-        { name: 'Printer', indicator: 'printer' },
-        { name: 'Router', indicator: 'router' },
-        { name: 'Scanner', indicator: 'scanner' },
-        { name: 'AIO', indicator: 'aio' }
+        { name: 'Computer', indicator: 'computer', tag: 'PJG-COMP' },
+        { name: 'Laptop', indicator: 'laptop', tag: 'PJG-LAP' },
+        { name: 'Tablet', indicator: 'tablet', tag: 'PJG-TAB' },
+        { name: 'Printer', indicator: 'printer', tag: 'PJG-PRNT' },
+        { name: 'Router', indicator: 'router', tag: 'PJG-RT' },
+        { name: 'Scanner', indicator: 'scanner', tag: 'PJG-SCAN' },
+        { name: 'AIO', indicator: 'aio', tag: 'PJG-AIO' }
     ];
+
+    components: any[] = [
+        { id: 1, name: 'Processor' },
+        { id: 2, name: 'RAM' },
+        { id: 3, name: 'Storage' },
+        { id: 4, name: 'Video Card' }
+    ]
 
     fetchedData: DeviceTable[] = [];
 
+    private formBuilder = inject(FormBuilder);
+
+    componentForm = this.formBuilder.group({
+        component: [null, Validators.required],
+        isComponentExisting: [Validators.required]
+    });
+
+    newComponentForm = this.formBuilder.group({
+        capacityId: [Validators.required]
+    });
+
+    existingComponentForm = this.formBuilder.group({
+        deviceId: [Validators.required],
+        componentId: [Validators.required]
+    });
+
+    @ViewChild('changePartModal') changePartModal!: ElementRef;
+    @ViewChild('upgradePartModal') upgradePartModal!: ElementRef;
+
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
-
-    @ViewChild('addDevModal') addDevModal!: ElementRef;
-    @ViewChild('filterModal') filterModal!: ElementRef;
 
     constructor(private router: Router,
                 private params: ParamsService,
@@ -89,7 +123,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 private scannerAuth: DeviceScannerService,
                 private serverAuth: DeviceServerService,
                 private tabletAuth: DeviceTabletService) {
-                this.dataSource = new MatTableDataSource(this.fetchedData)
+                this.dataSource = new MatTableDataSource(this.fetchedData);
     }
 
     ngAfterViewInit(): void {
@@ -155,20 +189,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         })
     }
 
-    routeSelectedDevice() {
-        let selectedDeviceName = (document.getElementById('device') as HTMLSelectElement)?.value;
-        let countValue = (document.getElementById('count') as HTMLInputElement)?.value;
-
-        let selectedDevice = this.devices.find(device => device.name === selectedDeviceName);
-
-        if (selectedDevice) {
-            this.router.navigate([`add-device/${selectedDevice.indicator}`], {
-                state: { device: selectedDevice.name, count: countValue },
-                queryParams: { deviceinventory: true }
-            });
-        }
-    }
-
     //Functions
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;
@@ -189,6 +209,24 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 status: item.condemnedDTO
             }));
         }));
+    }
+
+    routeSelectedDevice() {
+        let selectedDeviceName = (document.getElementById('device') as HTMLSelectElement)?.value;
+        let countValue = (document.getElementById('count') as HTMLInputElement)?.value;
+
+        let selectedDevice = this.devices.find(device => device.name === selectedDeviceName);
+
+        if (selectedDevice) {
+            this.router.navigate([`add-device/${selectedDevice.indicator}`], {
+                state: { device: selectedDevice.name, count: countValue },
+                queryParams: { deviceinventory: true }
+            });
+        }
+    }
+
+    nextIsExisting() {
+        this.isExisting = this.componentForm.get('isComponentExisting')?.value;
     }
 
     //Events
@@ -264,5 +302,10 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 error: (error: any) => console.error(error)
             });
         }
+    }
+
+    onClickChange(row: any) {
+        this.changePartModal.nativeElement.style.display = 'block';
+        console.log(row);
     }
 }

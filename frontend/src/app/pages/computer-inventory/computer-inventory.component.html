@@ -68,6 +68,8 @@
                 </button>
                 <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="onClickEdit(row)"> Edit </button>
+                    <button mat-menu-item (click)="onClickChange(row)"> Change </button>
+                    <button mat-menu-item> Upgrade </button>
                     <button mat-menu-item> Delete </button>
                 </mat-menu>
             </td>
@@ -79,9 +81,9 @@
         </tr>
     </table>
     <mat-paginator [pageSizeOptions]="[8, 15]" aria-label="Select page of devices"></mat-paginator>
-  </aside>
+</aside>
 
-  <div class="modal" #addDevModal>
+<div class="modal" #addDevModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> Add a device </h3>
@@ -112,9 +114,9 @@
             </form>
         </div>
     </div>
-  </div>
+</div>
 
-  <div class="modal" #filterModal>
+<div class="modal" #filterModal>
     <div class="modal-content">
         <div class="modal-header">
             <h3> Filter </h3>
@@ -126,6 +128,82 @@
             <form action="">
 
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #changePartModal>
+    <div class="modal-content change-part-modal">
+        <div class="modal-header">
+            <h3> Change Component </h3>
+            <button class="close-btn" type="button" (click)="changePartModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <mat-stepper #changeStepper>
+                <mat-step [stepControl]="componentForm" errorMessage="This field is required">
+                    <form action="" [formGroup]="componentForm">
+                        <ng-template matStepLabel> Component </ng-template>
+                        <div class="form-field">
+                            <label for="component"> Component </label>
+                            <select title="component" id="component" formControlName="component">
+                                <option [value]="null" selected disabled> Select component to be replaced </option>
+                                <option [value]="component.id" *ngFor="let component of components"> {{ component.name }} </option>
+                            </select>
+                        </div>
+                        <div class="form-field">
+                            <p> Component placed status: </p>
+                            <div class="form-container">
+                                <input type="radio" id="existing" [value]="true" formControlName="isComponentExisting">
+                                <label for="existing"> from existing condemned </label>
+                            </div>
+                            <div class="form-container">
+                                <input type="radio" id="new" [value]="false" formControlName="isComponentExisting">
+                                <label for="new"> new component </label>
+                            </div>
+                        </div>
+                        <div class="btn-holder">
+                            <button type="button" (click)="nextIsExisting()" matStepperNext> Next </button>
+                        </div>
+                    </form>
+                </mat-step>
+                @if(isExisting) {
+                    <mat-step [stepControl]="existingComponentForm" errorMessage="This field is required">
+                        <form action="" [formGroup]="existingComponentForm">
+                            <ng-template matStepLabel> Existing Component </ng-template>
+
+                        </form>
+                    </mat-step>
+                } @else {
+                    <mat-step [stepControl]="newComponentForm" errorMessage="This field is required">
+                        <form action="" [formGroup]="newComponentForm">
+                            <ng-template matStepLabel> New Component </ng-template>
+                            <div class="form-field">
+                                <label for=""> List of condemned units </label>
+                                <select title="" id="units">
+                                    <option [value]="null" selected disabled> Select condemned unit </option>
+                                </select>
+                            </div>
+                        </form>
+                    </mat-step>
+                }
+
+            </mat-stepper>
+        </div>
+    </div>
+</div>
+
+<div class="modal" #upgradePartModal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Upgrade Component </h3>
+            <button class="close-btn" type="button" (click)="upgradePartModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+
         </div>
     </div>
 </div>

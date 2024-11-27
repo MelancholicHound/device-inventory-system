@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -29,6 +29,8 @@ export class NavigationComponent {
         { name: 'Under MCC', indicator: 'under-mcc' },
         { name: 'Others', indicator: 'others' }
     ];
+
+    @ViewChild('accountDetails') accountDetails!: ElementRef;
 
     constructor(private router: Router) { }
 

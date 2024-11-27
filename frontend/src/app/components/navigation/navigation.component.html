@@ -28,6 +28,7 @@
             <span class="material-symbols-rounded nav-icon"> inventory </span>
             <p class="btn-label"> Computer Inventory </p>
         </button>
+        <button></button>
     </section>
     <section>
         <h1 class="section-title"> Reports by division </h1>
@@ -37,3 +38,17 @@
         </select>
     </section>
 </nav>
+
+<div class="modal" #accountDetails>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Account Details </h3>
+            <button class="close-btn" type="button" (click)="accountDetails.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <form action="" class="modal-body">
+
+        </form>
+    </div>
+</div>
