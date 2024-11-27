@@ -132,6 +132,20 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         })
     }
 
+    routeSelectedDevice() {
+        let selectedDeviceName = (document.getElementById('device') as HTMLSelectElement)?.value;
+        let countValue = (document.getElementById('count') as HTMLInputElement)?.value;
+
+        let selectedDevice = this.devices.find(device => device.name === selectedDeviceName);
+
+        if (selectedDevice) {
+            this.router.navigate([`add-device/${selectedDevice.indicator}`], {
+                state: { device: selectedDevice.name, count: countValue },
+                queryParams: { deviceinventory: true }
+            });
+        }
+    }
+
     //Functions
     applyFilter(event: Event) {
         const filterValue = (event.target as HTMLInputElement).value;

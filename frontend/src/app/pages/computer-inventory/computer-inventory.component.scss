@@ -51,3 +51,41 @@ section,
 .button-container,
 .primary,
 .secondary { display: flex; }
+
+
+//Modal extra styles
+.device-form {
+    gap: 15px;
+    width: 100%;
+    margin-top: 1.8rem;
+}
+
+.form-control { height: 2.15rem; }
+
+input[type='number'] {
+    width: 75px;
+    padding: 5px;
+}
+
+.batch-settings-btn {
+    border: none;
+    background-color: transparent;
+}
+
+.add-dev-btn {
+    width: 200px;
+    height: 2.5rem;
+}
+
+.holder {
+    width: 100%;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.device-form,
+.form-field { flex-direction: column; }
+
+.device-form,
+.form-field,
+.holder { display: flex; }
