@@ -82,14 +82,13 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         { name: 'AIO', indicator: 'aio', tag: 'PJG-AIO' }
     ];
 
-    components: any[] = [
-        { id: 1, name: 'Processor' },
-        { id: 2, name: 'RAM' },
-        { id: 3, name: 'Storage' },
-        { id: 4, name: 'Video Card' }
-    ]
+    components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
+
+    componentPayload: any[] = [];
 
     fetchedData: DeviceTable[] = [];
+    fetchedCondemned: any;
+    componentChosen: any;
 
     private formBuilder = inject(FormBuilder);
 
@@ -187,6 +186,12 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 this.dataSource.data = this.fetchedData;
             }
         })
+    }
+
+    //GET
+    getComponent(event: Event) {
+        let componentSelect = document.getElementById('component') as HTMLSelectElement;
+        this.componentChosen = componentSelect.value;
     }
 
     //Functions

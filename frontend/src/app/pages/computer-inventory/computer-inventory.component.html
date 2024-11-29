@@ -147,16 +147,16 @@
                         <ng-template matStepLabel> Component </ng-template>
                         <div class="form-field">
                             <label for="component"> Component </label>
-                            <select title="component" id="component" formControlName="component">
+                            <select title="component" id="component" formControlName="component" (change)="getComponent($event)">
                                 <option [value]="null" selected disabled> Select component to be replaced </option>
-                                <option [value]="component.id" *ngFor="let component of components"> {{ component.name }} </option>
+                                <option [value]="component" *ngFor="let component of components"> {{ component }} </option>
                             </select>
                         </div>
                         <div class="form-field">
-                            <p> Component placed status: </p>
+                            <p> Replacement component is from: </p>
                             <div class="form-container">
                                 <input type="radio" id="existing" [value]="true" formControlName="isComponentExisting">
-                                <label for="existing"> from existing condemned </label>
+                                <label for="existing"> existing condemned unit </label>
                             </div>
                             <div class="form-container">
                                 <input type="radio" id="new" [value]="false" formControlName="isComponentExisting">
@@ -172,23 +172,33 @@
                     <mat-step [stepControl]="existingComponentForm" errorMessage="This field is required">
                         <form action="" [formGroup]="existingComponentForm">
                             <ng-template matStepLabel> Existing Component </ng-template>
-
-                        </form>
-                    </mat-step>
-                } @else {
-                    <mat-step [stepControl]="newComponentForm" errorMessage="This field is required">
-                        <form action="" [formGroup]="newComponentForm">
-                            <ng-template matStepLabel> New Component </ng-template>
                             <div class="form-field">
                                 <label for=""> List of condemned units </label>
-                                <select title="" id="units">
-                                    <option [value]="null" selected disabled> Select condemned unit </option>
+                                <select title="condemn" id="condemn">
+                                    <option [value]="null" selected disabled> Choose from this list </option>
+                                </select>
+                            </div>
+                            <div class="form-field">
+                                <label for=""> Available component: </label>
+                                <select title="" id="">
+                                    <option [value]="null" selected disabled> {{ this.componentChosen }} part/s  </option>
                                 </select>
                             </div>
                         </form>
                     </mat-step>
-                }
+                } @else {
+                  <mat-step [stepControl]="newComponentForm" errorMessage="This field is required">
+                      <form action="" [formGroup]="newComponentForm">
+                          <ng-template matStepLabel> Existing Component </ng-template>
+                          <div class="form-field">
 
+                          </div>
+                      </form>
+                  </mat-step>
+                }
+                <mat-step>
+
+                </mat-step>
             </mat-stepper>
         </div>
     </div>
