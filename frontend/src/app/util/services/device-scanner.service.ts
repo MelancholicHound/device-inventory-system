@@ -74,6 +74,12 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
     }
 
+    //PATCH
+    condemnDevice(id: any, reason: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/scanners/${id}?reason=${reason}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/scanners/${id}`, this.httpOptions)

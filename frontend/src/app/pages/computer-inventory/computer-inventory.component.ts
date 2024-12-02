@@ -313,4 +313,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         this.changePartModal.nativeElement.style.display = 'block';
         console.log(row);
     }
+
+
 }

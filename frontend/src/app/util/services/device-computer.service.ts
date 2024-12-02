@@ -59,6 +59,12 @@ export class DeviceComputerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computers')));
     }
 
+    //PATCH
+    condemnDevice(id: any, reason: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${id}?reason=${reason}`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/computers/${id}`, this.httpOptions)
