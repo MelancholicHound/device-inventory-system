@@ -72,14 +72,14 @@ export interface DeviceTable {
 export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'division', 'section', 'status', 'settings'];
     dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
-    devices: any[] = [
-        { name: 'Computer', indicator: 'computer', tag: 'PJG-COMP' },
-        { name: 'Laptop', indicator: 'laptop', tag: 'PJG-LAP' },
-        { name: 'Tablet', indicator: 'tablet', tag: 'PJG-TAB' },
-        { name: 'Printer', indicator: 'printer', tag: 'PJG-PRNT' },
-        { name: 'Router', indicator: 'router', tag: 'PJG-RT' },
-        { name: 'Scanner', indicator: 'scanner', tag: 'PJG-SCAN' },
-        { name: 'AIO', indicator: 'aio', tag: 'PJG-AIO' }
+    deviceMappings = [
+        { key: 'PJG-AIO', service: this.aioAuth, route: 'add-device/aio', device: 'AIO', indicator: 'aio' },
+        { key: 'PJG-COMP', service: this.computerAuth, route: 'add-device/computer', device: 'Computer' },
+        { key: 'PJG-LAP', service: this.laptopAuth, route: 'add-device/laptop', device: 'Laptop' },
+        { key: 'PJG-PRNT', service: this.printerAuth, route: 'add-device/printer', device: 'Printer' },
+        { key: 'PJG-RT', service: this.routerAuth, route: 'add-device/router', device: 'Router' },
+        { key: 'PJG-SCAN', service: this.scannerAuth, route: 'add-device/scanner', device: 'Scanner' },
+        { key: 'PJG-TAB', service: this.tabletAuth, route: 'add-device/tablet', device: 'Tablet' }
     ];
 
     components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
@@ -87,8 +87,8 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     componentPayload: any[] = [];
 
     fetchedData: DeviceTable[] = [];
-    fetchedCondemned: any;
-    componentChosen: any;
+    fetchedCondemned: any; componentChosen: any;
+    toCondemn: any;
 
     private formBuilder = inject(FormBuilder);
 
@@ -108,6 +108,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     @ViewChild('changePartModal') changePartModal!: ElementRef;
     @ViewChild('upgradePartModal') upgradePartModal!: ElementRef;
+    @ViewChild('condemnUnitModal') condemnUnitModal!: ElementRef;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -220,11 +221,11 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         let selectedDeviceName = (document.getElementById('device') as HTMLSelectElement)?.value;
         let countValue = (document.getElementById('count') as HTMLInputElement)?.value;
 
-        let selectedDevice = this.devices.find(device => device.name === selectedDeviceName);
+        let selectedDevice = this.deviceMappings.find(device => device.device === selectedDeviceName);
 
         if (selectedDevice) {
-            this.router.navigate([`add-device/${selectedDevice.indicator}`], {
-                state: { device: selectedDevice.name, count: countValue },
+            this.router.navigate([`${selectedDevice.route}`], {
+                state: { device: selectedDevice.device, count: countValue },
                 queryParams: { deviceinventory: true }
             });
         }
@@ -236,71 +237,13 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     //Events
     onClickEdit(row: any) {
-        if (row.tag.includes('PJG-AIO')) {
-            this.aioAuth.getById(row.id).subscribe({
+        const mapping = this.deviceMappings.find(m => row.tag.includes(m.key));
+
+        if (mapping) {
+            mapping.service.getById(row.id).subscribe({
                 next: (res: any) => {
-                    this.router.navigate(['add-device/aio'], {
-                        state: { device: 'AIO', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-COMP')) {
-            this.computerAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/computer'], {
-                        state: { device: 'Computer', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-LAP')) {
-            this.laptopAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/laptop'], {
-                        state: { device: 'Laptop', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-PRNT')) {
-            this.printerAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/printer'], {
-                        state: { device: 'Printer', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-RT')) {
-            this.routerAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/router'], {
-                        state: { device: 'Router', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-SCAN')) {
-            this.scannerAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/scanner'], {
-                        state: { device: 'Scanner', inventorydetails: res },
-                        queryParams: { deviceinventory: true }
-                    });
-                },
-                error: (error: any) => console.error(error)
-            });
-        } else if (row.tag.includes('PJG-TAB')) {
-            this.tabletAuth.getById(row.id).subscribe({
-                next: (res: any) => {
-                    this.router.navigate(['add-device/tablet'], {
-                        state: { device: 'Tablet', inventorydetails: res },
+                    this.router.navigate([mapping.route], {
+                        state: { device: mapping.device, inventorydetails: res },
                         queryParams: { deviceinventory: true }
                     });
                 },
@@ -314,5 +257,14 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         console.log(row);
     }
 
+    onClickUpgrade(row: any) {
+        this.upgradePartModal.nativeElement.style.display = 'block';
+        console.log(row);
+    }
 
+
+    onClickCondemn(row: any) {
+        this.condemnUnitModal.nativeElement.style.display = 'block';
+        this.toCondemn = row;
+    }
 }

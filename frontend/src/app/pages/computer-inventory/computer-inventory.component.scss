@@ -89,10 +89,8 @@ blockquote { display: flex; }
     height: auto;
 }
 
-.device-form {
-    gap: 15px;
+mat-stepper {
     width: 100%;
-    margin-top: 1.8rem;
 }
 
 .form-control { height: 2.15rem; }
@@ -118,9 +116,42 @@ input[type='number'] {
     margin-top: 1rem;
 }
 
-.device-form,
-.form-field { flex-direction: column; }
+.form-container {
+    align-items: center;
+    gap: 3px;
+}
+
+.next-btn {
+    float: right;
+    border: none;
+    background-color: transparent;
+    gap: 10px;
+    align-items: center;
+}
+
+.next-label {
+    font-weight: 600;
+    font-size: 17px;
+}
+
+.device-form { margin-top: 1.8rem; }
+
+.radio-container { gap: 3px; }
+
+.device-form, .component-form {
+    gap: 15px;
+    width: 100%;
+}
 
 .device-form,
 .form-field,
-.holder { display: flex; }
+.component-form,
+.radio-container { flex-direction: column; }
+
+.device-form,
+.form-field,
+.holder,
+.component-form,
+.radio-container,
+.form-container,
+.next-btn { display: flex; }

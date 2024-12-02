@@ -67,10 +67,10 @@
                     <span class="material-symbols-rounded"> more_vert </span>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="onClickEdit(row)"> Edit </button>
-                    <button mat-menu-item (click)="onClickChange(row)"> Change </button>
-                    <button mat-menu-item> Upgrade </button>
-                    <button mat-menu-item> Delete </button>
+                    <button mat-menu-item (click)="onClickEdit(row)"> Edit Details </button>
+                    <button mat-menu-item (click)="onClickChange(row)"> Change Part </button>
+                    <button mat-menu-item (click)="onClickUpgrade(row)"> Upgrade Part </button>
+                    <button mat-menu-item (click)="onClickCondemn(row)" [disabled]="row.status"> Condemn Unit </button>
                 </mat-menu>
             </td>
         </ng-container>
@@ -97,7 +97,7 @@
                     <label for="device"> Device </label>
                     <select name="device" class="form-control" id="device">
                         <option value="" selected disabled> Select a device </option>
-                        <option *ngFor="let device of devices" [value]="device.name"> {{device.name}} </option>
+                        <option *ngFor="let device of deviceMappings" [value]="device.device"> {{device.device}} </option>
                     </select>
                 </div>
                 <div class="form-field">
@@ -141,30 +141,35 @@
             </button>
         </div>
         <div class="modal-body">
-            <mat-stepper #changeStepper>
+            <mat-stepper linear #changeStepper>
                 <mat-step [stepControl]="componentForm" errorMessage="This field is required">
-                    <form action="" [formGroup]="componentForm">
+                    <form class="component-form" action="" [formGroup]="componentForm">
                         <ng-template matStepLabel> Component </ng-template>
                         <div class="form-field">
                             <label for="component"> Component </label>
-                            <select title="component" id="component" formControlName="component" (change)="getComponent($event)">
+                            <select title="component" class="form-control" id="component" formControlName="component" (change)="getComponent($event)">
                                 <option [value]="null" selected disabled> Select component to be replaced </option>
                                 <option [value]="component" *ngFor="let component of components"> {{ component }} </option>
                             </select>
                         </div>
                         <div class="form-field">
                             <p> Replacement component is from: </p>
-                            <div class="form-container">
-                                <input type="radio" id="existing" [value]="true" formControlName="isComponentExisting">
-                                <label for="existing"> existing condemned unit </label>
-                            </div>
-                            <div class="form-container">
-                                <input type="radio" id="new" [value]="false" formControlName="isComponentExisting">
-                                <label for="new"> new component </label>
+                            <div class="radio-container">
+                                <div class="form-container">
+                                    <input type="radio" id="existing" [value]="true" formControlName="isComponentExisting">
+                                    <label for="existing"> existing condemned unit </label>
+                                </div>
+                                <div class="form-container">
+                                    <input type="radio" id="new" [value]="false" formControlName="isComponentExisting">
+                                    <label for="new"> new component </label>
+                                </div>
                             </div>
                         </div>
                         <div class="btn-holder">
-                            <button type="button" (click)="nextIsExisting()" matStepperNext> Next </button>
+                            <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched">
+                                <p class="next-label"> Next </p>
+                                <span class="material-symbols-rounded"> arrow_forward </span>
+                            </button>
                         </div>
                     </form>
                 </mat-step>
@@ -174,7 +179,7 @@
                             <ng-template matStepLabel> Existing Component </ng-template>
                             <div class="form-field">
                                 <label for=""> List of condemned units </label>
-                                <select title="condemn" id="condemn">
+                                <select title="condemn" id="condemn" class="form-control">
                                     <option [value]="null" selected disabled> Choose from this list </option>
                                 </select>
                             </div>
@@ -189,7 +194,7 @@
                 } @else {
                   <mat-step [stepControl]="newComponentForm" errorMessage="This field is required">
                       <form action="" [formGroup]="newComponentForm">
-                          <ng-template matStepLabel> Existing Component </ng-template>
+                          <ng-template matStepLabel> New Component </ng-template>
                           <div class="form-field">
 
                           </div>
@@ -197,7 +202,7 @@
                   </mat-step>
                 }
                 <mat-step>
-
+                    <ng-template matStepLabel> Done </ng-template>
                 </mat-step>
             </mat-stepper>
         </div>
@@ -221,7 +226,16 @@
 <div class="modal" #condemnUnitModal>
     <div class="modal-content">
         <div class="modal-header">
-            <h3> Condemn ? </h3>
+            <h3> Condemn {{ toCondemn?.tag }}? </h3>
+            <button class="close-btn" type="button" (click)="condemnUnitModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form field">
+                <label for="reason"> Reason for condemn: </label>
+                <input type="text" id="reason" class="large-input-field">
+            </div>
         </div>
     </div>
 </div>
