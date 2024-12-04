@@ -123,11 +123,12 @@ input[type='number'] {
 
 .next-btn {
     float: right;
-    border: none;
-    background-color: transparent;
-    gap: 10px;
-    align-items: center;
 }
+
+.prev-btn {
+    float: left;
+}
+
 
 .next-label {
     font-weight: 600;
@@ -138,7 +139,16 @@ input[type='number'] {
 
 .radio-container { gap: 3px; }
 
-.device-form, .component-form {
+.next-btn,
+.prev-btn {
+    border: none;
+    background-color: transparent;
+    gap: 10px;
+    align-items: center;
+}
+
+.device-form,
+.component-form {
     gap: 15px;
     width: 100%;
 }
@@ -154,4 +164,5 @@ input[type='number'] {
 .component-form,
 .radio-container,
 .form-container,
-.next-btn { display: flex; }
+.next-btn,
+.prev-btn { display: flex; }

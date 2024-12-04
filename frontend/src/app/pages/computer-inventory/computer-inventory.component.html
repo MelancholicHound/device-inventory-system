@@ -40,7 +40,7 @@
     <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="tag">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Device Tag </th>
-            <td mat-cell *matCellDef="let row"> {{ row.tag }} </td>
+            <td mat-cell *matCellDef="let row"> <b> {{ row.tag }} </b> </td>
         </ng-container>
         <ng-container matColumnDef="division">
             <th mat-header-cell *matHeaderCellDef mat-sort-header> Division </th>
@@ -175,7 +175,7 @@
                 </mat-step>
                 @if(isExisting) {
                     <mat-step [stepControl]="existingComponentForm" errorMessage="This field is required">
-                        <form action="" [formGroup]="existingComponentForm">
+                        <form action="" class="component-form" [formGroup]="existingComponentForm">
                             <ng-template matStepLabel> Existing Component </ng-template>
                             <div class="form-field">
                                 <label for=""> List of condemned units </label>
@@ -184,11 +184,21 @@
                                 </select>
                             </div>
                             <div class="form-field">
-                                <label for=""> Available component: </label>
-                                <select title="" id="">
+                                <label for="available"> Available component: </label>
+                                <select title="" id="available" class="form-control">
                                     <option [value]="null" selected disabled> {{ this.componentChosen }} part/s  </option>
                                 </select>
                             </div>
+                            <div class="btn-holder">
+                              <button type="button" class="prev-btn" matStepperPrevious>
+                                  <span class="material-symbols-rounded"> arrow_back </span>
+                                  <p class="next-label"> Back </p>
+                              </button>
+                                <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched">
+                                    <p class="next-label"> Next </p>
+                                    <span class="material-symbols-rounded"> arrow_forward </span>
+                                </button>
+                          </div>
                         </form>
                     </mat-step>
                 } @else {

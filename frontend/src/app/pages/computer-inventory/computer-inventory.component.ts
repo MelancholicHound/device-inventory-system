@@ -32,6 +32,7 @@ export interface DeviceTable {
     division: string;
     section: string;
     status: any;
+    createdAt: any;
 }
 
 @Component({
@@ -184,9 +185,10 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         ]).subscribe({
             next: (result: any[]) => {
                 this.fetchedData = result.flat();
+                this.fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 this.dataSource.data = this.fetchedData;
             }
-        })
+        });
     }
 
     //GET
@@ -212,7 +214,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             return division.then(value => ({
                 id: item.id, tag: item.tag,
                 division: value.name, section: item.sectionDTO.name,
-                status: item.condemnedDTO
+                status: item.condemnedDTO, createdAt: item.createdAt
             }));
         }));
     }
