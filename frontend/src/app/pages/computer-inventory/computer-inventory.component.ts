@@ -184,10 +184,13 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             )
         ]).subscribe({
             next: (result: any[]) => {
+                console.log(result);
                 this.fetchedData = result.flat();
                 this.fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                console.log(this.fetchedData);
                 this.dataSource.data = this.fetchedData;
-            }
+            },
+            error: (error: any) => console.error(error)
         });
     }
 

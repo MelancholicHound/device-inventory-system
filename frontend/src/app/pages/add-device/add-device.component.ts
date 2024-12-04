@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 
 import { Store } from '@ngrx/store';
 
-import { filter, map, tap } from 'rxjs/operators';
+import { Subject } from 'rxjs';
+import { filter, map, takeUntil } from 'rxjs/operators';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
@@ -49,11 +50,13 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit {
+export class AddDeviceComponent implements OnInit, OnDestroy {
     batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean; isAdding!: boolean;
     fromComputerInventory: boolean = false;
     deviceDetails: { [key: string]: any } = {};
+
+    private destroy$ = new Subject<void>();
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
 
@@ -96,8 +99,9 @@ export class AddDeviceComponent implements OnInit {
         this.deviceForm = this.createDeviceFormGroup();
 
         this.store.select('app').pipe(
+            takeUntil(this.destroy$),
             map(state => state.childData),
-            filter(updateChildData => Object.keys(updateChildData).length > 0)
+            filter(updateChildData => updateChildData && Object.keys(updateChildData).length > 0)
         ).subscribe(updateChildData => {
             const authServices: any = {
                 Computer: this.computerAuth, Laptop: this.laptopAuth,
@@ -126,14 +130,18 @@ export class AddDeviceComponent implements OnInit {
                     () => ({ ...this.deviceForm.value })
                 );
 
+                this.store.dispatch(clearChildData());
                 currentAuth.postDevice(duplicateDeviceEntry).subscribe({
-                    next: () => {
-                        this.backButton();
-                    },
+                    next: () => this.backButton(),
                     error: (error: any) => console.error(error)
                 });
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     createDeviceFormGroup(): FormGroup {
@@ -220,7 +228,6 @@ export class AddDeviceComponent implements OnInit {
     }
 
     backButton() {
-        this.store.dispatch(clearChildData());
         if (this.fromComputerInventory) {
             this.router.navigate(['computer-inventory']);
         } else {
