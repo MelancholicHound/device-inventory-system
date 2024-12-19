@@ -69,9 +69,9 @@ export class DeviceAioService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 
-    //PATCH
-    condemnDevice(id: any, reason: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/all-in-ones/${id}?reason=${reason}`, this.httpOptions)
+    //PATCH (condemn unit)
+    condemnDevice(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 

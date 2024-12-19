@@ -18,7 +18,7 @@ import { ParamsService } from '../../util/services/params.service';
 export class ConnectionsComponent implements OnInit, OnChanges {
     @Output() connectionsStateChanged = new EventEmitter<number[]>();
     @Input() isEnabled: boolean = true;
-    @Input() connectionFetched: any[] = [];
+    @Input() connectionPayload: any[] = [];
 
     fetchedConnections!: any;
 
@@ -30,7 +30,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
         this.params.getConnections().subscribe(res => {
             this.fetchedConnections = res.map((connection: any) => ({
                 ...connection,
-                checked: this.connectionFetched.some(
+                checked: this.connectionPayload.some(
                     (fetched: any) => fetched.id === connection.id
                 )
             }));
@@ -51,11 +51,13 @@ export class ConnectionsComponent implements OnInit, OnChanges {
     }
 
     updateCheckedState(): void {
-        this.fetchedConnections.forEach((connection: any) => {
-            connection.checked = this.connectionFetched.some(
-                (fetched: any) => fetched.id === connection.id
-            );
-        });
+        if (this.fetchedConnections) {
+            this.fetchedConnections.forEach((connection: any) => {
+                connection.checked = this.connectionPayload.some(
+                    (fetched: any) => fetched.id === connection.id
+                );
+            });
+        }
     }
 
     uncheckAll(): void {

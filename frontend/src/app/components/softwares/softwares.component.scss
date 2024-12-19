@@ -1,4 +1,4 @@
-section {
+form {
     flex-direction: column;
     gap: 20px;
 }
@@ -27,7 +27,7 @@ select { width: 100%; }
 select,
 .add-btn { height: 2rem; }
 
-section,
+form,
 .form-field,
 .input-field,
 .add-btn { display: flex; }

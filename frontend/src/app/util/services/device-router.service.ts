@@ -90,9 +90,9 @@ export class DeviceRouterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
     }
 
-    //PATCH
-    condemnDevice(id: any, reason: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/routers/${id}?reason=${reason}`, this.httpOptions)
+    //PATCH (condemn unit)
+    condemnDevice(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/routers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
     }
 

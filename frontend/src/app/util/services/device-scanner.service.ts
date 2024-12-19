@@ -74,9 +74,9 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
     }
 
-    //PATCH
-    condemnDevice(id: any, reason: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/scanners/${id}?reason=${reason}`, this.httpOptions)
+    //PATCH (condemn unit)
+    condemnDevice(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/scanners/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners')));
     }
 

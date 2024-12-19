@@ -74,9 +74,9 @@ export class DevicePrinterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
     }
 
-    //PATCH
-    condemnDevice(id: any, reason: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/printers/${id}?reason=${reason}`, this.httpOptions)
+    //PATCH (condemn unit)
+    condemnDevice(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/printers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
     }
 

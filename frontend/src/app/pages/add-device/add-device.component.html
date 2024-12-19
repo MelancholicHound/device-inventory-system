@@ -46,7 +46,7 @@
                 </label>
             </div>
             <div class="card-body">
-                <app-connections [connectionFetched]="connectionsPayload"
+                <app-connections [connectionPayload]="connectionsPayload"
                                  [isEnabled]="isConnectionToggled"
                                  (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>

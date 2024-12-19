@@ -1,9 +1,9 @@
-<section [ngClass]="{ 'disabled': !enabled }">
+<form [formGroup]="softwareForm" [ngClass]="{ 'disabled': !enabled }">
     <div class="form-field">
         <label for="os" class="label"> Operating System </label>
         <div class="input-field">
-            <select class="form-control" title="operating-system" id="os" (change)="onOperatingSystemChange()">
-                <option [value]="" disabled selected> Select OS </option>
+            <select class="form-control" title="operating-system" id="os" (change)="onOperatingSystemChange()" formControlName="operatingSystemId">
+                <option [value]="null" disabled selected> Select OS </option>
                 <option [value]="os.id" *ngFor="let os of fetchedOS"> {{ os.name }} </option>
             </select>
             <button class="add-brand-btn" type="button">
@@ -14,8 +14,8 @@
     <div class="form-field">
         <label for="security" class="label"> Security </label>
         <div class="input-field">
-            <select class="form-control" title="security" id="security" (change)="onSecurityChange()">
-                <option [value]="" disabled selected> Select security </option>
+            <select class="form-control" title="security" id="security" (change)="onSecurityChange()" formControlName="securityId">
+                <option [value]="null" disabled selected> Select security </option>
                 <option [value]="security.id" *ngFor="let security of fetchedSecurity"> {{ security.name }} </option>
             </select>
             <button class="add-brand-btn" type="button">
@@ -26,8 +26,8 @@
     <div class="form-field">
         <label for="prod-tool" class="label"> Productivity Tools </label>
         <div class="input-field">
-            <select title="prod-tool" id="prod-tool" (change)="onProductivityToolsChange()">
-                <option [value]="" disabled selected> Select productivity tools </option>
+            <select title="prod-tool" id="prod-tool" (change)="onProductivityToolsChange()" formControlName="productivityToolId">
+                <option [value]="null" disabled selected> Select productivity tools </option>
                 <option [value]="tool.id" *ngFor="let tool of fetchedProdTool"> {{ tool.name }} </option>
             </select>
             <button class="add-brand-btn" type="button">
@@ -35,4 +35,4 @@
             </button>
         </div>
     </div>
-</section>
+</form>

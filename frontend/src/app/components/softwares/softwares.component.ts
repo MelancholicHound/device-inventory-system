@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormsModule, FormGroup, FormControl, Validators,ReactiveFormsModule } from '@angular/forms';
 
 import { ParamsService } from '../../util/services/params.service';
 
@@ -9,6 +9,7 @@ import { ParamsService } from '../../util/services/params.service';
   standalone: true,
   imports: [
       CommonModule,
+      ReactiveFormsModule,
       FormsModule
   ],
   providers: [
@@ -20,7 +21,7 @@ import { ParamsService } from '../../util/services/params.service';
 export class SoftwaresComponent implements OnInit, OnChanges {
     @Output() softwareStateChanged: EventEmitter<any> = new EventEmitter<any>();
     @Input() isEnabled: boolean = true;
-    @Input() softwaresPayload: any[] = [];
+    @Input() softwaresPayload: any;
 
     fetchedOS!: any; fetchedSecurity!: any; fetchedProdTool!: any;
 
@@ -36,6 +37,12 @@ export class SoftwaresComponent implements OnInit, OnChanges {
         this.params.getOS().subscribe(res => this.fetchedOS = res);
         this.params.getSecurity().subscribe(res => this.fetchedSecurity = res);
         this.params.getProdTools().subscribe(res => this.fetchedProdTool = res);
+
+        if (this.softwaresPayload) {
+            this.softwareForm.patchValue({ operatingSystemId: this.softwaresPayload.operatingSystemDTO.id });
+            this.softwareForm.patchValue({ productivityToolId: this.softwaresPayload.productivityToolDTO.id });
+            this.softwareForm.patchValue({ securityId: this.softwaresPayload.securityDTO.id });
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {

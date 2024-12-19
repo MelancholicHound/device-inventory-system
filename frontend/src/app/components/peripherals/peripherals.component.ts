@@ -24,7 +24,8 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     @Input() isEnabled: boolean = true;
     @Input() peripheralsPayload: any[] = [];
 
-    fetchedPeripherals: any; fetchedUPSBrand: any;
+    fetchedPeripherals!: any;
+    fetchedUPSBrand: any;
     upsForm!: FormGroup;
 
     enabled: boolean = true;
@@ -40,7 +41,10 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             next: (data: any) => {
                 this.fetchedPeripherals = data.map((object: any) => ({
                     id: object.id,
-                    name: object.name.toLowerCase()
+                    name: object.name.toLowerCase(),
+                    checked: this.peripheralsPayload.some(
+                        (fetched: any) => fetched.id === object.id
+                    )
                 }));
 
                 for (let i = 0; i < this.fetchedPeripherals.length; i++) {
@@ -56,6 +60,10 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }
         });
+
+        if (this.peripheralsPayload) {
+            this.updateCheckedState();
+        }
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -64,6 +72,10 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             if (!this.enabled) {
                 this.uncheckAll();
             }
+        }
+
+        if (changes['peripheralsPayload'] && !changes['peripheralsPayload'].firstChange) {
+            this.updateCheckedState();
         }
     }
 
@@ -75,6 +87,16 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             model: new FormControl(null, [Validators.required]),
             kilovolts: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
         });
+    }
+
+    updateCheckedState(): void {
+        if (this.fetchedPeripherals) {
+            this.fetchedPeripherals.forEach((connection: any) => {
+                connection.checked = this.peripheralsPayload.some(
+                    (fetched: any) => fetched.id === connection.id
+                );
+            });
+        }
     }
 
     uncheckAll(): void {
