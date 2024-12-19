@@ -56,6 +56,7 @@ export class AddDeviceComponent implements OnInit {
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
+    connectionsPayload: any[] = []; peripheralsPayload: any[] = []; softwaresPayload: any[] = [];
 
     deviceForm!: FormGroup;
 
@@ -134,6 +135,13 @@ export class AddDeviceComponent implements OnInit {
                 });
             }
         });
+
+        if (history.state.devicedetails || history.state.inventorydetails) {
+            const { connectionDTOS, deviceSoftwareDTO, peripheralDTOS } = history.state.devicedetails || history.state.inventorydetails;
+            this.connectionsPayload = connectionDTOS;
+            this.softwaresPayload = deviceSoftwareDTO;
+            this.peripheralsPayload = peripheralDTOS;
+        }
     }
 
     createDeviceFormGroup(): FormGroup {

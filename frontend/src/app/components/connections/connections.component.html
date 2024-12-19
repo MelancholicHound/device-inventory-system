@@ -1,7 +1,7 @@
 <section [ngClass]="{ 'disabled': !enabled }">
     <div class="form-field" *ngFor="let connection of fetchedConnections">
         <input type="checkbox"
-               id="check-box"
+               [id]="'check-box' + connection.id"
                [checked]="connection.checked"
                (change)="onCheckboxChange(connection, $event)">
         <label for="check-box"> {{ connection.name }} </label>

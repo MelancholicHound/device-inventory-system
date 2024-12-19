@@ -18,6 +18,7 @@ import { ParamsService } from '../../util/services/params.service';
 export class ConnectionsComponent implements OnInit, OnChanges {
     @Output() connectionsStateChanged = new EventEmitter<number[]>();
     @Input() isEnabled: boolean = true;
+    @Input() connectionFetched: any[] = [];
 
     fetchedConnections!: any;
 
@@ -26,7 +27,14 @@ export class ConnectionsComponent implements OnInit, OnChanges {
     constructor(private params: ParamsService) { }
 
     ngOnInit(): void {
-        this.params.getConnections().subscribe(res => this.fetchedConnections = res);
+        this.params.getConnections().subscribe(res => {
+            this.fetchedConnections = res.map((connection: any) => ({
+                ...connection,
+                checked: this.connectionFetched.some(
+                    (fetched: any) => fetched.id === connection.id
+                )
+            }));
+        });
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -36,6 +44,18 @@ export class ConnectionsComponent implements OnInit, OnChanges {
                 this.uncheckAll();
             }
         }
+
+        if (changes['connectionFetched'] && !changes['connectionFetched'].firstChange) {
+            this.updateCheckedState();
+        }
+    }
+
+    updateCheckedState(): void {
+        this.fetchedConnections.forEach((connection: any) => {
+            connection.checked = this.connectionFetched.some(
+                (fetched: any) => fetched.id === connection.id
+            );
+        });
     }
 
     uncheckAll(): void {

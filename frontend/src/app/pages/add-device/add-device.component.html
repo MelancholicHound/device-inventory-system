@@ -28,7 +28,8 @@
                 </label>
             </div>
             <div class="card-body">
-                <app-peripherals [isEnabled]="isPeripheralToggled"
+                <app-peripherals [peripheralsPayload]="connectionsPayload"
+                                 [isEnabled]="isPeripheralToggled"
                                  (peripheralsStateChanged)="onPeripheralsChanges($event)"
                                  (upsBrandId)="onUPSBrandIdSubmit($event)" />
             </div>
@@ -45,7 +46,8 @@
                 </label>
             </div>
             <div class="card-body">
-                <app-connections [isEnabled]="isConnectionToggled"
+                <app-connections [connectionFetched]="connectionsPayload"
+                                 [isEnabled]="isConnectionToggled"
                                  (connectionsStateChanged)="onConnectionChanges($event)" />
             </div>
         </div>
@@ -61,7 +63,8 @@
               </label>
           </div>
           <div class="card-body">
-              <app-softwares [isEnabled]="isSoftwareToggled"
+              <app-softwares [softwaresPayload]="softwaresPayload"
+                             [isEnabled]="isSoftwareToggled"
                              (softwareStateChanged)="onSoftwareChanges($event)" />
           </div>
       </div>

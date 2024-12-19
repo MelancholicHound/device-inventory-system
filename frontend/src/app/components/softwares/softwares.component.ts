@@ -20,6 +20,8 @@ import { ParamsService } from '../../util/services/params.service';
 export class SoftwaresComponent implements OnInit, OnChanges {
     @Output() softwareStateChanged: EventEmitter<any> = new EventEmitter<any>();
     @Input() isEnabled: boolean = true;
+    @Input() softwaresPayload: any[] = [];
+
     fetchedOS!: any; fetchedSecurity!: any; fetchedProdTool!: any;
 
     enabled = true;

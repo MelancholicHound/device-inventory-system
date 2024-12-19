@@ -22,6 +22,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     @Output() peripheralsStateChanged: EventEmitter<number[]> = new EventEmitter<number[]>();
     @Output() upsBrandId: EventEmitter<number> = new EventEmitter<number>();
     @Input() isEnabled: boolean = true;
+    @Input() peripheralsPayload: any[] = [];
 
     fetchedPeripherals: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
