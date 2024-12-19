@@ -23,6 +23,7 @@ export interface BatchTable {
     supplierId: number;
     dateDelivered: string;
     validUntil: string;
+    createdAt: any;
 }
 
 @Component({

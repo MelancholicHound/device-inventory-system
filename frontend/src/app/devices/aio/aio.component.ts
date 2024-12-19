@@ -47,8 +47,7 @@ export class AioComponent implements OnInit {
 
     aioForm!: FormGroup;
 
-    constructor(private auth: AuthService,
-                private params: ParamsService,
+    constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private aioAuth: DeviceAioService,
                 private store: Store) { }

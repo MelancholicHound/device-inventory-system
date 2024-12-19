@@ -22,7 +22,7 @@
             </blockquote>
             <blockquote>
                 <p> Date Created: </p>
-                <p class="output-label bold"> {{ batchDetails?.createdAt }} </p>
+                <p class="output-label bold"> {{ batchDetails?.createdAt.split('T')[0] }} </p>
             </blockquote>
         </div>
         <div class="button-field">
@@ -60,8 +60,8 @@
                     <span class="material-symbols-rounded"> more_vert </span>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="onClickEditDevice(row)"> Edit </button>
-                    <button mat-menu-item (click)="onClickDeleteDevice(row)"> Delete </button>
+                    <button mat-menu-item (click)="onClickEditDevice(row)"> Edit Device </button>
+                    <button mat-menu-item (click)="onClickDeleteDevice(row)"> Delete Device </button>
                 </mat-menu>
             </td>
         </ng-container>

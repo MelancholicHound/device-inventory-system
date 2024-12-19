@@ -27,6 +27,7 @@ export interface DeviceTable {
     device: string;
     division: number;
     section: string;
+    createdAt: any;
 }
 
 @Component({
@@ -154,6 +155,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
         ]).subscribe({
             next: (results: any[]) => {
                 this.fetchedData = results.flat();
+                this.fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                 this.dataSource.data = this.fetchedData;
             },
             error: (error: any) => console.log(error)
@@ -190,7 +192,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             return division.then(value => ({
                 id: item.id, tag: item.tag,
                 device: deviceType, division: value.name,
-                section: item.sectionDTO.name
+                section: item.sectionDTO.name, createdAt: item.createdAt
             }));
         }));
     }

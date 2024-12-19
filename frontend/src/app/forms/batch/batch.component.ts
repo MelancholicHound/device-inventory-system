@@ -60,20 +60,33 @@ export class BatchComponent implements OnInit {
 
             testedDateControl?.updateValueAndValidity();
         });
+
+        this.batchForm.get('dateDelivered')?.valueChanges.subscribe((startDate) => {
+            if (startDate) {
+                const nextYearDate = this.addOneYear(new Date(startDate));
+                this.batchForm.get('validUntil')?.setValue(nextYearDate.toISOString().split('T')[0]);
+            }
+        });
     }
 
     createBatchFormGroup(): FormGroup {
         return new FormGroup({
-            validUntil: new FormControl('', [Validators.required]),
-            dateDelivered: new FormControl('', [Validators.required]),
-            dateTested: new FormControl('', [Validators.required]),
-            supplierId: new FormControl('', [Validators.required, Validators.pattern('^[0-9]*$')]),
-            serviceCenter: new FormControl('', [Validators.required]),
+            validUntil: new FormControl(null, [Validators.required]),
+            dateDelivered: new FormControl(null, [Validators.required]),
+            dateTested: new FormControl(null, [Validators.required]),
+            supplierId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            serviceCenter: new FormControl(null, [Validators.required]),
             purchaseRequestDTO: new FormGroup({
-                number: new FormControl('', [Validators.required]),
+                number: new FormControl(null, [Validators.required]),
                 file: new FormControl()
             })
         });
+    }
+
+    private addOneYear(date: Date): Date {
+        const newDate = new Date(date);
+        newDate.setFullYear(newDate.getFullYear() + 1);
+        return newDate;
     }
 
     //GET

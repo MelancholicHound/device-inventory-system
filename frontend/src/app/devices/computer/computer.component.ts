@@ -103,6 +103,10 @@ export class ComputerComponent implements OnInit {
             this.computerForm.patchValue({ cpuRequest: { cpuBrandSeriesId: payload.cpuDTO.brandSeriesDTO.id } });
             this.computerForm.patchValue({ cpuRequest: { cpuModifier: payload.cpuDTO.cpuModifier } });
 
+            this.computerForm.patchValue({ motherBoardRequest: { motherBoardBrandId: payload.motherBoardDTO.brandDTO.id } });
+            this.computerForm.patchValue({ motherBoardRequest: { motherBoardModel: payload.motherBoardDTO.model } });
+
+            this.computerForm.patchValue({ screenSize: payload.screenSize });
             this.computerForm.patchValue({ videoCardRequest: { capacityId: payload.videoCardDTO.capacityDTO.id } });
 
             let ramArray: any = payload.ramDTOs;

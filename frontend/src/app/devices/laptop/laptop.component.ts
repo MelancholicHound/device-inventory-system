@@ -89,60 +89,60 @@ export class LaptopComponent implements OnInit {
         });
 
         if (history.state.devicedetails || history.state.inventorydetails) {
-          let payload: any = history.state.devicedetails || history.state.inventorydetails;
+            let payload: any = history.state.devicedetails || history.state.inventorydetails;
 
-          this.laptopForm.patchValue({ brandId: payload.brandDTO.id });
-          this.laptopForm.patchValue({ model: payload.model });
+            this.laptopForm.patchValue({ brandId: payload.brandDTO.id });
+            this.laptopForm.patchValue({ model: payload.model });
 
-          this.laptopForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
-          this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
-          this.laptopForm.patchValue({ sectionId: payload.sectionDTO.id });
+            this.laptopForm.patchValue({ divisionId: payload.sectionDTO.divisionId });
+            this.params.getSectionsByDivisionId(payload.sectionDTO.divisionId).subscribe((res: any[]) => this.fetchedSection = res);
+            this.laptopForm.patchValue({ sectionId: payload.sectionDTO.id });
 
-          this.laptopForm.patchValue({ cpuRequest: { cpuBrandId: payload.cpuDTO.brandDTO.id } });
-          this.specs.getProcSeriesById(payload.cpuDTO.brandDTO.id).subscribe((res: any[]) => this.fetchedProcSeries = res);
-          this.laptopForm.patchValue({ cpuRequest: { cpuBrandSeriesId: payload.cpuDTO.brandSeriesDTO.id } });
-          this.laptopForm.patchValue({ cpuRequest: { cpuModifier: payload.cpuDTO.cpuModifier } });
+            this.laptopForm.patchValue({ cpuRequest: { cpuBrandId: payload.cpuDTO.brandDTO.id } });
+            this.specs.getProcSeriesById(payload.cpuDTO.brandDTO.id).subscribe((res: any[]) => this.fetchedProcSeries = res);
+            this.laptopForm.patchValue({ cpuRequest: { cpuBrandSeriesId: payload.cpuDTO.brandSeriesDTO.id } });
+            this.laptopForm.patchValue({ cpuRequest: { cpuModifier: payload.cpuDTO.cpuModifier } });
 
-          this.laptopForm.patchValue({ screenSize: payload.screenSize });
-          this.laptopForm.patchValue({ videoCardRequest: { capacityId: payload.videoCardDTO.capacityDTO.id } });
+            this.laptopForm.patchValue({ screenSizeByInches: payload.screenSizeByInches });
+            this.laptopForm.patchValue({ videoCardRequest: { capacityId: payload.videoCardDTO.capacityDTO.id } });
 
-          let ramArray: any = payload.ramDTOs;
-          let ramInput = document.getElementById('ram-size') as HTMLInputElement;
-          ramInput.value = payload.ramDTOs[0].capacityDTO.capacity;
+            let ramArray: any = payload.ramDTOs;
+            let ramInput = document.getElementById('ram-size') as HTMLInputElement;
+            ramInput.value = payload.ramDTOs[0].capacityDTO.capacity;
 
-          if (ramArray.length > 1) {
-              for (let i = 1; i < ramArray.length; i++) {
-                  this.addRAM();
+            if (ramArray.length > 1) {
+                for (let i = 1; i < ramArray.length; i++) {
+                    this.addRAM();
 
-                  let ram = document.getElementById('ram');
-                  let childCount = ram?.childElementCount! - 1;
+                    let ram = document.getElementById('ram');
+                    let childCount = ram?.childElementCount! - 1;
 
-                  let newRam = document.getElementById(`ram-size-${childCount}`) as HTMLInputElement;
-                  newRam.value = payload.ramDTOs[i].capacityDTO.capacity;
-              }
-          }
+                    let newRam = document.getElementById(`ram-size-${childCount}`) as HTMLInputElement;
+                    newRam.value = payload.ramDTOs[i].capacityDTO.capacity;
+                }
+            }
 
-          let storageArray: any = payload.storageDTOs;
-          let firstStorageType = document.getElementById('type') as HTMLSelectElement;
-          let firstStorageSize = document.getElementById('storage-size') as HTMLInputElement;
-          firstStorageType.value = payload.storageDTOs[0].type;
-          firstStorageSize.value = payload.storageDTOs[0].capacityDTO.capacity;
+            let storageArray: any = payload.storageDTOs;
+            let firstStorageType = document.getElementById('type') as HTMLSelectElement;
+            let firstStorageSize = document.getElementById('storage-size') as HTMLInputElement;
+            firstStorageType.value = payload.storageDTOs[0].type;
+            firstStorageSize.value = payload.storageDTOs[0].capacityDTO.capacity;
 
-          if (storageArray.length > 1) {
-              for (let i = 1; i < storageArray.length; i++) {
-                  this.addStorage();
+            if (storageArray.length > 1) {
+                for (let i = 1; i < storageArray.length; i++) {
+                    this.addStorage();
 
-                  let storage = document.getElementById('storage');
-                  let childCount = storage?.childElementCount! - 2;
+                    let storage = document.getElementById('storage');
+                    let childCount = storage?.childElementCount! - 2;
 
-                  let storageSize = document.getElementById(`storage-size-${childCount}`) as HTMLInputElement;
-                  let storageType = document.getElementById(`type-${childCount}`) as HTMLSelectElement;
+                    let storageSize = document.getElementById(`storage-size-${childCount}`) as HTMLInputElement;
+                    let storageType = document.getElementById(`type-${childCount}`) as HTMLSelectElement;
 
-                  storageSize.value = payload.storageDTOs[i].capacityDTO.capacity;
-                  storageType.value = payload.storageDTOs[i].type;
-              }
-          }
-      }
+                    storageSize.value = payload.storageDTOs[i].capacityDTO.capacity;
+                    storageType.value = payload.storageDTOs[i].type;
+                }
+            }
+        }
     }
 
     createLaptopFormGroup(): FormGroup {
@@ -346,6 +346,7 @@ export class LaptopComponent implements OnInit {
 
         const clonedTypeEl = typeContainer?.cloneNode(true) as HTMLElement;
         const clonedSizeEl = sizeContainer?.cloneNode(true) as HTMLElement;
+        this.childCount = storage?.childElementCount;
 
         const newIdSize = `storage-size-${this.childCount}`;
         const newIdType = `type-${this.childCount}`;

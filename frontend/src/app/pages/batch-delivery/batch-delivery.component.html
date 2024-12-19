@@ -36,8 +36,9 @@
                     <span class="material-symbols-rounded"> more_vert </span>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="onClickEdit(row)"> Edit </button>
-                    <button mat-menu-item (click)="onClickDelete(row)"> Delete </button>
+                    <button mat-menu-item> View Details </button>
+                    <button mat-menu-item (click)="onClickEdit(row)"> Edit Batch </button>
+                    <button mat-menu-item (click)="onClickDelete(row)"> Drop Batch </button>
                 </mat-menu>
             </td>
         </ng-container>

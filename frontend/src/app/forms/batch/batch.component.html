@@ -10,14 +10,14 @@
         <button class="cancel-btn gray-border" type="button" (click)="cancelUpload()" *ngIf="selectedFile">
             <span class="material-symbols-rounded"> block </span>
         </button>
-        <input #fileUpload type="file" id="file-upload" (change)="onFileSelected($event)" hidden>
+        <input #fileUpload type="file" id="file-upload" (change)="onFileSelected($event)" formControlName="file" hidden>
     </div>
-    <p class="file-name" *ngIf="selectedFile"> File Name: {{ fileUploaded.name }}</p>
+    <p class="file-name" *ngIf="selectedFile"> File Name: {{ fileUploaded.name }} </p>
     <div class="supplier-field">
         <div class="form-container">
             <label for="supplier"> Supplier </label>
-            <select title="supplier" id="supplier" class="form-control" (change)="getSupplierValue()">
-                <option [value]="" selected disabled> Select supplier </option>
+            <select title="supplier" id="supplier" class="form-control" (change)="getSupplierValue()" formControlName="supplierId">
+                <option [value]="null" selected disabled> Select supplier </option>
                 <option [value]="supplier.id" *ngFor="let supplier of suppliers"> {{ supplier.name }} </option>
             </select>
         </div>

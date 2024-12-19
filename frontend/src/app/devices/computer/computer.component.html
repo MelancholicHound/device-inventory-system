@@ -22,14 +22,14 @@
             <div class="destination">
                 <div class="form-container">
                     <label for="division" class="label"> Division </label>
-                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()">
+                    <select title="division" class="form-control" id="division" (change)="getDivisionValue()" formControlName="divisionId">
                         <option [value]="null" selected disabled> Select division </option>
                         <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
                     </select>
                 </div>
                 <div class="form-container">
                     <label for="section" class="label"> Section </label>
-                    <select title="section" class="form-control" id="section" (change)="getSectionValue()">
+                    <select title="section" class="form-control" id="section" (change)="getSectionValue()" formControlName="sectionId">
                         <option [value]="null" selected disabled> Select section </option>
                         <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
                     </select>
@@ -40,12 +40,12 @@
     <div class="card gray-border specs">
         <h1> Specifications </h1>
         <div class="specs-container">
-            <div class="form-container">
+            <div class="form-container" formGroupName="cpuRequest">
                 <p class="label"> Processor </p>
                 <div class="input-field">
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled">
+                            <select title="proc-brand" class="processors" id="proc-brand" (change)="getProcBrand()" *ngIf="!isProcBrandToggled" formControlName="cpuBrandId">
                                 <option [value]="null" selected disabled> Select brand option </option>
                                 <option [value]="procbrand.id" *ngFor="let procbrand of fetchedProcBrand"> {{ procbrand.brand }} </option>
                             </select>
@@ -58,7 +58,7 @@
                     </div>
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled">
+                            <select title="proc-series" class="processors" id="proc-series" (change)="getProcSeries()" *ngIf="!isProcSeriesToggled" formControlName="cpuBrandSeriesId">
                                 <option [value]="null" selected disabled> Select series option </option>
                                 <option [value]="procseries.id" *ngFor="let procseries of fetchedProcSeries"> {{ procseries.seriesName }} </option>
                             </select>
@@ -70,17 +70,17 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onProcModifierInput($event)">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onProcModifierInput($event)" formControlName="cpuModifier">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>
             </div>
-            <div class="form-container">
+            <div class="form-container" formGroupName="motherBoardRequest">
                 <p class="label"> Motherboard </p>
                 <div class="input-field">
                     <div class="input-container">
                         <div class="labeled-field">
-                            <select title="proc-brand" class="processors" id="mobo-brand" (change)="getMoboBrand()" *ngIf="!isMoboBrandToggled">
+                            <select title="proc-brand" class="processors" id="mobo-brand" (change)="getMoboBrand()" *ngIf="!isMoboBrandToggled" formControlName="motherBoardBrandId">
                                 <option [value]="null" selected disabled> Select brand option </option>
                                 <option [value]="mobobrand.id" *ngFor="let mobobrand of fetchedMoboBrand"> {{ mobobrand.brand }} </option>
                             </select>
@@ -92,16 +92,16 @@
                         </button>
                     </div>
                     <div class="labeled-field">
-                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onMoboModel($event)">
+                        <input type="text" id="proc-model" class="processors input-form" placeholder="Input model" (blur)="onMoboModel($event)" formControlName="motherBoardModel">
                         <label for="proc-model"> Model </label>
                     </div>
                 </div>
             </div>
-            <div class="form-container">
+            <div class="form-container" formGroupName="videoCardRequest">
                 <p class="label"> Video Card </p>
                 <div class="size-field">
                     <label for="gpu-size"> Size: </label>
-                    <input type="number" class="input-form" id="gpu-size" list="gpu" min="0" (blur)="onGPUInput($event)">
+                    <input type="number" class="input-form" id="gpu-size" list="gpu" min="0" (blur)="onGPUInput($event)" formControlName="capacityId">
                     <p> GB </p>
                 </div>
             </div>
