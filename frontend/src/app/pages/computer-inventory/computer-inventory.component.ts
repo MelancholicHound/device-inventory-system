@@ -93,6 +93,12 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     private formBuilder = inject(FormBuilder);
 
+    condemnForm = this.formBuilder.group({
+        id: [null],
+        condemnedAt: [null, Validators.required],
+        reason: [null, Validators.required]
+    })
+
     componentForm = this.formBuilder.group({
         component: [null, Validators.required],
         isComponentExisting: [Validators.required]
@@ -195,6 +201,21 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     getComponent(event: Event) {
         let componentSelect = document.getElementById('component') as HTMLSelectElement;
         this.componentChosen = componentSelect.value;
+    }
+
+    //PATCH
+    condemnDevice() {
+        let prefix = this.toCondemn.tag?.split('-').slice(0, 2).join('-');
+
+        let mappedAuth = this.deviceMappings.find((map: any) => map.key === prefix);
+
+        if (mappedAuth) {
+            this.condemnForm.get('id')?.setValue(this.toCondemn.id);
+            mappedAuth.service.condemnDevice(this.condemnForm.value).subscribe({
+                next: () => window.location.reload(),
+                error: () => this.condemnForm.reset()
+            });
+        }
     }
 
     //Functions

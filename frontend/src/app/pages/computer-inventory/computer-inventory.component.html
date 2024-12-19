@@ -238,10 +238,17 @@
             </button>
         </div>
         <div class="modal-body">
-            <div class="form field">
-                <label for="reason"> Reason for condemn: </label>
-                <input type="text" id="reason" class="large-input-field">
-            </div>
+            <form action="" class="condemn-form" [formGroup]="condemnForm">
+                <div class="form-field">
+                    <label for="condemn-date"> Date condemned: </label>
+                    <input type="date" id="condemn-date" class="form-control" formControlName="condemnedAt">
+                </div>
+                <div class="form-field">
+                    <label for="reason"> Reason for condemn: </label>
+                    <textarea name="" id="reason" formControlName="reason"></textarea>
+                </div>
+                <button type="submit" class="condemn-btn br" (click)="condemnDevice()"> Condemn Device </button>
+            </form>
         </div>
     </div>
 </div>
