@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
@@ -14,7 +14,7 @@ import { updateChildData } from '../../util/store/app.actions';
     selector: 'app-tablet',
     standalone: true,
     imports: [
-        NgFor, NgIf,
+        CommonModule,
         ReactiveFormsModule,
         FormsModule
     ],
@@ -28,6 +28,7 @@ import { updateChildData } from '../../util/store/app.actions';
 export class TabletComponent implements OnInit {
     device = { name: 'Tablet', indicator: 'tablet' };
     deviceCount!: any; batchId: any; batchNumber: any;
+    fromComputerInventory: any;
 
     isChipsetBrandToggled: boolean = false; isChipsetBrandAnimated: boolean = false;
     isTabletBrandToggled: boolean = false; isTabletBrandAnimated: boolean = false;
@@ -46,6 +47,7 @@ export class TabletComponent implements OnInit {
     ngOnInit(): void {
         this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
+        this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
 
         this.tabletForm = this.createTabletFormGroup();

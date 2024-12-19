@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
@@ -13,7 +13,7 @@ import { updateChildData } from '../../util/store/app.actions';
     selector: 'app-printer',
     standalone: true,
     imports: [
-        NgFor, NgIf,
+        CommonModule,
         ReactiveFormsModule,
         FormsModule
     ],
@@ -27,6 +27,7 @@ import { updateChildData } from '../../util/store/app.actions';
 export class PrinterComponent implements OnInit {
     device = { name: 'Printer', indicator: 'printer' };
     deviceCount!: any; batchId!: any; batchNumber!: any;
+    fromComputerInventory: any;
 
     isPrinterBrandToggled: boolean = false; isPrinterBrandAnimated: boolean = false;
 
@@ -42,6 +43,7 @@ export class PrinterComponent implements OnInit {
     ngOnInit(): void {
         this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
+        this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
 
         this.printerForm = this.createPrinterFormGroup();

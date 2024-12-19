@@ -244,9 +244,14 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         if (mapping) {
             mapping.service.getById(row.id).subscribe({
                 next: (res: any) => {
-                    this.router.navigate([mapping.route], {
-                        state: { device: mapping.device, inventorydetails: res },
-                        queryParams: { deviceinventory: true }
+                    this.params.getBatchDetails(res.batchId).subscribe({
+                        next: (batch: any) => {
+                            this.router.navigate([mapping.route], {
+                                state: { device: mapping.device, inventorydetails: res, batchnumber: batch.formattedId },
+                                queryParams: { deviceinventory: true }
+                            });
+                        },
+                        error: (error: any) => console.error(error)
                     });
                 },
                 error: (error: any) => console.error(error)

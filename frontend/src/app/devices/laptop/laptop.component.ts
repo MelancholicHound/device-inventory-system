@@ -1,10 +1,9 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
-import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
@@ -15,7 +14,7 @@ import { updateChildData } from '../../util/store/app.actions';
     selector: 'app-laptop',
     standalone: true,
     imports: [
-        NgFor, NgIf,
+        CommonModule,
         ReactiveFormsModule,
         FormsModule
     ],
@@ -31,6 +30,7 @@ export class LaptopComponent implements OnInit {
     device =  { name: 'Laptop', indicator: 'laptop' };
     deviceCount!: any; batchId: any; batchNumber: any;
     procBrandId: any; childCount: any;
+    fromComputerInventory: any;
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
     isLaptopBrandToggled: boolean = false; isAddingStorage: boolean = false;
@@ -54,6 +54,7 @@ export class LaptopComponent implements OnInit {
     ngOnInit(): void {
         this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
+        this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
 
         this.laptopForm = this.createLaptopFormGroup();

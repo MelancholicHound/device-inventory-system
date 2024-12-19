@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <div class="card gray-border specs">
+    <div class="card gray-border specs" [ngClass]="{ 'disable-specs': fromComputerInventory }">
         <h1> Specifications </h1>
         <div class="specs-container">
             <div class="form-container" formGroupName="cpuRequest">

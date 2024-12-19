@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { Store } from '@ngrx/store';
 
@@ -15,7 +15,7 @@ import { updateChildData } from '../../util/store/app.actions';
     selector: 'app-aio',
     standalone: true,
     imports: [
-        NgFor, NgIf,
+        CommonModule,
         ReactiveFormsModule,
         FormsModule
     ],
@@ -32,6 +32,7 @@ export class AioComponent implements OnInit {
     device = { name: 'AIO', indicator: 'aio' };
     deviceCount: any; batchId: any; batchNumber: any;
     procBrandId: any; childCount!: any
+    fromComputerInventory: any;
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
     isAIOBrandToggled: boolean = false; isAddingStorage: boolean = false;
@@ -55,6 +56,7 @@ export class AioComponent implements OnInit {
     ngOnInit(): void {
         this.batchId = history.state.batchid
         this.deviceCount = history.state.count;
+        this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
 
         this.aioForm = this.createAIOFormGroup();

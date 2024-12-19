@@ -6,13 +6,12 @@ import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@ang
 import { Store } from '@ngrx/store';
 
 import { Subscription } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
 import { ConnectionsComponent } from '../../components/connections/connections.component';
 import { SoftwaresComponent } from '../../components/softwares/softwares.component';
 
-import { AuthService } from '../../util/services/auth.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
@@ -37,7 +36,6 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
         SoftwaresComponent
     ],
     providers: [
-        AuthService,
         DeviceAioService,
         DeviceComputerService,
         DeviceLaptopService,
@@ -54,7 +52,7 @@ export class AddDeviceComponent implements OnInit, OnDestroy {
     private subscription!: Subscription;
     batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean; isAdding!: boolean;
-    fromComputerInventory: boolean = false;
+    fromComputerInventory!: boolean;
     deviceDetails: { [key: string]: any } = {};
 
     fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
@@ -69,7 +67,6 @@ export class AddDeviceComponent implements OnInit, OnDestroy {
     isSoftwareToggled: boolean = true;
 
     constructor(private router: Router,
-                private auth: AuthService,
                 private store: Store<{ app: AppState }>,
                 private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
