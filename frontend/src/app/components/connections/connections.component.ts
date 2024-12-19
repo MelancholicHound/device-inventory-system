@@ -30,7 +30,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
         this.params.getConnections().subscribe(res => {
             this.fetchedConnections = res.map((connection: any) => ({
                 ...connection,
-                checked: this.connectionPayload.some(
+                checked: (this.connectionPayload || []).some(
                     (fetched: any) => fetched.id === connection.id
                 )
             }));

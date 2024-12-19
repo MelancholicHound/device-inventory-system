@@ -42,7 +42,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
                 this.fetchedPeripherals = data.map((object: any) => ({
                     id: object.id,
                     name: object.name.toLowerCase(),
-                    checked: this.peripheralsPayload.some(
+                    checked: (this.peripheralsPayload || []).some(
                         (fetched: any) => fetched.id === object.id
                     )
                 }));
