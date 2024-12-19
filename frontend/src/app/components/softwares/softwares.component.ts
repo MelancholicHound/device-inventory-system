@@ -39,9 +39,9 @@ export class SoftwaresComponent implements OnInit, OnChanges {
         this.params.getProdTools().subscribe(res => this.fetchedProdTool = res);
 
         if (this.softwaresPayload) {
-            this.softwareForm.patchValue({ operatingSystemId: this.softwaresPayload.operatingSystemDTO.id });
-            this.softwareForm.patchValue({ productivityToolId: this.softwaresPayload.productivityToolDTO.id });
-            this.softwareForm.patchValue({ securityId: this.softwaresPayload.securityDTO.id });
+            this.softwareForm.patchValue({ operatingSystemId: this.softwaresPayload?.operatingSystemDTO?.id || null });
+            this.softwareForm.patchValue({ productivityToolId: this.softwaresPayload?.productivityToolDTO?.id || null });
+            this.softwareForm.patchValue({ securityId: this.softwaresPayload?.securityDTO?.id || null });
         }
     }
 

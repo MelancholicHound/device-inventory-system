@@ -15,8 +15,5 @@ export const appReducer = createReducer(
         ...state,
         childData: { ...state.childData, data }
     })),
-    on(clearChildData, state => ({
-        ...state,
-        childData: {}
-    }))
+    on(clearChildData, () => initialState)
 );

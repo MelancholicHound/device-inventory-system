@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
 
 import { Store } from '@ngrx/store';
 
+import { Subscription } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
 
 import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
@@ -49,7 +50,8 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit {
+export class AddDeviceComponent implements OnInit, OnDestroy {
+    private subscription!: Subscription;
     batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean; isAdding!: boolean;
     fromComputerInventory: boolean = false;
@@ -96,7 +98,7 @@ export class AddDeviceComponent implements OnInit {
     ngOnInit(): void {
         this.deviceForm = this.createDeviceFormGroup();
 
-        this.store.select('app').pipe(
+        this.subscription = this.store.select('app').pipe(
             map(state => state.childData),
             filter(updateChildData => Object.keys(updateChildData).length > 0)
         ).subscribe(updateChildData => {
@@ -129,6 +131,7 @@ export class AddDeviceComponent implements OnInit {
 
                 currentAuth.postDevice(duplicateDeviceEntry).subscribe({
                     next: () => {
+                        this.store.dispatch(clearChildData());
                         this.backButton();
                     },
                     error: (error: any) => console.error(error)
@@ -141,6 +144,12 @@ export class AddDeviceComponent implements OnInit {
             this.connectionsPayload = connectionDTOS;
             this.softwaresPayload = deviceSoftwareDTO;
             this.peripheralsPayload = peripheralDTOS;
+        }
+    }
+
+    ngOnDestroy(): void {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
         }
     }
 

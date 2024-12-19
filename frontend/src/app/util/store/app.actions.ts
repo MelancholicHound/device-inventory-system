@@ -5,4 +5,4 @@ export const updateChildData = createAction(
     props<{ data: any }>()
 );
 
-export const clearChildData = createAction('[Child Component] Clear State')
+export const clearChildData = createAction('[Child Component] Clear State');
