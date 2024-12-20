@@ -72,7 +72,71 @@ export class DeviceAioService {
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    //PATCH (change from existing condemned unit)
+    changeWithExistingProcessor(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/cpu/${data.fromDeviceId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithExistingGPU(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/video-card/${data.fromDeviceId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithExistingStorage(data: any, params: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/storage/${data.fromDeviceId}?fromStorageId=${params.fromStorageId}&toStorageId=${params.toStorageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithExistingRAM(data: any, params: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/ram/${data.fromDeviceId}?fromRAMId=${params.fromStorageId}&toRAMId=${params.toStorageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    //PATCH (change from new parts)
+    changeWithNewProcessor(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/change/cpu`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithNewGPU(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/change/video-card`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithNewStorage(toDeviceId: any, toStorageId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/change/storage?oldStorageId=${toStorageId}`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    changeWithNewRAM(toDeviceId: any, toRAMId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/change/ram?oldRAMId=${toRAMId}`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    //PATCH (upgrade from existing unit)
+    upgradeWithExistingRAM(toDeviceId: any, condemnForm: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/upgrade/ram/${condemnForm.fromDeviceId}?fromRAMId=${condemnForm.ramId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    upgradeWithExistingStorage(toDeviceId: any, condemnForm: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/upgrade/storage/${condemnForm.fromDeviceId}?fromStorageId=${condemnForm.storageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    //PATCH (upgrade with new parts)
+    upgradeWithNewRAM(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/upgrade/ram`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+    }
+
+    upgradeWithNewStorage(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${toDeviceId}/upgrade/storage`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 
     //DELETE

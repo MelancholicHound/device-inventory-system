@@ -65,6 +65,70 @@ export class DeviceComputerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computers')));
     }
 
+    //PATCH (change from existing condemned unit)
+    changeWithExistingProcessor(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${data.toDeviceId}/change/cpu/${data.fromDeviceId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithExistingGPU(data: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${data.toDeviceId}/change/video-card/${data.fromDeviceId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithExistingStorage(data: any, params: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${data.toDeviceId}/change/storage/${data.fromDeviceId}?fromStorageId=${params.fromStorageId}&toStorageId=${params.toStorageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithExistingRAM(data: any, params: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${data.toDeviceId}/change/ram/${data.fromDeviceId}?fromRAMId=${params.fromStorageId}&toRAMId=${params.toStorageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    //PATCH (change from new parts)
+    changeWithNewProcessor(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/change/cpu`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithNewGPU(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/change/video-card`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithNewStorage(toDeviceId: any, toStorageId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/change/storage?oldStorageId=${toStorageId}`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    changeWithNewRAM(toDeviceId: any, toRAMId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/change/ram?oldRAMId=${toRAMId}`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    //PATCH (upgrade from existing unit)
+    upgradeWithExistingRAM(toDeviceId: any, condemnForm: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/upgrade/ram/${condemnForm.fromDeviceId}?fromRAMId=${condemnForm.ramId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    upgradeWithExistingStorage(toDeviceId: any, condemnForm: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/upgrade/storage/${condemnForm.fromDeviceId}?fromStorageId=${condemnForm.storageId}`, null, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    //PATCH (upgrade with new parts)
+    upgradeWithNewRAM(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/upgrade/ram`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
+    upgradeWithNewStorage(toDeviceId: any, form: any): Observable<any> {
+        return this.http.patch<any>(`${this.url}/device/computers/${toDeviceId}/upgrade/storage`, form, this.httpOptions)
+        .pipe(catchError(this.errorHandler.handleError<any>('device/computers')));
+    }
+
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/computers/${id}`, this.httpOptions)

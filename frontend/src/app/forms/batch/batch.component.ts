@@ -114,7 +114,6 @@ export class BatchComponent implements OnInit {
 
     addBatch() {
         this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
-        console.log(this.batchForm.value)
         this.params.postBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
