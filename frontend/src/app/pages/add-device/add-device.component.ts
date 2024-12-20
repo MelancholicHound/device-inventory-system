@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
@@ -48,7 +48,7 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
 })
-export class AddDeviceComponent implements OnInit, OnDestroy {
+export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
     private subscription!: Subscription;
     batchDetails: any; selected: any; deviceRequest: any;
     isChecked!: boolean; isAdding!: boolean;
@@ -65,6 +65,10 @@ export class AddDeviceComponent implements OnInit, OnDestroy {
     isPeripheralToggled: boolean = true;
     isConnectionToggled: boolean = true;
     isSoftwareToggled: boolean = true;
+
+    @ViewChild('togglePeripherals') togglePeripheral!: ElementRef<HTMLInputElement>;
+    @ViewChild('toggleConnections') toggleConnections!: ElementRef<HTMLInputElement>;
+    @ViewChild('toggleSoftwares') toggleSoftwares!: ElementRef<HTMLInputElement>;
 
     constructor(private router: Router,
                 private store: Store<{ app: AppState }>,
@@ -141,6 +145,22 @@ export class AddDeviceComponent implements OnInit, OnDestroy {
             this.connectionsPayload = connectionDTOS;
             this.softwaresPayload = deviceSoftwareDTO;
             this.peripheralsPayload = peripheralDTOS;
+        }
+    }
+
+    ngAfterViewInit(): void {
+        switch (this.selected) {
+            case 'Tablet':
+                this.toggleSoftwares.nativeElement.click();
+                break;
+            case 'Printer':
+            case 'Router':
+            case 'Scanner':
+                this.toggleSoftwares.nativeElement.click();
+                this.toggleConnections.nativeElement.click();
+                break;
+            default:
+                break;
         }
     }
 

@@ -22,7 +22,9 @@
                 <label class="switch">
                     <input type="checkbox"
                            id="toggler-peripherals"
-                           checked
+                           [(ngModel)]="isPeripheralToggled"
+                           #togglePeripherals
+                           [disabled]="selected === 'Server'"
                            (change)="onTogglePeripherals()">
                     <span class="slider round"></span>
                 </label>
@@ -40,7 +42,9 @@
                 <label class="switch">
                     <input type="checkbox"
                            id="toggler-connections"
-                           checked
+                           [(ngModel)]="isConnectionToggled"
+                           #toggleConnections
+                           [disabled]="['Printer', 'Router', 'Scanner'].includes(selected)"
                            (change)="onToggleConnections()">
                     <span class="slider round"></span>
                 </label>
@@ -55,10 +59,12 @@
           <div class="card-header">
               <h1> Softwares </h1>
               <label class="switch">
-                  <input type="checkbox"
-                         id="toggler-softwares"
-                         checked
-                         (change)="onToggleSoftwares()">
+                <input type="checkbox"
+                       id="toggler-softwares"
+                       [(ngModel)]="isSoftwareToggled"
+                       #toggleSoftwares
+                       [disabled]="['Tablet', 'Printer', 'Router', 'Scanner'].includes(selected)"
+                       (change)="onToggleSoftwares()">
                   <span class="slider round"></span>
               </label>
           </div>
