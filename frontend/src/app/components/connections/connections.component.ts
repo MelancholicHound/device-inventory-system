@@ -20,7 +20,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
     @Input() isEnabled: boolean = true;
     @Input() connectionPayload: any[] = [];
 
-    fetchedConnections!: any;
+    fetchedConnections: any[] = [];
 
     enabled = true;
 
@@ -62,7 +62,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
 
     uncheckAll(): void {
         this.fetchedConnections.forEach((connection: any) => {
-            connection.checked = false;
+            connection.checked = false || [];
         });
     }
 
