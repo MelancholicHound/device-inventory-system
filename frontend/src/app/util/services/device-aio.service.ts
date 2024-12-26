@@ -92,7 +92,7 @@ export class DeviceAioService {
     }
 
     changeWithExistingRAM(data: any, params: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/ram/${data.fromDeviceId}?fromRAMId=${params.fromStorageId}&toRAMId=${params.toStorageId}`, null, this.httpOptions)
+        return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/ram/${data.fromDeviceId}?fromRAMId=${params.fromRAMId}&toRAMId=${params.toRAMId}`, null, this.httpOptions)
         .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
     }
 

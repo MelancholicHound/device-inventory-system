@@ -61,7 +61,7 @@ export class DeviceComputerService {
 
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
-        return this.http.patch<any>(`${this.url}/device/computers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, this.httpOptions)
+        return this.http.patch<any>(`${this.url}/device/computers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/computers')));
     }
 

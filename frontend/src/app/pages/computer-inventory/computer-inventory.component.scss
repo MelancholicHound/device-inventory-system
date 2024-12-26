@@ -150,6 +150,35 @@ textarea {
     float: left;
 }
 
+.confirmation-container {
+    gap: 30px;
+    width: 100%;
+}
+
+.confirmation-header {
+    align-items: center;
+    gap: 10px;
+}
+
+.msg {
+    gap: 10px;
+    text-align: justify;
+}
+
+.confirmation-logo {
+    font-size: 50px;
+    color: #f44336;
+}
+
+.replace-btn {
+    color: #f5f5f6;
+    background-color: #f44336;
+    padding: 5px 10px;
+}
+
+.confirmation-label {
+    margin-top: 3px;
+}
 
 .next-label {
     font-weight: 600;
@@ -179,7 +208,9 @@ textarea {
 .form-field,
 .component-form,
 .condemn-form,
-.radio-container { flex-direction: column; }
+.radio-container,
+.confirmation-container,
+.msg { flex-direction: column; }
 
 .device-form,
 .form-field,
@@ -189,7 +220,10 @@ textarea {
 .radio-container,
 .form-container,
 .next-btn,
-.prev-btn { display: flex; }
+.prev-btn,
+.confirmation-container,
+.confirmation-header,
+.msg { display: flex; }
 
 :disabled {
     opacity: 0.5;

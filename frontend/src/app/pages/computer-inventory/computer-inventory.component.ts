@@ -1,5 +1,5 @@
 import { Component, AfterViewInit, OnInit, ViewChild, inject, ElementRef } from '@angular/core';
-import { FormBuilder, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -89,7 +89,14 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     fetchedData: DeviceTable[] = [];
     fetchedCondemned: any; componentChosen: any;
-    toCondemn: any;
+    toCondemn: any; toChange: any; toUpgrade: any;
+    condemnedUnits: any; condemnedParts: any[] = []; condemnedDevice: any;
+
+    deviceForm!: FormGroup;
+    changeNewPartForm!: FormGroup;
+    changeExistingPartForm!: FormGroup;
+    upgradeNewPartForm!: FormGroup;
+    upgradeExistingPartForm!: FormGroup;
 
     private formBuilder = inject(FormBuilder);
 
@@ -101,16 +108,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     componentForm = this.formBuilder.group({
         component: [null, Validators.required],
-        isComponentExisting: [Validators.required]
-    });
-
-    newComponentForm = this.formBuilder.group({
-        capacityId: [Validators.required]
-    });
-
-    existingComponentForm = this.formBuilder.group({
-        deviceId: [Validators.required],
-        componentId: [Validators.required]
+        isComponentExisting: [null, Validators.required]
     });
 
     @ViewChild('changePartModal') changePartModal!: ElementRef;
@@ -130,7 +128,13 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 private scannerAuth: DeviceScannerService,
                 private serverAuth: DeviceServerService,
                 private tabletAuth: DeviceTabletService) {
-                this.dataSource = new MatTableDataSource(this.fetchedData);
+                    this.dataSource = new MatTableDataSource(this.fetchedData);
+
+                    this.changeNewPartForm = this.changeToNewPartForm();
+                    this.changeExistingPartForm = this.changeToExistingPartForm();
+                    this.upgradeExistingPartForm = this.upgradeToExistingPartForm();
+                    this.upgradeNewPartForm = this.upgradeToNewPartForm();
+                    this.deviceForm = this.createDeviceForm();
     }
 
     ngAfterViewInit(): void {
@@ -197,10 +201,144 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         });
     }
 
+    createDeviceForm(): FormGroup {
+        return new FormGroup({
+            fromDeviceId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
+            toDeviceId: new FormControl(null, [Validators.pattern('^[0-9]*$')])
+        });
+    }
+
+    changeToNewPartForm(): FormGroup {
+        return new FormGroup({
+            cpuRequest: new FormGroup({
+                cpuBrandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+                cpuBrandSeriesId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+                cpuModifier: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
+            }),
+            videoCardRequest: new FormGroup({ capacityId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]) }),
+            storageRequests: new FormArray([], [Validators.required]),
+            ramRequests: new FormArray([], [Validators.required]),
+        });
+    }
+
+    changeToExistingPartForm(): FormGroup {
+        return new FormGroup({
+            fromStorageId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
+            toStorageId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
+            fromRAMId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
+            toRAMId: new FormControl(null, [Validators.pattern('^[0-9]*$')])
+        });
+    }
+
+    upgradeToNewPartForm(): FormGroup {
+        return new FormGroup({
+            storageRequests: new FormArray([], [Validators.required]),
+            ramRequests: new FormArray([], [Validators.required])
+        });
+    }
+
+    upgradeToExistingPartForm(): FormGroup {
+        return new FormGroup({
+            fromDeviceId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            storageId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            ramId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
+        });
+    }
+
     //GET
     getComponent(event: Event) {
-        let componentSelect = document.getElementById('component') as HTMLSelectElement;
-        this.componentChosen = componentSelect.value;
+        let selectElement = event.target as HTMLSelectElement;
+
+        this.componentChosen = selectElement.value;
+    }
+
+    getPartsFrom(event: Event) {
+        let selectElement = (event.target as HTMLSelectElement).value;
+        let parts = selectElement.split('-');
+        this.condemnedDevice = selectElement;
+
+        if (parts.length === 3) {
+            let prefix = `${parts[0]}-${parts[1]}`;
+            let id = parseInt(parts[2], 10);
+
+            this.deviceForm.patchValue({ fromDeviceId: id });
+            this.deviceForm.patchValue({ toDeviceId: this.toChange.id });
+
+            let mappedAuth = this.deviceMappings.find((map: any) => map.key === prefix);
+
+            if (mappedAuth) {
+                mappedAuth.service.getById(id).subscribe({
+                    next: (res: any) => {
+                        const { ramDTOs, cpuDTO, storageDTOs, videoCardDTO } = res;
+                        switch (this.componentChosen) {
+                            case 'Processor':
+                                this.condemnedParts = [cpuDTO];
+                                break;
+                            case 'RAM':
+                                this.condemnedParts = ramDTOs;
+                                break;
+                            case 'Storage':
+                                this.condemnedParts = storageDTOs;
+                                break;
+                            case 'Video Card':
+                                this.condemnedParts = [videoCardDTO];
+                                break;
+                            default:
+                                break;
+                        }
+                    },
+                    error: (error: any) => {
+                        console.error(error);
+                    }
+                })
+            }
+        }
+    }
+
+    //POST
+    changePart() {
+        let changeableDevices = [
+            { key: 'PJG-AIO', service: this.aioAuth, route: 'add-device/aio', device: 'AIO', indicator: 'aio' },
+            { key: 'PJG-COMP', service: this.computerAuth, route: 'add-device/computer', device: 'Computer' },
+            { key: 'PJG-LAP', service: this.laptopAuth, route: 'add-device/laptop', device: 'Laptop' },
+        ]
+
+        let prefix = this.toChange.tag?.split('-').slice(0, 2).join('-');
+        let mappedAuth = changeableDevices.find((map: any) => map.key === prefix);
+
+        console.log(this.deviceForm.value);
+        if (mappedAuth) {
+            switch (this.componentChosen) {
+                case 'Processor':
+                    mappedAuth.service.changeWithExistingProcessor(this.deviceForm.value).subscribe({
+                        next: (res: any) => console.log(res),
+                        error: (error: any) => console.error(error)
+                    });
+                    break;
+                case 'RAM':
+                    ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
+                    mappedAuth.service.changeWithExistingRAM(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
+                        next: (res: any) => console.log(res),
+                        error: (error: any) => console.error(error)
+                    });
+                    break;
+                case 'Storage':
+                    ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
+                    mappedAuth.service.changeWithExistingStorage(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
+                        next: (res: any) => console.log(res),
+                        error: (error: any) => console.error(error)
+                    });
+                    break;
+                case 'Video Card':
+                    mappedAuth.service.changeWithExistingGPU(this.deviceForm.value).subscribe({
+                        next: (res: any) => console.log(res),
+                        error: (error: any) => console.error(error)
+                    });
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     //PATCH
@@ -211,6 +349,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
         if (mappedAuth) {
             this.condemnForm.get('id')?.setValue(this.toCondemn.id);
+            console.log(this.condemnForm.value);
             mappedAuth.service.condemnDevice(this.condemnForm.value).subscribe({
                 next: () => window.location.reload(),
                 error: () => this.condemnForm.reset()
@@ -256,6 +395,36 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     nextIsExisting() {
         this.isExisting = this.componentForm.get('isComponentExisting')?.value;
+
+        if (this.toChange.tag.includes('PJG-AIO')) {
+            forkJoin([
+                this.aioAuth.getAllCondemnedDevice().pipe(
+                    switchMap((data: any[]) => this.mapData(data))
+                )
+            ]).subscribe({
+                next: (result: any[]) => this.condemnedUnits = result.flat()
+            });
+        } else if (this.toChange.tag.includes('PJG-COMP')) {
+            forkJoin([
+                this.computerAuth.getAllCondemnedDevice().pipe(
+                    switchMap((data: any[]) => this.mapData(data))
+                )
+            ]).subscribe({
+                next: (result: any[]) => this.condemnedUnits = result.flat()
+            });
+        } else if (this.toChange.tag.includes('PJG-LAP')) {
+            forkJoin([
+                this.laptopAuth.getAllCondemnedDevice().pipe(
+                    switchMap((data: any[]) => this.mapData(data))
+                )
+            ]).subscribe({
+                next: (result: any[]) => this.condemnedUnits = result.flat()
+            });
+        }
+    }
+
+    closeChangePartModal() {
+        window.location.reload();
     }
 
     //Events
@@ -282,7 +451,14 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     onClickChange(row: any) {
         this.changePartModal.nativeElement.style.display = 'block';
-        console.log(row);
+        const mapping = this.deviceMappings.find(m => row.tag.includes(m.key));
+
+        if (mapping) {
+            mapping.service.getById(row.id).subscribe({
+                next: (res: any) => this.toChange = res,
+                error: (error: any) => console.error(error)
+            });
+        }
     }
 
     onClickUpgrade(row: any) {

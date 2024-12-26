@@ -63,10 +63,16 @@
                     <span class="material-symbols-rounded"> more_vert </span>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="onClickEdit(row)"> Edit Details </button>
-                    <button mat-menu-item (click)="onClickChange(row)"> Change Part </button>
-                    <button mat-menu-item (click)="onClickUpgrade(row)"> Upgrade Part </button>
-                    <button mat-menu-item (click)="onClickCondemn(row)"> Condemn Unit </button>
+                    <button mat-menu-item
+                            (click)="onClickEdit(row)"> Edit Details </button>
+                    <button mat-menu-item
+                            (click)="onClickChange(row)"
+                            [disabled]="row.tag.includes('PJG-TAB') || row.tag.includes('PJG-RT') || row.tag.includes('PJG-SCAN')"> Change Part </button>
+                    <button mat-menu-item
+                            (click)="onClickUpgrade(row)"
+                            [disabled]="row.tag.includes('PJG-PRNT') || row.tag.includes('PJG-TAB') || row.tag.includes('PJG-RT') || row.tag.includes('PJG-SCAN')"> Upgrade Part </button>
+                    <button mat-menu-item
+                            (click)="onClickCondemn(row)"> Condemn Unit </button>
                 </mat-menu>
             </td>
         </ng-container>
@@ -132,7 +138,7 @@
     <div class="modal-content change-part-modal">
         <div class="modal-header">
             <h3> Change Component </h3>
-            <button class="close-btn" type="button" (click)="changePartModal.style.display = 'none'">
+            <button class="close-btn" type="button" (click)="closeChangePartModal()">
                 <span class="material-symbols-rounded"> close </span>
             </button>
         </div>
@@ -162,7 +168,7 @@
                             </div>
                         </div>
                         <div class="btn-holder">
-                            <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched">
+                            <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched || componentForm.get('isComponentExisting')?.value === null">
                                 <p class="next-label"> Next </p>
                                 <span class="material-symbols-rounded"> arrow_forward </span>
                             </button>
@@ -170,46 +176,117 @@
                     </form>
                 </mat-step>
                 @if(isExisting) {
-                    <mat-step [stepControl]="existingComponentForm" errorMessage="This field is required">
-                        <form action="" class="component-form" [formGroup]="existingComponentForm">
+                    <mat-step [stepControl]="changeExistingPartForm" errorMessage="This field is required">
+                        <form action="" class="component-form" [formGroup]="changeExistingPartForm">
                             <ng-template matStepLabel> Existing Component </ng-template>
+                            @if (componentChosen === 'RAM') {
+                                <div class="form-field">
+                                    <label for="ram-available"> RAM from {{ toChange.tag }} to replace: </label>
+                                    <select title="" id="ram-available" class="form-control" formControlName="toRAMId">
+                                        <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
+                                        <option [value]="defectiveRAM.capacityDTO.id" *ngFor="let defectiveRAM of toChange.ramDTOs"> RAM from this device: {{ defectiveRAM.capacityDTO.capacity }} GB </option>
+                                    </select>
+                                </div>
+                            } @else if (componentChosen === 'Storage') {
+                                <div class="form-field">
+                                    <label for="storage-available"> Storage from {{ toChange.tag }} to replace: </label>
+                                    <select title="" id="storage-available" class="form-control" formControlName="toStorageId">
+                                        <option [value]="null" selected disabled> {{ componentChosen }} </option>
+                                    </select>
+                                </div>
+                            }
                             <div class="form-field">
                                 <label for=""> List of condemned units </label>
-                                <select title="condemn" id="condemn" class="form-control">
+                                <select title="condemn" id="condemn" class="form-control" (change)="getPartsFrom($event)">
                                     <option [value]="null" selected disabled> Choose from this list </option>
+                                    <option [value]="condemned.tag" *ngFor="let condemned of condemnedUnits"> {{ condemned?.tag }} </option>
                                 </select>
                             </div>
                             <div class="form-field">
                                 <label for="available"> Available component: </label>
-                                <select title="" id="available" class="form-control">
-                                    <option [value]="null" selected disabled> {{ this.componentChosen }} part/s  </option>
-                                </select>
+                                    @if (componentChosen === 'Processor') {
+                                        <select title="" id="available" class="form-control">
+                                            <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
+                                            <option [value]="processor.id" *ngFor="let processor of condemnedParts"> Processor Details: {{ processor.brandDTO.brand }} {{ processor.brandSeriesDTO.seriesName }} {{ processor.cpuModifier }} </option>
+                                        </select>
+                                    } @else if (componentChosen === 'RAM') {
+                                        <select title="" id="available" class="form-control" formControlName="fromRAMId">
+                                            <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
+                                            <option [value]="ram.capacityDTO.id" *ngFor="let ram of condemnedParts"> RAM Details: {{ ram.capacityDTO.capacity }} GB </option>
+                                        </select>
+                                    } @else if (componentChosen === 'Storage') {
+                                        <select title="" id="available" class="form-control" formControlName="fromStorageId">
+                                            <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
+                                            <option [value]="storage.capacityDTO.id" *ngFor="let storage of condemnedParts"> Storage Details: {{ storage.capacityDTO.capacity }} GB {{ storage.type }} </option>
+                                        </select>
+                                    } @else if (componentChosen === 'Video Card') {
+                                        <select title="" id="available" class="form-control">
+                                            <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
+                                            <option [value]="gpu.capacityDTO.id" *ngFor="let gpu of condemnedParts"> Video Card Details: {{ gpu.capacityDTO.capacity }} GB </option>
+                                        </select>
+                                    }
                             </div>
                             <div class="btn-holder">
-                              <button type="button" class="prev-btn" matStepperPrevious>
-                                  <span class="material-symbols-rounded"> arrow_back </span>
-                                  <p class="next-label"> Back </p>
-                              </button>
-                                <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched">
+                                <button type="button" class="prev-btn" matStepperPrevious>
+                                    <span class="material-symbols-rounded"> arrow_back </span>
+                                    <p class="next-label"> Back </p>
+                                </button>
+                                <button type="button"
+                                        class="next-btn"
+                                        matStepperNext
+                                        [disabled]="!changeExistingPartForm.value">
                                     <p class="next-label"> Next </p>
                                     <span class="material-symbols-rounded"> arrow_forward </span>
                                 </button>
                           </div>
                         </form>
                     </mat-step>
+                    <mat-step>
+                        <ng-template matStepLabel> Done </ng-template>
+                        <div class="confirmation-container">
+                            <header class="confirmation-header">
+                                <span class="material-symbols-rounded confirmation-logo"> error </span>
+                                <h2 class="confirmation-label"> Confirmation </h2>
+                            </header>
+                            @if (componentChosen === 'Processor') {
+                                <div class="msg">
+                                    <p> This action will replace <b>{{ toChange?.cpuDTO?.brandDTO?.brand }} {{ toChange?.cpuDTO?.brandSeriesDTO?.seriesName }} {{ toChange?.cpuDTO?.cpuModifier }}</b>
+                                    to <b>{{ condemnedParts[0]?.brandDTO?.brand }} {{ condemnedParts[0]?.brandSeriesDTO?.seriesName }} {{ condemnedParts[0]?.cpuModifier }}</b> from <b>{{ condemnedDevice }}</b>.
+                                    This was irreversible and the <b>{{ condemnedParts[0]?.brandDTO?.brand }} {{ condemnedParts[0]?.brandSeriesDTO?.seriesName }} {{ condemnedParts[0]?.cpuModifier }}</b>
+                                    will be recorded as new <b>{{ componentChosen?.toLowerCase() }}</b> of <b>{{ condemnedDevice }}</b>. </p>
+                                    <p> Would you like to proceed? </p>
+                                </div>
+                            } @else if (componentChosen === 'RAM') {
+
+                            } @else if (componentChosen === 'Video Card') {
+
+                            } @else if (componentChosen === 'Storage') {
+
+                            }
+                            <div class="btn-holder">
+                                <button type="button" class="prev-btn" matStepperPrevious>
+                                    <span class="material-symbols-rounded"> arrow_back </span>
+                                    <p class="next-label"> Back </p>
+                                </button>
+                                <button type="button" class="replace-btn" (click)="changePart()">
+                                    <p class="next-label"> Yes, replace component </p>
+                                </button>
+                            </div>
+                        </div>
+                    </mat-step>
                 } @else {
-                  <mat-step [stepControl]="newComponentForm" errorMessage="This field is required">
-                      <form action="" [formGroup]="newComponentForm">
+                  <mat-step [stepControl]="changeNewPartForm" errorMessage="This field is required">
+                      <form action="" [formGroup]="changeNewPartForm">
                           <ng-template matStepLabel> New Component </ng-template>
                           <div class="form-field">
 
                           </div>
                       </form>
                   </mat-step>
+                  <mat-step>
+                      <ng-template matStepLabel> Done </ng-template>
+                  </mat-step>
                 }
-                <mat-step>
-                    <ng-template matStepLabel> Done </ng-template>
-                </mat-step>
             </mat-stepper>
         </div>
     </div>
