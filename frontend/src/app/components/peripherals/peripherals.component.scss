@@ -24,14 +24,16 @@ span {
 }
 
 .brand-form {
-    margin-top: 10px;
-    gap: 5px;
+    margin-top: 12px;
+    gap: 10px;
 }
 
 .input-field {
     flex-direction: row;
     gap: 10px;
+    align-items: center;
 }
+
 
 input[type='number'] { width: 100px; }
 
@@ -42,12 +44,17 @@ input[type='checkbox'] {
 
 select { width: 200px; }
 
+input[type='number'],
+select { padding: 5px 0; }
+
 section,
-.brand-form { flex-direction: column; }
+.brand-form,
+.input-container { flex-direction: column; }
 
 section,
 .form-field,
 .brand-form,
-.input-field {
+.input-field,
+.input-container {
     display: flex;
 }

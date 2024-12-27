@@ -12,29 +12,25 @@
             <label for="ups"> with UPS </label>
         </div>
         <div class="brand-form" [ngClass]="{ 'disabled': !enabledUPS }">
-            <label for="ups-brand"> Brand: </label>
-            <div class="input-field">
-                <select title="" id="ups-brand" (change)="getUPSBrandValue()">
-                    <option [value]="" selected disabled> Select brand </option>
-                    <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
-                </select>
-                <button type="button" class="add-btn" (click)="addUPSModal.style.display = 'block'">
-                    <span class="material-symbols-rounded"> add </span>
-                </button>
+            <div class="input-container">
+                <label for="ups-brand"> Brand: </label>
+                <div class="input-field">
+                    <select title="" id="ups-brand" (change)="getUPSBrandValue()">
+                        <option [value]="null" selected disabled> Select brand </option>
+                        <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
+                    </select>
+                    <button type="button" class="add-btn">
+                        <span class="material-symbols-rounded"> add </span>
+                    </button>
+                </div>
+            </div>
+            <div class="input-container">
+                <label for="kva"> Voltage: </label>
+                <div class="input-field">
+                    <input type="number" min="0" id="kva">
+                    <p> kVA </p>
+                </div>
             </div>
         </div>
     </div>
 </section>
-<div class="modal" #addUPSModal>
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3> Add UPS </h3>
-            <button class="close-btn" type="button" (click)="addUPSModal.style.display = 'none'">
-                <span class="material-symbols-rounded"> close </span>
-            </button>
-        </div>
-        <div class="modal-body">
-
-        </div>
-    </div>
-</div>

@@ -118,7 +118,6 @@ export class BatchComponent implements OnInit {
             next: (data: any) => {
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
                 localStorage.setItem('state', 'ADD');
-                event?.preventDefault();
             },
             error: (error) => {
                 console.log(error);

@@ -1,28 +1,28 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router } from '@angular/router';
-import { FormsModule, FormGroup, Validators, FormControl, FormArray } from '@angular/forms';
+import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectorRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterOutlet} from '@angular/router';
+import {FormArray, FormControl, FormGroup, FormsModule, Validators} from '@angular/forms';
 
-import { Store } from '@ngrx/store';
+import {Store} from '@ngrx/store';
 
-import { Subscription } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {filter, map} from 'rxjs/operators';
 
-import { PeripheralsComponent } from '../../components/peripherals/peripherals.component';
-import { ConnectionsComponent } from '../../components/connections/connections.component';
-import { SoftwaresComponent } from '../../components/softwares/softwares.component';
+import {PeripheralsComponent} from '../../components/peripherals/peripherals.component';
+import {ConnectionsComponent} from '../../components/connections/connections.component';
+import {SoftwaresComponent} from '../../components/softwares/softwares.component';
 
-import { DeviceAioService } from '../../util/services/device-aio.service';
-import { DeviceComputerService } from '../../util/services/device-computer.service';
-import { DeviceLaptopService } from '../../util/services/device-laptop.service';
-import { DevicePrinterService } from '../../util/services/device-printer.service';
-import { DeviceRouterService } from '../../util/services/device-router.service';
-import { DeviceScannerService } from '../../util/services/device-scanner.service';
-import { DeviceServerService } from '../../util/services/device-server.service';
-import { DeviceTabletService } from '../../util/services/device-tablet.service';
+import {DeviceAioService} from '../../util/services/device-aio.service';
+import {DeviceComputerService} from '../../util/services/device-computer.service';
+import {DeviceLaptopService} from '../../util/services/device-laptop.service';
+import {DevicePrinterService} from '../../util/services/device-printer.service';
+import {DeviceRouterService} from '../../util/services/device-router.service';
+import {DeviceScannerService} from '../../util/services/device-scanner.service';
+import {DeviceServerService} from '../../util/services/device-server.service';
+import {DeviceTabletService} from '../../util/services/device-tablet.service';
 
-import { AppState } from '../../util/store/app.reducer';
-import { clearChildData, updateChildData } from '../../util/store/app.actions';
+import {AppState} from '../../util/store/app.reducer';
+import {clearChildData} from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-add-device',
@@ -51,11 +51,10 @@ import { clearChildData, updateChildData } from '../../util/store/app.actions';
 export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
     private subscription!: Subscription;
     batchDetails: any; selected: any; deviceRequest: any;
-    isChecked!: boolean; isAdding!: boolean;
+    isAdding!: boolean;
     fromComputerInventory!: boolean;
-    deviceDetails: { [key: string]: any } = {};
 
-    fetchedBatchId!: any; fetchedBatchNumber!: any; fetchedCount!: any;
+    fetchedCount!: any;
     connectionsPayload: any[] = []; peripheralsPayload: any[] = []; softwaresPayload: any[] = [];
 
     deviceForm!: FormGroup;
@@ -72,6 +71,7 @@ export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
 
     constructor(private router: Router,
                 private store: Store<{ app: AppState }>,
+                private cdr: ChangeDetectorRef,
                 private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,
@@ -151,17 +151,19 @@ export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
     ngAfterViewInit(): void {
         switch (this.selected) {
             case 'Tablet':
-                this.toggleSoftwares.nativeElement.click();
+                this.isSoftwareToggled = false;
                 break;
             case 'Printer':
             case 'Router':
             case 'Scanner':
-                this.toggleSoftwares.nativeElement.click();
-                this.toggleConnections.nativeElement.click();
+                this.isSoftwareToggled = false;
+                this.isConnectionToggled = false;
                 break;
             default:
                 break;
         }
+
+        this.cdr.detectChanges();
     }
 
     ngOnDestroy(): void {
@@ -241,18 +243,6 @@ export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     //Functions
-    onTogglePeripherals() {
-        this.isPeripheralToggled = !this.isPeripheralToggled;
-    }
-
-    onToggleConnections() {
-        this.isConnectionToggled = !this.isConnectionToggled;
-    }
-
-    onToggleSoftwares() {
-        this.isSoftwareToggled = !this.isSoftwareToggled;
-    }
-
     backButton() {
         this.store.dispatch(clearChildData());
         if (this.fromComputerInventory) {

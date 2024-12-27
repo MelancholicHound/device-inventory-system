@@ -24,8 +24,7 @@
                            id="toggler-peripherals"
                            [(ngModel)]="isPeripheralToggled"
                            #togglePeripherals
-                           [disabled]="selected === 'Server'"
-                           (change)="onTogglePeripherals()">
+                           [disabled]="selected === 'Server'">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -44,8 +43,7 @@
                            id="toggler-connections"
                            [(ngModel)]="isConnectionToggled"
                            #toggleConnections
-                           [disabled]="['Printer', 'Router', 'Scanner'].includes(selected)"
-                           (change)="onToggleConnections()">
+                           [disabled]="['Printer', 'Router', 'Scanner'].includes(selected)">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -63,8 +61,7 @@
                        id="toggler-softwares"
                        [(ngModel)]="isSoftwareToggled"
                        #toggleSoftwares
-                       [disabled]="['Tablet', 'Printer', 'Router', 'Scanner'].includes(selected)"
-                       (change)="onToggleSoftwares()">
+                       [disabled]="['Tablet', 'Printer', 'Router', 'Scanner'].includes(selected)">
                   <span class="slider round"></span>
               </label>
           </div>

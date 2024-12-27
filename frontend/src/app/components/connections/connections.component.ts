@@ -62,7 +62,7 @@ export class ConnectionsComponent implements OnInit, OnChanges {
 
     uncheckAll(): void {
         this.fetchedConnections.forEach((connection: any) => {
-            connection.checked = false || [];
+            connection.checked = false;
         });
     }
 
