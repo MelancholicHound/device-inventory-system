@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
 
-import { Store } from '@ngrx/store';
+import {Store} from '@ngrx/store';
 
-import { AuthService } from '../../util/services/auth.service';
-import { ParamsService } from '../../util/services/params.service';
-import { SpecsService } from '../../util/services/specs.service';
-import { DeviceAioService } from '../../util/services/device-aio.service';
+import {AuthService} from '../../util/services/auth.service';
+import {ParamsService} from '../../util/services/params.service';
+import {SpecsService} from '../../util/services/specs.service';
+import {DeviceAioService} from '../../util/services/device-aio.service';
 
-import { updateChildData } from '../../util/store/app.actions';
+import {updateChildData} from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-aio',
@@ -46,6 +46,8 @@ export class AioComponent implements OnInit {
     fetchedProcBrand!: any; fetchedProcSeries!: any;
     fetchedRAM!: any; fetchedStorage!: any; fetchedGPU!: any;
 
+    sNumber!: number;
+
     aioForm!: FormGroup;
 
     constructor(private params: ParamsService,
@@ -55,9 +57,9 @@ export class AioComponent implements OnInit {
 
     ngOnInit(): void {
         this.batchId = history.state.batchid
-        this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
+        this.deviceCount = history.state.count;
 
         this.aioForm = this.createAIOFormGroup();
 
@@ -365,4 +367,14 @@ export class AioComponent implements OnInit {
         storage?.insertBefore(clonedTypeEl, storage.children[storage?.childElementCount! - 1]);
         storage?.insertBefore(clonedSizeEl, storage.children[storage?.childElementCount! - 1]);
     }
+
+    getSerial(event: Event): void {
+        let selectElement = event.target as HTMLSelectElement;
+
+        if (selectElement) {
+            this.sNumber = parseInt(selectElement.value, 10);
+        }
+    }
+
+    protected readonly parseInt = parseInt;
 }

@@ -13,10 +13,6 @@
                     <p> Device: </p>
                     <p class="output-label"> {{ device.name }} </p>
                 </blockquote>
-                <blockquote>
-                    <p> Device Count: </p>
-                    <p class="output-label"> {{ deviceCount }} </p>
-                </blockquote>
             </div>
             <button class="save-dev-btn" type="submit" (click)="postAIOSpecs()"> SAVE </button>
         </div>
@@ -56,6 +52,26 @@
                     </select>
                 </div>
             </div>
+        </div>
+        <div class="form-container">
+            @if (deviceCount === 1 || deviceCount === '1') {
+                <label for="serial-input"> Serial Number </label>
+                <input type="text" class="sn" id="serial-input">
+            } @else if (parseInt(deviceCount, 10) > 1) {
+                <label for="serial-select"> Serial Number: </label>
+                <div class="size-field">
+                    <select name="" class="sn-select" id="serial-select" (change)="getSerial($event)">
+                        <option [value]="idx + 1" *ngFor="let i of [].constructor(parseInt(deviceCount, 10)); let idx = index;">
+                            SN {{ idx + 1 }}
+                        </option>
+                    </select>
+                    <div class="form-container">
+                        <div>
+                            <input type="text" class="sn" placeholder="Insert serial for SN {{ sNumber }}">
+                        </div>
+                    </div>
+                </div>
+            } @else { }
         </div>
     </div>
     <div class="card gray-border specs" [ngClass]="{ 'disable-specs': fromComputerInventory }">

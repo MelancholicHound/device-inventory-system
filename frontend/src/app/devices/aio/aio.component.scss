@@ -17,7 +17,14 @@ input { padding: 5px; }
     margin-bottom: 20px;
 }
 
-.device-tag { gap: 80px; }
+.sn {
+    width: 250px;
+}
+
+.device-tag {
+    gap: 80px;
+    align-items: center;
+}
 
 header {
     width: 100%;
@@ -72,7 +79,8 @@ blockquote { gap: 10px; }
 
 .input-container { gap: 10px }
 
-input[type='number'] {
+input[type='number'],
+.sn-select {
     width: 80px;
 }
 
@@ -91,6 +99,7 @@ input[type='number'] {
 .destination,
 .identification {
     gap: 70px;
+    margin-bottom: 20px;
 }
 
 .size-field,
