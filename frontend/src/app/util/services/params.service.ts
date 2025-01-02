@@ -104,6 +104,11 @@ export class ParamsService {
         .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
     }
 
+    postUPS(form: any): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/ups`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/ups')));
+    }
+
     //DELETE
     deleteBatch(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/batches/${id}`, this.httpOptions)

@@ -1,16 +1,17 @@
-import { Component, OnInit, Output, Input, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { ParamsService } from '../../util/services/params.service';
-import { SpecsService } from '../../util/services/specs.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import {ParamsService} from '../../util/services/params.service';
+import {SpecsService} from '../../util/services/specs.service';
+import {FormControl, FormArray, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
 @Component({
     selector: 'app-peripherals',
     standalone: true,
-    imports: [
-        CommonModule
-    ],
+  imports: [
+      CommonModule,
+      ReactiveFormsModule
+  ],
     providers: [
         ParamsService,
         SpecsService
@@ -25,8 +26,10 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     @Input() peripheralsPayload: any[] = [];
 
     fetchedPeripherals!: any;
-    fetchedUPSBrand: any;
+    fetchedUPS: any; fetchedUPSBrand: any;
     upsForm!: FormGroup;
+
+    peripheralId: number[] = [1];
 
     enabled: boolean = true;
     enabledUPS: boolean = false;
@@ -35,7 +38,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
                 private specs: SpecsService) { }
 
     ngOnInit(): void {
-        this.upsForm = this.createUPSFormGroup();
+        this.upsForm = this.createUPSFormGroup(this.peripheralId);
 
         this.params.getPeripherals().subscribe({
             next: (data: any) => {
@@ -56,10 +59,15 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             error: (error: any) => { console.log(error) }
         });
 
+        this.specs.getAllUPS().subscribe({
+            next: (data: any) => { this.fetchedUPS = data },
+            error: (error: any) => { console.log(error) }
+        });
+
         this.specs.getUPSBrand().subscribe({
             next: (data: any) => { this.fetchedUPSBrand = data },
             error: (error: any) => { console.log(error) }
-        });
+        })
 
         if (this.peripheralsPayload) {
             this.updateCheckedState();
@@ -79,11 +87,17 @@ export class PeripheralsComponent implements OnInit, OnChanges {
         }
     }
 
-    createUPSFormGroup(): FormGroup {
+    createUPSFormGroup(predefinedArray: number[]): FormGroup {
+        const peripheralIdsArray = new FormArray(
+            predefinedArray.map(id => new FormControl(id, [Validators.required, Validators.pattern('^[0-9]*$')]))
+        );
+
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
-            sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
+            sectionId: new FormControl(null, [Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            serialNumber: new FormControl(null, [Validators.required]),
+            peripheralIds: peripheralIdsArray,
             model: new FormControl(null, [Validators.required]),
             kilovolts: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
         });
@@ -106,7 +120,7 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     }
 
     //GET
-    getUPSBrandValue() {
+    getUPSValue() {
         let value = document.getElementById('ups-brand') as HTMLOptionElement;
         this.upsBrandId.emit(parseInt(value.value, 10));
     }
@@ -123,6 +137,25 @@ export class PeripheralsComponent implements OnInit, OnChanges {
         this.peripheralsStateChanged.emit(checkedIds);
     }
 
+    saveUPSDetails(): void {
+        const payload = history.state.inventorydetails;
+
+        this.upsForm.patchValue({ batchId: payload.batchId });
+        this.upsForm.patchValue({ sectionId: payload.sectionDTO.id });
+        this.upsForm.patchValue({ brandId: parseInt(this.upsForm.get('brandId')?.value, 10) });
+
+        console.log(this.upsForm.value);
+
+        this.params.postUPS(this.upsForm.value).subscribe({
+            next: (data: any) => {
+                if (data) {
+                    window.location.reload();
+                }
+            },
+            error: (error: any) => { console.error(error) }
+        });
+    }
+
     //Other functions
     changeUPS(event: Event) {
         let inputElement = event.target as HTMLInputElement;
@@ -135,6 +168,4 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             upsBrandSelect.selectedIndex = 0;
         }
     }
-
-
 }

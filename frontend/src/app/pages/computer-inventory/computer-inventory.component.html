@@ -4,7 +4,7 @@
     </header>
     <section class="gray-border">
         <div class="search-container">
-            <input class="gray-border br" type="search" id="search-bar" placeholder="Search">
+            <input class="gray-border br" type="search" id="search-bar" placeholder="Search" (keyup)="applyFilter($event)">
             <button class="search-btn gray-border br bold" type="submit"> Search </button>
             <button class="filter-btn br gray-border" type="button" (click)="filterModal.style.display = 'block'">
                 <span class="material-symbols-rounded"> tune </span>
@@ -168,7 +168,7 @@
                             </div>
                         </div>
                         <div class="btn-holder">
-                            <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="!componentForm.touched || componentForm.get('isComponentExisting')?.value === null">
+                            <button type="button" class="next-btn" (click)="nextIsExisting()" matStepperNext [disabled]="componentForm.get('isComponentExisting')?.value === null">
                                 <p class="next-label"> Next </p>
                                 <span class="material-symbols-rounded"> arrow_forward </span>
                             </button>
@@ -196,31 +196,34 @@
                                 </div>
                             }
                             <div class="form-field">
-                                <label for=""> List of condemned units </label>
+                                <label for="condemn"> List of condemned units </label>
                                 <select title="condemn" id="condemn" class="form-control" (change)="getPartsFrom($event)">
                                     <option [value]="null" selected disabled> Choose from this list </option>
                                     <option [value]="condemned.tag" *ngFor="let condemned of condemnedUnits"> {{ condemned?.tag }} </option>
                                 </select>
                             </div>
                             <div class="form-field">
-                                <label for="available"> Available component: </label>
                                     @if (componentChosen === 'Processor') {
-                                        <select title="" id="available" class="form-control">
+                                        <label for="available-proc"> Available component: </label>
+                                        <select title="" id="available-proc" class="form-control">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
                                             <option [value]="processor.id" *ngFor="let processor of condemnedParts"> Processor Details: {{ processor.brandDTO.brand }} {{ processor.brandSeriesDTO.seriesName }} {{ processor.cpuModifier }} </option>
                                         </select>
                                     } @else if (componentChosen === 'RAM') {
-                                        <select title="" id="available" class="form-control" formControlName="fromRAMId">
+                                        <label for="available-ram"> Available component: </label>
+                                        <select title="" id="available-ram" class="form-control" formControlName="fromRAMId">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
                                             <option [value]="ram.capacityDTO.id" *ngFor="let ram of condemnedParts"> RAM Details: {{ ram.capacityDTO.capacity }} GB </option>
                                         </select>
                                     } @else if (componentChosen === 'Storage') {
-                                        <select title="" id="available" class="form-control" formControlName="fromStorageId">
+                                        <label for="available-storage"> Available component: </label>
+                                        <select title="" id="available-storage" class="form-control" formControlName="fromStorageId">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
                                             <option [value]="storage.capacityDTO.id" *ngFor="let storage of condemnedParts"> Storage Details: {{ storage.capacityDTO.capacity }} GB {{ storage.type }} </option>
                                         </select>
                                     } @else if (componentChosen === 'Video Card') {
-                                        <select title="" id="available" class="form-control">
+                                        <label for="available-gpu"> Available component: </label>
+                                        <select title="" id="available-gpu" class="form-control">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
                                             <option [value]="gpu.capacityDTO.id" *ngFor="let gpu of condemnedParts"> Video Card Details: {{ gpu.capacityDTO.capacity }} GB </option>
                                         </select>
@@ -263,7 +266,7 @@
                             } @else if (componentChosen === 'Storage') {
 
                             }
-                            <div class="btn-holder">
+                            <div class="confirmation-holder">
                                 <button type="button" class="prev-btn" matStepperPrevious>
                                     <span class="material-symbols-rounded"> arrow_back </span>
                                     <p class="next-label"> Back </p>
@@ -324,7 +327,7 @@
                     <label for="reason"> Reason for condemn: </label>
                     <textarea name="" id="reason" formControlName="reason"></textarea>
                 </div>
-                <button type="submit" class="condemn-btn br" (click)="condemnDevice()"> Condemn Device </button>
+                <button type="submit" class="condemn-btn br" (click)="condemnDevice()" [disabled]="condemnForm.invalid && condemnForm.untouched"> Condemn Device </button>
             </form>
         </div>
     </div>

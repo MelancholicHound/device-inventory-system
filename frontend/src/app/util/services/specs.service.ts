@@ -29,6 +29,11 @@ export class SpecsService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/ups-brands')));
     }
 
+    getAllUPS(): Observable<any> {
+        return this.http.get<any>(`${this.url}/device/ups?isCondemned=false`, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/ups')));
+    }
+
     getAllProcBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/cpu-brands`, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/cpu-brands')));

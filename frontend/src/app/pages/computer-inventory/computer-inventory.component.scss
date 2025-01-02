@@ -151,6 +151,7 @@ textarea {
 }
 
 .confirmation-container {
+    margin-top: 1rem;
     gap: 30px;
     width: 100%;
 }
@@ -158,6 +159,12 @@ textarea {
 .confirmation-header {
     align-items: center;
     gap: 10px;
+}
+
+.confirmation-holder {
+    display: flex;
+    justify-content: space-between;
+    align-content: center;
 }
 
 .msg {
@@ -173,7 +180,8 @@ textarea {
 .replace-btn {
     color: #f5f5f6;
     background-color: #f44336;
-    padding: 5px 10px;
+    padding: 5px 20px;
+    border: none;
 }
 
 .confirmation-label {

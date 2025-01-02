@@ -13,24 +13,59 @@
         </div>
         <div class="brand-form" [ngClass]="{ 'disabled': !enabledUPS }">
             <div class="input-container">
-                <label for="ups-brand"> Brand: </label>
+                <label for="avail-ups"> Available UPS: </label>
                 <div class="input-field">
-                    <select title="" id="ups-brand" (change)="getUPSBrandValue()">
-                        <option [value]="null" selected disabled> Select brand </option>
-                        <option [value]="brand.id" *ngFor="let brand of fetchedUPSBrand"> {{ brand.brand }} </option>
+                    <select title="" id="avail-ups" (change)="getUPSValue()">
+                        <option [value]="null" selected disabled> Select available UPS: </option>
+                        <option [value]="ups.id" *ngFor="let ups of fetchedUPS"> {{ ups.brandDTO.brand }} {{ ups.model }} - {{ ups.kilovolts }} kVA </option>
                     </select>
-                    <button type="button" class="add-btn">
+                    <button class="add-btn" type="button" (click)="upsModal.style.display = 'block'">
                         <span class="material-symbols-rounded"> add </span>
                     </button>
-                </div>
-            </div>
-            <div class="input-container">
-                <label for="kva"> Voltage: </label>
-                <div class="input-field">
-                    <input type="number" min="0" id="kva">
-                    <p> kVA </p>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<div class="modal" #upsModal>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> UPS Details </h3>
+            <button class="close-btn" type="button" (click)="upsModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+    <div class="modal-body">
+        <form action="" class="brand-form" [formGroup]="upsForm">
+            <div class="ups-brand-container">
+                <div class="form-container">
+                    <label for="ups-brand"> Brand </label>
+                    <select name="" id="ups-brand" class="ups-brand" formControlName="brandId">
+                        <option [value]="null" selected disabled> Select UPS Brand </option>
+                        <option [value]="ups.id" *ngFor="let ups of fetchedUPSBrand"> {{ ups.brand }} </option>
+                    </select>
+                </div>
+                <div class="input-container">
+                    <label for="ups-model"> Model </label>
+                    <input type="text" class="ups-brand" id="ups-model" formControlName="model">
+                </div>
+            </div>
+            <div class="input-container">
+                <label for="serial"> Serial Number </label>
+                <input type="text" class="serial" id="serial" formControlName="serialNumber">
+            </div>
+            <div class="input-container">
+                <label for="volts"> Kilovolts </label>
+                <div class="input-field">
+                    <input type="number" id="volts" min="0" formControlName="kilovolts">
+                    <p> kVA </p>
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="save-btn" type="button" (click)="saveUPSDetails()"> SAVE </button>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>

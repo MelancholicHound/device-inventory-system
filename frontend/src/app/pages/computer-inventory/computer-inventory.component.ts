@@ -85,11 +85,9 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
 
-    componentPayload: any[] = [];
-
     fetchedData: DeviceTable[] = [];
-    fetchedCondemned: any; componentChosen: any;
-    toCondemn: any; toChange: any; toUpgrade: any;
+    componentChosen: any;
+    toCondemn: any; toChange: any;
     condemnedUnits: any; condemnedParts: any[] = []; condemnedDevice: any;
 
     deviceForm!: FormGroup;
@@ -311,27 +309,27 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             switch (this.componentChosen) {
                 case 'Processor':
                     mappedAuth.service.changeWithExistingProcessor(this.deviceForm.value).subscribe({
-                        next: (res: any) => console.log(res),
+                        next: () => window.location.reload(),
                         error: (error: any) => console.error(error)
                     });
                     break;
                 case 'RAM':
                     ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
                     mappedAuth.service.changeWithExistingRAM(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
-                        next: (res: any) => console.log(res),
+                        next: () => window.location.reload(),
                         error: (error: any) => console.error(error)
                     });
                     break;
                 case 'Storage':
                     ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
                     mappedAuth.service.changeWithExistingStorage(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
-                        next: (res: any) => console.log(res),
+                        next: () => window.location.reload(),
                         error: (error: any) => console.error(error)
                     });
                     break;
                 case 'Video Card':
                     mappedAuth.service.changeWithExistingGPU(this.deviceForm.value).subscribe({
-                        next: (res: any) => console.log(res),
+                        next: () => window.location.reload(),
                         error: (error: any) => console.error(error)
                     });
                     break;
