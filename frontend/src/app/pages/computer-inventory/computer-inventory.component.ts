@@ -25,6 +25,9 @@ import {MatStepperModule} from '@angular/material/stepper';
 import {firstValueFrom, forkJoin} from 'rxjs';
 import {switchMap} from 'rxjs/operators';
 
+import {jsPDF} from 'jspdf';
+import 'jspdf-autotable';
+
 import {ParamsService} from '../../util/services/params.service';
 import {DeviceAioService} from '../../util/services/device-aio.service';
 import {DeviceComputerService} from '../../util/services/device-computer.service';
@@ -57,7 +60,7 @@ export interface DeviceTable {
         MatPaginatorModule,
         MatMenuModule,
         MatButtonModule,
-        MatStepperModule
+        MatStepperModule,
     ],
     providers: [
         {
@@ -83,12 +86,12 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
     deviceMappings = [
         { key: 'PJG-AIO', service: this.aioAuth, route: 'add-device/aio', device: 'AIO', indicator: 'aio' },
-        { key: 'PJG-COMP', service: this.computerAuth, route: 'add-device/computer', device: 'Computer' },
-        { key: 'PJG-LAP', service: this.laptopAuth, route: 'add-device/laptop', device: 'Laptop' },
-        { key: 'PJG-PRNT', service: this.printerAuth, route: 'add-device/printer', device: 'Printer' },
-        { key: 'PJG-RT', service: this.routerAuth, route: 'add-device/router', device: 'Router' },
-        { key: 'PJG-SCAN', service: this.scannerAuth, route: 'add-device/scanner', device: 'Scanner' },
-        { key: 'PJG-TAB', service: this.tabletAuth, route: 'add-device/tablet', device: 'Tablet' }
+        { key: 'PJG-COMP', service: this.computerAuth, route: 'add-device/computer', device: 'Computer', indicator: 'computer' },
+        { key: 'PJG-LAP', service: this.laptopAuth, route: 'add-device/laptop', device: 'Laptop', indicator: 'laptop' },
+        { key: 'PJG-PRNT', service: this.printerAuth, route: 'add-device/printer', device: 'Printer', indicator: 'printer' },
+        { key: 'PJG-RT', service: this.routerAuth, route: 'add-device/router', device: 'Router', indicator: 'router' },
+        { key: 'PJG-SCAN', service: this.scannerAuth, route: 'add-device/scanner', device: 'Scanner', indicator: 'scanner' },
+        { key: 'PJG-TAB', service: this.tabletAuth, route: 'add-device/tablet', device: 'Tablet', indicator: 'tablet' }
     ];
 
     components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
@@ -98,7 +101,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     toCondemn: any; toChange: any;
     condemnedUnits: any; condemnedParts: any[] = []; condemnedDevice: any;
 
-    deviceForm!: FormGroup;
+    deviceForm!: FormGroup; filterForm!: FormGroup;
     changeNewPartForm!: FormGroup;
     changeExistingPartForm!: FormGroup;
     upgradeNewPartForm!: FormGroup;
@@ -120,6 +123,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     @ViewChild('changePartModal') changePartModal!: ElementRef;
     @ViewChild('upgradePartModal') upgradePartModal!: ElementRef;
     @ViewChild('condemnUnitModal') condemnUnitModal!: ElementRef;
+    @ViewChild('dataTable') dataTable!: ElementRef;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
     @ViewChild(MatSort) sort!: MatSort;
@@ -141,6 +145,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                     this.upgradeExistingPartForm = this.upgradeToExistingPartForm();
                     this.upgradeNewPartForm = this.upgradeToNewPartForm();
                     this.deviceForm = this.createDeviceForm();
+                    this.filterForm = this.createFilterForm();
     }
 
     ngAfterViewInit(): void {
@@ -248,6 +253,27 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             fromDeviceId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             ramId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
+        });
+    }
+
+    createFilterForm(): FormGroup {
+        return new FormGroup({
+            device: new FormControl(null),
+            batchId: new FormControl(null),
+            divisionId: new FormControl(null),
+            sectionId: new FormControl(null),
+            condemned: new FormControl(null),
+            brandId: new FormControl(null),
+            model: new FormControl(null),
+            storageCapacityId: new FormControl(null),
+            ramCapacityId: new FormControl(null),
+            videoCardCapacityId: new FormControl(null),
+            screenSize: new FormControl(null),
+            printerTypeId: new FormControl(null),
+            isWithScanner: new FormControl(null),
+            networkSpeedId: new FormControl(null),
+            numberOfAntennasId: new FormControl(null),
+            scannerTypeId: new FormControl(null)
         });
     }
 
@@ -452,6 +478,32 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             let payload = this.toChange.ramDTOs.find((value: any) => value.capacityDTO.id === +this.changeExistingPartForm.get('toStorageId')?.value);
             console.log(payload);
         }
+    }
+
+    generatePDF() {
+        const doc = new jsPDF('landscape');
+        const dataArray = this.dataSource.data;
+        const table = document.getElementById('device-table') as HTMLTableElement;
+
+        const columns = ['Device Tag', 'Division', 'Section', 'Delivery Date'];
+
+        const rows = dataArray.map(item => [
+            item.tag,
+            item.division,
+            item.section,
+            item.createdAt
+        ]);
+
+        (doc as any).autoTable({
+            head: [columns],
+            body: rows,
+            theme: 'grid',
+            styles: { fontSize: 10 },
+            startY: 20,
+            margin: { top: 20 }
+        });
+
+        doc.save('full-table.pdf');
     }
 
     //Events
