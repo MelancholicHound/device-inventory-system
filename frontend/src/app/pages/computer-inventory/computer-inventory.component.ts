@@ -1,31 +1,39 @@
-import { Component, AfterViewInit, OnInit, ViewChild, inject, ElementRef } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule, FormArray } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
+import {
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
 
-import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatSort, MatSortModule } from '@angular/material/sort';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatButtonModule } from '@angular/material/button';
-import { MatStepperModule } from '@angular/material/stepper';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import {MatSort, MatSortModule} from '@angular/material/sort';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
+import {MatStepperModule} from '@angular/material/stepper';
 
-import { forkJoin, firstValueFrom } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import {firstValueFrom, forkJoin} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
-import { ParamsService } from '../../util/services/params.service';
-import { DeviceAioService } from '../../util/services/device-aio.service';
-import { DeviceComputerService } from '../../util/services/device-computer.service';
-import { DeviceLaptopService } from '../../util/services/device-laptop.service';
-import { DevicePrinterService } from '../../util/services/device-printer.service';
-import { DeviceRouterService } from '../../util/services/device-router.service';
-import { DeviceScannerService } from '../../util/services/device-scanner.service';
-import { DeviceServerService } from '../../util/services/device-server.service';
-import { DeviceTabletService } from '../../util/services/device-tablet.service';
+import {ParamsService} from '../../util/services/params.service';
+import {DeviceAioService} from '../../util/services/device-aio.service';
+import {DeviceComputerService} from '../../util/services/device-computer.service';
+import {DeviceLaptopService} from '../../util/services/device-laptop.service';
+import {DevicePrinterService} from '../../util/services/device-printer.service';
+import {DeviceRouterService} from '../../util/services/device-router.service';
+import {DeviceScannerService} from '../../util/services/device-scanner.service';
+import {DeviceServerService} from '../../util/services/device-server.service';
+import {DeviceTabletService} from '../../util/services/device-tablet.service';
 
 export interface DeviceTable {
     tag: string;
@@ -86,7 +94,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
 
     fetchedData: DeviceTable[] = [];
-    componentChosen: any;
+    componentChosen: any; chosenPart: any;
     toCondemn: any; toChange: any;
     condemnedUnits: any; condemnedParts: any[] = []; condemnedDevice: any;
 
@@ -271,15 +279,19 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                         switch (this.componentChosen) {
                             case 'Processor':
                                 this.condemnedParts = [cpuDTO];
+                                console.log(this.condemnedParts);
                                 break;
                             case 'RAM':
                                 this.condemnedParts = ramDTOs;
+                                console.log(this.condemnedParts);
                                 break;
                             case 'Storage':
                                 this.condemnedParts = storageDTOs;
+                                console.log(this.condemnedParts);
                                 break;
                             case 'Video Card':
                                 this.condemnedParts = [videoCardDTO];
+                                console.log(this.condemnedParts);
                                 break;
                             default:
                                 break;
@@ -425,6 +437,23 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         window.location.reload();
     }
 
+    assignPayload(): void {
+        if (this.changeExistingPartForm.get('toRAMId')?.value) {
+            let toChangeRAMControl = this.changeExistingPartForm.get('toRAMId')?.value;
+            let condemnedRAMControl = this.condemnedParts[0].ramDTOs;
+            let ramPayload = this.toChange?.ramDTOs;
+            let payload = ramPayload.find((value: any) => value.capacityDTO?.id === +toChangeRAMControl);
+
+            this.condemnedParts = this.condemnedParts.filter((value: any) => value?.capacityDTO?.id === +condemnedRAMControl);
+            this.chosenPart = payload.capacityDTO;
+            console.log(condemnedRAMControl);
+            console.log(this.condemnedParts)
+        } else if (this.changeExistingPartForm.get('toStorageId')?.value) {
+            let payload = this.toChange.ramDTOs.find((value: any) => value.capacityDTO.id === +this.changeExistingPartForm.get('toStorageId')?.value);
+            console.log(payload);
+        }
+    }
+
     //Events
     onClickEdit(row: any) {
         const mapping = this.deviceMappings.find(m => row.tag.includes(m.key));
@@ -469,4 +498,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         this.condemnUnitModal.nativeElement.style.display = 'block';
         this.toCondemn = row;
     }
+
+  protected readonly parseInt = parseInt;
 }
