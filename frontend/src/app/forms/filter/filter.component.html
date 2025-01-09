@@ -1,0 +1,305 @@
+<form action="" [formGroup]="filterForm" (ngSubmit)="submitFilter()">
+    <div class="form-section">
+        <div class="form-field">
+            <label for="division"> Division </label>
+            <select name="" id="division" formControlName="divisionId" (change)="getSection($event)">
+                <option [value]="null" selected disabled> Select division </option>
+                <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
+            </select>
+        </div>
+        <div class="form-field">
+            <label for="section"> Section </label>
+            <select name="" id="section" formControlName="sectionId">
+                <option [value]="null" selected disabled> Select section </option>
+                <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
+            </select>
+        </div>
+    </div>
+    <div class="form-field">
+        <label for="device"> Device </label>
+        <select name="" id="device" formControlName="device">
+            <option [value]="null" disabled selected> Select device </option>
+            <option [value]="device.indicator" *ngFor="let device of device"> {{ device.name }} </option>
+            <option [value]="null"> None </option>
+        </select>
+    </div>
+    <div class="form-field">
+        <p> Status </p>
+        <div class="form-container">
+            <input type="radio" name="" id="isActive" formControlName="condemned">
+            <label for="isActive"> Active </label>
+        </div>
+        <div class="form-container">
+            <input type="radio" name="" id="isCondemned" formControlName="condemned">
+            <label for="isCondemned"> Condemned </label>
+        </div>
+    </div>
+    @if (filterForm.get('device')?.value === 'computer') {
+        <h4> Computer Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <p> Storage </p>
+                <!-- <div class="input-field">
+                    <label for="storage-type"> Type </label>
+                    <select name="" id="storage-type">
+                        <option [value]="null">  </option>
+                    </select>
+                </div> -->
+                <div class="input-field">
+                    <label for="storage-size"> Size: </label>
+                    <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> RAM </p>
+                <div class="input-field">
+                    <label for="ram-size"> Size: </label>
+                    <input type="number" name="" min="0" list="ram" id="ram-size" (blur)="getRAM($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Video Card </p>
+                <div class="input-field">
+                    <label for="gpu-size"> Size: </label>
+                    <input type="number" name="" min="0" list="gpu" id="gpu-size" formControlName="videoCardCapacityId">
+                    <p> GB </p>
+                </div>
+            </div>
+        </div>
+    } @else if (filterForm.get('device')?.value === 'laptop') {
+        <h4> Laptop Information </h4>
+        <div class="information">
+            <div class="form-field">
+                <label for="laptop-brand"> Brand </label>
+                <select name="" id="laptop-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select laptop brand </option>
+                    <option [value]="laptop.id" *ngFor="let laptop of fetchedLaptopBrand"> {{ laptop.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="laptop-model"> Model </label>
+                <input type="text" name="" id="laptop-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> Laptop Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <p> Storage </p>
+                <!-- <div class="input-field">
+                    <label for="storage-type"> Type </label>
+                    <select name="" id="storage-type">
+                        <option [value]="null">  </option>
+                    </select>
+                </div> -->
+                <div class="input-field">
+                    <label for="storage-size"> Size: </label>
+                    <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> RAM </p>
+                <div class="input-field">
+                    <label for="ram-size"> Size: </label>
+                    <input type="number" name="" min="0" list="ram" id="ram-size" (blur)="getRAM($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Video Card </p>
+                <div class="input-field">
+                    <label for="gpu-size"> Size: </label>
+                    <input type="number" name="" min="0" list="gpu" id="gpu-size" (blur)="getGPU($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Screen Size </p>
+                <div class="input-field">
+                    <input type="text" name="" min="0" id="size-inch" formControlName="screenSize">
+                    <label for="size-inch"> " (inche/s) </label>
+                </div>
+            </div>
+        </div>
+    } @else if (filterForm.get('device')?.value === 'tablet') {
+        <h4> Tablet Information </h4>
+        <div class="information">
+            <div class="form-field">
+                <label for="tablet-brand"> Brand </label>
+                <select name="" id="tablet-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select tablet brand </option>
+                    <option [value]="tablet.id" *ngFor="let tablet of fetchedTabletBrand"> {{ tablet.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="tablet-model"> Model </label>
+                <input type="text" name="" id="tablet-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> Tablet Specifications </h4>
+        <div class="specifications">
+            <!-- Pending: to be updated in backend -->
+        </div>
+    } @else if (filterForm.get('device')?.value === 'aio') {
+        <h4> AIO Information </h4>
+        <div class="information">
+            <div class="form-field">
+                <label for="aio-brand"> Brand </label>
+                <select name="" id="aio-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select AIO brand </option>
+                    <option [value]="aio.id" *ngFor="let aio of fetchedAIOBrand"> {{ aio.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="aio-model"> Model </label>
+                <input type="text" name="" id="aio-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> AIO Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <p> Storage </p>
+                <!-- <div class="input-field">
+                    <label for="storage-type"> Type </label>
+                    <select name="" id="storage-type">
+                        <option [value]="null">  </option>
+                    </select>
+                </div> -->
+                <div class="input-field">
+                    <label for="storage-size"> Size: </label>
+                    <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> RAM </p>
+                <div class="input-field">
+                    <label for="ram-size"> Size: </label>
+                    <input type="number" name="" min="0" list="ram" id="ram-size" (blur)="getRAM($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Video Card </p>
+                <div class="input-field">
+                    <label for="gpu-size"> Size: </label>
+                    <input type="number" name="" min="0" list="gpu" id="gpu-size" (blur)="getGPU($event)">
+                    <p> GB </p>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Screen Size </p>
+                <div class="input-field">
+                    <input type="text" name="" min="0" id="size-inch" formControlName="screenSize">
+                    <label for="size-inch"> " (inche/s) </label>
+                </div>
+            </div>
+        </div>
+    } @else if (filterForm.get('device')?.value === 'scanner') {
+        <h4> Scanner Information </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <label for="scanner-brand"> Brand </label>
+                <select name="" id="scanner-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select scanner brand </option>
+                    <option [value]="scanner.id" *ngFor="let scanner of fetchedScannerBrand"> {{ scanner.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="scanner-model"> Model </label>
+                <input type="text" name="" id="scanner-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> Scanner Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <label for="scanner-type"> Scanner Type </label>
+                <select name="" id="scanner-type" formControlName="scannerTypeId">
+                    <option [value]="null" selected disabled> Select scanner type </option>
+                    <option [value]="scanner.id" *ngFor="let scanner of fetchedScannerType"> {{ scanner.scannerType }} </option>
+                </select>
+            </div>
+        </div>
+    } @else if (filterForm.get('device')?.value === 'printer') {
+        <h4> Printer Information </h4>
+        <div class="information">
+            <div class="form-field">
+                <label for="printer-brand"> Brand </label>
+                <select name="" id="printer-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select printer brand </option>
+                    <option [value]="printer.id" *ngFor="let printer of fetchedPrinterBrand"> {{ printer.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="printer-model"> Model </label>
+                <input type="text" name="" id="printer-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> Printer Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <label for="printer-type"> Printer Type </label>
+                <select name="" id="printer-type" formControlName="printerTypeId">
+                    <option [value]="null" selected disabled> Select printer type </option>
+                    <option [value]="printer.id" *ngFor="let printer of fetchedPrinterBrand"> {{ printer.brand }} </option>
+                </select>
+            </div>
+            <div class="input-field">
+                <input type="checkbox" name="" id="with-scanner" formControlName="isWithScanner">
+                <label for="with-scanner"> with scanner </label>
+            </div>
+        </div>
+    } @else if (filterForm.get('device')?.value === 'router') {
+        <h4> Router Information </h4>
+        <div class="information">
+            <div class="form-field">
+                <label for="router-brand"> Brand </label>
+                <select name="" id="router-brand" formControlName="brandId">
+                    <option [value]="null" selected disabled> Select router brand </option>
+                    <option [value]="router.id" *ngFor="let router of fetchedRouterBrand"> {{ router.brand }} </option>
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="router-model"> Model </label>
+                <input type="text" name="" id="router-model" placeholder="Input model" formControlName="model">
+            </div>
+        </div>
+        <h4> Router Specifications </h4>
+        <div class="specifications">
+            <div class="form-field">
+                <p> Network Speed </p>
+                <div class="input-field">
+                    <input type="number" name="" min="0" list="speed" id="network-speed" formControlName="networkSpeedId">
+                    <label for="network-speed"> mbps </label>
+                </div>
+            </div>
+            <div class="form-field">
+                <p> Number of Antennas </p>
+                <div class="input-field">
+                    <input type="number" name="" min="0" list="antennas" id="antennas" formControlName="numberOfAntennasId">
+                    <label for="antennas"> antenna/s </label>
+                </div>
+            </div>
+        </div>
+    } @else { }
+    <div class="button-container">
+        <button type="submit"> Filter </button>
+    </div>
+    <datalist id="ram">
+        <option *ngFor="let ram of fetchedRAM"> {{ ram.capacity }} </option>
+    </datalist>
+    <datalist id="storage">
+        <option *ngFor="let storage of fetchedStorage"> {{ storage.capacity }} </option>
+    </datalist>
+    <datalist id="gpu">
+        <option *ngFor="let gpu of fetchedStorage"> {{ gpu.capacity }} </option>
+    </datalist>
+    <datalist id="speed">
+        <option *ngFor="let netspeed of fetchedSpeed">  </option>
+    </datalist>
+    <datalist id="antennas">
+        <option *ngFor="let antenna of fetchedAntennas">  </option>
+    </datalist>
+</form>

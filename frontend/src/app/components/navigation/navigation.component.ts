@@ -37,19 +37,16 @@ export class NavigationComponent {
     ngOnInit(): void {
         let batchDelivery = document.getElementById('batch-delivery') as HTMLButtonElement;
         let computerInventory = document.getElementById('computer-inv') as HTMLButtonElement;
-        let selectTab = document.getElementById('divisions') as HTMLSelectElement;
 
         batchDelivery.addEventListener("click", () => {
             batchDelivery.classList.add('active');
             computerInventory.classList.remove('active');
-            selectTab.selectedIndex = 0;
             this.router.navigate(['batch-delivery']);
         });
 
         computerInventory.addEventListener("click", () => {
             batchDelivery.classList.remove('active');
             computerInventory.classList.add('active');
-            selectTab.selectedIndex = 0;
             this.router.navigate(['computer-inventory']);
         });
     }

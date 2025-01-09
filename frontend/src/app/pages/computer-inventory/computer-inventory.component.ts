@@ -28,6 +28,8 @@ import {switchMap} from 'rxjs/operators';
 import {jsPDF} from 'jspdf';
 import 'jspdf-autotable';
 
+import {FilterComponent} from '../../forms/filter/filter.component';
+
 import {ParamsService} from '../../util/services/params.service';
 import {DeviceAioService} from '../../util/services/device-aio.service';
 import {DeviceComputerService} from '../../util/services/device-computer.service';
@@ -61,6 +63,7 @@ export interface DeviceTable {
         MatMenuModule,
         MatButtonModule,
         MatStepperModule,
+        FilterComponent
     ],
     providers: [
         {
@@ -101,7 +104,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     toCondemn: any; toChange: any;
     condemnedUnits: any; condemnedParts: any[] = []; condemnedDevice: any;
 
-    deviceForm!: FormGroup; filterForm!: FormGroup;
+    deviceForm!: FormGroup;
     changeNewPartForm!: FormGroup;
     changeExistingPartForm!: FormGroup;
     upgradeNewPartForm!: FormGroup;
@@ -145,7 +148,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                     this.upgradeExistingPartForm = this.upgradeToExistingPartForm();
                     this.upgradeNewPartForm = this.upgradeToNewPartForm();
                     this.deviceForm = this.createDeviceForm();
-                    this.filterForm = this.createFilterForm();
     }
 
     ngAfterViewInit(): void {
@@ -253,27 +255,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             fromDeviceId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             ramId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')])
-        });
-    }
-
-    createFilterForm(): FormGroup {
-        return new FormGroup({
-            device: new FormControl(null),
-            batchId: new FormControl(null),
-            divisionId: new FormControl(null),
-            sectionId: new FormControl(null),
-            condemned: new FormControl(null),
-            brandId: new FormControl(null),
-            model: new FormControl(null),
-            storageCapacityId: new FormControl(null),
-            ramCapacityId: new FormControl(null),
-            videoCardCapacityId: new FormControl(null),
-            screenSize: new FormControl(null),
-            printerTypeId: new FormControl(null),
-            isWithScanner: new FormControl(null),
-            networkSpeedId: new FormControl(null),
-            numberOfAntennasId: new FormControl(null),
-            scannerTypeId: new FormControl(null)
         });
     }
 
