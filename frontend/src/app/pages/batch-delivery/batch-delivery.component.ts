@@ -143,7 +143,7 @@ export class BatchDeliveryComponent implements AfterViewInit, OnInit {
 
     onClickDelete(row: any) {
         this.deleteRow = row;
-        this.deletePrompt.nativeElement.style.display = 'block';
+        this.deletePrompt.nativeElement.style.display = 'grid';
     }
 
     //Functions

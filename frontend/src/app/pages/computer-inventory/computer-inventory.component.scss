@@ -89,6 +89,11 @@ blockquote { display: flex; }
     height: auto;
 }
 
+.filter-modal {
+    max-width: 32%;
+    height: auto;
+}
+
 mat-stepper {
     width: 100%;
 }

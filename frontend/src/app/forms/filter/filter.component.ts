@@ -197,16 +197,21 @@ export class FilterComponent implements OnInit {
             router: ['storageCapacityId', 'ramCapacityId', 'videoCardCapacityId', 'screenSize', 'printerTypeId', 'isWithScanner', 'scannerTypeId']
         };
 
-        switch (this.filterForm.get('device')?.value) {
-            case 'computer':
-            case 'laptop':
-            case 'tablet':
-            case 'aio':
-            case 'printer':
-            case 'scanner':
-            case 'router':
-            default:
-                console.error('Selected device is not existing');
+        if (this.filterForm.get('device')?.value) {
+            switch (this.filterForm.get('device')?.value) {
+                case 'computer':
+
+                case 'laptop':
+                case 'tablet':
+                case 'aio':
+                case 'printer':
+                case 'scanner':
+                case 'router':
+                default:
+                    console.error('Selected device is not existing');
+            }
+        } else {
+
         }
     }
 }

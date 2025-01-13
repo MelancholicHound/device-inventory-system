@@ -6,13 +6,13 @@
         <div class="search-container">
             <input class="gray-border br" type="search" id="search-bar" placeholder="Search" (keyup)="applyFilter($event)">
             <button class="search-btn gray-border br bold" type="submit"> Search </button>
-            <button class="filter-btn br gray-border" type="button" (click)="filterModal.style.display = 'block'">
+            <button class="filter-btn br gray-border" type="button" (click)="filterModal.style.display = 'grid'">
                 <span class="material-symbols-rounded"> tune </span>
                 <p> Filter </p>
             </button>
         </div>
         <div class="button-container">
-            <button class="secondary br gray-border" type="button" (click)="addDevModal.style.display = 'block'">
+            <button class="secondary br gray-border" type="button" (click)="addDevModal.style.display = 'grid'">
                 <span class="material-symbols-rounded"> add </span>
                 <p> Add </p>
             </button>
@@ -119,7 +119,7 @@
 </div>
 
 <div class="modal" #filterModal>
-    <div class="modal-content">
+    <div class="modal-content filter-modal">
         <div class="modal-header">
             <h3> Filter </h3>
             <button class="close-btn" type="button" (click)="filterModal.style.display = 'none'">

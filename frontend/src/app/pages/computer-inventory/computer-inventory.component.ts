@@ -510,7 +510,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     }
 
     onClickChange(row: any) {
-        this.changePartModal.nativeElement.style.display = 'block';
+        this.changePartModal.nativeElement.style.display = 'grid';
         const mapping = this.deviceMappings.find(m => row.tag.includes(m.key));
 
         if (mapping) {
@@ -522,13 +522,13 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     }
 
     onClickUpgrade(row: any) {
-        this.upgradePartModal.nativeElement.style.display = 'block';
+        this.upgradePartModal.nativeElement.style.display = 'grid';
         console.log(row);
     }
 
 
     onClickCondemn(row: any) {
-        this.condemnUnitModal.nativeElement.style.display = 'block';
+        this.condemnUnitModal.nativeElement.style.display = 'grid';
         this.toCondemn = row;
     }
 

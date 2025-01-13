@@ -19,7 +19,7 @@
                         <option [value]="null" selected disabled> Select available UPS: </option>
                         <option [value]="ups.id" *ngFor="let ups of fetchedUPS"> {{ ups.brandDTO.brand }} {{ ups.model }} - {{ ups.kilovolts }} kVA </option>
                     </select>
-                    <button class="add-btn" type="button" (click)="upsModal.style.display = 'block'">
+                    <button class="add-btn" type="button" (click)="upsModal.style.display = 'grid'">
                         <span class="material-symbols-rounded"> add </span>
                     </button>
                 </div>
