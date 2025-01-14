@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -34,6 +34,8 @@ import { DeviceTabletService } from '../../util/services/device-tablet.service';
     styleUrl: './filter.component.scss'
 })
 export class FilterComponent implements OnInit {
+    @Output() filter = new EventEmitter<any>();
+
     device = [
         { name: 'Computer', indicator: 'computer' },
         { name: 'Laptop', indicator: 'laptop' },
@@ -51,7 +53,7 @@ export class FilterComponent implements OnInit {
 
     fetchedScannerType!: any;
 
-
+    fetchedBatch: any;
     fetchedDivision: any; fetchedSection: any;
     fetchedRAM!: any; fetchedStorage!: any; fetchedGPU!: any;
     fetchedAntennas!: any; fetchedSpeed!: any;
@@ -68,6 +70,11 @@ export class FilterComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.params.getAllBatches().subscribe({
+            next: (res: any) => this.fetchedBatch = res,
+            error: (error: any) => console.error(error)
+        });
+
         this.params.getAllDivisions().subscribe({
             next: (res: any) => this.fetchedDivision = res,
             error: (error: any) => console.error(error)
@@ -170,7 +177,7 @@ export class FilterComponent implements OnInit {
         const matchedPayload = fetchedData.find(value => value[capacityKey] === parseInt(inputElement.value, 10));
 
         if (matchedPayload) {
-            this.filterForm.patchValue({ [formControlName]: matchedPayload.id });
+            this.filterForm.patchValue({ [formControlName]: parseInt(matchedPayload.id, 10) });
         }
     }
 
@@ -186,32 +193,21 @@ export class FilterComponent implements OnInit {
         this.updateCapacities(event, this.fetchedGPU, 'videoCardCapacityId');
     }
 
+    getSpeed(event: Event): void {
+        this.updateCapacities(event, this.fetchedSpeed, 'networkSpeedId', 'networkSpeedByMbps');
+    }
+
+    getAntennas(event: Event): void {
+        this.updateCapacities(event, this.fetchedAntennas, 'numberOfAntennasId', 'numberOfAntenna');
+    }
+
     submitFilter() {
-        const removableControls: any = {
-            computer: ['brandId', 'model', 'screenSize', 'printerTypeId', 'isWithScanner', 'networkSpeedId', 'numberOfAntennasId', 'scannerTypeId'],
-            laptop: ['printerTypeId', 'isWithScanner', 'networkSpeedId', 'numberOfAntennasId', 'scannerTypeId'],
-            tablet: [],
-            aio: ['printerTypeId', 'isWithScanner', 'networkSpeedId', 'numberOfAntennasId', 'scannerTypeId'],
-            printer: ['storageCapacityId', 'ramCapacityId', 'videoCardCapacityId', 'screenSize', 'networkSpeedId', 'numberOfAntennasId', 'scannerTypeId'],
-            scanner: ['storageCapacityId', 'ramCapacityId', 'videoCardCapacityId', 'screenSize', 'printerTypeId', 'isWithScanner', 'networkSpeedId', 'numberOfAntennasId'],
-            router: ['storageCapacityId', 'ramCapacityId', 'videoCardCapacityId', 'screenSize', 'printerTypeId', 'isWithScanner', 'scannerTypeId']
-        };
+        if (this.filterForm.get('brandId')?.value) this.filterForm.patchValue({ brandId: parseInt(this.filterForm.get('brandId')?.value, 10) });
+        if (this.filterForm.get('divisionId')?.value) this.filterForm.patchValue({ divisionId: parseInt(this.filterForm.get('divisionId')?.value, 10) });
+        if (this.filterForm.get('sectionId')?.value) this.filterForm.patchValue({ sectionId: parseInt(this.filterForm.get('sectionId')?.value, 10) });
+        if (this.filterForm.get('batchId')?.value) this.filterForm.patchValue({ batchId: parseInt(this.filterForm.get('batchId')?.value, 10) });
 
-        if (this.filterForm.get('device')?.value) {
-            switch (this.filterForm.get('device')?.value) {
-                case 'computer':
-
-                case 'laptop':
-                case 'tablet':
-                case 'aio':
-                case 'printer':
-                case 'scanner':
-                case 'router':
-                default:
-                    console.error('Selected device is not existing');
-            }
-        } else {
-
-        }
+        this.filter.emit(this.filterForm.value);
+        this.filterForm.reset();
     }
 }

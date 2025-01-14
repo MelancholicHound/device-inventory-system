@@ -86,6 +86,7 @@ export interface DeviceTable {
 
 export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'division', 'section', 'status', 'settings'];
+    columnHeader: string[] = ['Device Tag', 'Division', 'Section', 'Status'];
     dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
     deviceMappings = [
         { key: 'PJG-AIO', service: this.aioAuth, route: 'add-device/aio', device: 'AIO', indicator: 'aio' },
@@ -126,6 +127,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     @ViewChild('changePartModal') changePartModal!: ElementRef;
     @ViewChild('upgradePartModal') upgradePartModal!: ElementRef;
     @ViewChild('condemnUnitModal') condemnUnitModal!: ElementRef;
+    @ViewChild('filterModal') filterModal!: ElementRef;
     @ViewChild('dataTable') dataTable!: ElementRef;
 
     @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -394,6 +396,80 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 status: item.condemnedDTO, createdAt: item.createdAt
             }));
         }));
+    }
+
+    filterData(data: any) {
+        const fetchedData = this.removeNullProperties(data);
+
+        if (fetchedData['device']) {
+            const condemned = fetchedData['condemned'];
+            switch (fetchedData['device']) {
+                case 'computer':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Computer');
+                    break;
+                case 'laptop':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Laptop');
+                    break;
+                case 'tablet':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Tablet');
+                    break;
+                case 'aio':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('AIO');
+                    break;
+                case 'printer':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Printer');
+                    break;
+                case 'scanner':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Scanner');
+                    break;
+                case 'router':
+                    delete fetchedData['device'];
+                    delete fetchedData['condemned'];
+
+                    console.log(fetchedData);
+                    console.log('Router');
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        this.filterModal.nativeElement.style.display = 'none';
+    }
+
+    removeNullProperties(obj: any) {
+        for (const key in obj) {
+            if (obj[key] === null) {
+                delete obj[key];
+            } else if (obj['device'] !== 'printer' && typeof obj[key] === 'boolean') {
+                delete obj[key];
+            }
+        }
+        return obj;
     }
 
     routeSelectedDevice() {
