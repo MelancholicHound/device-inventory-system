@@ -189,7 +189,8 @@
                                 <div class="form-field">
                                     <label for="storage-available"> Storage from {{ toChange.tag }} to replace: </label>
                                     <select title="" id="storage-available" class="form-control" formControlName="toStorageId">
-                                        <option [value]="null" selected disabled> {{ componentChosen }} </option>
+                                        <option [value]="null" selected disabled> {{ componentChosen }} part/s </option>
+                                        <option [value]="defectiveStorage.capacityDTO.id" *ngFor="let defectiveStorage of toChange.storageDTOs"> Storage from this device: {{ defectiveStorage.capacityDTO.capacity }} GB </option>
                                     </select>
                                 </div>
                             }
@@ -255,21 +256,33 @@
                                     <p> This action will replace <b>{{ toChange?.cpuDTO?.brandDTO?.brand }} {{ toChange?.cpuDTO?.brandSeriesDTO?.seriesName }} {{ toChange?.cpuDTO?.cpuModifier }}</b>
                                     to <b>{{ condemnedParts[0]?.brandDTO?.brand }} {{ condemnedParts[0]?.brandSeriesDTO?.seriesName }} {{ condemnedParts[0]?.cpuModifier }}</b> from <b>{{ condemnedDevice }}</b>.
                                     This was irreversible and the <b>{{ condemnedParts[0]?.brandDTO?.brand }} {{ condemnedParts[0]?.brandSeriesDTO?.seriesName }} {{ condemnedParts[0]?.cpuModifier }}</b>
-                                    will be recorded as new <b>{{ componentChosen?.toLowerCase() }}</b> of <b>{{ condemnedDevice }}</b>. </p>
+                                    will be recorded as new <b>{{ componentChosen }}</b> of <b>{{ condemnedDevice }}</b>. </p>
                                     <p> Would you like to proceed? </p>
                                 </div>
                             } @else if (componentChosen === 'RAM') {
                                 <div class="msg">
-                                    <p> This action will replace <b>{{ chosenPart?.capacity }} GB</b> of RAM to
+                                    <p> This action will replace <b>{{ chosenPart?.capacityDTO?.capacity }} GB</b> of RAM to
                                     <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b> that came from <b>{{ condemnedDevice }}</b>.
                                     This was irreversible and the <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b>
-                                    will be recorded as new <b>{{ componentChosen?.toLowerCase() }}</b> of <b>{{ condemnedDevice }}</b>. </p>
+                                    will be recorded as new <b>{{ componentChosen }}</b> of <b>{{ condemnedDevice }}</b>. </p>
                                     <p> Would you like to proceed? </p>
                                 </div>
                             } @else if (componentChosen === 'Video Card') {
-
+                                <div class="msg">
+                                    <p> This action will replace <b>{{ toChange?.videoCardDTO?.capacityDTO?.capacity }} GB</b> of RAM to
+                                    <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b> that came from <b>{{ condemnedDevice }}</b>.
+                                    This was irreversible and the <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b>
+                                    will be recorded as new <b>{{ componentChosen }}</b> of <b>{{ condemnedDevice }}</b>. </p>
+                                    <p> Would you like to proceed? </p>
+                                </div>
                             } @else if (componentChosen === 'Storage') {
-
+                                <div class="msg">
+                                    <p> This action will replace <b>{{ chosenPart?.capacityDTO?.capacity }} GB</b> of RAM to
+                                    <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b> that came from <b>{{ condemnedDevice }}</b>.
+                                    This was irreversible and the <b>{{ condemnedParts[0]?.capacityDTO?.capacity }} GB</b>
+                                    will be recorded as new <b>{{ componentChosen }}</b> of <b>{{ condemnedDevice }}</b>. </p>
+                                    <p> Would you like to proceed? </p>
+                                </div>
                             }
                             <div class="confirmation-holder">
                                 <button type="button" class="prev-btn" matStepperPrevious>

@@ -522,18 +522,15 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
 
     assignPayload(): void {
         if (this.changeExistingPartForm.get('toRAMId')?.value) {
-            let toChangeRAMControl = this.changeExistingPartForm.get('toRAMId')?.value;
-            let condemnedRAMControl = this.condemnedParts[0].ramDTOs;
-            let ramPayload = this.toChange?.ramDTOs;
-            let payload = ramPayload.find((value: any) => value.capacityDTO?.id === +toChangeRAMControl);
+            const toChangeRAMControl = this.changeExistingPartForm.get('toRAMId')?.value;
+            let toDeviceRAMPayload = this.toChange?.ramDTOs;
 
-            this.condemnedParts = this.condemnedParts.filter((value: any) => value?.capacityDTO?.id === +condemnedRAMControl);
-            this.chosenPart = payload.capacityDTO;
-            console.log(condemnedRAMControl);
-            console.log(this.condemnedParts)
+            this.chosenPart = toDeviceRAMPayload.find((value: any) => value.capacityDTO?.id === +toChangeRAMControl);
         } else if (this.changeExistingPartForm.get('toStorageId')?.value) {
-            let payload = this.toChange.ramDTOs.find((value: any) => value.capacityDTO.id === +this.changeExistingPartForm.get('toStorageId')?.value);
-            console.log(payload);
+            const toChangeStorageControl = this.changeExistingPartForm.get('toStorageId')?.value;
+            let toDeviceStoragePayload = this.toChange?.storageDTOs;
+
+            this.chosenPart = toDeviceStoragePayload.find((value: any) => value.capacityDTO?.id === +toChangeStorageControl);
         }
     }
 
