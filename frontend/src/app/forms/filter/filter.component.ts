@@ -202,6 +202,7 @@ export class FilterComponent implements OnInit {
     }
 
     submitFilter() {
+        console.log(this.filterForm.value);
         if (this.filterForm.get('brandId')?.value) this.filterForm.patchValue({ brandId: parseInt(this.filterForm.get('brandId')?.value, 10) });
         if (this.filterForm.get('divisionId')?.value) this.filterForm.patchValue({ divisionId: parseInt(this.filterForm.get('divisionId')?.value, 10) });
         if (this.filterForm.get('sectionId')?.value) this.filterForm.patchValue({ sectionId: parseInt(this.filterForm.get('sectionId')?.value, 10) });

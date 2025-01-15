@@ -1,44 +1,36 @@
-import {AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild} from '@angular/core';
-import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {CommonModule} from '@angular/common';
-import {Router} from '@angular/router';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
+import { FormArray, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
-import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper';
 
-import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
-import {MatSort, MatSortModule} from '@angular/material/sort';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatMenuModule} from '@angular/material/menu';
-import {MatButtonModule} from '@angular/material/button';
-import {MatStepperModule} from '@angular/material/stepper';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
+import { MatSort, MatSortModule } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatStepperModule } from '@angular/material/stepper';
 
-import {firstValueFrom, forkJoin} from 'rxjs';
-import {switchMap} from 'rxjs/operators';
+import { firstValueFrom, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-import {jsPDF} from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
-import {FilterComponent} from '../../forms/filter/filter.component';
+import { FilterComponent } from '../../forms/filter/filter.component';
 
-import {ParamsService} from '../../util/services/params.service';
-import {DeviceAioService} from '../../util/services/device-aio.service';
-import {DeviceComputerService} from '../../util/services/device-computer.service';
-import {DeviceLaptopService} from '../../util/services/device-laptop.service';
-import {DevicePrinterService} from '../../util/services/device-printer.service';
-import {DeviceRouterService} from '../../util/services/device-router.service';
-import {DeviceScannerService} from '../../util/services/device-scanner.service';
-import {DeviceServerService} from '../../util/services/device-server.service';
-import {DeviceTabletService} from '../../util/services/device-tablet.service';
+import { ParamsService } from '../../util/services/params.service';
+import { DeviceAioService } from '../../util/services/device-aio.service';
+import { DeviceComputerService } from '../../util/services/device-computer.service';
+import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+import { DevicePrinterService } from '../../util/services/device-printer.service';
+import { DeviceRouterService } from '../../util/services/device-router.service';
+import { DeviceScannerService } from '../../util/services/device-scanner.service';
+import { DeviceServerService } from '../../util/services/device-server.service';
+import { DeviceTabletService } from '../../util/services/device-tablet.service';
 
 export interface DeviceTable {
     tag: string;
@@ -325,7 +317,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         let prefix = this.toChange.tag?.split('-').slice(0, 2).join('-');
         let mappedAuth = changeableDevices.find((map: any) => map.key === prefix);
 
-        console.log(this.deviceForm.value);
         if (mappedAuth) {
             switch (this.componentChosen) {
                 case 'Processor':
@@ -335,9 +326,10 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                     });
                     break;
                 case 'RAM':
+                    console.log(this.deviceForm.value);
                     ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
                     mappedAuth.service.changeWithExistingRAM(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
-                        next: () => window.location.reload(),
+                        /* next: () => window.location.reload(), */
                         error: (error: any) => console.error(error)
                     });
                     break;
@@ -357,6 +349,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 default:
                     break;
             }
+            this.changeExistingPartForm.reset();
         }
     }
 
@@ -402,53 +395,46 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         const fetchedData = this.removeNullProperties(data);
 
         if (fetchedData['device']) {
-            const condemned = fetchedData['condemned'];
+            const condemned: boolean = fetchedData['condemned'];
             switch (fetchedData['device']) {
                 case 'computer':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Computer');
                     break;
                 case 'laptop':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Laptop');
                     break;
                 case 'tablet':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Tablet');
                     break;
                 case 'aio':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('AIO');
                     break;
                 case 'printer':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Printer');
                     break;
                 case 'scanner':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Scanner');
                     break;
                 case 'router':
                     delete fetchedData['device'];
-                    delete fetchedData['condemned'];
 
                     console.log(fetchedData);
                     console.log('Router');
@@ -464,8 +450,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     removeNullProperties(obj: any) {
         for (const key in obj) {
             if (obj[key] === null) {
-                delete obj[key];
-            } else if (obj['device'] !== 'printer' && typeof obj[key] === 'boolean') {
                 delete obj[key];
             }
         }

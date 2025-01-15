@@ -182,7 +182,7 @@
                                     <label for="ram-available"> RAM from {{ toChange.tag }} to replace: </label>
                                     <select title="" id="ram-available" class="form-control" formControlName="toRAMId">
                                         <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
-                                        <option [value]="defectiveRAM.capacityDTO.id" *ngFor="let defectiveRAM of toChange.ramDTOs"> RAM from this device: {{ defectiveRAM.capacityDTO.capacity }} GB </option>
+                                        <option [value]="defectiveRAM?.id" *ngFor="let defectiveRAM of toChange.ramDTOs"> RAM from this device: {{ defectiveRAM.capacityDTO.capacity }} GB </option>
                                     </select>
                                 </div>
                             } @else if (componentChosen === 'Storage') {
@@ -190,7 +190,7 @@
                                     <label for="storage-available"> Storage from {{ toChange.tag }} to replace: </label>
                                     <select title="" id="storage-available" class="form-control" formControlName="toStorageId">
                                         <option [value]="null" selected disabled> {{ componentChosen }} part/s </option>
-                                        <option [value]="defectiveStorage.capacityDTO.id" *ngFor="let defectiveStorage of toChange.storageDTOs"> Storage from this device: {{ defectiveStorage.capacityDTO.capacity }} GB </option>
+                                        <option [value]="defectiveStorage.id" *ngFor="let defectiveStorage of toChange.storageDTOs"> Storage from this device: {{ defectiveStorage.capacityDTO.capacity }} GB </option>
                                     </select>
                                 </div>
                             }
@@ -212,19 +212,19 @@
                                         <label for="available-ram"> Available component: </label>
                                         <select title="" id="available-ram" class="form-control" formControlName="fromRAMId">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
-                                            <option [value]="ram?.capacityDTO?.id" *ngFor="let ram of condemnedParts"> RAM Details: {{ ram?.capacityDTO?.capacity }} GB </option>
+                                            <option [value]="ram?.id" *ngFor="let ram of condemnedParts"> RAM Details: {{ ram?.capacityDTO?.capacity }} GB </option>
                                         </select>
                                     } @else if (componentChosen === 'Storage') {
                                         <label for="available-storage"> Available component: </label>
                                         <select title="" id="available-storage" class="form-control" formControlName="fromStorageId">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
-                                            <option [value]="storage.capacityDTO.id" *ngFor="let storage of condemnedParts"> Storage Details: {{ storage.capacityDTO.capacity }} GB {{ storage.type }} </option>
+                                            <option [value]="storage.id" *ngFor="let storage of condemnedParts"> Storage Details: {{ storage.capacityDTO.capacity }} GB {{ storage.type }} </option>
                                         </select>
                                     } @else if (componentChosen === 'Video Card') {
                                         <label for="available-gpu"> Available component: </label>
                                         <select title="" id="available-gpu" class="form-control">
                                             <option [value]="null" selected disabled> {{ componentChosen }} part/s  </option>
-                                            <option [value]="gpu.capacityDTO.id" *ngFor="let gpu of condemnedParts"> Video Card Details: {{ gpu.capacityDTO.capacity }} GB </option>
+                                            <option [value]="gpu.id" *ngFor="let gpu of condemnedParts"> Video Card Details: {{ gpu.capacityDTO.capacity }} GB </option>
                                         </select>
                                     }
                             </div>
