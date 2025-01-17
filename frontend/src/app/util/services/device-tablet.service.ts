@@ -73,6 +73,11 @@ export class DeviceTabletService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/save-all')));
     }
 
+    searchFilter(form: any, isCondemned: boolean): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/tablets/search?isCondemned=${isCondemned}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/search')));
+    }
+
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/tablets/${id}`, form, this.httpOptions)

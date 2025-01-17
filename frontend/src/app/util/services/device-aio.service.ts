@@ -63,6 +63,11 @@ export class DeviceAioService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones/save-all')));
     }
 
+    searchFilter(form: any, isCondemned: boolean): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/all-in-ones/search?isCondemned=${isCondemned}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/all-in-ones/search')));
+    }
+
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/all-in-ones/${id}`, form, this.httpOptions)

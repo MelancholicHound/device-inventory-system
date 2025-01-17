@@ -68,6 +68,11 @@ export class DeviceScannerService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners/save-all')));
     }
 
+    searchFilter(form: any, isCondemned: boolean): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/scanners/search?isCondemned=${isCondemned}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/scanners/search')));
+    }
+
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/scanners/${id}`, form, this.httpOptions)

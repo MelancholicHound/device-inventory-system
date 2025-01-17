@@ -68,6 +68,11 @@ export class DevicePrinterService {
         .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers/save-all')));
     }
 
+    searchFilter(form: any, isCondemned: boolean): Observable<any> {
+        return this.http.post<any>(`${this.url}/device/printers/search?isCondemned=${isCondemned}`, form, this.httpOptions)
+        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers/search')));
+    }
+
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/printers/${id}`, form, this.httpOptions)
