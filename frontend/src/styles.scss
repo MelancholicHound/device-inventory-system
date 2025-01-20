@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 * {
     box-sizing: border-box;
     padding: 0;
@@ -141,3 +143,14 @@ mat-paginator {
 
 html, body { height: 100%; }
 body { margin: 0; }
+
+:root {
+    @include mat.table-overrides((
+      background-color: transparent,
+      header-headline-color: black,
+      header-headline-weight: 600
+    ));
+    @include mat.paginator-overrides((
+        container-background-color: transparent
+    ))
+}

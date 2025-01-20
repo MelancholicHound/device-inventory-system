@@ -138,7 +138,8 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     }
 
     saveUPSDetails(): void {
-        const payload = history.state.inventorydetails;
+        const payload = history.state.devicedetails || history.state.inventorydetails;
+        console.log(payload);
 
         this.upsForm.patchValue({ batchId: payload.batchId });
         this.upsForm.patchValue({ sectionId: payload.sectionDTO.id });

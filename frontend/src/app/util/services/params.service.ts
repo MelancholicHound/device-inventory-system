@@ -101,7 +101,9 @@ export class ParamsService {
 
     postBatch(batch: Omit<Batch, 'id'>): Observable<Batch> {
         return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<Batch>('batches')));
+        .pipe(first(), catchError((error: any) => {
+            return new Observable<Batch>((observer) => observer.error(error));
+        }));
     }
 
     postUPS(form: any): Observable<any> {
