@@ -110,14 +110,14 @@ export class BatchComponent implements OnInit {
 
     addBatch() {
         this.batchForm.removeControl('isTested');
-        console.log(this.batchForm.value);
         this.params.postBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
+                this.notification.showError(`Batch ${data.formattedId} saved`)
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
                 localStorage.setItem('state', 'ADD');
             },
             error: (error: any) => {
-                this.notification.showError(`An error occured: ${error}`);
+                this.notification.showError(`${error}`);
                 this.batchForm.reset();
             }
         });

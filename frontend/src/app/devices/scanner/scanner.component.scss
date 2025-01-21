@@ -126,3 +126,9 @@ blockquote,
     80% { transform: rotate(36deg); }
     100% { transform: rotate(45deg); }
 }
+
+button:disabled {
+    background-color: #d7e0ff;
+    color: #110a42;
+    border: 1px solid #110a42;
+}

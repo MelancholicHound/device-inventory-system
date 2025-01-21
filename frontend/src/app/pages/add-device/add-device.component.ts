@@ -20,6 +20,7 @@ import { DeviceRouterService } from '../../util/services/device-router.service';
 import { DeviceScannerService } from '../../util/services/device-scanner.service';
 import { DeviceServerService } from '../../util/services/device-server.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
+import { NotificationService } from '../../util/services/notification.service';
 
 import { AppState } from '../../util/store/app.reducer';
 import { clearChildData } from '../../util/store/app.actions';
@@ -43,7 +44,8 @@ import { clearChildData } from '../../util/store/app.actions';
         DeviceRouterService,
         DeviceScannerService,
         DeviceServerService,
-        DeviceTabletService
+        DeviceTabletService,
+        NotificationService
     ],
     templateUrl: './add-device.component.html',
     styleUrl: './add-device.component.scss'
@@ -79,7 +81,8 @@ export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
                 private routerAuth: DeviceRouterService,
                 private scannerAuth: DeviceScannerService,
                 private serverAuth: DeviceServerService,
-                private tabletAuth: DeviceTabletService) {
+                private tabletAuth: DeviceTabletService,
+                private notification: NotificationService) {
                 const navigation = this.router.getCurrentNavigation();
 
                 if (navigation?.extras.state) {
@@ -132,6 +135,7 @@ export class AddDeviceComponent implements OnInit, OnDestroy, AfterViewInit {
 
                 currentAuth.postDevice(duplicateDeviceEntry).subscribe({
                     next: () => {
+                        this.notification.showError(`${this.fetchedCount} ${this.selected}/s saved!`)
                         this.store.dispatch(clearChildData());
                         this.backButton();
                     },

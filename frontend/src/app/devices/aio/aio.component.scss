@@ -163,3 +163,9 @@ header  { display: flex; }
         width: 150px;
     }
 }
+
+button:disabled {
+    background-color: #d7e0ff;
+    color: #110a42;
+    border: 1px solid #110a42;
+}

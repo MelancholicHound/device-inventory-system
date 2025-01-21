@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
@@ -77,28 +77,43 @@ export class DeviceAioService {
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
-        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PATCH (change from existing condemned unit)
     changeWithExistingProcessor(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/cpu/${data.fromDeviceId}`, null, this.httpOptions)
-        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     changeWithExistingGPU(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/video-card/${data.fromDeviceId}`, null, this.httpOptions)
-        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     changeWithExistingStorage(data: any, params: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/storage/${data.fromDeviceId}?fromStorageId=${params.fromStorageId}&toStorageId=${params.toStorageId}`, null, this.httpOptions)
-        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     changeWithExistingRAM(data: any, params: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/all-in-ones/${data.toDeviceId}/change/ram/${data.fromDeviceId}?fromRAMId=${params.fromRAMId}&toRAMId=${params.toRAMId}`, null, this.httpOptions)
-        .pipe(catchError(this.errorHandler.handleError<any>('device/all-in-ones')));
+        .pipe(catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PATCH (change from new parts)

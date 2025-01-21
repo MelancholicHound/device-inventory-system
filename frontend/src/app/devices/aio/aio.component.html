@@ -14,7 +14,7 @@
                     <p class="output-label"> {{ device.name }} </p>
                 </blockquote>
             </div>
-            <button class="save-dev-btn" type="submit" (click)="postAIOSpecs()"> SAVE </button>
+            <button class="save-dev-btn" type="submit" (click)="postAIOSpecs()" [disabled]="aioForm.invalid"> SAVE </button>
         </div>
         <div class="classification">
             <div class="identification">

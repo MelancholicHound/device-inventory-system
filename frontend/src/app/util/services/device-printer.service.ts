@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
@@ -82,7 +82,10 @@ export class DevicePrinterService {
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/printers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/printers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //DELETE

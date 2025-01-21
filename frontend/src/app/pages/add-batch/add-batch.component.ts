@@ -73,6 +73,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     batchDetails: any;
     state: any = localStorage.getItem('state');
+    private previousFetchedData: any[] = [];
+    dataChanged!: boolean;
     fetchedData: DeviceTable[] = [];
     deviceSelected: any;
     isAddingBatch!: boolean;
@@ -154,8 +156,14 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
             )
         ]).subscribe({
             next: (results: any[]) => {
-                this.fetchedData = results.flat();
-                this.fetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                const newFetchedData = results.flat();
+                newFetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                const isDataChanged = !this.isArraysEqual(this.previousFetchedData, newFetchedData);
+
+                this.dataChanged = isDataChanged;
+                this.previousFetchedData = [...newFetchedData];
+                this.fetchedData = newFetchedData;
                 this.dataSource.data = this.fetchedData;
             },
             error: (error: any) => console.log(error)
@@ -195,6 +203,14 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 section: item.sectionDTO.name, createdAt: item.createdAt
             }));
         }));
+    }
+
+    private isArraysEqual(arr1: any[], arr2: any[]): boolean {
+        if (arr1.length !== arr2.length) {
+            return false;
+        }
+
+        return arr1.every((item, index) => JSON.stringify(item) === JSON.stringify(arr2[index]));
     }
 
     //Events

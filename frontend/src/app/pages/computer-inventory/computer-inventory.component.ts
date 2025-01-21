@@ -31,6 +31,7 @@ import { DeviceRouterService } from '../../util/services/device-router.service';
 import { DeviceScannerService } from '../../util/services/device-scanner.service';
 import { DeviceServerService } from '../../util/services/device-server.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
+import { NotificationService } from '../../util/services/notification.service';
 
 export interface DeviceTable {
     tag: string;
@@ -70,7 +71,8 @@ export interface DeviceTable {
         DeviceRouterService,
         DeviceScannerService,
         DeviceServerService,
-        DeviceTabletService
+        DeviceTabletService,
+        NotificationService
     ],
     templateUrl: './computer-inventory.component.html',
     styleUrl: './computer-inventory.component.scss'
@@ -134,7 +136,8 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                 private routerAuth: DeviceRouterService,
                 private scannerAuth: DeviceScannerService,
                 private serverAuth: DeviceServerService,
-                private tabletAuth: DeviceTabletService) {
+                private tabletAuth: DeviceTabletService,
+                private notification: NotificationService) {
                     this.dataSource = new MatTableDataSource(this.fetchedData);
 
                     this.changeNewPartForm = this.changeToNewPartForm();
@@ -329,8 +332,15 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                     console.log(this.deviceForm.value);
                     ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
                     mappedAuth.service.changeWithExistingRAM(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
-                        /* next: () => window.location.reload(), */
-                        error: (error: any) => console.error(error)
+                        next: () => {
+                            this.deviceForm.reset();
+                            this.changeExistingPartForm.reset();
+                            this.notification.showError(`Change part for ${this.toChange.tag} success!`);
+                            window.location.reload();
+                        },
+                        error: (error: any) => {
+                            this.notification.showError(`${error}`);
+                        }
                     });
                     break;
                 case 'Storage':

@@ -30,7 +30,7 @@
                 <span class="material-symbols-rounded"> add </span>
                 <p class="add-label bold"> Add Device </p>
             </button>
-            <button type="button" class="save-btn" (click)="backButton()">
+            <button type="button" class="save-btn" (click)="backButton()" *ngIf="dataChanged" >
                 <span class="material-symbols-rounded"> check </span>
                 <p class="save-label bold"> Save </p>
             </button>
