@@ -1,10 +1,12 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Validators, FormGroup, FormControl, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
+import { NotificationService } from '../../util/services/notification.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 @Component({
     selector: 'batch',
@@ -16,7 +18,9 @@ import { SpecsService } from '../../util/services/specs.service';
     ],
     providers: [
         ParamsService,
-        SpecsService
+        NotificationService,
+        SpecsService,
+        TransactionService
     ],
     templateUrl: './batch.component.html',
     styleUrl: './batch.component.scss'
@@ -28,29 +32,29 @@ export class BatchComponent implements OnInit {
 
     batchForm!: FormGroup; counter!: any;
 
-    suppliers: any[] = []; fileUploaded!: File;
+    suppliers: any[] = []; fileUploaded: File | null = null;
     event!: Event; selectedFile: string = '';
 
     constructor(private router: Router,
-                private params: ParamsService) { }
+                private notification: NotificationService,
+                private params: ParamsService,
+                private transaction: TransactionService) { }
 
-    private bufferToHex(buffer: ArrayBuffer): string {
-        const bytes = new Uint8Array(buffer);
-        return Array.from(bytes)
-        .map((byte) => ('0' + byte.toString(16)).slice(-2))
-        .join('');
+    private addOneYear(date: Date): Date {
+        const newDate = new Date(date);
+        newDate.setFullYear(newDate.getFullYear() + 1);
+        return newDate;
     }
 
     ngOnInit(): void {
         this.batchForm = this.createBatchFormGroup();
         this.params.getSuppliers().subscribe((value: any[]) => { this.suppliers = value });
 
-        let checkbox = document.getElementById('not-tested') as HTMLInputElement;
         let testedDate = document.getElementById('date-tested') as HTMLInputElement;
         let testedDateControl = this.batchForm.get('dateTested');
 
-        checkbox.addEventListener('change', () => {
-            if (checkbox.checked) {
+        this.batchForm.get('isTested')?.valueChanges.subscribe(() => {
+            if (this.batchForm.get('isTested')?.value) {
                 testedDate.disabled = true;
                 testedDateControl?.clearValidators();
             } else {
@@ -79,14 +83,9 @@ export class BatchComponent implements OnInit {
             purchaseRequestDTO: new FormGroup({
                 number: new FormControl(null, [Validators.required]),
                 file: new FormControl()
-            })
+            }),
+            isTested: new FormControl(false, [Validators.required])
         });
-    }
-
-    private addOneYear(date: Date): Date {
-        const newDate = new Date(date);
-        newDate.setFullYear(newDate.getFullYear() + 1);
-        return newDate;
     }
 
     //GET
@@ -96,33 +95,30 @@ export class BatchComponent implements OnInit {
     }
 
     //POST
-    onFileSelected(event: any): void {
+    handFileInput(event: Event): void {
         const input = event.target as HTMLInputElement;
-        if (input.files && input.files.length > 0) {
+        if (input?.files?.length) {
             const file = input.files[0];
-            this.fileUploaded = input.files[0];
-            const reader = new FileReader();
+            this.fileUploaded = file;
 
-            reader.onload = () => {
-                const arrayBuffer = reader.result as ArrayBuffer;
-                this.selectedFile = this.bufferToHex(arrayBuffer);
-            };
-
-            reader.readAsArrayBuffer(file);
+            this.transaction.fileToHex(file).then((hexString: string) => {
+                console.log(hexString);
+                this.batchForm.patchValue({ purchaseRequestDTO: { file: hexString } });
+            })
         }
     }
 
     addBatch() {
-        this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.selectedFile);
+        this.batchForm.removeControl('isTested');
+        console.log(this.batchForm.value);
         this.params.postBatch(this.batchForm.value).subscribe({
             next: (data: any) => {
                 this.router.navigate(['add-batch'], { state: { addbatch: data } });
                 localStorage.setItem('state', 'ADD');
             },
-            error: (error) => {
-                console.log(error);
+            error: (error: any) => {
+                this.notification.showError(`An error occured: ${error}`);
                 this.batchForm.reset();
-                return;
             }
         });
     }

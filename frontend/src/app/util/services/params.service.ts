@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable, BehaviorSubject, timer } from 'rxjs';
+import { Observable, BehaviorSubject, timer, throwError } from 'rxjs';
 import { catchError, first, switchMap } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
@@ -96,19 +96,26 @@ export class ParamsService {
     //POST
     postSupplier(supplier: Omit<Supplier, 'id'>): Observable<Supplier> {
         return this.http.post<Supplier>(`${this.url}/suppliers`, supplier, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<Supplier>('suppliers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An uknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postBatch(batch: Omit<Batch, 'id'>): Observable<Batch> {
         return this.http.post<Batch>(`${this.url}/batches`, batch, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            return new Observable<Batch>((observer) => observer.error(error));
+            const errorMessage = error?.error?.message || 'An uknown error occured.';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 
     postUPS(form: any): Observable<any> {
         return this.http.post<any>(`${this.url}/device/ups`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/ups')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //DELETE

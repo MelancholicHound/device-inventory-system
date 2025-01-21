@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter} from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule } from '@angular/forms';
 
 import { ParamsService } from '../../util/services/params.service';
+import { NotificationService } from '../../util/services/notification.service';
 
 @Component({
   selector: 'supplier',
@@ -11,7 +12,8 @@ import { ParamsService } from '../../util/services/params.service';
       FormsModule
   ],
   providers: [
-      ParamsService
+      ParamsService,
+      NotificationService
   ],
   templateUrl: './supplier.component.html',
   styleUrl: './supplier.component.scss'
@@ -21,7 +23,8 @@ export class SupplierComponent implements OnInit {
 
     supplierForm!: FormGroup;
 
-    constructor(private params: ParamsService) { }
+    constructor(private params: ParamsService,
+                private notification: NotificationService) { }
 
     createSupplierFormGroup(): FormGroup {
         return new FormGroup({
@@ -43,13 +46,16 @@ export class SupplierComponent implements OnInit {
     saveSupplier() {
         this.params.postSupplier(this.supplierForm.value).subscribe({
             next: () => {
-                this.booleanEvent.emit(true);
-                this.supplierForm.reset();
+                this.notification.showError('Supplier saved successfully!')
+                setTimeout(() => {
+                    this.booleanEvent.emit(true);
+                    this.supplierForm.reset();
+                }, 2000)
             },
             error: (error) => {
+                this.notification.showError(`Error occured: ${error.message}`);
                 this.supplierForm.reset();
                 this.booleanEvent.emit(false);
-                console.log(error);
             }
         });
     }

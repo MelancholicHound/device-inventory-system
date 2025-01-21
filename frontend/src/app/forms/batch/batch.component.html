@@ -10,9 +10,9 @@
         <button class="cancel-btn gray-border" type="button" (click)="cancelUpload()" *ngIf="selectedFile">
             <span class="material-symbols-rounded"> block </span>
         </button>
-        <input #fileUpload type="file" id="file-upload" (change)="onFileSelected($event)" formControlName="file" hidden>
+        <input #fileUpload type="file" id="file-upload" (change)="handFileInput($event)" formArrayName="file" hidden>
     </div>
-    <p class="file-name" *ngIf="selectedFile"> File Name: {{ fileUploaded.name }} </p>
+    <p class="file-name" *ngIf="fileUploaded"> File Name: {{ fileUploaded.name }} </p>
     <div class="supplier-field">
         <div class="form-container">
             <label for="supplier"> Supplier </label>
@@ -47,7 +47,7 @@
             <input type="date" class="form-control date-tested" id="date-tested" formControlName="dateTested">
         </div>
         <div class="radio-container">
-            <input type="checkbox" id="not-tested">
+            <input type="checkbox" id="not-tested" formControlName="isTested">
             <label for="not-tested" class="not-tested"> Not Tested Yet </label>
         </div>
     </div>
