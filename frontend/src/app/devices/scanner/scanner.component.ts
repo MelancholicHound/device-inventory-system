@@ -26,7 +26,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class ScannerComponent implements OnInit {
     device = { name: 'Scanner', indicator: 'scanner' };
-    deviceCount: any; batchId: any; batchNumber: any;
+    deviceCount: any; batchNumber: any;
     fromComputerInventory: any;
 
     isScannerBrandToggled: boolean = false; isScannerBrandAnimated: boolean = false;
@@ -41,7 +41,6 @@ export class ScannerComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -79,7 +78,7 @@ export class ScannerComponent implements OnInit {
 
     createScannerFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -122,7 +121,6 @@ export class ScannerComponent implements OnInit {
     }
 
     postScannerSpecs(): void {
-        this.scannerForm.patchValue({ batchId: this.batchId });
         this.scannerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.scannerForm.value }));
     }

@@ -27,7 +27,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class TabletComponent implements OnInit {
     device = { name: 'Tablet', indicator: 'tablet' };
-    deviceCount!: any; batchId: any; batchNumber: any;
+    deviceCount!: any; batchNumber: any;
     fromComputerInventory: any;
 
     isChipsetBrandToggled: boolean = false; isChipsetBrandAnimated: boolean = false;
@@ -45,7 +45,6 @@ export class TabletComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -101,7 +100,7 @@ export class TabletComponent implements OnInit {
 
     createTabletFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -214,7 +213,6 @@ export class TabletComponent implements OnInit {
     }
 
     postTabletSpecs(): void {
-        this.tabletForm.patchValue({ batchId: this.batchId });
         this.tabletForm.patchValue({ screenSize: String(this.tabletForm.get('screenSize')?.value) });
         this.store.dispatch(updateChildData({ data: this.tabletForm.value }));
     }

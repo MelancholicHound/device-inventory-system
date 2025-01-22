@@ -32,7 +32,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class AioComponent implements OnInit {
     device = { name: 'AIO', indicator: 'aio' };
-    deviceCount: any; batchId: any; batchNumber: any;
+    deviceCount: any; batchNumber: any;
     procBrandId: any; childCount!: any
     fromComputerInventory: any;
 
@@ -59,7 +59,6 @@ export class AioComponent implements OnInit {
                 private notification: NotificationService) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
         this.deviceCount = history.state.count;
@@ -155,7 +154,7 @@ export class AioComponent implements OnInit {
 
     createAIOFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
@@ -313,7 +312,6 @@ export class AioComponent implements OnInit {
     }
 
     postAIOSpecs(): void {
-        this.aioForm.patchValue({ batchId: this.batchId });
         this.aioForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.aioForm.value }));
     }

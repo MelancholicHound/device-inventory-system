@@ -26,7 +26,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class RouterComponent implements OnInit {
     device = { name: 'Router', indicator: 'router' };
-    deviceCount!: any; batchId: any; batchNumber: any;
+    deviceCount!: any; batchNumber: any;
     fromComputerInventory: any;
 
     isRouterBrandToggled: boolean = false; isRouterBrandAnimated: boolean = false;
@@ -41,7 +41,6 @@ export class RouterComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -85,7 +84,7 @@ export class RouterComponent implements OnInit {
 
     createRouterFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -166,7 +165,6 @@ export class RouterComponent implements OnInit {
     }
 
     postRouterSpecs(): void {
-        this.routerForm.patchValue({ batchId: this.batchId });
         this.routerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.routerForm.value }));
     }

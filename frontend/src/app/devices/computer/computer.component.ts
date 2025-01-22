@@ -30,7 +30,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class ComputerComponent implements OnInit {
     device = { name: 'Computer', indicator: 'computer' };
-    deviceCount!: any; batchId: any; batchNumber: any;
+    deviceCount!: any; batchNumber: any;
     procBrandId: any; childCount: any;
     fromComputerInventory: any;
 
@@ -56,7 +56,6 @@ export class ComputerComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -152,7 +151,7 @@ export class ComputerComponent implements OnInit {
 
     createCompFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
@@ -307,7 +306,6 @@ export class ComputerComponent implements OnInit {
     }
 
     postCompSpecs(): void {
-        this.computerForm.patchValue({ batchId: this.batchId });
         this.computerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.computerForm.value }));
     }

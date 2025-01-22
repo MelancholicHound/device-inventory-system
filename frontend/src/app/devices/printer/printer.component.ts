@@ -26,7 +26,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class PrinterComponent implements OnInit {
     device = { name: 'Printer', indicator: 'printer' };
-    deviceCount!: any; batchId!: any; batchNumber!: any;
+    deviceCount!: any; batchNumber!: any;
     fromComputerInventory: any;
 
     isPrinterBrandToggled: boolean = false; isPrinterBrandAnimated: boolean = false;
@@ -41,7 +41,6 @@ export class PrinterComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -80,7 +79,7 @@ export class PrinterComponent implements OnInit {
 
     createPrinterFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             brandId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
@@ -123,7 +122,6 @@ export class PrinterComponent implements OnInit {
     }
 
     postPrinterSpecs(): void {
-        this.printerForm.patchValue({ batchId: this.batchId });
         this.printerForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.printerForm.value }));
     }

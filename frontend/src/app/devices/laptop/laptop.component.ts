@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -28,7 +28,7 @@ import { updateChildData } from '../../util/store/app.actions';
 })
 export class LaptopComponent implements OnInit {
     device =  { name: 'Laptop', indicator: 'laptop' };
-    deviceCount!: any; batchId: any; batchNumber: any;
+    deviceCount!: any; batchNumber: any;
     procBrandId: any; childCount: any;
     fromComputerInventory: any;
 
@@ -52,7 +52,6 @@ export class LaptopComponent implements OnInit {
                 private store: Store) { }
 
     ngOnInit(): void {
-        this.batchId = history.state.batchid;
         this.deviceCount = history.state.count;
         this.fromComputerInventory = history.state.inventorydetails;
         this.batchNumber = history.state.batchnumber;
@@ -148,7 +147,7 @@ export class LaptopComponent implements OnInit {
 
     createLaptopFormGroup(): FormGroup {
         return new FormGroup({
-            batchId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
+            batchId: new FormControl(history.state.batchid, [Validators.required, Validators.pattern('^[0-9]*$')]),
             divisionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             sectionId: new FormControl(null, [Validators.required, Validators.pattern('^[0-9]*$')]),
             storageRequests: new FormArray([], [Validators.required]),
@@ -304,7 +303,6 @@ export class LaptopComponent implements OnInit {
     }
 
     postLaptopSpecs(): void {
-        this.laptopForm.patchValue({ batchId: this.batchId });
         this.laptopForm.removeControl('divisionId');
         this.store.dispatch(updateChildData({ data: this.laptopForm.value }));
     }
