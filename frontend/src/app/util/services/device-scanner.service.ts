@@ -59,7 +59,7 @@ export class DeviceScannerService {
 
     //POST
     postScannerBrand(brand: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/scanner-brands?brand=${brand}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/scanner-brands?brand=${brand}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/scanner-brands')));
     }
 

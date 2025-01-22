@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { Router, Event, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 
 import { LoginComponent } from './forms/login/login.component';
 import { SignupComponent } from './forms/signup/signup.component';
@@ -13,7 +14,7 @@ import { AuthService } from './util/services/auth.service';
     standalone: true,
     imports: [
         RouterOutlet,
-        NgIf,
+        CommonModule,
         LoginComponent,
         SignupComponent,
         NavigationComponent
@@ -24,11 +25,11 @@ import { AuthService } from './util/services/auth.service';
 
 export class AppComponent implements OnInit {
     title = 'DIS';
-
     isAuthenticated!: boolean;
     toggleLoginForm: boolean = true; toggleSignupForm: boolean = false;
 
-    constructor(private auth: AuthService) { }
+    constructor(private auth: AuthService,
+                private router: Router) { }
 
     ngOnInit(): void {
         this.observeToken('token');
@@ -55,6 +56,9 @@ export class AppComponent implements OnInit {
         });
     }
 
+    isNavigatingComponent(): boolean {
+        return this.router.url !== '/';
+    }
 
     toggleLogin(value: boolean) {
         this.toggleLoginForm = value;

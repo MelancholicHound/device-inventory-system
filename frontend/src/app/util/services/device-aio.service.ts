@@ -54,7 +54,7 @@ export class DeviceAioService {
 
     //POST
     postAIOBrand(brand: string): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/aio/aio-brands?brand=${brand}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/aio/aio-brands?brand=${brand}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>(`specs/aio/aio-brands?brand=${brand}`)));
     }
 

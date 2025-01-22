@@ -65,17 +65,17 @@ export class DeviceRouterService {
 
     //POST
     postRouterBrandInput(brand: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/router-brands?brand=${brand}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/router-brands?brand=${brand}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/router-brands')))
     }
 
     postNetworkSpeedInput(speed: number): Observable<any> {
-        return this.http.post<any>(`${this.url}/router-network-speeds?speedName=${speed}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/router-network-speeds?speedName=${speed}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('router-network-speeds')));
     }
 
     postNumberOfAntennas(antennas: number): Observable<any> {
-        return this.http.post<any>(`${this.url}/router-antennas?antennaNumber=${antennas}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/router-antennas?antennaNumber=${antennas}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('router-antennas')));
     }
 

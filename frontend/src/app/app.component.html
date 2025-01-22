@@ -10,6 +10,9 @@
   <main class="landing">
       <app-navigation />
       <aside>
+          <section *ngIf="!isNavigatingComponent()">
+              <h1> Announcement </h1>
+          </section>
           <router-outlet />
       </aside>
   </main>

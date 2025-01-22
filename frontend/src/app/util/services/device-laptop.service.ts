@@ -54,7 +54,7 @@ export class DeviceLaptopService {
 
     //POST
     postLaptopBrand(brand: string): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/laptop-brands?brand=${brand}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/laptop-brands?brand=${brand}`, null, this.httpOptions)
         .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/laptop-brands')));
     }
 
