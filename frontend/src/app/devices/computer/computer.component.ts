@@ -240,11 +240,9 @@ export class ComputerComponent implements OnInit {
 
         let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
 
-        if (matchingRAM) {
-            ramArray.push(new FormGroup({
-                capacityId: new FormControl(matchingRAM.id, [Validators.required])
-            }));
-        } else {
+        if (!inputElement.value) return;
+
+        if (typeof matchingRAM === 'undefined') {
             this.specs.postRAMCapacity(inputElement.value).subscribe({
                 next: (res: any) => {
                     ramArray.push(new FormGroup({
@@ -253,6 +251,10 @@ export class ComputerComponent implements OnInit {
                 },
                 error: (error: any) => console.error(error)
             });
+        } else {
+            ramArray.push(new FormGroup({
+                capacityId: new FormControl(matchingRAM.id, [Validators.required])
+            }));
         }
     }
 
@@ -261,13 +263,15 @@ export class ComputerComponent implements OnInit {
 
         let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
 
-        if (matchingGPU) {
-            this.computerForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
-        } else {
+        if (!inputElement.value) return;
+
+        if (typeof matchingGPU === 'undefined') {
             this.specs.postGPUCapacity(inputElement.value).subscribe({
                 next: (res: any) => this.computerForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
                 error: (error: any) => console.error(error)
             });
+        } else {
+            this.computerForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
         }
     }
 

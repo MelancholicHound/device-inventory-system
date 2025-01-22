@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { catchError, first } from 'rxjs/operators';
 
 import { ErrorHandlerService } from './error-handler.service';
@@ -66,52 +66,42 @@ export class SpecsService {
 
     //POST
     postProcBrand(brand: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/cpu-brands?brand=${brand}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/cpu-brands?brand=${brand}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Error on posting processor brand: ', error.error.message);
-            }
-            return new Observable((observer) => { observer.error(error) });
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 
     postProcSeries(id: any, series: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/specs/cpu-brands/${id}/series?series=${series}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/specs/cpu-brands/${id}/series?series=${series}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error.status === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Error on posting processor series: ', error.error.message);
-            }
-            return new Observable((observer) => { observer.error(error) });
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 
     postRAMCapacity(capacity: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/part/ram-capacities?capacity=${capacity}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/part/ram-capacities?capacity=${capacity}`, null,  this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Error on posting RAM capacity: ', error.error.message);
-            }
-            return new Observable((observer) => { observer.error(error) });
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 
     postGPUCapacity(capacity: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/part/video-card-capacities?capacity=${capacity}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/part/video-card-capacities?capacity=${capacity}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Error on posting video card capacity: ', error.error.message);
-            }
-            return new Observable((observer) => { observer.error(error) });
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 
     postStorageCapacity(capacity: any): Observable<any> {
-        return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, this.httpOptions)
+        return this.http.post<any>(`${this.url}/part/storage-capacities?capacity=${capacity}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            if (error === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Error on posting storage capacity: ', error.error.message);
-            }
-            return new Observable((observer) => { observer.error(error) });
+            const errorMessage = error?.error?.message || 'An unknown error occured';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 

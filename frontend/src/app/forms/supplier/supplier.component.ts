@@ -50,7 +50,7 @@ export class SupplierComponent implements OnInit {
                 setTimeout(() => {
                     this.booleanEvent.emit(true);
                     this.supplierForm.reset();
-                }, 2000)
+                }, 1000)
             },
             error: (error) => {
                 this.notification.showError(`Error occured: ${error.message}`);

@@ -171,11 +171,9 @@ export class TabletComponent implements OnInit {
 
         let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
 
-        if (matchingRAM) {
-            ramArray.push(new FormGroup({
-                capacityId: new FormControl(matchingRAM.id, [Validators.required])
-            }));
-        } else {
+        if (!inputElement.value) return;
+
+        if (typeof matchingRAM === 'undefined') {
             this.specs.postRAMCapacity(inputElement.value).subscribe({
                 next: (res: any) => {
                     ramArray.push(new FormGroup({
@@ -184,6 +182,10 @@ export class TabletComponent implements OnInit {
                 },
                 error: (error: any) => console.error(error)
             });
+        } else {
+            ramArray.push(new FormGroup({
+                capacityId: new FormControl(matchingRAM.id, [Validators.required])
+            }));
         }
     }
 

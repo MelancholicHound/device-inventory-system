@@ -1,15 +1,16 @@
-import {Component, OnInit} from '@angular/core';
-import {FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {CommonModule} from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
-import {Store} from '@ngrx/store';
+import { Store } from '@ngrx/store';
 
-import {AuthService} from '../../util/services/auth.service';
-import {ParamsService} from '../../util/services/params.service';
-import {SpecsService} from '../../util/services/specs.service';
-import {DeviceAioService} from '../../util/services/device-aio.service';
+import { AuthService } from '../../util/services/auth.service';
+import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
+import { DeviceAioService } from '../../util/services/device-aio.service';
+import { NotificationService } from '../../util/services/notification.service';
 
-import {updateChildData} from '../../util/store/app.actions';
+import { updateChildData } from '../../util/store/app.actions';
 
 @Component({
     selector: 'app-aio',
@@ -23,7 +24,8 @@ import {updateChildData} from '../../util/store/app.actions';
         AuthService,
         ParamsService,
         SpecsService,
-        DeviceAioService
+        DeviceAioService,
+        NotificationService
     ],
     templateUrl: './aio.component.html',
     styleUrl: './aio.component.scss'
@@ -53,7 +55,8 @@ export class AioComponent implements OnInit {
     constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private aioAuth: DeviceAioService,
-                private store: Store) { }
+                private store: Store,
+                private notification: NotificationService) { }
 
     ngOnInit(): void {
         this.batchId = history.state.batchid
@@ -241,19 +244,23 @@ export class AioComponent implements OnInit {
 
         let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
 
-        if (matchingRAM) {
-            ramArray.push(new FormGroup({
-                capacityId: new FormControl(matchingRAM.id, [Validators.required])
-            }));
-        } else {
-            this.specs.postRAMCapacity(inputElement.value).subscribe({
+        if (!inputElement.value) return;
+
+        if (typeof matchingRAM === 'undefined') {
+            this.specs.postRAMCapacity(parseInt(inputElement.value, 10)).subscribe({
                 next: (res: any) => {
                     ramArray.push(new FormGroup({
-                        capacityId: new FormControl(res.id, [Validators.required])
+                        capacityId: new FormControl(res.id)
                     }));
                 },
-                error: (error: any) => console.error(error)
+                error: (error: any) => {
+                    this.notification.showError(`${error}`);
+                }
             });
+        } else {
+            ramArray.push(new FormGroup({
+                capacityId: new FormControl(matchingRAM.id)
+            }));
         }
     }
 
@@ -262,13 +269,15 @@ export class AioComponent implements OnInit {
 
         let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
 
-        if (matchingGPU) {
-            this.aioForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
-        } else {
+        if (!inputElement.value) return;
+
+        if (typeof matchingGPU === 'undefined') {
             this.specs.postGPUCapacity(inputElement.value).subscribe({
                 next: (res: any) => this.aioForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
                 error: (error: any) => console.error(error)
             });
+        } else {
+            this.aioForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
         }
     }
 
