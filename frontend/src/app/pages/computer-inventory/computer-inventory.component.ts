@@ -19,6 +19,7 @@ import { switchMap } from 'rxjs/operators';
 
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import { filterData } from 'filter-data';
 
 import { FilterComponent } from '../../forms/filter/filter.component';
 
@@ -329,7 +330,6 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
                     });
                     break;
                 case 'RAM':
-                    console.log(this.deviceForm.value);
                     ['fromStorage', 'toStorageId'].forEach(control => this.changeExistingPartForm.removeControl(control));
                     mappedAuth.service.changeWithExistingRAM(this.deviceForm.value, this.changeExistingPartForm.value).subscribe({
                         next: () => {
@@ -402,68 +402,33 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     }
 
     filterData(data: any) {
-        const fetchedData = this.removeNullProperties(data);
+        let deviceFilter = [
+            { service: this.aioAuth, indicator: 'aio' },
+            { service: this.computerAuth, indicator: 'computer' },
+            { service: this.laptopAuth, indicator: 'laptop' },
+            { service: this.tabletAuth, indicator: 'tablet' },
+            { service: this.printerAuth, indicator: 'printer' },
+            { service: this.scannerAuth, indicator: 'scanner' },
+            { service: this.routerAuth, indicator: 'router' }
+        ];
 
-        if (fetchedData['device']) {
-            const condemned: boolean = fetchedData['condemned'];
-            switch (fetchedData['device']) {
+        if (data['device']) {
+            const mappedAuth = deviceFilter.find((map: any) => map.indicator === data['device']);
+            const condemned: boolean = data['condemned'];
+            switch (data['device']) {
                 case 'computer':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Computer');
-                    break;
                 case 'laptop':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Laptop');
-                    break;
                 case 'tablet':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Tablet');
-                    break;
                 case 'aio':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('AIO');
-                    break;
                 case 'printer':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Printer');
-                    break;
                 case 'scanner':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Scanner');
-                    break;
                 case 'router':
-                    delete fetchedData['device'];
-
-                    console.log(fetchedData);
-                    console.log('Router');
-                    break;
-                default:
-                    break;
             }
+        } else {
+
         }
 
         this.filterModal.nativeElement.style.display = 'none';
-    }
-
-    removeNullProperties(obj: any) {
-        for (const key in obj) {
-            if (obj[key] === null) {
-                delete obj[key];
-            }
-        }
-        return obj;
     }
 
     routeSelectedDevice() {

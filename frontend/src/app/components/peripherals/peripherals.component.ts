@@ -2,8 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormControl, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-import { AioComponent } from '../../devices/aio/aio.component';
-
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { TransactionService } from '../../util/services/transaction.service';
@@ -142,18 +140,13 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     }
 
     saveUPSDetails(): void {
-        this.upsForm.patchValue({ batchId: history.state.batchid });
+        const payload = history.state.inventorydetails;
+
+        this.upsForm.patchValue({ batchId: history.state.batchid ? history.state.batchid : payload.batchId });
         this.upsForm.patchValue({ brandId: parseInt(this.upsForm.get('brandId')?.value, 10) });
         this.upsForm.patchValue({ sectionId: this.transaction.sectionId() });
 
-        console.log(this.upsForm.value);
-
         this.params.postUPS(this.upsForm.value).subscribe({
-            next: (data: any) => {
-                if (data) {
-                    window.location.reload();
-                }
-            },
             error: (error: any) => { console.error(error) }
         });
     }
