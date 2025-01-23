@@ -8,6 +8,7 @@ import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -53,7 +54,8 @@ export class ComputerComponent implements OnInit {
                 private params: ParamsService,
                 private specs: SpecsService,
                 private computerAuth: DeviceComputerService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -179,6 +181,7 @@ export class ComputerComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.computerForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getProcBrand() {

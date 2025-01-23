@@ -1,17 +1,20 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormControl, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
-import {ParamsService} from '../../util/services/params.service';
-import {SpecsService} from '../../util/services/specs.service';
-import {FormControl, FormArray, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import { AioComponent } from '../../devices/aio/aio.component';
+
+import { ParamsService } from '../../util/services/params.service';
+import { SpecsService } from '../../util/services/specs.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 @Component({
     selector: 'app-peripherals',
     standalone: true,
-  imports: [
-      CommonModule,
-      ReactiveFormsModule
-  ],
+    imports: [
+        CommonModule,
+        ReactiveFormsModule
+    ],
     providers: [
         ParamsService,
         SpecsService
@@ -35,7 +38,8 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     enabledUPS: boolean = false;
 
     constructor(private params: ParamsService,
-                private specs: SpecsService) { }
+                private specs: SpecsService,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.upsForm = this.createUPSFormGroup(this.peripheralId);
@@ -138,12 +142,9 @@ export class PeripheralsComponent implements OnInit, OnChanges {
     }
 
     saveUPSDetails(): void {
-        const payload = history.state.devicedetails || history.state.inventorydetails;
-        console.log(payload);
-
-        this.upsForm.patchValue({ batchId: payload.batchId });
-        this.upsForm.patchValue({ sectionId: payload.sectionDTO.id });
+        this.upsForm.patchValue({ batchId: history.state.batchid });
         this.upsForm.patchValue({ brandId: parseInt(this.upsForm.get('brandId')?.value, 10) });
+        this.upsForm.patchValue({ sectionId: this.transaction.sectionId() });
 
         console.log(this.upsForm.value);
 

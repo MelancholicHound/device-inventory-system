@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DevicePrinterService } from '../../util/services/device-printer.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -38,7 +39,8 @@ export class PrinterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private printerAuth: DevicePrinterService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -103,6 +105,7 @@ export class PrinterComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.printerForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getPrinterTypeValue() {

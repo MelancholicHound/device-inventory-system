@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -49,7 +50,8 @@ export class LaptopComponent implements OnInit {
     constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private laptopAuth: DeviceLaptopService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -178,6 +180,7 @@ export class LaptopComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.laptopForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getProcBrand() {

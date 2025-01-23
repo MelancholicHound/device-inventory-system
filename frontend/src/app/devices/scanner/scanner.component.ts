@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceScannerService } from '../../util/services/device-scanner.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -38,7 +39,8 @@ export class ScannerComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private scannerAuth: DeviceScannerService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -101,6 +103,7 @@ export class ScannerComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.scannerForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getScannerTypeValue() {

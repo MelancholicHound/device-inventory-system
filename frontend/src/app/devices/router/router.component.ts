@@ -6,6 +6,7 @@ import { Store } from '@ngrx/store';
 
 import { ParamsService } from '../../util/services/params.service';
 import { DeviceRouterService } from '../../util/services/device-router.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -38,7 +39,8 @@ export class RouterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private routerAuth: DeviceRouterService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -108,6 +110,7 @@ export class RouterComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.routerForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     //POST

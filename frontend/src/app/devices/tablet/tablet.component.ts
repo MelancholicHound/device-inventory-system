@@ -7,6 +7,7 @@ import { Store } from '@ngrx/store';
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceTabletService } from '../../util/services/device-tablet.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -42,7 +43,8 @@ export class TabletComponent implements OnInit {
     constructor(private params: ParamsService,
                 private specs: SpecsService,
                 private tabletAuth: DeviceTabletService,
-                private store: Store) { }
+                private store: Store,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -129,6 +131,7 @@ export class TabletComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.tabletForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getChipsetBrand() {

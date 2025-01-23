@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +15,8 @@ export class TransactionService {
         '504b0506': 'application/zip',
         '504b0708': 'application/zip',
     }
+
+    sectionId = signal(0);
 
     constructor() { }
 

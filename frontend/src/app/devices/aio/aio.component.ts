@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -9,6 +9,7 @@ import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
 import { NotificationService } from '../../util/services/notification.service';
+import { TransactionService } from '../../util/services/transaction.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -33,7 +34,7 @@ import { updateChildData } from '../../util/store/app.actions';
 export class AioComponent implements OnInit {
     device = { name: 'AIO', indicator: 'aio' };
     deviceCount: any; batchNumber: any;
-    procBrandId: any; childCount!: any
+    procBrandId: any; childCount!: any;
     fromComputerInventory: any;
 
     isProcBrandToggled: boolean = false; isProcSeriesToggled: boolean = false;
@@ -56,7 +57,8 @@ export class AioComponent implements OnInit {
                 private specs: SpecsService,
                 private aioAuth: DeviceAioService,
                 private store: Store,
-                private notification: NotificationService) { }
+                private notification: NotificationService,
+                private transaction: TransactionService) { }
 
     ngOnInit(): void {
         this.fromComputerInventory = history.state.inventorydetails;
@@ -185,6 +187,7 @@ export class AioComponent implements OnInit {
     getSectionValue() {
         let value = document.getElementById('section') as HTMLOptionElement;
         this.aioForm.patchValue({ sectionId: parseInt(value.value, 10) });
+        this.transaction.sectionId.set(parseInt(value.value, 10));
     }
 
     getProcBrand() {
