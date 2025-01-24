@@ -19,7 +19,7 @@ import { switchMap } from 'rxjs/operators';
 
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { filterData } from 'filter-data';
+import { filterData, SearchType } from 'filter-data';
 
 import { FilterComponent } from '../../forms/filter/filter.component';
 

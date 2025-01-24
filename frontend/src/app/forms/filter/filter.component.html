@@ -146,12 +146,42 @@
             </div>
             <div class="form-field">
                 <label for="tablet-model"> Model </label>
-                <input class="location" type="text" name="" id="tablet-model" placeholder="Input model" formControlName="model">
+                <input class="location" type="text" name="" id="tablet-model" placeholder="Input model" formControlName="brandSeries">
             </div>
         </div>
         <h4> Tablet Specifications </h4>
         <div class="specifications">
-            <!-- Pending: to be updated in backend -->
+             <div class="field">
+                <div class="form-field">
+                    <p> Storage </p>
+                    <!-- <div class="input-field">
+                        <label for="storage-type"> Type </label>
+                        <select name="" id="storage-type">
+                            <option [value]="null">  </option>
+                        </select>
+                    </div> -->
+                    <div class="input-field">
+                        <label for="gpu-size"> Size: </label>
+                        <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                        <p> GB </p>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <p> Screen Size </p>
+                    <div class="input-field">
+                        <input type="number" name="" min="0" id="size-inch" formControlName="screenSize">
+                        <label for="size-inch"> " (inche/s) </label>
+                    </div>
+                </div>
+             </div>
+             <div class="form-field">
+                  <p> RAM </p>
+                  <div class="input-field">
+                      <label for="ram-size"> Size: </label>
+                      <input type="number" name="" min="0" list="ram" id="ram-size" (blur)="getRAM($event)">
+                      <p> GB </p>
+                  </div>
+              </div>
         </div>
     } @else if (filterForm.get('device')?.value === 'aio') {
         <h4> AIO Information </h4>

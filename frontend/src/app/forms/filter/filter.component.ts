@@ -151,6 +151,7 @@ export class FilterComponent implements OnInit {
             condemned: new FormControl(null),
             brandId: new FormControl(null),
             model: new FormControl(null),
+            brandSeries: new FormControl(null),
             storageCapacityId: new FormControl(null),
             ramCapacityId: new FormControl(null),
             videoCardCapacityId: new FormControl(null),
