@@ -26,7 +26,10 @@ export class AuthService {
 
     signup(user: Omit<User, 'id'>): Observable<User> {
         return this.http.post<User>(`${this.url}/register`, user, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('register')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     login(email: Pick<User, 'email'>, password: Pick<User, 'password'>): Observable<any> {
@@ -35,10 +38,8 @@ export class AuthService {
             localStorage.setItem('token', token);
             this.isUserLoggedIn.next(true);
         }), catchError((error) => {
-            if (error.status === 400 && error.error && error.error.message) {
-                this.errorHandler.handleError('Login failed: ', error.error.message);
-            }
-            return throwError(error);
+            const errorMessage = error?.error?.message || 'Wrong email or password. Please try again.';
+            return throwError(() => new Error(errorMessage));
         }));
     }
 

@@ -2,9 +2,15 @@ import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+import { forkJoin } from 'rxjs';
+
+import { SearchType, filterData } from 'filter-data';
+
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
+import { NotificationService } from '../../util/services/notification.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
+import { DeviceComputerService } from '../../util/services/device-computer.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
 import { DevicePrinterService } from '../../util/services/device-printer.service';
 import { DeviceRouterService } from '../../util/services/device-router.service';
@@ -23,7 +29,9 @@ import { DeviceTabletService } from '../../util/services/device-tablet.service';
     providers: [
         SpecsService,
         ParamsService,
+        NotificationService,
         DeviceAioService,
+        DeviceComputerService,
         DeviceLaptopService,
         DevicePrinterService,
         DeviceRouterService,
@@ -46,8 +54,11 @@ export class FilterComponent implements OnInit {
         { name: 'Router', indicator: 'router' }
     ];
 
+    authServices = [ this.aioAuth, this.computerAuth, this.laptopAuth, this.printerAuth, this.routerAuth, this.scannerAuth, this.tabletAuth ];
+
     filterForm!: FormGroup;
 
+    fetchedDevices!: any;
     fetchedAIOBrand!: any; fetchedLaptopBrand!: any; fetchedTabletBrand!: any;
     fetchedPrinterBrand!: any; fetchedScannerBrand!: any; fetchedRouterBrand!: any;
 
@@ -60,13 +71,23 @@ export class FilterComponent implements OnInit {
 
     constructor(private params: ParamsService,
                 private specs: SpecsService,
+                private notification: NotificationService,
                 private aioAuth: DeviceAioService,
+                private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,
                 private printerAuth: DevicePrinterService,
                 private routerAuth: DeviceRouterService,
                 private scannerAuth: DeviceScannerService,
                 private tabletAuth: DeviceTabletService) {
                 this.filterForm = this.createFilterForm();
+
+                forkJoin([
+                    ...this.authServices.map(service => service.getAllActiveDevice()),
+                    ...this.authServices.map(service => service.getAllCondemnedDevice())
+                ]).subscribe({
+                    next: (result: any[]) => console.log(result.flat()),
+                    error: (error: any) => this.notification.showError(error)
+                });
     }
 
     ngOnInit(): void {
@@ -148,7 +169,7 @@ export class FilterComponent implements OnInit {
             batchId: new FormControl(null),
             divisionId: new FormControl(null),
             sectionId: new FormControl(null),
-            condemned: new FormControl(null),
+            status: new FormControl(null),
             brandId: new FormControl(null),
             model: new FormControl(null),
             brandSeries: new FormControl(null),
@@ -203,13 +224,32 @@ export class FilterComponent implements OnInit {
     }
 
     submitFilter() {
-        console.log(this.filterForm.value);
-        if (this.filterForm.get('brandId')?.value) this.filterForm.patchValue({ brandId: parseInt(this.filterForm.get('brandId')?.value, 10) });
-        if (this.filterForm.get('divisionId')?.value) this.filterForm.patchValue({ divisionId: parseInt(this.filterForm.get('divisionId')?.value, 10) });
-        if (this.filterForm.get('sectionId')?.value) this.filterForm.patchValue({ sectionId: parseInt(this.filterForm.get('sectionId')?.value, 10) });
-        if (this.filterForm.get('batchId')?.value) this.filterForm.patchValue({ batchId: parseInt(this.filterForm.get('batchId')?.value, 10) });
+        const device = this.filterForm.get('device')?.value;
+        const status = this.filterForm.get('status')?.value;
 
-        this.filter.emit(this.filterForm.value);
+        let deviceFilter = [
+            { service: this.aioAuth, indicator: 'aio' },
+            { service: this.computerAuth, indicator: 'computer' },
+            { service: this.laptopAuth, indicator: 'laptop' },
+            { service: this.tabletAuth, indicator: 'tablet' },
+            { service: this.printerAuth, indicator: 'printer' },
+            { service: this.scannerAuth, indicator: 'scanner' },
+            { service: this.routerAuth, indicator: 'router' }
+        ];
+
+        if (device) {
+            const deviceMapped = deviceFilter.find((map) => map.indicator === device);
+            const deviceService = deviceMapped?.service;
+            if (status === true) {
+                deviceService?.getAllActiveDevice().subscribe({
+                    next: (result: any[]) => this.filter.emit(result.flat()),
+                    error: (error: any) => this.notification.showError(error)
+                });
+            }
+        } else if (device === null) {
+            console.log('No Device');
+        }
+
         this.filterForm.reset();
     }
 }

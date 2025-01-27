@@ -5,7 +5,7 @@ import { NgFor, NgIf } from '@angular/common';
 
 import { AuthService } from '../../util/services/auth.service';
 import { ParamsService } from '../../util/services/params.service';
-import { Router } from '@angular/router';
+import { NotificationService } from '../../util/services/notification.service';
 
 @Component({
     selector: 'app-signup',
@@ -34,7 +34,8 @@ export class SignupComponent implements OnInit {
     positions!: any;
     successSignup!: boolean;
 
-    constructor(private auth: AuthService) { }
+    constructor(private auth: AuthService,
+                private notification: NotificationService) { }
 
     createSignupFormGroup(): FormGroup {
         return new FormGroup({
@@ -76,11 +77,11 @@ export class SignupComponent implements OnInit {
                 this.successSignup = true;
                 setTimeout(() => {
                     this.booleanEvent.emit(true)
-                }, 3000);
+                }, 2500);
             },
             error: (error) => {
                 this.signupForm.reset();
-                console.log(error);
+                this.notification.showError(error);
             }
         });
     }
