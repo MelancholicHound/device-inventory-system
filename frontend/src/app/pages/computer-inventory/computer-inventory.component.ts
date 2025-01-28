@@ -19,7 +19,6 @@ import { switchMap } from 'rxjs/operators';
 
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import { filterData, SearchType } from 'filter-data';
 
 import { FilterComponent } from '../../forms/filter/filter.component';
 
@@ -38,6 +37,7 @@ export interface DeviceTable {
     tag: string;
     division: string;
     section: string;
+    batch: string;
     status: any;
     createdAt: any;
 }
@@ -396,7 +396,7 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
             return division.then(value => ({
                 id: item.id, tag: item.tag,
                 division: value.name, section: item.sectionDTO.name,
-                status: item.condemnedDTO, createdAt: item.createdAt
+                batch: item.formattedId, status: item.condemnedDTO, createdAt: item.createdAt
             }));
         }));
     }
