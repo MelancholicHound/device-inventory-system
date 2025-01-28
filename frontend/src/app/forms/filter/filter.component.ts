@@ -4,8 +4,6 @@ import { CommonModule } from '@angular/common';
 
 import { forkJoin } from 'rxjs';
 
-import { SearchType, filterData } from 'filter-data';
-
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { NotificationService } from '../../util/services/notification.service';
@@ -44,17 +42,15 @@ import { DeviceTabletService } from '../../util/services/device-tablet.service';
 export class FilterComponent implements OnInit {
     @Output() filter = new EventEmitter<any>();
 
-    device = [
-        { name: 'Computer', indicator: 'computer' },
-        { name: 'Laptop', indicator: 'laptop' },
-        { name: 'Tablet', indicator: 'tablet' },
-        { name: 'AIO', indicator: 'aio' },
-        { name: 'Printer', indicator: 'printer' },
-        { name: 'Scanner', indicator: 'scanner' },
-        { name: 'Router', indicator: 'router' }
+    deviceObject = [
+        { key: 'COMP', name: 'Computer', indicator: 'computer', service: this.computerAuth },
+        { key: 'LAP', name: 'Laptop', indicator: 'laptop', service: this.laptopAuth },
+        { key: 'TAB', name: 'Tablet', indicator: 'tablet', service: this.tabletAuth },
+        { key: 'AIO', name: 'AIO', indicator: 'aio', service: this.aioAuth },
+        { key: 'PRNT', name: 'Printer', indicator: 'printer', service: this.printerAuth },
+        { key: 'SCAN', name: 'Scanner', indicator: 'scanner', service: this.scannerAuth },
+        { key: 'RT', name: 'Router', indicator: 'router', service: this.routerAuth }
     ];
-
-    authServices = [ this.aioAuth, this.computerAuth, this.laptopAuth, this.printerAuth, this.routerAuth, this.scannerAuth, this.tabletAuth ];
 
     filterForm!: FormGroup;
 
@@ -82,10 +78,10 @@ export class FilterComponent implements OnInit {
                 this.filterForm = this.createFilterForm();
 
                 forkJoin([
-                    ...this.authServices.map(service => service.getAllActiveDevice()),
-                    ...this.authServices.map(service => service.getAllCondemnedDevice())
+                    ...this.deviceObject.map(device => device.service.getAllActiveDevice()),
+                    ...this.deviceObject.map(device => device.service.getAllCondemnedDevice())
                 ]).subscribe({
-                    next: (result: any[]) => console.log(result.flat()),
+                    next: (result: any[]) => this.fetchedDevices = result.flat(),
                     error: (error: any) => this.notification.showError(error)
                 });
     }
@@ -185,6 +181,58 @@ export class FilterComponent implements OnInit {
         });
     }
 
+    filterDevice(formGroup: FormGroup, devices: any[]): any[] {
+        return devices.filter(device => {
+            const filters = formGroup.value;
+
+            if (filters.device) {
+                const deviceKey = this.deviceObject.find(obj => obj.key === filters.device)?.key;
+
+                if (!deviceKey || !device.tag?.includes(deviceKey)) return false;
+            };
+
+            if (filters.batchId && device.batchId !== parseInt(filters.batchId, 10)) return false;
+
+            if (filters.divisionId && device.sectionDTO?.divisionId !== parseInt(filters.divisionId, 10)) return false;
+
+            if (filters.sectionId && device.sectionDTO?.id !== parseInt(filters.sectionId, 10)) return false;
+
+            if (filters.status !== null) {
+                const isActive = !device.condemnedDTO;
+
+                if ((filters.status && !isActive) || (!filters.status && isActive)) {
+                    return false;
+                }
+            }
+
+            if (filters.brandId && device.brandDTO?.id !== parseInt(filters.brandId, 10)) return false;
+
+            if (filters.model && device.model !== filters.model) return false;
+
+            if (filters.brandSeries && device.brandSeries !== filters.brandSeries) return false;
+
+            if (filters.storageCapacityId && !device.storageDTOs?.some((storage: any) => storage.capacityDTO?.id === parseInt(filters.storageCapacityId, 10))) return false;
+
+            if (filters.ramCapacityId && !device.ramDTOs?.some((ram: any) => ram.capacityDTO?.id === parseInt(filters.ramCapacityId, 10))) return false;
+
+            if (filters.videoCardCapacityId && !device.videoCardDTO?.capacityDTO?.id !== filters.videoCardCapacityId) return false;
+
+            if (filters.screenSize && device.screenSize !== parseInt(filters.screenSize, 10)) return false;
+
+            if (filters.printerTypeId && device.printerTypeDTO?.id !== parseInt(filters.printerTypeId)) return false;
+
+            if (filters.isWithScanner && device.withScanner !== filters.isWithScanner) return false;
+
+            if (filters.networkSpeedId && device.networkSpeedDTO?.id !== parseInt(filters.networkSpeedId)) return false;
+
+            if (filters.numberOfAntennasId && device.antennaDTO?.id !== filters.numberOfAntennasId) return false;
+
+            if (filters.scannerTypeId && device.scannerTypeDTO?.id !== filters.scannerTypeId) return false;
+
+            return true;
+        })
+    }
+
     getSection(event: Event): void {
         let selectElement = event.target as HTMLSelectElement;
 
@@ -224,32 +272,7 @@ export class FilterComponent implements OnInit {
     }
 
     submitFilter() {
-        const device = this.filterForm.get('device')?.value;
-        const status = this.filterForm.get('status')?.value;
-
-        let deviceFilter = [
-            { service: this.aioAuth, indicator: 'aio' },
-            { service: this.computerAuth, indicator: 'computer' },
-            { service: this.laptopAuth, indicator: 'laptop' },
-            { service: this.tabletAuth, indicator: 'tablet' },
-            { service: this.printerAuth, indicator: 'printer' },
-            { service: this.scannerAuth, indicator: 'scanner' },
-            { service: this.routerAuth, indicator: 'router' }
-        ];
-
-        if (device) {
-            const deviceMapped = deviceFilter.find((map) => map.indicator === device);
-            const deviceService = deviceMapped?.service;
-            if (status === true) {
-                deviceService?.getAllActiveDevice().subscribe({
-                    next: (result: any[]) => this.filter.emit(result.flat()),
-                    error: (error: any) => this.notification.showError(error)
-                });
-            }
-        } else if (device === null) {
-            console.log('No Device');
-        }
-
+        this.filter.emit(this.filterDevice(this.filterForm, this.fetchedDevices));
         this.filterForm.reset();
     }
 }

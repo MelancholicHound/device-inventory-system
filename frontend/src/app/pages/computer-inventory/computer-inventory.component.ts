@@ -401,32 +401,12 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         }));
     }
 
-    filterData(data: any) {
-        let deviceFilter = [
-            { service: this.aioAuth, indicator: 'aio' },
-            { service: this.computerAuth, indicator: 'computer' },
-            { service: this.laptopAuth, indicator: 'laptop' },
-            { service: this.tabletAuth, indicator: 'tablet' },
-            { service: this.printerAuth, indicator: 'printer' },
-            { service: this.scannerAuth, indicator: 'scanner' },
-            { service: this.routerAuth, indicator: 'router' }
-        ];
+    async filterData(data: any[]) {
+        const dataFlat = data.flat();
+        const dataFetched = await this.mapData(dataFlat);
 
-        if (data['device']) {
-            const mappedAuth = deviceFilter.find((map: any) => map.indicator === data['device']);
-            const condemned: boolean = data['condemned'];
-            switch (data['device']) {
-                case 'computer':
-                case 'laptop':
-                case 'tablet':
-                case 'aio':
-                case 'printer':
-                case 'scanner':
-                case 'router':
-            }
-        } else {
-
-        }
+        dataFetched.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        this.dataSource.data = dataFetched;
 
         this.filterModal.nativeElement.style.display = 'none';
     }

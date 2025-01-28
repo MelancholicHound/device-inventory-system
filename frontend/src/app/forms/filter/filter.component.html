@@ -26,7 +26,7 @@
         <label for="device"> Device </label>
         <select name="" id="device" formControlName="device">
             <option [value]="null" disabled selected> Select device </option>
-            <option [value]="device.indicator" *ngFor="let device of device"> {{ device.name }} </option>
+            <option [value]="device.key" *ngFor="let device of deviceObject"> {{ device.name }} </option>
             <option [value]="null"> None </option>
         </select>
     </div>
