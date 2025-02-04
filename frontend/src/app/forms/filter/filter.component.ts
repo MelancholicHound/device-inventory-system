@@ -54,7 +54,7 @@ export class FilterComponent implements OnInit {
 
     filterForm!: FormGroup;
 
-    fetchedDevices!: any;
+    fetchedDevices!: any; fetchedSuppliers!: any;
     fetchedAIOBrand!: any; fetchedLaptopBrand!: any; fetchedTabletBrand!: any;
     fetchedPrinterBrand!: any; fetchedScannerBrand!: any; fetchedRouterBrand!: any;
 
@@ -89,73 +89,78 @@ export class FilterComponent implements OnInit {
     ngOnInit(): void {
         this.params.getAllBatches().subscribe({
             next: (res: any) => this.fetchedBatch = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.params.getAllDivisions().subscribe({
             next: (res: any) => this.fetchedDivision = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.specs.getRAMCapacities().subscribe({
             next: (res: any) => this.fetchedRAM = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.specs.getStorageCapacities().subscribe({
             next: (res: any) => this.fetchedStorage = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.specs.getVideoCardCapacities().subscribe({
             next: (res: any) => this.fetchedGPU = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.aioAuth.getAIOBrands().subscribe({
             next: (res: any) => this.fetchedAIOBrand = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.laptopAuth.getLaptopBrands().subscribe({
             next: (res: any) => this.fetchedLaptopBrand = res,
-            error: (error : any) => console.error(error)
+            error: (error : any) => this.notification.showError(error)
         });
 
         this.printerAuth.getPrinterBrands().subscribe({
             next: (res: any) => this.fetchedPrinterBrand = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.routerAuth.getRouterBrands().subscribe({
             next: (res: any) => this.fetchedRouterBrand = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         })
 
         this.scannerAuth.getScannerBrands().subscribe({
             next: (res: any) => this.fetchedScannerBrand = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.tabletAuth.getTabletBrands().subscribe({
             next: (res: any) => this.fetchedTabletBrand = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
 
         this.scannerAuth.getScannerType().subscribe({
             next: (res: any) => this.fetchedScannerType = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.routerAuth.getNetworkSpeed().subscribe({
             next: (res: any) => this.fetchedSpeed = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
 
         this.routerAuth.getNumberOfAntennas().subscribe({
             next: (res: any) => this.fetchedAntennas = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
+        });
+
+        this.params.getSuppliers().subscribe({
+            next: (res: any) => this.fetchedSuppliers = res,
+            error: (error: any) => this.notification.showError(error)
         });
     }
 
@@ -170,6 +175,8 @@ export class FilterComponent implements OnInit {
             model: new FormControl(null),
             brandSeries: new FormControl(null),
             storageCapacityId: new FormControl(null),
+            storageType: new FormControl(null),
+            supplierId: new FormControl(null),
             ramCapacityId: new FormControl(null),
             videoCardCapacityId: new FormControl(null),
             screenSize: new FormControl(null),
@@ -205,6 +212,20 @@ export class FilterComponent implements OnInit {
                 }
             }
 
+            if (filters.storageType && device.storageDTOs?.type !== parseInt(filters.storageType, 10)) return false;
+
+            if (filters.supplierId !== null) {
+                this.params.getAllBatches().subscribe({
+                    next: (res: any[]) => {
+                        const mappedBatch = res.find(batch => batch.supplierId === parseInt(filters.supplierId, 10));
+                        if (!mappedBatch) {
+                            throw false;
+                        }
+                    },
+                    error: (error: any) => this.notification.showError(error)
+                });
+            }
+
             if (filters.brandId && device.brandDTO?.id !== parseInt(filters.brandId, 10)) return false;
 
             if (filters.model && device.model !== filters.model) return false;
@@ -238,7 +259,7 @@ export class FilterComponent implements OnInit {
 
         this.params.getSectionsByDivisionId(selectElement.value).subscribe({
             next: (res: any) => this.fetchedSection = res,
-            error: (error: any) => console.error(error)
+            error: (error: any) => this.notification.showError(error)
         });
     }
 
@@ -269,6 +290,14 @@ export class FilterComponent implements OnInit {
 
     getAntennas(event: Event): void {
         this.updateCapacities(event, this.fetchedAntennas, 'numberOfAntennasId', 'numberOfAntenna');
+    }
+
+    getStorageType(event: Event): void {
+        const selectElement = event.target as HTMLSelectElement;
+
+        if (selectElement.value) {
+            this.filterForm.patchValue({ storageType: selectElement.value });
+        }
     }
 
     submitFilter() {

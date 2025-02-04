@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormControl, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+import { expand, repeatWhen, switchMap, timer } from 'rxjs';
+
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { TransactionService } from '../../util/services/transaction.service';
@@ -61,7 +63,9 @@ export class PeripheralsComponent implements OnInit, OnChanges {
             error: (error: any) => { console.log(error) }
         });
 
-        this.specs.getAllUPS().subscribe({
+        this.specs.getAllUPS().pipe(
+            expand(() => timer(1000).pipe(switchMap(() => this.specs.getAllUPS())))
+        ).subscribe({
             next: (data: any) => { this.fetchedUPS = data },
             error: (error: any) => { console.log(error) }
         });

@@ -81,8 +81,15 @@ export interface DeviceTable {
 
 export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     displayedColumns: string[] = ['tag', 'division', 'section', 'status', 'settings'];
-    columnHeader: string[] = ['Device Tag', 'Division', 'Section', 'Status'];
-    dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
+    columnHeader: any[] = [
+        { key: 'tag', header: 'Device Tag' },
+        { key: 'sectionDTO.divisionId', header: 'Division' },
+        { key: 'sectionDTO.id', header: 'Section' },
+        { key: 'condemnedDTO', header: 'Status' },
+        { key: 'formattedId', header: 'Batch ID' },
+        { key: 'supplierId', header: 'Supplier' }
+    ];
+
     deviceMappings = [
         { key: 'PJG-AIO', service: this.aioAuth, route: 'add-device/aio', device: 'AIO', indicator: 'aio' },
         { key: 'PJG-COMP', service: this.computerAuth, route: 'add-device/computer', device: 'Computer', indicator: 'computer' },
@@ -92,6 +99,8 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         { key: 'PJG-SCAN', service: this.scannerAuth, route: 'add-device/scanner', device: 'Scanner', indicator: 'scanner' },
         { key: 'PJG-TAB', service: this.tabletAuth, route: 'add-device/tablet', device: 'Tablet', indicator: 'tablet' }
     ];
+
+    dataSource!: MatTableDataSource<DeviceTable>; isExisting: any;
 
     components: any[] = ['Processor', 'RAM', 'Storage', 'Video Card'];
 

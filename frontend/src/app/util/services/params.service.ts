@@ -30,62 +30,98 @@ export class ParamsService {
     //GET
     getAllDivisions(): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get divisions value.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getDivisionById(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get division by its id.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getSectionsByDivisionId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${id}/sections`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`divisions/${id}/sections`)));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get sections by division id.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getSectionById(divId: any,secId: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${divId}/sections/${secId}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('divisions')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get section by id.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getOS(): Observable<any> {
         return this.http.get<any>(`${this.url}/software/operating-systems`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('software/operating-systems')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get OS values.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getProdTools(): Observable<any> {
         return this.http.get<any>(`${this.url}/software/productivity-tools`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('software/productivity-tools')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get productivity tool values.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getSecurity(): Observable<any> {
         return this.http.get<any>(`${this.url}/software/securities`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('software/securities')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get security values.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getConnections(): Observable<any> {
         return this.http.get<any>(`${this.url}/connections`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('connections')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get connection values.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getPeripherals(): Observable<any> {
         return this.http.get<any>(`${this.url}/peripherals`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('peripherals')))
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get peripheral values.';
+            return throwError(() => new Error(errorMessage));
+        }))
     }
 
-    getSuppliers(): Observable<any[]> {
+    getSuppliers(): Observable<any> {
         return this.http.get<any>(`${this.url}/suppliers`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('suppliers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get suppliers.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getSupplierById(id: number): Observable<any> {
         return this.http.get<any>(`${this.url}/suppliers/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`suppliers/${id}`)));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get suppliers by id.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getAllBatches(): Observable<any> {
         return this.http.get<any>(`${this.url}/batches`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('batches')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get all batches.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getBatchDetails(id: any): Observable<any> {
@@ -121,6 +157,9 @@ export class ParamsService {
     //DELETE
     deleteBatch(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/batches/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`batches/${id}`)));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not delete batch. Please try again.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 }

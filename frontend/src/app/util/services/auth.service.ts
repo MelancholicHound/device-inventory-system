@@ -45,7 +45,10 @@ export class AuthService {
 
     getEmployeePositions(): Observable<any> {
         return this.http.get<any>(`${this.url}/positions`)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('positions')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get employee positions.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     dataStore(form: any) {

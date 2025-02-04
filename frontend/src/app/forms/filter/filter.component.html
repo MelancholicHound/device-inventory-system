@@ -1,6 +1,6 @@
 <form action="" [formGroup]="filterForm" (ngSubmit)="submitFilter()">
     <div class="form-field">
-        <label for="batch"> Batch </label>
+        <label class="bold" for="batch"> Batch </label>
         <select name="" id="batch" formControlName="batchId">
             <option [value]="null" disabled selected> Select on this batch list </option>
             <option [value]="batch.id" *ngFor="let batch of fetchedBatch"> {{ batch.formattedId }} </option>
@@ -8,14 +8,14 @@
     </div>
     <div class="form-section">
         <div class="form-field">
-            <label for="division"> Division </label>
+            <label class="bold" for="division"> Division </label>
             <select class="location" name="" id="division" formControlName="divisionId" (change)="getSection($event)">
                 <option [value]="null" selected disabled> Select division </option>
                 <option [value]="division.id" *ngFor="let division of fetchedDivision"> {{ division.name }} </option>
             </select>
         </div>
         <div class="form-field">
-            <label for="section"> Section </label>
+            <label class="bold" for="section"> Section </label>
             <select class="location" name="" id="section" formControlName="sectionId">
                 <option [value]="null" selected disabled> Select section </option>
                 <option [value]="section.id" *ngFor="let section of fetchedSection"> {{ section.name }} </option>
@@ -23,7 +23,14 @@
         </div>
     </div>
     <div class="form-field">
-        <label for="device"> Device </label>
+        <label class="bold" for="supplier"> Supplier </label>
+        <select name="" id="supplier" formControlName="supplierId">
+            <option [value]="null" selected disabled> Select supplier </option>
+            <option [value]="supplier.id" *ngFor="let supplier of fetchedSuppliers"> {{ supplier.name }} </option>
+        </select>
+    </div>
+    <div class="form-field">
+        <label class="bold" for="device"> Device </label>
         <select name="" id="device" formControlName="device">
             <option [value]="null" disabled selected> Select device </option>
             <option [value]="device.key" *ngFor="let device of deviceObject"> {{ device.name }} </option>
@@ -31,7 +38,7 @@
         </select>
     </div>
     <div class="form-field">
-        <p> Status </p>
+        <p class="bold"> Status </p>
         <div class="radio-container">
             <div class="form-container">
                 <input type="radio" name="" [value]="true" id="isActive" formControlName="status">
@@ -43,20 +50,23 @@
             </div>
         </div>
     </div>
-    @if (filterForm.get('device')?.value === 'computer') {
+    <hr>
+    @if (filterForm.get('device')?.value === 'COMP') {
         <h4> Computer Specifications </h4>
         <div class="specifications">
             <div class="form-field">
                 <p> Storage </p>
-                <!-- <div class="input-field">
-                    <label for="storage-type"> Type </label>
-                    <select name="" id="storage-type">
-                        <option [value]="null">  </option>
-                    </select>
-                </div> -->
                 <div class="input-field">
+                    <label for="storage-type"> Type: </label>
+                    <select name="" id="storage-type" (change)="getStorageType($event)">
+                        <option value="" selected disabled> Select type </option>
+                        <option value="HDD"> HDD </option>
+                        <option value="SSD"> SSD </option>
+                    </select>
+                </div>
+                <div class="input-field top-gap">
                     <label for="storage-size"> Size: </label>
-                    <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                    <input class="left-gap" type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
                     <p> GB </p>
                 </div>
             </div>
@@ -77,7 +87,7 @@
                 </div>
             </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'laptop') {
+    } @else if (filterForm.get('device')?.value === 'LAP') {
         <h4> Laptop Information </h4>
         <div class="information">
             <div class="form-field">
@@ -97,15 +107,17 @@
             <div class="field">
                 <div class="form-field">
                     <p> Storage </p>
-                    <!-- <div class="input-field">
-                        <label for="storage-type"> Type </label>
-                        <select name="" id="storage-type">
-                            <option [value]="null">  </option>
-                        </select>
-                    </div> -->
                     <div class="input-field">
+                        <label for="storage-type"> Type: </label>
+                        <select name="" id="storage-type" (change)="getStorageType($event)">
+                            <option value="" selected disabled> Select type </option>
+                            <option value="HDD"> HDD </option>
+                            <option value="SSD"> SSD </option>
+                        </select>
+                    </div>
+                    <div class="input-field top-gap">
                         <label for="storage-size"> Size: </label>
-                        <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                        <input class="left-gap" type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
                         <p> GB </p>
                     </div>
                 </div>
@@ -134,7 +146,7 @@
                 </div>
             </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'tablet') {
+    } @else if (filterForm.get('device')?.value === 'TAB') {
         <h4> Tablet Information </h4>
         <div class="information">
             <div class="form-field">
@@ -154,12 +166,6 @@
              <div class="field">
                 <div class="form-field">
                     <p> Storage </p>
-                    <!-- <div class="input-field">
-                        <label for="storage-type"> Type </label>
-                        <select name="" id="storage-type">
-                            <option [value]="null">  </option>
-                        </select>
-                    </div> -->
                     <div class="input-field">
                         <label for="gpu-size"> Size: </label>
                         <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
@@ -183,7 +189,7 @@
                   </div>
               </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'aio') {
+    } @else if (filterForm.get('device')?.value === 'AIO') {
         <h4> AIO Information </h4>
         <div class="information">
             <div class="form-field">
@@ -203,15 +209,17 @@
             <div class="field">
                 <div class="form-field">
                     <p> Storage </p>
-                    <!-- <div class="input-field">
-                        <label for="storage-type"> Type </label>
-                        <select name="" id="storage-type">
-                            <option [value]="null">  </option>
-                        </select>
-                    </div> -->
                     <div class="input-field">
+                        <label for="storage-type"> Type: </label>
+                        <select name="" id="storage-type" (change)="getStorageType($event)">
+                            <option value="" selected disabled> Select type </option>
+                            <option value="HDD"> HDD </option>
+                            <option value="SSD"> SSD </option>
+                        </select>
+                    </div>
+                    <div class="input-field top-gap">
                         <label for="storage-size"> Size: </label>
-                        <input type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
+                        <input class="left-gap" type="number" name="" min="0" list="storage" id="storage-size" (blur)="getStorage($event)">
                         <p> GB </p>
                     </div>
                 </div>
@@ -240,7 +248,7 @@
                 </div>
             </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'scanner') {
+    } @else if (filterForm.get('device')?.value === 'SCAN') {
         <h4> Scanner Information </h4>
         <div class="specifications">
             <div class="field">
@@ -267,7 +275,7 @@
                 </select>
             </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'printer') {
+    } @else if (filterForm.get('device')?.value === 'PRNT') {
         <h4> Printer Information </h4>
         <div class="information">
             <div class="form-field">
@@ -298,7 +306,7 @@
                 </div>
             </div>
         </div>
-    } @else if (filterForm.get('device')?.value === 'router') {
+    } @else if (filterForm.get('device')?.value === 'RT') {
         <h4> Router Information </h4>
         <div class="information">
             <div class="form-field">
