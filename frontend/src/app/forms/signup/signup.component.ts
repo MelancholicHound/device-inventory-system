@@ -71,13 +71,13 @@ export class SignupComponent implements OnInit {
 
     signup() {
         this.signupForm.removeControl('confirmPassword');
-        this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) }, { emitEvent: false });
+        this.signupForm.patchValue({ positionId: parseInt(this.signupForm.get('positionId')?.value, 10) });
         this.auth.signup(this.signupForm.value).subscribe({
             next: () =>  {
                 this.successSignup = true;
                 setTimeout(() => {
                     this.booleanEvent.emit(true)
-                }, 2500);
+                }, 2000);
             },
             error: (error) => {
                 this.signupForm.reset();

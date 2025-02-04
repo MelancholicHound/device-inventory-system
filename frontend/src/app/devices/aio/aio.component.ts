@@ -243,21 +243,28 @@ export class AioComponent implements OnInit {
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let ramArray = this.aioForm.get('ramRequests') as FormArray;
+        let inputCapacity = parseInt(inputElement.value, 10);
 
-        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
+        if (!inputElement.value || isNaN(inputCapacity)) return;
 
-        if (!inputElement.value) return;
+        let existingCapacities = ramArray.controls
+        .map(control => this.fetchedRAM.find((ram: any) => ram.id === control.value.capacityId)?.capacity)
+        .filter(capacity => capacity !== undefined);
+
+        if (existingCapacities.includes(inputCapacity)) return;
+
+        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === inputCapacity);
 
         if (typeof matchingRAM === 'undefined') {
-            this.specs.postRAMCapacity(parseInt(inputElement.value, 10)).subscribe({
+            this.specs.postRAMCapacity(inputCapacity).subscribe({
                 next: (res: any) => {
-                    ramArray.push(new FormGroup({
-                        capacityId: new FormControl(res.id)
-                    }));
+                    if (!existingCapacities.includes(inputCapacity)) {
+                        ramArray.push(new FormGroup({
+                            capacityId: new FormControl(res.id)
+                        }));
+                    }
                 },
-                error: (error: any) => {
-                    this.notification.showError(`${error}`);
-                }
+                error: (error: any) => this.notification.showError(error)
             });
         } else {
             ramArray.push(new FormGroup({
@@ -268,15 +275,23 @@ export class AioComponent implements OnInit {
 
     onGPUInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
+        let inputCapacity = parseInt(inputElement.value, 10);
 
-        let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
+        if (!inputElement.value || isNaN(inputCapacity)) return;
 
-        if (!inputElement.value) return;
+        let existingCapacity = this.aioForm.get('videoCardRequest')?.value.capacityId;
+        let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === inputCapacity);
+
+        if (matchingGPU && existingCapacity === matchingGPU.id) return;
 
         if (typeof matchingGPU === 'undefined') {
-            this.specs.postGPUCapacity(inputElement.value).subscribe({
-                next: (res: any) => this.aioForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
-                error: (error: any) => console.error(error)
+            this.specs.postGPUCapacity(inputCapacity).subscribe({
+                next: (res: any) => {
+                    if (existingCapacity !== res.id) {
+                        this.aioForm.get('videoCardRequest')?.setValue({ capacityId: res.id });
+                    }
+                },
+                error: (error: any) => this.notification.showError(error)
             });
         } else {
             this.aioForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });

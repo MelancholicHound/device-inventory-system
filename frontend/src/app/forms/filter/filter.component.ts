@@ -218,7 +218,7 @@ export class FilterComponent implements OnInit {
                 this.params.getAllBatches().subscribe({
                     next: (res: any[]) => {
                         const mappedBatch = res.find(batch => batch.supplierId === parseInt(filters.supplierId, 10));
-                        if (!mappedBatch) {
+                        if (mappedBatch === undefined) {
                             throw false;
                         }
                     },

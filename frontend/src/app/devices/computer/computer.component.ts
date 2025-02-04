@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, input, OnInit } from '@angular/core';
 import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormArray } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -9,6 +9,7 @@ import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 import { TransactionService } from '../../util/services/transaction.service';
+import { NotificationService } from '../../util/services/notification.service';
 
 import { updateChildData } from '../../util/store/app.actions';
 
@@ -55,7 +56,8 @@ export class ComputerComponent implements OnInit {
                 private specs: SpecsService,
                 private computerAuth: DeviceComputerService,
                 private store: Store,
-                private transaction: TransactionService) { }
+                private transaction: TransactionService,
+                private notification: NotificationService) { }
 
     ngOnInit(): void {
         this.deviceCount = history.state.count;
@@ -239,38 +241,55 @@ export class ComputerComponent implements OnInit {
     onRAMInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
         let ramArray = this.computerForm.get('ramRequests') as FormArray;
+        let inputCapacity = parseInt(inputElement.value, 10);
 
-        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === parseInt(inputElement.value, 10));
+        if (!inputElement.value || isNaN(inputCapacity)) return;
 
-        if (!inputElement.value) return;
+        let existingCapacities = ramArray.controls
+        .map(control => this.fetchedRAM.find((ram: any) => ram.id === control.value.capacityId)?.capacity)
+        .filter(capacity => capacity !== undefined);
+
+        if (existingCapacities.includes(inputCapacity)) return;
+
+        let matchingRAM = this.fetchedRAM.find((ram: any) => ram.capacity === inputCapacity);
 
         if (typeof matchingRAM === 'undefined') {
-            this.specs.postRAMCapacity(inputElement.value).subscribe({
+            this.specs.postRAMCapacity(inputCapacity).subscribe({
                 next: (res: any) => {
-                    ramArray.push(new FormGroup({
-                        capacityId: new FormControl(res.id, [Validators.required])
-                    }));
+                    if (!existingCapacities.includes(inputCapacity)) {
+                        ramArray.push(new FormGroup({
+                            capacityId: new FormControl(res.id)
+                        }));
+                    }
                 },
-                error: (error: any) => console.error(error)
+                error: (error: any) => this.notification.showError(error)
             });
         } else {
             ramArray.push(new FormGroup({
-                capacityId: new FormControl(matchingRAM.id, [Validators.required])
+                capacityId: new FormControl(matchingRAM.id)
             }));
         }
     }
 
     onGPUInput(event: Event): void {
         let inputElement = event.target as HTMLInputElement;
+        let inputCapacity = parseInt(inputElement.value, 10);
 
-        let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === parseInt(inputElement.value, 10));
+        if (!inputElement.value || isNaN(inputCapacity)) return;
 
-        if (!inputElement.value) return;
+        let existingCapacity = this.computerForm.get('videoCardRequest')?.value.capacityId;
+        let matchingGPU = this.fetchedGPU.find((gpu: any) => gpu.capacity === inputCapacity);
+
+        if (matchingGPU && existingCapacity === matchingGPU.id) return;
 
         if (typeof matchingGPU === 'undefined') {
-            this.specs.postGPUCapacity(inputElement.value).subscribe({
-                next: (res: any) => this.computerForm.get('videoCardRequest')?.setValue({ capacityId: res.id }),
-                error: (error: any) => console.error(error)
+            this.specs.postGPUCapacity(inputCapacity).subscribe({
+                next: (res: any) => {
+                    if (existingCapacity !== res.id) {
+                        this.computerForm.get('videoCardRequest')?.setValue({ capacityId: res.id });
+                    }
+                },
+                error: (error: any) => this.notification.showError(error)
             });
         } else {
             this.computerForm.get('videoCardRequest')?.setValue({ capacityId: matchingGPU.id });
