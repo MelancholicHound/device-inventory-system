@@ -215,15 +215,9 @@ export class FilterComponent implements OnInit {
             if (filters.storageType && device.storageDTOs?.type !== parseInt(filters.storageType, 10)) return false;
 
             if (filters.supplierId !== null) {
-                this.params.getAllBatches().subscribe({
-                    next: (res: any[]) => {
-                        const mappedBatch = res.find(batch => batch.supplierId === parseInt(filters.supplierId, 10));
-                        if (mappedBatch === undefined) {
-                            throw false;
-                        }
-                    },
-                    error: (error: any) => this.notification.showError(error)
-                });
+                const mappedBatch = this.fetchedBatch.find((batch: any) => batch.id === device.batchId);
+
+                if (mappedBatch.supplierId === parseInt(filters.supplierId, 10)) return false;
             }
 
             if (filters.brandId && device.brandDTO?.id !== parseInt(filters.brandId, 10)) return false;

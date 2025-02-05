@@ -52,7 +52,6 @@ export class ParamsService {
         }));
     }
 
-
     getSectionById(divId: any,secId: any): Observable<any> {
         return this.http.get<any>(`${this.url}/divisions/${divId}/sections/${secId}`, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
