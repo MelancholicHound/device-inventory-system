@@ -27,32 +27,50 @@ export class DeviceRouterService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/routers/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/routers/batch`)));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting all routers by Batch ID.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getById(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/routers/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting router by ID.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getRouterBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/router-brands`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/router-brands')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting router brands.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getNetworkSpeed(): Observable<any> {
         return this.http.get<any>(`${this.url}/router-network-speeds`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('router-network-speeds')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting network speed.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getNumberOfAntennas(): Observable<any> {
         return this.http.get<any>(`${this.url}/router-antennas`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('router-antennas')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting number of antennas.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getAllDevice(isCondemned: boolean): Observable<any> {
         return this.http.get<any>(`${this.url}/device/routers?isCondemned=${isCondemned}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting all routers.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getAllActiveDevice(): Observable<any> {
@@ -66,40 +84,50 @@ export class DeviceRouterService {
     //POST
     postRouterBrandInput(brand: any): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/router-brands?brand=${brand}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/router-brands')))
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting router brand.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postNetworkSpeedInput(speed: number): Observable<any> {
         return this.http.post<any>(`${this.url}/router-network-speeds?speedName=${speed}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('router-network-speeds')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting network speed.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postNumberOfAntennas(antennas: number): Observable<any> {
         return this.http.post<any>(`${this.url}/router-antennas?antennaNumber=${antennas}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('router-antennas')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting number of antennas.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postDevice(form: any): Observable<any> {
         return this.http.post<any>(`${this.url}/device/routers/save-all`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers/save-all')));
-    }
-
-    searchFilter(form: any, isCondemned: boolean): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/routers/search?isCondemned=${isCondemned}`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers/search')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting router.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/routers/${id}`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on updating router.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/routers/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            const errorMessage = error?.error?.message || 'Error in condemning device.';
             return throwError(() => new Error(errorMessage));
         }));
     }
@@ -107,6 +135,9 @@ export class DeviceRouterService {
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/routers/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/routers')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error in deleting router.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 }

@@ -26,27 +26,42 @@ export class DeviceTabletService {
     //GET
     getAllByBatchId(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/tablets/batch/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>(`device/tablets/batch`)));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting all tablets by Batch ID.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getById(id: any): Observable<any> {
         return this.http.get<any>(`${this.url}/device/tablets/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting tablet by ID.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getTabletBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/tablet-brands`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/tablet-brands')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting tablet brands.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getChipsetBrands(): Observable<any> {
         return this.http.get<any>(`${this.url}/specs/chipset-brands`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting chipset brands.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getAllDevice(isCondemned: boolean): Observable<any> {
         return this.http.get<any>(`${this.url}/device/tablets?isCondemned=${isCondemned}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on getting all tablets.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     getAllActiveDevice(): Observable<any> {
@@ -60,35 +75,42 @@ export class DeviceTabletService {
     //POST
     postTabletBrand(brand: string): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/tablet-brands?brand=${brand}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/tablet-brands')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting tablet brand.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postChipsetBrand(brand: string): Observable<any> {
         return this.http.post<any>(`${this.url}/specs/chipset-brands?brand=${brand}`, null, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('specs/chipset-brands')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting chipset brand.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     postDevice(form: any): Observable<any> {
         return this.http.post<any>(`${this.url}/device/tablets/save-all`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/save-all')));
-    }
-
-    searchFilter(form: any, isCondemned: boolean): Observable<any> {
-        return this.http.post<any>(`${this.url}/device/tablets/search?isCondemned=${isCondemned}`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets/search')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on posting tablet.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PUT
     updateDevice(form: any, id: any): Observable<any> {
         return this.http.put<any>(`${this.url}/device/tablets/${id}`, form, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+        .pipe(first(), catchError((error: any) => {
+           const errorMessage = error?.error?.message || 'Error on updating tablet';
+           return throwError(() => new Error(errorMessage));
+        }));
     }
 
     //PATCH (condemn unit)
     condemnDevice(data: any): Observable<any> {
         return this.http.patch<any>(`${this.url}/device/tablets/${data.id}?reason=${data.reason}&condemnedAt=${data.condemnedAt}`, null, this.httpOptions)
         .pipe(first(), catchError((error: any) => {
-            const errorMessage = error?.error?.message || 'An unknown error occured.';
+            const errorMessage = error?.error?.message || 'Error on condemning tablet.';
             return throwError(() => new Error(errorMessage));
         }));
     }
@@ -96,6 +118,9 @@ export class DeviceTabletService {
     //DELETE
     deleteById(id: any): Observable<any> {
         return this.http.delete<any>(`${this.url}/device/tablets/${id}`, this.httpOptions)
-        .pipe(first(), catchError(this.errorHandler.handleError<any>('device/tablets')));
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Error on deleting tablet.';
+            return throwError(() => new Error(errorMessage));
+        }));
     }
 }
