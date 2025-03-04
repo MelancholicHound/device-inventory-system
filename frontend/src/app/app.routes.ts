@@ -4,7 +4,6 @@ import { AddBatchComponent } from './pages/add-batch/add-batch.component';
 import { AddDeviceComponent } from './pages/add-device/add-device.component';
 import { BatchDeliveryComponent } from './pages/batch-delivery/batch-delivery.component';
 import { ComputerInventoryComponent } from './pages/computer-inventory/computer-inventory.component';
-import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 
 import { AioComponent } from './devices/aio/aio.component';
 import { ComputerComponent } from './devices/computer/computer.component';
@@ -30,6 +29,5 @@ export const routes: Routes = [
       ]
     },
     { path: 'batch-delivery' , component: BatchDeliveryComponent },
-    { path: 'computer-inventory' , component: ComputerInventoryComponent },
-    { path: 'user-profile', component: UserProfileComponent }
+    { path: 'computer-inventory' , component: ComputerInventoryComponent }
 ];

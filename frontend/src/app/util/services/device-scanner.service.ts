@@ -10,7 +10,7 @@ import { ErrorHandlerService } from './error-handler.service';
   providedIn: 'root'
 })
 export class DeviceScannerService {
-    private url = 'http://192.168.1.86:8082/api/v1/dis';
+    private url = 'http://192.168.1.87:8082/api/v1/dis';
     private token = localStorage.getItem('token');
 
     httpOptions: { headers: HttpHeaders } = {
