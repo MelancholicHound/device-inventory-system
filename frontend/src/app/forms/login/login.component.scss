@@ -8,7 +8,7 @@ header {
     }
 }
 
-h2 { font-size: 2rem; }
+h2 { font-size: 2em; }
 
 section {
     flex-direction: column;
@@ -84,3 +84,11 @@ section,
 footer { display: flex; }
 
 //Modal extra styles
+.recover-modal {
+    max-width: 35%;
+    height: auto;
+}
+
+app-recover {
+    width: 100%;
+}

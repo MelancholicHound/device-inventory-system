@@ -21,12 +21,12 @@ button {
 .button-container {
     flex-wrap: wrap;
     gap: 10px;
-    width: 200px;
+    width: 150px;
 }
 
 .primary { width: 95px; }
 
-.secondary { width: 200px; }
+.secondary { width: 150px; }
 
 input[type='search'] {
     padding: 10px;
@@ -66,8 +66,9 @@ blockquote {
     background-color: #f44336;
 }
 
-.search-btn,
-.filter-btn { width: 100px; }
+.search-btn { width: 100px; }
+
+.filter-btn { width: 50px; }
 
 .filter-btn,
 .primary,

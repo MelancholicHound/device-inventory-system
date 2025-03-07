@@ -1,0 +1,21 @@
+mat-stepper {
+    background-color: transparent;
+    width: 100%;
+}
+
+.form-field {
+    flex-direction: column;
+}
+
+.form-control {
+    padding: 8px;
+}
+
+.input-field {
+    gap: 10px;
+}
+
+.form-field,
+.input-field {
+    display: flex;
+}

@@ -15,7 +15,7 @@
     </section>
     <section class="buttons-container">
         <button type="submit" class="login-btn br bold" [disabled]="loginForm.invalid" (click)="login()"> Log In </button>
-        <button type="button" class="recover-btn" (click)="recoverModal.style.display = 'block'"> Forgot Password </button>
+        <button type="button" class="recover-btn" (click)="recoverModal.style.display = 'grid'"> Forgot Password </button>
     </section>
     <hr>
     <footer>
@@ -24,7 +24,7 @@
 </form>
 
 <div class="modal" #recoverModal>
-    <div class="modal-content">
+    <div class="modal-content recover-modal">
         <div class="modal-header">
             <h3> Account Recovery </h3>
             <button type="button" class="close-btn" (click)="recoverModal.style.display = 'none'">
@@ -32,7 +32,7 @@
             </button>
         </div>
         <div class="modal-body">
-
+            <app-recover />
         </div>
     </div>
 </div>

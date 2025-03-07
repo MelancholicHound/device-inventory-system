@@ -1,6 +1,8 @@
-import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild } from '@angular/core';
-import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, Form } from '@angular/forms';
+import { Component, OnInit, EventEmitter, Output, ElementRef, ViewChild, inject } from '@angular/core';
+import { Validators, FormGroup, FormControl, ReactiveFormsModule, FormsModule, FormBuilder } from '@angular/forms';
 import { Router } from '@angular/router';
+
+import { RecoverComponent } from '../../forms/recover/recover.component';
 
 import { AuthService } from '../../util/services/auth.service';
 import { NotificationService } from '../../util/services/notification.service';
@@ -10,7 +12,8 @@ import { NotificationService } from '../../util/services/notification.service';
     standalone: true,
     imports: [
         ReactiveFormsModule,
-        FormsModule
+        FormsModule,
+        RecoverComponent
     ],
     templateUrl: './login.component.html',
     styleUrl: './login.component.scss'

@@ -43,6 +43,14 @@ export class AuthService {
         }));
     }
 
+    getByEmail(email: any): Observable<any> {
+        return this.http.get(`${this.url}/employees/email/${email}`, this.httpOptions)
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not get account with this email';
+            return throwError(() => new Error(errorMessage));
+        }));
+    }
+
     getEmployeePositions(): Observable<any> {
         return this.http.get<any>(`${this.url}/positions`)
         .pipe(first(), catchError((error: any) => {

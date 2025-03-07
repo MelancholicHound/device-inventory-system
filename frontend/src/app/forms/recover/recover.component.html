@@ -1,0 +1,37 @@
+<mat-stepper linear #recoverStepper>
+    <mat-step [stepControl]="emailValidatorForm" errorMessage="This field is required">
+        <form action="" [formGroup]="emailValidatorForm">
+            <ng-template matStepLabel> Step 1 </ng-template>
+            <div class="form-field">
+                <label for="recover-email"> Email: </label>
+                <div class="input-field">
+                    <input type="text" class="form-control" id="recover-email" formControlName="email">
+                    <button type="button" (click)="checkIfExisting()"> Check </button>
+                </div>
+            </div>
+            <div class="button-field">
+                <button type="button" class="next-btn" matStepperNext [disabled]="!isExisting">
+                    <p class="next-label"> Next </p>
+                    <span class="material-symbols-rounded"> arrow_forward </span>
+                </button>
+            </div>
+        </form>
+    </mat-step>
+    <mat-step [stepControl]="passwordMatcher" errorMessage="This field is required">
+        <form action="" [formGroup]="passwordMatcher">
+            <ng-template matStepLabel> Step 2 </ng-template>
+            <div class="form-field">
+                <label for="recover-password"> New password </label>
+                <input type="password" id="recover-password" formControlName="password">
+            </div>
+            <div class="form-field">
+                <label for="recover-confirm-password"> Confirm new password </label>
+                <input type="password" id="recover-confirm-password" formControlName="confirmPassword">
+            </div>
+        </form>
+    </mat-step>
+    <mat-step>
+        <ng-template matStepLabel> Done </ng-template>
+        <p>  </p>
+    </mat-step>
+</mat-stepper>
