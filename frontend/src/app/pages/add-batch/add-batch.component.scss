@@ -6,22 +6,55 @@
     width: 100%;
     height: 6rem;
     padding: 10px 15px;
+    @media (max-width: 1024px) {
+        height: 33%;
+    }
 }
 
-.batch-details { gap: 5rem; }
+.batch-details {
+    gap: 5rem;
+    @media (max-width: 1024px) {
+        gap: 3rem;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.pr-block {
+    width: 96px;
+}
 
 blockquote {
     gap: 10px;
-    font-size: 90%;
+    width: 120px;
 }
 
 .output-label { text-decoration: underline; }
 
-.button-field { gap: 20px; }
+.button-field {
+    gap: 20px;
+    @media (max-width: 1024px) {
+        width: 8rem;
+        gap: 5px;
+        justify-content: end;
+    }
+}
 
-.add-btn { width: 8rem; }
+.add-btn {
+    width: 8rem;
+}
 
-.save-btn { width: 6rem; }
+.save-btn {
+    width: 6rem;
+    @media (max-width: 1024px) {
+        width: 8rem;
+    }
+}
+
+.button-field,
+blockquote {
+  flex-wrap: wrap;
+}
 
 .add-btn,
 .save-btn {

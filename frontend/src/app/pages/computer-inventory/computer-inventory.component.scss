@@ -88,9 +88,17 @@ blockquote { display: flex; }
 .change-part-modal {
     max-width: 40%;
     height: auto;
+    @media (max-width: 1024px) {
+        max-width: 65%;
+        height: auto;
+    }
 }
 
 .filter-modal {
+    @media (max-width: 1024px) {
+        max-width: 45%;
+        height: auto;
+    }
     max-width: 32%;
     height: auto;
 }

@@ -70,7 +70,11 @@
     }
 }
 
-.modal-body { min-height: 200px; }
+.modal-body {
+    min-height: 200px;
+    max-height: 80vh;
+    overflow-y: scroll;
+}
 
 .modal-header,
 .modal-body,
