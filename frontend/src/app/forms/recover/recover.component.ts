@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ViewChild, ElementRef, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
@@ -33,8 +33,12 @@ import { NotificationService } from '../../util/services/notification.service';
 })
 export class RecoverComponent {
     private formBuilder = inject(FormBuilder);
-    private users = inject(AuthService);
+    private authService = inject(AuthService);
     private notification = inject(NotificationService);
+
+    @ViewChild('recoverEmail') recoverEmail!: ElementRef<HTMLInputElement>;
+
+    @Output() booleanEvent = new EventEmitter<boolean>();
 
     isExisting: boolean = false;
 
@@ -48,9 +52,10 @@ export class RecoverComponent {
     });
 
     checkIfExisting(): void {
-        this.users.getByEmail(this.emailValidatorForm.get('email')?.value).subscribe({
+        this.authService.getByEmail(this.emailValidatorForm.get('email')?.value).subscribe({
             next: () => {
                 this.isExisting = true;
+                this.recoverEmail.nativeElement.style.border = "2px solid #28a745";
             },
             error: (error: any) => {
                 this.isExisting = false;
@@ -59,5 +64,17 @@ export class RecoverComponent {
         });
     }
 
+    changePassword() {
+        this.authService.changePassword(this.emailValidatorForm.value, this.passwordMatcher.value).subscribe({
+            next: () => this.booleanEvent.emit(true),
+            error: (error: any) => this.notification.showError(error)
+        });
+    }
 
+    passwordValidator() {
+        const password = this.passwordMatcher.get('password')?.value;
+        const confirmPassword = this.passwordMatcher.get('confirmPassword')?.value;
+
+        return password === confirmPassword;
+    }
 }

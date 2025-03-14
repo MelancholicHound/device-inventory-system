@@ -1,36 +1,81 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { FormGroup, Validators, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
+
+import { AuthService } from '../../util/services/auth.service';
+import { NotificationService } from '../../util/services/notification.service';
 
 @Component({
     selector: 'app-navigation',
     standalone: true,
-    imports: [ CommonModule ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule
+    ],
     templateUrl: './navigation.component.html',
     styleUrl: './navigation.component.scss'
 })
 
-export class NavigationComponent {
+export class NavigationComponent implements OnInit {
+    @ViewChild('batchDelivery') batchDelivery!: ElementRef<HTMLButtonElement>;
+    @ViewChild('computerInventory') computerInventory!: ElementRef<HTMLButtonElement>;
 
-    @ViewChild('accountDetails') accountDetails!: ElementRef;
+    authService = inject(AuthService);
+    notification = inject(NotificationService);
+
+    userDetails: any; positions: any;
+    userForm!: FormGroup;
 
     constructor(private router: Router) { }
 
     ngOnInit(): void {
-        let batchDelivery = document.getElementById('batch-delivery') as HTMLButtonElement;
-        let computerInventory = document.getElementById('computer-inv') as HTMLButtonElement;
+        const token = localStorage.getItem('token');
+        this.userForm = this.createUserFormGroup();
 
-        batchDelivery.addEventListener("click", () => {
-            batchDelivery.classList.add('active');
-            computerInventory.classList.remove('active');
-            this.router.navigate(['batch-delivery']);
-        });
+        if (token) {
+            this.authService.getByEmail(this.extractEmail(token)).subscribe({
+                next: (res: any) => this.userDetails = res,
+                error: (error: any) => this.notification.showError(error)
+            });
+        }
 
-        computerInventory.addEventListener("click", () => {
-            batchDelivery.classList.remove('active');
-            computerInventory.classList.add('active');
-            this.router.navigate(['computer-inventory']);
+        this.authService.getEmployeePositions().subscribe({
+            next: (res: any) => this.positions = res,
+            error: (error: any) => this.notification.showError(error)
         });
+    }
+
+    private extractEmail (token: any) {
+        const tokenPayload = token.split(".")[1];
+        const decodedPayload = atob(tokenPayload);
+        const payloadData = JSON.parse(decodedPayload);
+
+        return payloadData.sub;
+    }
+
+    createUserFormGroup(): FormGroup {
+        return new FormGroup({
+            firstname: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            middlename: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            lastname: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            positionId: new FormControl('', [Validators.required]),
+            positionRanking: new FormControl('', [Validators.required]),
+            email: new FormControl('', [Validators.required, Validators.email])
+        });
+    }
+
+    navigateBatchDelivery() {
+        this.batchDelivery.nativeElement.classList.add('active');
+        this.computerInventory.nativeElement.classList.remove('active');
+        this.router.navigate(['batch-delivery']);
+    }
+
+    navigateComputerInventory() {
+        this.batchDelivery.nativeElement.classList.remove('active');
+        this.computerInventory.nativeElement.classList.add('active');
+        this.router.navigate(['computer-inventory']);
     }
 
     logOut(): void {

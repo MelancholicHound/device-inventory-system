@@ -10,14 +10,68 @@
     </header>
     <section>
         <h1 class="section-title"> Overview </h1>
-        <button type="button" class="nav-btn" id="batch-delivery">
+        <button type="button" class="nav-btn" id="batch-delivery" (click)="navigateBatchDelivery()" #batchDelivery>
             <span class="material-symbols-rounded nav-icon"> local_shipping </span>
             <p class="btn-label"> Batch Delivery </p>
         </button>
-        <button type="button" class="nav-btn" id="computer-inv">
+        <button type="button" class="nav-btn" id="computer-inv" (click)="navigateComputerInventory()" #computerInventory>
             <span class="material-symbols-rounded nav-icon"> inventory </span>
             <p class="btn-label"> Computer Inventory </p>
         </button>
-        <button></button>
     </section>
+    <footer>
+        <button type="button" class="profile" (click)="accountModal.style.display = 'grid'">
+            <span class="material-symbols-rounded avatar"> account_circle </span>
+            <div class="details">
+                <h3> {{ userDetails?.firstName }} {{ userDetails?.lastName }} </h3>
+                <p> {{ userDetails?.email }} </p>
+            </div>
+        </button>
+    </footer>
 </nav>
+
+<div class="modal" #accountModal>
+    <div class="modal-content user-modal">
+        <div class="modal-header">
+            <h3> Account Details </h3>
+            <button class="close-btn" type="button" (click)="accountModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form action="" [formGroup]="userForm">
+                <div class="form-field">
+                    <label for="firstname"> Firstname: </label>
+                    <input type="text" class="form-control" id="firstname" formControlName="firstname">
+                </div>
+                <div class="form-field">
+                    <label for="middlename"> Middlename: </label>
+                    <input type="text" class="form-control" id="middlename" formControlName="middlename">
+                </div>
+                <div class="form-field">
+                    <label for="lastname"> Lastname: </label>
+                    <input type="text" class="form-control" id="lastname" formControlName="lastname">
+                </div>
+                <div class="input-field">
+                    <div class="form-field">
+                        <label for="position"> Position </label>
+                        <select class="form-control" name="" id="position" formControlName="positionId">
+                            <option [value]="position.id" *ngFor="let position of positions"> {{ position.name }} </option>
+                        </select>
+                    </div>
+                    <div class="form-field">
+                        <label for="rank"> Rank </label>
+                        <input type="number" class="form-control" id="rank" min="0" max="6" formControlName="positionRanking">
+                    </div>
+                </div>
+                <div class="form-field">
+                    <label for="email"> Email: </label>
+                    <input type="text" class="form-control" id="email" formControlName="email">
+                </div>
+                <div class="btn-container">
+                    <button type="button" class="edit-btn"> Edit </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

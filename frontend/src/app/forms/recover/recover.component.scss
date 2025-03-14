@@ -3,19 +3,68 @@ mat-stepper {
     width: 100%;
 }
 
+form {
+    flex-direction: column;
+    gap: 20px;
+}
+
 .form-field {
     flex-direction: column;
 }
 
 .form-control {
     padding: 8px;
+    width: 100%;
+}
+
+.success {
+    color: #28a745;
+    font-size: 14px;
+    margin-top: -19px;
+}
+
+.change-icon {
+    font-size: 50px;
 }
 
 .input-field {
     gap: 10px;
 }
 
+.check-btn {
+    width: 150px;
+    font-weight: 700;
+}
+
+.step-btn {
+    border: none;
+    background-color: transparent;
+    gap: 10px;
+    align-items: center;
+}
+
+.step-label {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.content { text-align: center; }
+
+.notification {
+    align-items: center;
+    gap: 10px;
+}
+
+.button-field {
+    justify-content: space-between;
+    width: 100%;
+}
+
+form,
 .form-field,
-.input-field {
+.input-field,
+.button-field,
+.step-btn,
+.notification {
     display: flex;
 }

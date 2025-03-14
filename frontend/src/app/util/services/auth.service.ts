@@ -59,6 +59,14 @@ export class AuthService {
         }));
     }
 
+    changePassword(emailForm: any, passwordForm: any): Observable<any> {
+        return this.http.post(`${this.url}/employees/forgot-password?email=${emailForm.email}&newPassword=${passwordForm.password}&reTypeNewPassword=${passwordForm.confirmPassword}`, null, this.httpOptions)
+        .pipe(first(), catchError((error: any) => {
+            const errorMessage = error?.error?.message || 'Could not change password.';
+            return throwError(() => new Error(errorMessage));
+        }));
+    }
+
     dataStore(form: any) {
         this.deviceDetails.next(form);
     }

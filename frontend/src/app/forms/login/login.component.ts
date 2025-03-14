@@ -22,7 +22,8 @@ import { NotificationService } from '../../util/services/notification.service';
 export class LoginComponent implements OnInit {
     @Output() booleanEvent = new EventEmitter<boolean>();
     @Output() userLog = new EventEmitter<boolean>();
-    @ViewChild('recoverModal') recoverModal!: ElementRef;
+
+    @ViewChild('recoverModal') recoverModal!: ElementRef<HTMLElement>;
 
     loginForm!: FormGroup;
     logError!: boolean;
@@ -40,6 +41,12 @@ export class LoginComponent implements OnInit {
 
     ngOnInit(): void {
         this.loginForm = this.createLoginFormGroup();
+    }
+
+    detectChange(value: boolean) {
+        if (value) {
+            this.recoverModal.nativeElement.style.display = 'none';
+        }
     }
 
     login() {
