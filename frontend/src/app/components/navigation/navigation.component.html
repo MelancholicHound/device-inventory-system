@@ -42,15 +42,15 @@
             <form action="" [formGroup]="userForm">
                 <div class="form-field">
                     <label for="firstname"> Firstname: </label>
-                    <input type="text" class="form-control" id="firstname" formControlName="firstname">
+                    <input type="text" class="form-control" id="firstname" formControlName="firstName">
                 </div>
                 <div class="form-field">
                     <label for="middlename"> Middlename: </label>
-                    <input type="text" class="form-control" id="middlename" formControlName="middlename">
+                    <input type="text" class="form-control" id="middlename" formControlName="middleName">
                 </div>
                 <div class="form-field">
                     <label for="lastname"> Lastname: </label>
-                    <input type="text" class="form-control" id="lastname" formControlName="lastname">
+                    <input type="text" class="form-control" id="lastname" formControlName="lastName">
                 </div>
                 <div class="input-field">
                     <div class="form-field">
@@ -69,7 +69,9 @@
                     <input type="text" class="form-control" id="email" formControlName="email">
                 </div>
                 <div class="btn-container">
-                    <button type="button" class="edit-btn"> Edit </button>
+                    <button type="button" class="br edit-btn" (click)="toggleForm()">
+                        {{ !isEditing ? 'Edit' : 'Cancel' }}
+                    </button>
                 </div>
             </form>
         </div>

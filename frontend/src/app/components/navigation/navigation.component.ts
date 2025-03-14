@@ -26,6 +26,7 @@ export class NavigationComponent implements OnInit {
     notification = inject(NotificationService);
 
     userDetails: any; positions: any;
+    isEditing: boolean = false;
     userForm!: FormGroup;
 
     constructor(private router: Router) { }
@@ -33,10 +34,15 @@ export class NavigationComponent implements OnInit {
     ngOnInit(): void {
         const token = localStorage.getItem('token');
         this.userForm = this.createUserFormGroup();
+        this.userForm.disable();
 
         if (token) {
             this.authService.getByEmail(this.extractEmail(token)).subscribe({
-                next: (res: any) => this.userDetails = res,
+                next: (res: any) => {
+                    this.userDetails = res;
+                    this.userForm.patchValue(res);
+                    this.userForm.get('positionId')?.setValue(res.positionDTO.id);
+                },
                 error: (error: any) => this.notification.showError(error)
             });
         }
@@ -55,11 +61,24 @@ export class NavigationComponent implements OnInit {
         return payloadData.sub;
     }
 
+    toggleForm() {
+        this.isEditing = !this.isEditing;
+        this.setFormState();
+    }
+
+    setFormState() {
+        if (this.isEditing) {
+            this.userForm.enable();
+        } else {
+            this.userForm.disable();
+        }
+    }
+
     createUserFormGroup(): FormGroup {
         return new FormGroup({
-            firstname: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            middlename: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-            lastname: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            firstName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            middleName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
+            lastName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
             positionId: new FormControl('', [Validators.required]),
             positionRanking: new FormControl('', [Validators.required]),
             email: new FormControl('', [Validators.required, Validators.email])
