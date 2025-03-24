@@ -19,6 +19,8 @@ import { switchMap } from 'rxjs/operators';
 
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
+import 'xlsx';
+import { saveAs } from 'file-saver';
 
 import { FilterComponent } from '../../forms/filter/filter.component';
 
@@ -507,6 +509,11 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
         });
 
         doc.save('full-table.pdf');
+    }
+
+    generateExcel() {
+        const dataArray = this.dataSource.data;
+
     }
 
     //Events

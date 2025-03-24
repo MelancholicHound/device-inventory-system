@@ -26,7 +26,23 @@ button {
 
 .primary { width: 95px; }
 
-.secondary { width: 150px; }
+.tertiary {
+    position: relative;
+
+}
+
+.icon-container {
+    position: absolute;
+    display: grid;
+    height: 100%;
+    width: 30%;
+    right: 0;
+    top: 0;
+}
+
+.dropdown {
+    place-self: center;
+}
 
 input[type='search'] {
     padding: 10px;
@@ -70,6 +86,9 @@ blockquote {
 
 .filter-btn { width: 50px; }
 
+.secondary,
+.tertiary { width: 150px; }
+
 .filter-btn,
 .primary,
 .secondary { gap: 5px; }
@@ -105,6 +124,10 @@ blockquote { display: flex; }
 
 mat-stepper {
     width: 100%;
+}
+
+.icon-container {
+    border-left: 1px solid black;
 }
 
 .form-control { height: 2.15rem; }
@@ -168,6 +191,10 @@ textarea {
     margin-top: 1rem;
     gap: 30px;
     width: 100%;
+}
+
+.label-container {
+    margin-right: 25%;
 }
 
 .confirmation-header {
@@ -245,7 +272,9 @@ textarea {
 .prev-btn,
 .confirmation-container,
 .confirmation-header,
-.msg { display: flex; }
+.msg,
+.tertiary,
+.label-container { display: flex; }
 
 :disabled {
     opacity: 0.5;

@@ -61,19 +61,6 @@ export class NavigationComponent implements OnInit {
         return payloadData.sub;
     }
 
-    toggleForm() {
-        this.isEditing = !this.isEditing;
-        this.setFormState();
-    }
-
-    setFormState() {
-        if (this.isEditing) {
-            this.userForm.enable();
-        } else {
-            this.userForm.disable();
-        }
-    }
-
     createUserFormGroup(): FormGroup {
         return new FormGroup({
             firstName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),

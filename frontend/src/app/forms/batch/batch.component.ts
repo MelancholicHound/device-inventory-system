@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Validators, FormGroup, FormControl, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule } from '@angular/common';
 
 import { ParamsService } from '../../util/services/params.service';
 import { SpecsService } from '../../util/services/specs.service';
@@ -14,7 +14,7 @@ import { TransactionService } from '../../util/services/transaction.service';
     imports: [
         ReactiveFormsModule,
         FormsModule,
-        NgFor, NgIf
+        CommonModule
     ],
     providers: [
         ParamsService,
@@ -102,7 +102,6 @@ export class BatchComponent implements OnInit {
             this.fileUploaded = file;
 
             this.transaction.fileToHex(file).then((hexString: string) => {
-                console.log(hexString);
                 this.batchForm.patchValue({ purchaseRequestDTO: { file: hexString } });
             })
         }

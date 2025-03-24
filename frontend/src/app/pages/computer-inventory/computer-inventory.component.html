@@ -15,10 +15,18 @@
                 <span class="material-symbols-rounded"> add </span>
                 <p> Add </p>
             </button>
-            <button class="secondary br gray-border" type="button" (click)="generatePDF()">
-                <span class="material-symbols-rounded"> picture_as_pdf </span>
-                <p> Generate PDF </p>
+            <button class="tertiary br gray-border" type="button" [matMenuTriggerFor]="menu">
+                <div class="label-container">
+                    <p> Export </p>
+                </div>
+                <div class="icon-container">
+                    <span class="material-symbols-rounded dropdown"> arrow_drop_down </span>
+                </div>
             </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="generatePDF()"> as PDF </button>
+                <button mat-menu-item> as Excel </button>
+            </mat-menu>
         </div>
     </section>
     <div class="legend">

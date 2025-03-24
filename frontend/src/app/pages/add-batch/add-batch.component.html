@@ -14,7 +14,9 @@
         <div class="batch-details">
             <blockquote class="pr-block">
                 <p> PR Number: </p>
-                <p class="output-label bold"> {{ batchDetails?.purchaseRequestDTO.number }} </p>
+                <p class="output-label bold">
+                    {{ batchDetails?.purchaseRequestDTO.number }}
+                </p>
             </blockquote>
             <blockquote>
                 <p> Batch Number: </p>
@@ -24,16 +26,26 @@
                 <p> Date Created: </p>
                 <p class="output-label bold"> {{ batchDetails?.createdAt.split('T')[0] }} </p>
             </blockquote>
+
         </div>
         <div class="button-field">
+            @if (batchDetails?.purchaseRequestDTO.file) {
+                <button type="button" class="add-btn" (click)="fileExample()">
+                    <span class="material-symbols-rounded"> info </span>
+                    <p class="add-label bold"> Batch Details </p>
+                </button>
+            }
             <button type="button" class="add-btn" (click)="addDeviceModal.style.display = 'grid'">
                 <span class="material-symbols-rounded"> add </span>
                 <p class="add-label bold"> Add Device </p>
             </button>
-            <button type="button" class="save-btn" (click)="backButton()" *ngIf="dataChanged" >
-                <span class="material-symbols-rounded"> check </span>
-                <p class="save-label bold"> Save </p>
-            </button>
+            @if (dataChanged) {
+                <button type="button" class="save-btn" (click)="backButton()">
+                    <span class="material-symbols-rounded"> check </span>
+                    <p class="save-label bold"> Save </p>
+                </button>
+            }
+
         </div>
     </div>
     <table mat-table [dataSource]="dataSource" matSort>
@@ -99,6 +111,20 @@
                     <button type="button" class="add-dev-btn" (click)="routeSelectedDevice()"> Add </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3> Batch Details </h3>
+            <button class="close-btn" type="button" (click)="addDeviceModal.style.display = 'none'">
+                <span class="material-symbols-rounded"> close </span>
+            </button>
+        </div>
+        <div class="modal-body">
+
         </div>
     </div>
 </div>

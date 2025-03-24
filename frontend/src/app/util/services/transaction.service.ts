@@ -48,13 +48,14 @@ export class TransactionService {
         });
     }
 
-    hexToFile(hexString: string, fileName: string, mimeType: string): File {
+    hexToFile(hexString: string, mimeType: any) {
         const byteArray = new Uint8Array(
             hexString.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))
         );
 
         const blob = new Blob([byteArray], { type: mimeType });
+        const url = URL.createObjectURL(blob);
 
-        return new File([blob], fileName, { type: mimeType });
+        return url;
     }
 }

@@ -13,6 +13,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule } from '@angular/material/button';
 
 import { ParamsService } from '../../util/services/params.service';
+import { TransactionService } from '../../util/services/transaction.service';
 import { DeviceAioService } from '../../util/services/device-aio.service';
 import { DeviceComputerService } from '../../util/services/device-computer.service';
 import { DeviceLaptopService } from '../../util/services/device-laptop.service';
@@ -44,6 +45,7 @@ export interface DeviceTable {
     ],
     providers: [
         ParamsService,
+        TransactionService,
         DeviceAioService,
         DeviceComputerService,
         DeviceLaptopService,
@@ -90,6 +92,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
 
     constructor(private router: Router,
                 private params: ParamsService,
+                private transaction: TransactionService,
                 private aioAuth: DeviceAioService,
                 private computerAuth: DeviceComputerService,
                 private laptopAuth: DeviceLaptopService,
@@ -191,6 +194,16 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 }
             })
         }
+    }
+
+    fileExample() {
+        const url = this.transaction.hexToFile(this.batchDetails?.purchaseRequestDTO.file, this.transaction.detectMimeType(this.batchDetails?.purchaseRequestDTO.file));
+        const a = document.createElement("a");
+
+        a.href = url;
+        a.download = "Please rename me!";
+        document.body.appendChild(a);
+        a.click();
     }
 
     mapData(data: any[], deviceType: string) {
