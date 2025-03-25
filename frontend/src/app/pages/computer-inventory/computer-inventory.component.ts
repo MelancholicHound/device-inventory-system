@@ -19,7 +19,7 @@ import { switchMap } from 'rxjs/operators';
 
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
-import 'xlsx';
+import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
 import { FilterComponent } from '../../forms/filter/filter.component';
@@ -514,6 +514,22 @@ export class ComputerInventoryComponent implements AfterViewInit, OnInit {
     generateExcel() {
         const dataArray = this.dataSource.data;
 
+        const dataToExport = dataArray.map(item => ({
+            Tag: item.tag,
+            Division: item.division,
+            Section: item.section,
+            CreatedAt: item.createdAt
+        }));
+
+        const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataToExport);
+
+        const wb: XLSX.WorkBook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Table Data');
+
+        const excelBuffer: any = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const fileData: Blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+        saveAs(fileData, 'table-data.xlsx');
     }
 
     //Events

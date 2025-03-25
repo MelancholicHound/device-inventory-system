@@ -25,7 +25,7 @@
             </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item (click)="generatePDF()"> as PDF </button>
-                <button mat-menu-item> as Excel </button>
+                <button mat-menu-item (click)="generateExcel()"> as Excel </button>
             </mat-menu>
         </div>
     </section>
