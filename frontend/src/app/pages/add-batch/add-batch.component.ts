@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { forkJoin, firstValueFrom } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
+
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
@@ -76,7 +77,7 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
     batchDetails: any;
     state: any = localStorage.getItem('state');
     private previousFetchedData: any[] = [];
-    dataChanged!: boolean;
+    dataChanged: boolean = false;
     fetchedData: DeviceTable[] = [];
     deviceSelected: any;
     isAddingBatch!: boolean;
@@ -162,9 +163,8 @@ export class AddBatchComponent implements AfterViewInit, OnInit {
                 const newFetchedData = results.flat();
                 newFetchedData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-                const isDataChanged = !this.isArraysEqual(this.previousFetchedData, newFetchedData);
+                this.dataChanged = !this.isArraysEqual(this.previousFetchedData, newFetchedData);
 
-                this.dataChanged = isDataChanged;
                 this.previousFetchedData = [...newFetchedData];
                 this.fetchedData = newFetchedData;
                 this.dataSource.data = this.fetchedData;
