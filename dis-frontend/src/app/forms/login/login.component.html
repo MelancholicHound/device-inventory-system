@@ -1,0 +1,42 @@
+<p-toast />
+<form action="" class="flex flex-col gap-7" [formGroup]="loginForm">
+    <section class="flex flex-col gap-5">
+        <p-iconfield>
+            <p-inputicon styleClass="pi pi-user"/>
+            <input class="w-full"
+                   type="text"
+                   pInputText
+                   placeholder="Email"
+                   formControlName="email"
+                   [autocomplete]="false"
+                   [pAutoFocus]="true"
+                   [class.ng-invalid]="error()"
+                   [class.ng-dirty]="error()">
+        </p-iconfield>
+        <p-iconfield>
+            <p-inputicon styleClass="pi pi-lock" />
+            <input class="w-full"
+                   type="password"
+                   pInputText
+                   placeholder="Password"
+                   formControlName="password"
+                   [class.ng-invalid]="error()"
+                   [class.ng-dirty]="error()">
+        </p-iconfield>
+    </section>
+    <section class="flex flex-col items-center gap-8">
+        <button type="submit" class="login_btn w-full py-3 font-bold rounded-md" (click)="login()" [disabled]="loginForm.invalid"> Log In </button>
+        <button type="button" class="recover_btn hover:underline" (click)="showDialog()"> Forgot Password? </button>
+    </section>
+    <span class="w-full grid">
+      <hr class="w-4/5 place-self-center">
+    </span>
+    <footer class="grid">
+        <button class="register_btn place-self-center w-full py-3 font-bold rounded-md" type="button" (click)="isSigningUp()"> Register </button>
+    </footer>
+</form>
+
+<p-dialog header="Account Recovery" [modal]="true" [(visible)]="visible" [style]="{ width: '25%' }">
+    <app-recover class="w-full" />
+</p-dialog>
+

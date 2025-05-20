@@ -1,0 +1,20 @@
+<nav class="w-60 h-full bg-white">
+    <header class="flex items-center gap-4 mb-4 p-5">
+         <img src="images/IMISS.png" alt="imiss_logo" class="w-[40%]">
+         <h1 class="font-semibold text-xl text-[#1a184e]"> DIS </h1>
+    </header>
+    <section>
+        <h1 class="text-base font-bold text-[#1a184e] px-5"> Dashboards </h1>
+    </section>
+    <section class="flex flex-col">
+        <h1 class="text-base font-bold text-[#1a184e] px-5 py-2"> Device Management </h1>
+        <a #batchLink="routerLinkActive" class="py-1 px-5 flex gap-3" routerLink="/batch-list" routerLinkActive="active" ariaCurrentWhenActive="page">
+            <span class="material-symbols-outlined text-[#1a184e]"> list </span>
+            <p> Batch List </p>
+        </a>
+        <a #inventoryLink="routerLinkActive" class="py-1 px-5 flex gap-3" routerLink="/device-inventory" routerLinkActive="active" ariaCurrentWhenActive="page">
+            <span class="material-symbols-outlined text-[#1a184e]"> deployed_code </span>
+            <p> Device Inventory </p>
+        </a>
+    </section>
+</nav>

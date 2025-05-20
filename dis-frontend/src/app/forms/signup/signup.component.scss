@@ -1,0 +1,14 @@
+.back_btn {
+    background-color: #000000;
+    color: white;
+}
+
+.register_btn {
+    background-color: #22c55e;
+    color: white;
+}
+
+.register_btn:disabled {
+    color: #7c8996;
+    background-color: #bbf7d1;
+}

@@ -1,0 +1,70 @@
+section {
+    box-shadow: inset 5px 0 10px -2px #e9edfa;
+}
+
+.initial_page {
+    background-color: #7586ff;
+}
+
+.card {
+    background-color: #ecf2ff;
+    place-self: center;
+}
+
+.form_container {
+    background-color: white;
+}
+
+.system_title {
+    font-weight: 500;
+}
+
+.nav_btn {
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    transition: background-color 0.15s ease 0.15s, color 0.15s ease 0.15s;
+}
+
+.nav_btn:hover {
+    background-color: #1a184e;
+    color: white;
+}
+
+@media (max-width: 640px) {
+
+}
+
+@media(min-width: 641px) and (max-width:1024px) {
+
+}
+
+@media(min-width: 1025px) {
+    .card {
+        padding: 3em 5em;
+    }
+
+    .form_container {
+        width: 45%;
+    }
+
+    .logo_container {
+        width: 45%;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .system_title {
+        font-size: 30px;
+    }
+
+    .form_container,
+    .logo_container {
+        height: 100%;
+    }
+}
+
+.card,
+.logo_container {
+    display: flex;
+}

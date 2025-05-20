@@ -1,0 +1,71 @@
+<section class="card p-7 bg-white rounded-xl">
+    <p-table #deviceTable
+             [value]="dateSource"
+             [(selection)]="selectedDevice"
+             [customSort]="true"
+             [paginator]="true"
+             [first]="first"
+             [showCurrentPageReport]="true"
+             [rowsPerPageOptions]="[10, 15, 20]"
+             [rows]="rows"
+             [globalFilterFields]="['tag', 'serialNumber', 'division', 'section']"
+             (onPage)="tblUtilities.pageChange($event)"
+             (sortFunction)="customSort($event)"
+             dataKey="tag"
+             currentPageReportTemplate="Show {first} to last of {totalRecords} entries">
+        <ng-template #caption>
+            <div class="flex items-center justify-between mb-2">
+                <h5 class="m-0 font-bold"> Batch </h5>
+                <div class="flex items-center gap-5">
+                    <p-iconfield>
+                        <p-inputicon>
+                            <i class="pi pi-search"></i>
+                        </p-inputicon>
+                        <input pInputText
+                               type="text"
+                               placeholder="Search keyword">
+                    </p-iconfield>
+                    <p-button label="Add Device"
+                              icon="pi pi-plus"
+                              (onClick)="showDialog()"/>
+                </div>
+            </div>
+        </ng-template>
+        <ng-template #header>
+            <tr>
+                <th style="width: 4rem"> <p-tableHeaderCheckbox /> </th>
+                <th pSortableColumn="tag">
+                    Device Tag <p-sortIcon field="tag"/>
+                </th>
+                <th pSortableColumn="serialNumber">
+                    Serial Number <p-sortIcon field="serialNumber"/>
+                </th>
+                <th pSortableColumn="division">
+                    Division <p-sortIcon field="division"/>
+                </th>
+                <th pSortableColumn="section">
+                    Section <p-sortIcon field="section"/>
+                </th>
+                <th> Action </th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-device>
+            <tr>
+                <td> <p-tableCheckbox [value]="device"/> </td>
+                <td> {{ device.tag }} </td>
+                <td> {{ device }} </td>
+                <td> {{ device.division }} </td>
+                <td> {{ device.section }} </td>
+                <td>
+                    <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="deviceTable" autoZIndex/>
+                    <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary"/>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template #paginatorleft></ng-template>
+    </p-table>
+</section>
+
+<p-dialog header="Add Device" [modal]="true" [(visible)]="visible" [style]="{ width: '25%' }">
+
+</p-dialog>
