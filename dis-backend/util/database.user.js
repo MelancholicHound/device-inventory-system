@@ -1,8 +1,9 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const { sequelize } = require('./database.connections');
 
 require('dotenv').config();
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
     host: 'localhost',
     dialect: 'mysql',
     logging: false
@@ -11,8 +12,34 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 const Division = sequelize.define('tbl_loc_division', {
     id: {
         type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
     }
-})
+});
+
+const Section = sequelize.define('tbl_loc_section', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    div_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Division,
+            key: 'id'
+        }
+    }
+});
 
 const User = sequelize.define('tbl_user', {
     id: {
@@ -104,106 +131,32 @@ const Batch = sequelize.define('tbl_batch', {
     }
 });
 
-const BrandAIO = sequelize.define('tbl_brands_aio', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-const BrandTablet = sequelize.define('tbl_brands_tablet', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-const BrandLaptop = sequelize.define('tbl_brands_laptop', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-const BrandPrinter = sequelize.define('tbl_brands_printer', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-const BrandScanner = sequelize.define('tbl_brands_scanner', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-const BrandRouter = sequelize.define('tbl_brands_router', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-});
-
-
-
 sequelize.sync({ alter: true })
 .then(async () => {
     const countDivision = await Division.count();
     const countSection = await Section.count();
 
-    if (countDivision === 0) {
+    if (countDivision == 0) {
         await Division.bulkCreate([
-            { name: 'Allied Health and Professional Services' },
-            { name: 'Finance' },
-            { name: 'Hospital Operations and Patient Support Service' },
-            { name: 'Medical' },
-            { name: 'Nursing' },
-            { name: 'Under MCC' },
-            { name: 'Others' }
+            { name: 'ALLIED HEALTH AND PROFESSIONAL SERVICES' },
+            { name: 'FINANCE' },
+            { name: 'HOSPITAL OPERATIONS AND PATIENT SUPPORT SERVICE' },
+            { name: 'MEDICAL' },
+            { name: 'NURSING' },
+            { name: 'UNDER MCC' },
+            { name: 'OTHERS' }
         ]);
     }
 
-    const allied = await Division.findOne({ where: { name: 'Allied Health and Professional Services' } });
-    const finance = await Division.findOne({ where: { name: 'Finance' } });
-    const hopss = await Division.findOne({ where: { name: 'Hospital Operations and Patient Support Service' } });
-    const medical = await Division.findOne({ where: { name: 'Medical' } });
-    const nursing = await Division.findOne({ where: { name: 'Nursing' } });
-    const underMCC = await Division.findOne({ where: { name: 'Under MCC' } });
-    const others = await Division.findOne({ where: { name: 'Others' } });
+    const allied = await Division.findOne({ where: { name: 'ALLIED HEALTH AND PROFESSIONAL SERVICES' } });
+    const finance = await Division.findOne({ where: { name: 'FINANCE' } });
+    const hopss = await Division.findOne({ where: { name: 'HOSPITAL OPERATIONS AND PATIENT SUPPORT SERVICE' } });
+    const medical = await Division.findOne({ where: { name: 'MEDICAL' } });
+    const nursing = await Division.findOne({ where: { name: 'NURSING' } });
+    const underMCC = await Division.findOne({ where: { name: 'UNDER MCC' } });
+    const others = await Division.findOne({ where: { name: 'OTHERS' } });
 
-    if (countSection === 0) {
+    if (countSection == 0) {
         await Section.bulkCreate([
             { name: '2D ECHO', div_id: nursing.dataValues?.id },
             { name: 'ACCOUNTING', div_id: finance.dataValues?.id },
@@ -313,13 +266,4 @@ sequelize.sync({ alter: true })
 })
 .catch((error) => console.log('Error creating table: ', error));
 
-module.exports = { 
-    User, 
-    Batch, 
-    PurchaseRequestDTO,
-    BrandAIO,
-    BrandLaptop,
-    BrandTablet,
-    BrandPrinter,
-    BrandScanner 
-};
+module.exports = { User, Batch, PurchaseRequestDTO };

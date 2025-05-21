@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
 const { createErrors } = require('../controllers/error');
-const { User, Division, Section, Batch, PurchaseRequestDTO } = require('../util/database');
+const { User, Division, Section, Batch, PurchaseRequestDTO } = require('../util/database.user');
 
 require('dotenv').config();
 
