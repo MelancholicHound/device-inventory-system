@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const { sequelize } = require('./database.connections');
+const { sequelize } = require('./database.services');
 
 require('dotenv').config();
 
