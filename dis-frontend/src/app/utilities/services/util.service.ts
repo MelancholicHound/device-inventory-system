@@ -12,7 +12,7 @@ import { PeripheralUPS } from '../models/PeripheralUPS';
     providedIn: 'root'
 })
 export class UtilService {
-    private url = 'http://192.168.1.87:8082/api/v1/dis';
+    private url = 'http://192.168.5.5:8082/api/v1/dis';
     private _token = signal<string | null>(localStorage.getItem('token'));
 
 

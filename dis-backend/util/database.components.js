@@ -16,7 +16,8 @@ const ProcessorBrand = sequelize.define('tbl_part_processor_brand', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     }
 });
 
@@ -28,7 +29,8 @@ const ProcessorSeries = sequelize.define('tbl_part_processor_series', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     },
     brand_id: {
         type: DataTypes.INTEGER,
@@ -68,7 +70,8 @@ const MotherboardBrand = sequelize.define('tbl_part_motherboard_brand', {
     },
     name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     }
 });
 
@@ -92,22 +95,143 @@ const Motherboard = sequelize.define('tbl_part_motherboard', {
     }
 });
 
+const ChipsetBrand = sequelize.define('tbl_part_chipset_brand', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
+});
+
+const Chipset = sequelize.define('tbl_part_chipset', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    brand_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: ChipsetBrand,
+            key: 'id'
+        }
+    },
+    model: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+});
+
+const PrinterType = sequelize.define('tbl_part_printer_type', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
+});
+
+const ScannerType = sequelize.define('tbl_part_scanner_type', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
+});
+
+const NetworkSpeed = sequelize.define('tbl_part_router_speed', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    speed_by_mbps: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true
+    }
+});
+
+const AntennaCount = sequelize.define('tbl_part_router_antenna', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true, 
+        primaryKey: true
+    },
+    antenna_count: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        unique: true
+    }
+});
+
 sequelize.sync({ alter: true })
 .then(async () => {
     const countProcBrand = await ProcessorBrand.count();
     const countProcSeries = await ProcessorSeries.count();
     const countMoboBrand = await MotherboardBrand.count();
+    const countChipBrand = await ChipsetBrand.count();
+    const countPrintType = await PrinterType.count();
+    const countScanType = await ScannerType.count();
+    const countNetSpeed = await NetworkSpeed.count();
+    const countAntenna = await AntennaCount.count();
 
-    if (countProcBrand == 0) {
-        await ProcessorBrand.bulkCreate([
-            { name: 'Intel' }, { name: 'AMD' }
+    const brandData = [
+        { count: countProcBrand, model: ProcessorBrand, names: ['Intel', 'AMD'] },
+        { count: countMoboBrand, model: MotherboardBrand, names: ['Gigabyte', 'Asus'] },
+        { count: countChipBrand, model: ChipsetBrand, names: ['Snapdragon', 'Mediatek'] }
+    ];
+
+    for (const { count, model, names } of brandData) {
+        if (count === 0) {
+            const nameObjects = names.map(name => ({ name }));
+            await model.bulkCreate(nameObjects);
+        }
+    }
+
+    const typeData = [
+        { count: countPrintType, model: PrinterType, type: ['CISS', 'Dot Matrix', 'Ink Jet', 'Laser'] },
+        { count: countScanType, model: ScannerType, type: ['Flatbed', 'Sheetfed', 'Photoscanner'] }
+    ];
+
+    for (const { count, model, types } of typeData) {
+        if (count === 0) {
+            const typeObjects = types.map(type => ({ type }));
+            await model.bulkCreate(typeObjects);
+        }
+    }
+
+    if (countNetSpeed === 0) {
+        await NetworkSpeed.bulkCreate([
+            { speed: 50 }, { speed: 100 }, { speed: 250 }
+        ]);
+    }
+
+    if (countAntenna === 0) {
+        await AntennaCount.bulkCreate([
+            { antenna_count: 2 }, { antenna_count: 4 }, { antenna_count: 6 }
         ]);
     }
 
     const intel = await ProcessorBrand.findOne({ where: { name: 'Intel' } });
     const amd = await ProcessorBrand.findOne({ where: { name: 'AMD' } });
 
-    if (countProcSeries == 0) {
+    if (countProcSeries === 0) {
         await ProcessorSeries.bulkCreate([
             { name: 'Core', brand_id: intel.dataValues?.id },
             { name: 'Pentium', brand_id: intel.dataValues?.id },
@@ -115,13 +239,19 @@ sequelize.sync({ alter: true })
             { name: 'Athlon', brand_id: amd.dataValues?.id }
         ]);
     }
-
-    if (countMoboBrand == 0) {
-        await MotherboardBrand.bulkCreate([
-            { name: 'Gigabyte' }, { name: 'Asus' }
-        ]);
-    }
 })
 .catch((error) => console.log('Error creating table: ', error));
 
-module.exports = { ProcessorBrand, ProcessorSeries, MotherboardBrand, Processor, Motherboard };
+module.exports = { 
+    ProcessorBrand, 
+    ProcessorSeries, 
+    MotherboardBrand,
+    ChipsetBrand, 
+    Processor, 
+    Motherboard,
+    Chipset,
+    PrinterType,
+    ScannerType,
+    NetworkSpeed,
+    AntennaCount
+};

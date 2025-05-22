@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 const { Op } = require('sequelize');
 
-const { createErrors } = require('../controllers/error');
+const { createErrors } = require('./error');
 
 exports.getAllBrands = async (req, res, next) => {
     try {
