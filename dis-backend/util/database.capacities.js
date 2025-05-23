@@ -19,19 +19,10 @@ const RAMQuantity = sequelize.define('tbl_cap_ram_qty', {
         allowNull: false,
         unique: true
     }
-});
-
-const StorageType = sequelize.define('tbl_cap_storage_type', {
-    id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
-    type: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const StorageQuantity = sequelize.define('tbl_cap_storage_qty', {
@@ -45,7 +36,45 @@ const StorageQuantity = sequelize.define('tbl_cap_storage_qty', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
+
+const GPUQuantity = sequelize.define('tbl_cap_gpu_qty', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    capacity: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
+
+const StorageType = sequelize.define('tbl_cap_storage_type', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true
+    },
+    type: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
+    }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+});
+
 
 const Storage = sequelize.define('tbl_cap_storage', {
     id: {
@@ -69,6 +98,10 @@ const Storage = sequelize.define('tbl_cap_storage', {
             key: 'id'
         }
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const RAM = sequelize.define('tbl_cap_ram', {
@@ -85,17 +118,23 @@ const RAM = sequelize.define('tbl_cap_ram', {
             key: 'id'
         }
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })
 .then(async () => {
     const countRAM = await RAMQuantity.count();
     const countStorage = await StorageQuantity.count();
+    const countGPU = await GPUQuantity.count();
     const countType = await StorageType.count();
 
     const capacityData = [
         { count: countRAM, model: RAMQuantity, capacities: [2, 4, 8, 16] },
-        { count: countStorage, model: StorageQuantity, capacities: [64, 128, 256, 512] }
+        { count: countStorage, model: StorageQuantity, capacities: [64, 128, 256, 512] },
+        { count: countGPU, model: GPUQuantity, capacities: [2, 4, 6, 8] }
     ];
 
     for (const { count, model, capacities } of capacityData) {
@@ -110,7 +149,16 @@ sequelize.sync({ alter: true })
             { type: 'HDD' }, { type: 'SSD' }
         ]);
     }
+    
+    console.log('Table created successfully.');
 })
 .catch((error) => console.log('Error creating table: ', error));
 
-module.exports = { RAMQuantity, StorageQuantity, StorageType, Storage, RAM };
+module.exports = { 
+    RAMQuantity, 
+    StorageQuantity,
+    GPUQuantity, 
+    StorageType, 
+    Storage, 
+    RAM
+};

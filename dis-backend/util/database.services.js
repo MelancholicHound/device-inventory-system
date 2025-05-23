@@ -7,6 +7,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     dialect: 'mysql',
     logging: false
 });
+exports.sequelize = sequelize;
 
 const ConnectionsDTO = sequelize.define('tbl_connections', {
     id: {
@@ -19,6 +20,10 @@ const ConnectionsDTO = sequelize.define('tbl_connections', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const OperatingSystemDTO = sequelize.define('tbl_software_os', {
@@ -32,9 +37,13 @@ const OperatingSystemDTO = sequelize.define('tbl_software_os', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
-const Security = sequelize.define('tbl_software_security', {
+const SecurityDTO = sequelize.define('tbl_software_security', {
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -45,6 +54,10 @@ const Security = sequelize.define('tbl_software_security', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const ProductivityTool = sequelize.define('tbl_software_prodtool', {
@@ -58,6 +71,10 @@ const ProductivityTool = sequelize.define('tbl_software_prodtool', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const PeripheralsDTO = sequelize.define('tbl_peripherals', {
@@ -71,19 +88,23 @@ const PeripheralsDTO = sequelize.define('tbl_peripherals', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })
 .then(async () => {
-    const countConnections = await Connections.count();
-    const countOS = await OperatingSystem.count();
-    const countSecurity = await Security.count();
+    const countConnections = await ConnectionsDTO.count();
+    const countOS = await OperatingSystemDTO.count();
+    const countSecurity = await SecurityDTO.count();
     const countProdTool = await ProductivityTool.count();
     const countPeripheral = await PeripheralsDTO.count();
 
     const serviceData = [
-        { count: countOS, model: OperatingSystem, name: ['Windows - 10', 'Windows - 11', 'Linux - Ubuntu', 'Linux - Debian'] },
-        { count: countSecurity, model: Security, name: ['Norton', 'Kaspersky', 'McAfee', 'Avast'] },
+        { count: countOS, model: OperatingSystemDTO, name: ['Windows - 10', 'Windows - 11', 'Linux - Ubuntu', 'Linux - Debian'] },
+        { count: countSecurity, model: SecurityDTO, name: ['Norton', 'Kaspersky', 'McAfee', 'Avast'] },
         { count: countProdTool, model: ProductivityTool, name: ['WPS Office', 'Microsoft Office'] },
     ];
 
@@ -95,7 +116,7 @@ sequelize.sync({ alter: true })
     }
 
     if (countConnections === 0) {
-        await Connections.bulkCreate([
+        await ConnectionsDTO.bulkCreate([
             { name: 'Internet' }, { name: 'HIS' }, { name: 'MMS' }, { name: 'PIS' }, { name: 'MLIS' },
             { name: 'LIS' }, { name: 'EHR' }, { name: 'eRNet' }, { name: 'ENGAS' }, { name: 'HRIPS' },
             { name: 'PACS with RIS' }, { name: 'Connected to equipment' }
@@ -113,9 +134,9 @@ sequelize.sync({ alter: true })
 .catch((error) => console.log('Error on creating table: ', error));
 
 module.exports = {
-    Connections,
-    OperatingSystem,
-    Security,
+    ConnectionsDTO,
+    OperatingSystemDTO,
+    SecurityDTO,
     ProductivityTool,
     PeripheralsDTO
 };

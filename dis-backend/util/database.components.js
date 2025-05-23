@@ -19,6 +19,10 @@ const ProcessorBrand = sequelize.define('tbl_part_processor_brand', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const ProcessorSeries = sequelize.define('tbl_part_processor_series', {
@@ -40,6 +44,10 @@ const ProcessorSeries = sequelize.define('tbl_part_processor_series', {
             key: 'id'
         }
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const Processor = sequelize.define('tbl_part_processor', {
@@ -60,6 +68,10 @@ const Processor = sequelize.define('tbl_part_processor', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const MotherboardBrand = sequelize.define('tbl_part_motherboard_brand', {
@@ -73,6 +85,10 @@ const MotherboardBrand = sequelize.define('tbl_part_motherboard_brand', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const Motherboard = sequelize.define('tbl_part_motherboard', {
@@ -93,6 +109,10 @@ const Motherboard = sequelize.define('tbl_part_motherboard', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const ChipsetBrand = sequelize.define('tbl_part_chipset_brand', {
@@ -106,6 +126,10 @@ const ChipsetBrand = sequelize.define('tbl_part_chipset_brand', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const Chipset = sequelize.define('tbl_part_chipset', {
@@ -126,6 +150,10 @@ const Chipset = sequelize.define('tbl_part_chipset', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const PrinterType = sequelize.define('tbl_part_printer_type', {
@@ -139,6 +167,14 @@ const PrinterType = sequelize.define('tbl_part_printer_type', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const ScannerType = sequelize.define('tbl_part_scanner_type', {
@@ -152,6 +188,10 @@ const ScannerType = sequelize.define('tbl_part_scanner_type', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const NetworkSpeed = sequelize.define('tbl_part_router_speed', {
@@ -165,6 +205,10 @@ const NetworkSpeed = sequelize.define('tbl_part_router_speed', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const AntennaCount = sequelize.define('tbl_part_router_antenna', {
@@ -178,6 +222,10 @@ const AntennaCount = sequelize.define('tbl_part_router_antenna', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })
@@ -239,6 +287,8 @@ sequelize.sync({ alter: true })
             { name: 'Athlon', brand_id: amd.dataValues?.id }
         ]);
     }
+
+    console.log('Table created successfully.');
 })
 .catch((error) => console.log('Error creating table: ', error));
 

@@ -50,6 +50,10 @@ const UPS = sequelize.define('tbl_device_ups', {
     kilo_volts: {
         type: DataTypes.INTEGER
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })

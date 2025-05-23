@@ -1,5 +1,4 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const { sequelize } = require('./database.services');
 
 require('dotenv').config();
 
@@ -19,6 +18,10 @@ const Division = sequelize.define('tbl_loc_division', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const Section = sequelize.define('tbl_loc_section', {
@@ -39,6 +42,10 @@ const Section = sequelize.define('tbl_loc_section', {
             key: 'id'
         }
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const User = sequelize.define('tbl_user', {
@@ -66,6 +73,10 @@ const User = sequelize.define('tbl_user', {
         type: DataTypes.STRING,
         allowNull: false
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const PurchaseRequestDTO = sequelize.define('tbl_purchase_request', {
@@ -82,6 +93,10 @@ const PurchaseRequestDTO = sequelize.define('tbl_purchase_request', {
     file: {
         type: DataTypes.BLOB
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const Batch = sequelize.define('tbl_batch', {
@@ -129,6 +144,10 @@ const Batch = sequelize.define('tbl_batch', {
             key: 'id'
         }
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })

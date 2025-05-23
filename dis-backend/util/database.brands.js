@@ -19,6 +19,10 @@ const BrandAIO = sequelize.define('tbl_brand_aio', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandLaptop = sequelize.define('tbl_brand_laptop', {
@@ -32,6 +36,10 @@ const BrandLaptop = sequelize.define('tbl_brand_laptop', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandTablet = sequelize.define('tbl_brand_tablet', {
@@ -45,6 +53,10 @@ const BrandTablet = sequelize.define('tbl_brand_tablet', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandPrinter = sequelize.define('tbl_brand_printer', {
@@ -58,6 +70,10 @@ const BrandPrinter = sequelize.define('tbl_brand_printer', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandScanner = sequelize.define('tbl_brand_scanner', {
@@ -71,6 +87,10 @@ const BrandScanner = sequelize.define('tbl_brand_scanner', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandRouter = sequelize.define('tbl_brand_router', {
@@ -84,6 +104,10 @@ const BrandRouter = sequelize.define('tbl_brand_router', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 const BrandUPS = sequelize.define('tbl_brand_ups', {
@@ -97,6 +121,10 @@ const BrandUPS = sequelize.define('tbl_brand_ups', {
         allowNull: false,
         unique: true
     }
+}, {
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
 });
 
 sequelize.sync({ alter: true })
@@ -125,6 +153,8 @@ sequelize.sync({ alter: true })
             await model.bulkCreate(brandObjects);
         }
     }
+
+    console.log('Table created successfully.');
 })
 .catch((error) => console.log('Error creating table: ', error));
 
