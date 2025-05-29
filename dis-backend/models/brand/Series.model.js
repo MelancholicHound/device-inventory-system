@@ -2,8 +2,8 @@ module.exports = (sequelize, DataTypes) => {
     const BrandSeriesProcessor = sequelize.define('tbl_brand_processor_series', {
         id: {
             type: DataTypes.INTEGER,
-            autoIncrement: false,
-            primaryKey: false
+            autoIncrement: true,
+            primaryKey: true
         },
         name: {
             type: DataTypes.STRING,

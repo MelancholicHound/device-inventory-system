@@ -10,15 +10,34 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
     logging: false
 });
 
-const Batch = require('./batch/Batch')(sequelize, DataTypes);
-const Brand = require('./brand/Brand')(sequelize, DataTypes);
-const User = require('./user/User')(sequelize, DataTypes);
+const models = { };
 
-const models = {
-    sequelize,
-    ...Batch,
-    ...Brand,
-    ...User
-};
+const loadModels = (dir) => {
+    fs.readdirSync(dir).forEach((file) => {
+        const fullPath = path.join(dir, file);
+        const stat = fs.statSync(fullPath);
 
-module.exports = models;
+        if (stat.isDirectory()) {
+            loadModels(fullPath);
+        } else if (file.endsWith('.model.js')) {
+            const defineModel = require(fullPath);
+            const model = defineModel(sequelize, DataTypes);
+
+            models[model.name] = model;
+        }
+    });
+}
+
+loadModels(__dirname);
+
+const initDB = async() => {
+    try {
+        await sequelize.sync({ alter: true });
+
+        console.log('Tables synced');
+    } catch (error) {
+        console.error('Unable to connect to the database: ', error);
+    }
+}
+
+module.exports = { ...models, sequelize, Sequelize, initDB }

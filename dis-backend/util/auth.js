@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { createErrors } = require('../controllers/error');
 
-const autheticateToken = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader) {
@@ -24,4 +24,4 @@ const autheticateToken = (req, res, next) => {
     });
 }
 
-module.exports = autheticateToken;
+module.exports = authenticateToken;
