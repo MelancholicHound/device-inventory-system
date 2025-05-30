@@ -76,8 +76,5 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: 'updated_at'
     });
 
-    return { 
-        PurchaseRequestDTO,
-        Batch
-    };
-}
+    return { PurchaseRequestDTO, Batch };
+};
