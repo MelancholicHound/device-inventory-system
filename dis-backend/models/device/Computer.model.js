@@ -1,0 +1,277 @@
+module.exports = (sequelize, DataTypes) => {
+    const ProcessorComputer = sequelize.define('tbl_device_computer_cpu', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        series_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_brand_part_processor_series',
+                key: 'id'
+            }
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+    }, {
+        tableName: 'tbl_device_computer_cpu',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const MotherboardComputer = sequelize.define('tbl_device_computer_motherboard', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        brand_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_brand_part_motherboard',
+                key: 'id'
+            }
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
+    }, {
+        tableName: 'tbl_device_computer_motherboard',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const Computer = sequelize.define('tbl_device_computer', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        batch_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_batch',
+                key: 'id'
+            }
+        },
+        section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        device_number: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true
+        },
+        serial_number: {
+            type: DataTypes.STRING,
+            unique: true
+        },
+        is_condemned: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false
+        },
+        ups_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+            references: {
+                model: 'tbl_device_ups',
+                key: 'id'
+            }
+        },
+        mobo_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+            references: {
+                model: MotherboardComputer,
+                key: 'id'
+            }
+        },
+        cpu_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            unique: true,
+            references: {
+                model: ProcessorComputer,
+                key: 'id'
+            }
+        },
+        gpu_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: 'tbl_part_gpu',
+                key: 'id'
+            }
+        },
+        os_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_misc_sw_opsystem',
+                key: 'id'
+            }
+        },
+        prod_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_misc_sw_opsystem',
+                key: 'id'
+            }
+        },
+        security_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_misc_sw_security',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const RAMComputer = sequelize.define('tbl_device_computer_ram', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        ram_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_ram',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_ram',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const StorageComputer = sequelize.define('tbl_device_computer_storage', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        storage_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_storage',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_storage',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const ConnectionsComputer = sequelize.define('tbl_device_computer_connections', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        connection_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_misc_connection',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_connections',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const PeripheralsComputer = sequelize.define('tbl_device_computer_peripherals', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        peripheral_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_misc_connection',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_peripherals',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    return {
+        ProcessorComputer,
+        MotherboardComputer,
+        Computer,
+        RAMComputer,
+        StorageComputer,
+        ConnectionsComputer,
+        PeripheralsComputer 
+    };
+}

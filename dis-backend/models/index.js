@@ -50,9 +50,10 @@ const initDB = async() => {
         BrandProcessor, BrandSeriesProcessor, BrandMotherboard, BrandChipset,
         CapacityGPU, CapacityRAM, CapacityStorage,
         PartGPU, PartRAM, PartStorage, PartProcessor, PartMotherboard, PartChipset,
-        StorageType
+        StorageType,
+        
     } = models;
-    console.log(models);
+
     try {
         await sequelize.authenticate();
         console.log('Database connected.');
@@ -94,6 +95,8 @@ const initDB = async() => {
         Section.belongsTo(Division, { foreignKey: 'div_id', as: 'division' });
         Division.hasMany(Section, { foreignKey: 'div_id', as: 'sections' });
         console.log('Tables associated.');
+
+
 
         await seederPath(models);
         console.log('Values inserted.');

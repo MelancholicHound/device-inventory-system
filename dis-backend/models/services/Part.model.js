@@ -15,7 +15,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_ram',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const PartStorage = sequelize.define('tbl_part_storage', {
@@ -42,7 +44,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_storage',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const PartGPU = sequelize.define('tbl_part_gpu', {
@@ -61,7 +65,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_gpu',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const PartProcessor = sequelize.define('tbl_part_processor', {
@@ -84,7 +90,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_processor',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const PartMotherboard = sequelize.define('tbl_part_motherboard', {
@@ -107,7 +115,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_motherboard',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const PartChipset = sequelize.define('tbl_part_chipset', {
@@ -130,7 +140,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_chipset',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     return {

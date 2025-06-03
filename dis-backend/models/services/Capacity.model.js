@@ -12,7 +12,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_cap_ram',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const CapacityStorage = sequelize.define('tbl_cap_storage', {
@@ -28,7 +30,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_cap_storage',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     const CapacityGPU = sequelize.define('tbl_cap_gpu', {
@@ -44,7 +48,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_cap_gpu',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     return {

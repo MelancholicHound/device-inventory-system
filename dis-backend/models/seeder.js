@@ -1,3 +1,5 @@
+const { createErrors } = require('../controllers/error');
+
 const seedIfEmpty = async(model, dataArray, keyName) => {
     if (await model.count() === 0) {
         const objects = dataArray.map(item => ({ [keyName]: item }));
@@ -11,7 +13,8 @@ module.exports = async(models) => {
         BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS,
         BrandMotherboard, BrandProcessor, BrandChipset, BrandSeriesProcessor,
         CapacityGPU, CapacityRAM, CapacityStorage,
-        PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount
+        PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount,
+        Connection, Peripheral, SoftwareOS, SoftwareSecurity, SoftwareProductivity
     } = models;
 
     try {
@@ -68,6 +71,24 @@ module.exports = async(models) => {
             { model: StorageType, data: ['HDD', 'SSD'], key: 'type' }
         ]
 
+        const serviceData = [
+            { model: Connection, data: [
+                'Internet', 'HIS', 'MMS', 'PIS', 'MLIS', 'LIS', 'EHR', 'eRNet', 'ENGAS', 'HRIPS', 'PACS with RIS', 'Connected to Equipment'
+            ], key: 'name' },
+            { model: Peripheral, data: [
+                'Wireless Mouse', 'Wireless Keyboard', 'Wired Mouse', 'Wired Keyboard', 'Monitor', 'E-Pen', 'Headset', 'Earphone', 'Charger', 'Webcam', 'Power Cable'
+            ], key: 'name' },
+            { model: SoftwareOS, data: [
+                'Windows - 7', 'Windows - 10', 'Windows - 11', 'Mac - Monterey', 'Mac - Sonoma', 'Mac - Ventura', 'Linux - Ubuntu', 'Linux - Linux Mint', 'Linux - Dedian'
+            ], key: 'name' },
+            { model: SoftwareProductivity, data: [
+                'WPS Office', 'Microsoft Office'
+            ], key: 'name' },
+            { model: SoftwareSecurity, data: [
+                'Norton', 'Kaspersky', 'Eset', 'AVG', 'McAfee', 'Avast'
+            ], key: 'name' }
+        ];
+
         for (const { model, data, key } of brandData) {
             await seedIfEmpty(model, data, key);
         }
@@ -77,6 +98,10 @@ module.exports = async(models) => {
         }
 
         for (const { model, data, key } of typeData) {
+            await seedIfEmpty(model, data, key);
+        }
+
+        for (const { model, data, key } of serviceData) {
             await seedIfEmpty(model, data, key);
         }
 
@@ -206,7 +231,7 @@ module.exports = async(models) => {
         }
 
     } catch (error) {
-        console.warn('Error in inserting values: ', error);
+        console.error('Error in inserting values: ', error);
     }
 }
 

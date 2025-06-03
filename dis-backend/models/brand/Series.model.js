@@ -20,8 +20,9 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_part_processor_series',
-        modelName: 'BrandSeriesProcessor',
-        timestamps: false
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
     });
 
     return { 
