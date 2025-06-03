@@ -15,9 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_ram',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const PartStorage = sequelize.define('tbl_part_storage', {
@@ -44,9 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_storage',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const PartGPU = sequelize.define('tbl_part_gpu', {
@@ -65,9 +61,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_gpu',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const PartProcessor = sequelize.define('tbl_part_processor', {
@@ -80,7 +74,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tbl_brand_processor_series',
+                model: 'tbl_brand_part_processor_series',
                 key: 'id'
             }
         },
@@ -90,9 +84,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_processor',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const PartMotherboard = sequelize.define('tbl_part_motherboard', {
@@ -105,7 +97,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tbl_brand_motherboard',
+                model: 'tbl_brand_part_motherboard',
                 key: 'id'
             }
         },
@@ -115,9 +107,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_motherboard',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const PartChipset = sequelize.define('tbl_part_chipset', {
@@ -130,7 +120,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tbl_brand_chipset',
+                model: 'tbl_brand_part_chipset',
                 key: 'id'
             }
         },
@@ -140,9 +130,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_part_chipset',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     return {

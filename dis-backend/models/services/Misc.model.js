@@ -12,9 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_misc_printer_type',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const ScannerType = sequelize.define('tbl_misc_scanner_type', {
@@ -30,9 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_misc_scanner_type',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const StorageType = sequelize.define('tbl_misc_storage_type', {
@@ -48,9 +44,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_misc_storage_type',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const NetworkSpeed = sequelize.define('tbl_misc_net_speed', {
@@ -66,9 +60,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_misc_net_speed',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const AntennaCount = sequelize.define('tbl_misc_antenna', {
@@ -84,9 +76,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_misc_antenna',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     return {

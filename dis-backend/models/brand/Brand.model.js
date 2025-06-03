@@ -12,9 +12,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_aio',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandLaptop = sequelize.define('tbl_brand_laptop', {
@@ -30,9 +28,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_laptop',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandTablet = sequelize.define('tbl_brand_tablet', {
@@ -48,9 +44,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_tablet',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandPrinter = sequelize.define('tbl_brand_printer', {
@@ -66,9 +60,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_printer',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandScanner = sequelize.define('tbl_brand_scanner', {
@@ -84,9 +76,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_scanner',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandRouter = sequelize.define('tbl_brand_router', {
@@ -102,9 +92,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_router',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const BrandUPS = sequelize.define('tbl_brand_ups', {
@@ -120,12 +108,10 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_brand_ups',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
-    const BrandProcessor = sequelize.define('tbl_brand_processor', {
+    const BrandProcessor = sequelize.define('tbl_brand_part_processor', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -137,13 +123,11 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
     }, {
-        tableName: 'tbl_brand_processor',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        tableName: 'tbl_brand_part_processor',
+        timestamps: false
     });
 
-    const BrandMotherboard = sequelize.define('tbl_brand_motherboard', {
+    const BrandMotherboard = sequelize.define('tbl_brand_part_motherboard', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -155,13 +139,11 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
     }, {
-        tableName: 'tbl_brand_motherboard',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        tableName: 'tbl_brand_part_motherboard',
+        timestamps: false
     });
 
-    const BrandChipset = sequelize.define('tbl_brand_chipset', {
+    const BrandChipset = sequelize.define('tbl_brand_part_chipset', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -173,10 +155,8 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
     }, {
-        tableName: 'tbl_brand_chipset',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        tableName: 'tbl_brand_part_chipset',
+        timestamps: false
     })
 
     return {

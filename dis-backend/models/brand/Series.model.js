@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-    const BrandSeriesProcessor = sequelize.define('tbl_brand_processor_series', {
+    const BrandSeriesProcessor = sequelize.define('tbl_brand_part_processor_series', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -14,16 +14,17 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false, 
             references: {
-                model: 'tbl_brand_processor',
+                model: 'tbl_brand_part_processor',
                 key: 'id'
             }
         }
     }, {
-        tableName: 'tbl_brand_processor_series',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        tableName: 'tbl_brand_part_processor_series',
+        modelName: 'BrandSeriesProcessor',
+        timestamps: false
     });
 
-    return BrandSeriesProcessor;
+    return { 
+        BrandSeriesProcessor 
+    };
 }

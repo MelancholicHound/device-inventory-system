@@ -15,9 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_purchase_request',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const Batch = sequelize.define('tbl_batch', {
@@ -71,9 +69,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_batch',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     return { PurchaseRequestDTO, Batch };

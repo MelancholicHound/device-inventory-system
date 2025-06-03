@@ -31,10 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_supplier',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
-    return Supplier;
+    return {
+        Supplier
+    };
 }

@@ -11,9 +11,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_loc_division',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const Section = sequelize.define('tbl_loc_section', {
@@ -36,9 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_loc_section',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     const User = sequelize.define('tbl_user', {
@@ -68,9 +64,7 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_user',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: 'updated_at'
+        timestamps: false
     });
 
     return {
