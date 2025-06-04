@@ -1,29 +1,4 @@
 module.exports = (sequelize, DataTypes) => {
-    const ChipsetTablet = sequelize.define('tbl_device_tablet_cpu', {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        brand_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'tbl_brand_part_chipset',
-                key: 'id'
-            }
-        },
-        model: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        }
-    }, {
-        tableName: 'tbl_device_tablet_cpu',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: false
-    });
-
     const Tablet = sequelize.define('tbl_device_tablet', {
         id: {
             type: DataTypes.INTEGER,
@@ -71,15 +46,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
-        cpu_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            unique: true,
-            references: {
-                model: ChipsetTablet,
-                key: 'id'
-            }
-        },
         ram_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -90,6 +56,35 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_device_tablet',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const ChipsetTablet = sequelize.define('tbl_device_tablet_cpu', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        tablet_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Tablet,
+                key: 'id'
+            }
+        },
+        cpu_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_chipset',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_tablet_cpu',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: false

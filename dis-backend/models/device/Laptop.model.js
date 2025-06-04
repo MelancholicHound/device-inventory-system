@@ -1,29 +1,4 @@
 module.exports = (sequelize, DataTypes) => {
-    const ProcessorLaptop = sequelize.define('tbl_device_laptop_cpu', {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        series_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'tbl_brand_part_processor_series',
-                key: 'id'
-            }
-        },
-        model: {
-            type: DataTypes.STRING,
-            allowNull: false
-        }
-    }, {
-        tableName: 'tbl_device_laptop_cpu',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: false
-    });
-
     const Laptop = sequelize.define('tbl_device_laptop', {
         id: {
             type: DataTypes.INTEGER,
@@ -73,19 +48,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         ups_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             unique: true,
             references: {
                 model: 'tbl_device_ups',
-                key: 'id'
-            }
-        },
-        cpu_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            unique: true,
-            references: {
-                model: ProcessorLaptop,
                 key: 'id'
             }
         },
@@ -122,6 +87,35 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_device_laptop',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const ProcessorLaptop = sequelize.define('tbl_device_laptop_cpu', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        laptop_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Laptop,
+                key: 'id'
+            }
+        },
+        cpu_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_processor',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_laptop_cpu',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: false

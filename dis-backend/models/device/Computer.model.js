@@ -1,54 +1,4 @@
 module.exports = (sequelize, DataTypes) => {
-    const ProcessorComputer = sequelize.define('tbl_device_computer_cpu', {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        series_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'tbl_brand_part_processor_series',
-                key: 'id'
-            }
-        },
-        model: {
-            type: DataTypes.STRING,
-            allowNull: false
-        }
-    }, {
-        tableName: 'tbl_device_computer_cpu',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: false
-    });
-
-    const MotherboardComputer = sequelize.define('tbl_device_computer_motherboard', {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
-        brand_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'tbl_brand_part_motherboard',
-                key: 'id'
-            }
-        },
-        model: {
-            type: DataTypes.STRING,
-            allowNull: false
-        }
-    }, {
-        tableName: 'tbl_device_computer_motherboard',
-        timestamps: true,
-        createdAt: 'created_at',
-        updatedAt: false
-    });
-
     const Computer = sequelize.define('tbl_device_computer', {
         id: {
             type: DataTypes.INTEGER,
@@ -86,28 +36,9 @@ module.exports = (sequelize, DataTypes) => {
         },
         ups_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             unique: true,
             references: {
                 model: 'tbl_device_ups',
-                key: 'id'
-            }
-        },
-        mobo_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            unique: true,
-            references: {
-                model: MotherboardComputer,
-                key: 'id'
-            }
-        },
-        cpu_id: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            unique: true,
-            references: {
-                model: ProcessorComputer,
                 key: 'id'
             }
         },
@@ -144,6 +75,64 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'tbl_device_computer',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const ProcessorComputer = sequelize.define('tbl_device_computer_cpu', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        cpu_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_processor',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_cpu',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: false
+    });
+
+    const MotherboardComputer = sequelize.define('tbl_device_computer_motherboard', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        computer_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Computer,
+                key: 'id'
+            }
+        },
+        mobo_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_part_motherboard',
+                key: 'id'
+            }
+        }
+    }, {
+        tableName: 'tbl_device_computer_motherboard',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: false
