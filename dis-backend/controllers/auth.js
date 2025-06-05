@@ -1,33 +1,15 @@
 const { validationResult } = require('express-validator');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+
+const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier } = require('../models/index');
 
 const { createErrors } = require('./error');
 
 require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD
-    }
-});
-
-function numericOTP (length) {
-    const digits = '0123456789';
-    let otp = '';
-
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * digits.length);
-        otp += digits.charAt(randomIndex);
-    }
-
-    return otp;
-}
-
+//User Async Functions
 exports.signup = async (req, res, next) => {
     try {
         const error = validationResult(req);
@@ -43,7 +25,7 @@ exports.signup = async (req, res, next) => {
 
         const isEmailExisting = await User.findOne({ where: { email } });
 
-        if (isEmailExisting) {
+        if (isEmailExisting.length > 0) {
             return next(createErrors.conflict('A user with this email already exists.'));
         }
 
@@ -71,7 +53,7 @@ exports.login = async (req, res, next) => {
 
         const existingUser = await User.findOne({ where: { email } });
 
-        if (!existingUser) {
+        if (existingUser.length === 0) {
             return next(createErrors.notFound("Account with this email doesn't exist."));
         }
 
@@ -107,23 +89,11 @@ exports.recover = async (req, res, next) => {
 
         const isExisting = await User.findOne({ where: { email } });
 
-        if (!isExisting) {
+        if (isExisting.length === 0) {
             return next(createErrors.notFound('An account with this email not found.'));
         }
-
-        const userDetails = isExisting.dataValues;
-
-        const otp = numericOTP(6);
-
-        const mailOptions = {
-            from: process.env.EMAIL,
-            to: userDetails.email,
-            subject: 'Your One-Time Password (OTP) for Account Recovery',
-            text: `Hello ${userDetails.firstname}! Your OTP is: ${otp}`
-        }
-
-        await transporter.sendMail(mailOptions);
-        res.status(200).json({ code: 200, message: `An OTP was sent to ${userDetails.email}` });
+      
+        res.status(201).json({ code: 200, message: `Email found.` });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong in recovering your account.', err));
     }
@@ -145,12 +115,14 @@ exports.changePassword = async (req, res, next) => {
         await User.update({ password: hashedPassword },
             { where: { email } }
         );
+
         res.status(201).json({ code: 201, message: 'Changed password successfully.' });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong in changing your password.', err));
     }
 }
 
+//Location Requests
 exports.getAllDivisions = async (req, res, next) => {
     try {
         const error = validationResult(req);
@@ -159,19 +131,13 @@ exports.getAllDivisions = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        const divisions = await Division.findAll();
-
-        if (!divisions) {
-            return next(createErrors.notFound('No existing divisions.'));
-        }
-
-        res.status(200).json(divisions);
+        res.status(200).json(await Division.findAll());
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during fetching of divisions.', err));
     }
 }
 
-exports.getSectionByDiv = async (req, res, next) => {
+exports.getDivisionById = async (req, res, next) => {
     try {
         const error = validationResult(req);
 
@@ -179,20 +145,128 @@ exports.getSectionByDiv = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        const id = req.query.divId;
+        const id = req.query.id;
 
-        const sections = await Section.findAll({ where: { division_id: id } }); 
+        res.status(200).json(await Division.findOne({ where: { id } }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong during fetching of division.'));
+    }
+}
 
-        if (!sections) {
-            return next(createErrors.notFound("Sections under this division doesn't exist."));
+exports.getSectionsByDivId = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        res.status(200).json(sections);
+        const id = req.query.id;
+
+        res.status(200).json(await Section.findAll({ where: { div_id: id } }));
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during fetching of sections.', err));
     }
 }
 
+//Supplier Async Function
+exports.getAllSuppliers = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const suppliers = await Supplier.findAll();
+
+        if (suppliers.length === 0) {
+            return next(createErrors.notFound('No suppliers currently saved.'));
+        }
+
+        res.status(200).json(suppliers);
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong during fetching of suppliers.', err));
+    }
+}
+
+exports.getSupplierById = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const id = req.query.id;
+
+        const supplier = await Supplier.findOne({ where: { id } });
+
+        if (!supplier) {
+            return next(createErrors.notFound(`Supplier with ${id} id doesn't exist.`));
+        }
+    } catch (err) {
+        
+    }
+}
+
+exports.postSupplier = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const { name, contact_number, email, location, cp_name, cp_contact_number } = res.body;
+
+        const isSupplierNumberExisting = await Supplier.findOne({ where: { contact_number } });
+        const isContactPersonExisting = await Supplier.findOne({ where: { cp_name } });
+        const isContactPersonNumberExisting = await Supplier.findOne({ where: { cp_contact_number } });
+
+        if (isSupplierNumberExisting && isContactPersonNumberExisting) {
+            return next(createErrors.conflict('This phone number already exists.'));
+        }
+
+        if (isContactPersonExisting) {
+            return next(createErrors.conflict('This contact person already exists in one of the suppliers.'));
+        }
+
+        const supplierDetails = { name, contact_number, email, location, cp_name, cp_contact_number };
+
+        const supplier = await Batch.create({ supplierDetails });
+
+        res.status(201).json({ code: 201, message: supplier });
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong during saving of supplier.'));
+    }
+}
+
+exports.deleteSupplier = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const id = req.query.id;
+        
+        const isExisting = await Supplier.findOne({ where: { id } });
+
+        if (!isExisting) {
+            return next(createErrors.notFound(`A supplier with ${id} id doesn't exist.`));
+        }
+
+        await Supplier.destroy({ where : { id } });
+
+        res.status(201).json({ code: 201, message: 'Supplier deleted successfully.' });
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong during deleting supplier.'));
+    }
+}
+
+//Batch Async Functions
 exports.getAllBatches = async (req, res, next) => {
     try {
         const error = validationResult(req);
@@ -203,13 +277,17 @@ exports.getAllBatches = async (req, res, next) => {
 
         const batches = await Batch.findAll();
 
+        if (!batches) {
+            return next(createErrors.notFound('No existing batches.'));
+        }
+
         res.status(200).json(batches);
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during fetched of batches.', err));
     }
 }
 
-exports.saveBatch = async (req, res, next) => {
+exports.postBatch = async (req, res, next) => {
     try {
         const error = validationResult(req);
 
@@ -217,21 +295,23 @@ exports.saveBatch = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
         }
 
-        const {
-            valid_until,
-            date_delivered,
-            date_tested,
-            supplier_id,
-            service_center,
-            purchaseRequestDTO
-        } = req.body;
+        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         
         const { number, file } = purchaseRequestDTO;
-        const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center };
+
+        const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number } });
+
+        if (isPrExisting) {
+            return next(createErrors.conflict('A batch with this PR number already exists'));
+        }
+
+        const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
+
+        if (!pr) {
+            return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
+        }
 
         const year = new Date().getFullYear().toString();
-
-        const pr = await PurchaseRequestDTO.create({ number, file });
         const existingBatches = await Batch.findAll({
             where: {
                 batch_id: {
@@ -256,14 +336,12 @@ exports.saveBatch = async (req, res, next) => {
 
         const batch = await Batch.create({
             batch_id: batchId,
-            prDTO_id: pr.id,
+            prDTO_id: pr.dataValues?.id,
             created_by: req.user.id,
             ...batchData
         });
-
-        localStorage.setItem('batch', JSON.stringify(batch));
         
-        req.status(201).json({ code: 201, message: batch });
+        res.status(201).json(batch);
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during saving of batch.', err));
     }

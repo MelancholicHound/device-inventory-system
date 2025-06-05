@@ -63,7 +63,7 @@ const initDB = async() => {
         await sequelize.authenticate();
         console.log('Database connected.');
 
-        await sequelize.sync({ alter: true });
+        await sequelize.sync();
         console.log('Tables synced.');
  
         CapacityRAM.hasMany(PartRAM, { foreignKey: 'ram_id' });
