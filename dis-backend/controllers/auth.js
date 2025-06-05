@@ -25,7 +25,7 @@ exports.signup = async (req, res, next) => {
 
         const isEmailExisting = await User.findOne({ where: { email } });
 
-        if (isEmailExisting.length > 0) {
+        if (isEmailExisting) {
             return next(createErrors.conflict('A user with this email already exists.'));
         }
 
@@ -106,14 +106,13 @@ exports.changePassword = async (req, res, next) => {
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
-
-        const email = req.body.email;
+      
         const password = req.body.password;
         
         const hashedPassword = await bcrypt.hash(password, 12);
 
         await User.update({ password: hashedPassword },
-            { where: { email } }
+            { where: { id: req.user.id } }
         );
 
         res.status(201).json({ code: 201, message: 'Changed password successfully.' });
@@ -149,7 +148,7 @@ exports.getDivisionById = async (req, res, next) => {
 
         res.status(200).json(await Division.findOne({ where: { id } }));
     } catch (err) {
-        next(createErrors.internalServerError('Something went wrong during fetching of division.'));
+        next(createErrors.internalServerError('Something went wrong during fetching of division.', err));
     }
 }
 
@@ -178,13 +177,7 @@ exports.getAllSuppliers = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        const suppliers = await Supplier.findAll();
-
-        if (suppliers.length === 0) {
-            return next(createErrors.notFound('No suppliers currently saved.'));
-        }
-
-        res.status(200).json(suppliers);
+        res.status(200).json(await Supplier.findAll());
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during fetching of suppliers.', err));
     }
@@ -200,13 +193,9 @@ exports.getSupplierById = async (req, res, next) => {
 
         const id = req.query.id;
 
-        const supplier = await Supplier.findOne({ where: { id } });
-
-        if (!supplier) {
-            return next(createErrors.notFound(`Supplier with ${id} id doesn't exist.`));
-        }
+        res.status(200).json(await Supplier.findOne({ where: { id } }));
     } catch (err) {
-        
+        next(createErrors.internalServerError('Something went wrong during fetching of specific supplier.', err));
     }
 }
 
@@ -218,7 +207,7 @@ exports.postSupplier = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        const { name, contact_number, email, location, cp_name, cp_contact_number } = res.body;
+        const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
 
         const isSupplierNumberExisting = await Supplier.findOne({ where: { contact_number } });
         const isContactPersonExisting = await Supplier.findOne({ where: { cp_name } });
@@ -234,11 +223,38 @@ exports.postSupplier = async (req, res, next) => {
 
         const supplierDetails = { name, contact_number, email, location, cp_name, cp_contact_number };
 
-        const supplier = await Batch.create({ supplierDetails });
+        await Supplier.create(supplierDetails);
 
-        res.status(201).json({ code: 201, message: supplier });
+        res.status(201).json({ code: 201, message: "Supplier saved." });
     } catch (err) {
-        next(createErrors.internalServerError('Something went wrong during saving of supplier.'));
+        next(createErrors.internalServerError('Something went wrong during saving of supplier.', err));
+    }
+}
+
+exports.editSupplier = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const id = req.query.id;
+        const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
+
+        const isExisting = await Supplier.findOne({ where: { id } });
+
+        if (!isExisting) {
+            return next(createErrors.notFound("Supplier with this id doesn't exist."));
+        }
+
+        const userData = { name, contact_number, email, location, cp_name, cp_contact_number };
+
+        await Supplier.update(userData, { where: { id } });
+
+        res.status(201).json({ code: 201, message: `Supplier updated successfully` });
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on editing supplier.', err));
     }
 }
 
@@ -275,15 +291,25 @@ exports.getAllBatches = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
 
-        const batches = await Batch.findAll();
-
-        if (!batches) {
-            return next(createErrors.notFound('No existing batches.'));
-        }
-
-        res.status(200).json(batches);
+        res.status(200).json(await Batch.findAll());
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during fetched of batches.', err));
+    }
+}
+
+exports.getBatchById = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        const id = req.query.id;
+        
+
+    } catch (err) {
+        
     }
 }
 
@@ -295,7 +321,7 @@ exports.postBatch = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
         }
 
-        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
+        const { valid_until,    date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         
         const { number, file } = purchaseRequestDTO;
 
