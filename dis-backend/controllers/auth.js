@@ -3,7 +3,7 @@ const { Op, where } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier } = require('../models/index');
+const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize } = require('../models/index');
 
 const { createErrors } = require('./error');
 
@@ -53,7 +53,7 @@ exports.login = async (req, res, next) => {
 
         const existingUser = await User.findOne({ where: { email } });
 
-        if (existingUser.length === 0) {
+        if (!existingUser) {
             return next(createErrors.notFound("Account with this email doesn't exist."));
         }
 
@@ -71,7 +71,7 @@ exports.login = async (req, res, next) => {
             email: storedUser.email
         }, 'secretfortoken', { expiresIn: '9h' });
 
-        res.status(201).json({ code: 201, message: token });
+        res.status(201).send(token);
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during login.', err));
     }
@@ -306,10 +306,10 @@ exports.getBatchById = async (req, res, next) => {
         }
 
         const id = req.query.id;
-        
 
+        res.status(200).json(await Batch.findOne({ where: { id } }));
     } catch (err) {
-        
+        next(createErrors.internalServerError('Something went wrong during fetching os specific batch.', err));
     }
 }
 
@@ -321,20 +321,13 @@ exports.postBatch = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
         }
 
-        const { valid_until,    date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
-        
+        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         const { number, file } = purchaseRequestDTO;
 
         const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number } });
 
         if (isPrExisting) {
-            return next(createErrors.conflict('A batch with this PR number already exists'));
-        }
-
-        const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
-
-        if (!pr) {
-            return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
+            return next(createErrors.badRequest('Purchase request number already exists in a batch'));
         }
 
         const year = new Date().getFullYear().toString();
@@ -360,15 +353,73 @@ exports.postBatch = async (req, res, next) => {
 
         const batchId = `${year}-${String(newNumber).padStart(3, '0')}`;
 
+        const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
+
+        if (!pr) {
+            return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
+        }
+
         const batch = await Batch.create({
             batch_id: batchId,
-            prDTO_id: pr.dataValues?.id,
+            prDTO_id: pr.id,
             created_by: req.user.id,
-            ...batchData
+            valid_until, date_delivered, date_tested,
+            supplier_id, service_center
         });
-        
+
         res.status(201).json(batch);
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong during saving of batch.', err));
+    }
+}
+
+exports.editBatch = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        const id = req.query.id;
+        const { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id } = req.body;
+
+        const isBatchExisting = await Batch.findOne({ where: { id } });
+
+        if (!isBatchExisting) {
+            return next(createErrors.notFound("Batch with this id doesn't exist."));
+        }
+        
+        const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id };
+
+        await Batch.update(batchData, { where: { id } });
+
+        res.status(201).json({ code: 201, message: 'Batch updated successfully.' });
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on editing batch.', err));
+    }
+}
+
+exports.deleteBatch = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        const id = req.query.id;
+
+        const isExisting = await Batch.findOne({ where: { id } });
+
+        if (!isExisting) {
+            return next(createErrors.notFound("A batch with this id doesn't exist."));
+        }
+
+        await Batch.destroy({ where: { id } });
+
+        res.status(201).json({ code: 201, message: 'Batch deleted successfully.' });
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on deleting batch.', err));
     }
 }

@@ -25,19 +25,31 @@ router.get('/division', authController.getDivisionById);
 
 router.get('/section/division', authController.getSectionsByDivId);
 
-router.get('/suppliers', authController.getAllSuppliers);
+router.get('/suppliers', authenticateToken, authController.getAllSuppliers);
 
-router.get('/supplier', authController.getSupplierById);
+router.get('/supplier', authenticateToken, authController.getSupplierById);
 
-router.post('/supplier', authController.postSupplier);
+router.post('/supplier', [
+    body('name').notEmpty().withMessage('Name is required.'),
+    body('contact_number').isLength({ min: 11 }).withMessage('Please enter a valid contact number.'),
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('location').notEmpty().withMessage('Location is required.'),
+    body('cp_name').notEmpty().withMessage("Contact person's name is required."),
+    body('cp_contact_number').notEmpty().withMessage("Contact person's number is required.")
+], authenticateToken, authController.postSupplier);
 
-router.patch('/supplier', authController.editSupplier);
+router.patch('/supplier', authenticateToken, authController.editSupplier);
 
-router.delete('/supplier', authController.deleteSupplier);
+router.delete('/supplier', authenticateToken, authController.deleteSupplier);
 
-router.get('/batches', authController.getAllBatches);
+router.get('/batches', authenticateToken, authController.getAllBatches);
 
+router.get('/batch', authenticateToken, authController.getBatchById);
 
-router.post('/batch', authController.postBatch);
+router.post('/batch', authenticateToken, authController.postBatch);
+
+router.patch('/batch', authenticateToken, authController.editBatch);
+
+router.delete('/batch', authenticateToken, authController.deleteBatch);
 
 module.exports = router;
