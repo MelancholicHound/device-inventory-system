@@ -19,15 +19,13 @@ router.get('/user/recover', authController.recover);
 
 router.post('/user/recover', authController.changePassword);
 
-router.get('/divisions', authenticateToken, authController.getAllDivisions);
+router.get('/division', authenticateToken, authController.getAllDivisions);
 
-router.get('/division', authenticateToken, authController.getDivisionById);
+router.get('/section/division/:id', authenticateToken, authController.getSectionsByDivId);
 
-router.get('/section/division', authenticateToken, authController.getSectionsByDivId);
+router.get('/supplier', authenticateToken, authController.getAllSuppliers);
 
-router.get('/suppliers', authenticateToken, authController.getAllSuppliers);
-
-router.get('/supplier', authenticateToken, authController.getSupplierById);
+router.get('/supplier/:id', authenticateToken, authController.getByIdSupplier);
 
 router.post('/supplier', [
     body('name').notEmpty().withMessage('Name is required.'),
@@ -38,19 +36,26 @@ router.post('/supplier', [
     body('cp_contact_number').notEmpty().withMessage("Contact person's number is required.")
 ], authenticateToken, authController.postSupplier);
 
-router.patch('/supplier', authenticateToken, authController.editSupplier);
+router.patch('/supplier/:id', [
+    body('name').notEmpty().withMessage('Name is required.'),
+    body('contact_number').isLength({ min: 11 }).withMessage('Please enter a valid contact number.'),
+    body('email').isEmail().withMessage('Please enter a valid email address.'),
+    body('location').notEmpty().withMessage('Location is required.'),
+    body('cp_name').notEmpty().withMessage("Contact person's name is required."),
+    body('cp_contact_number').notEmpty().withMessage("Contact person's number is required.")
+], authenticateToken, authController.patchByIdSupplier);
 
-router.delete('/supplier', authenticateToken, authController.deleteSupplier);
+router.delete('/supplier/:id', authenticateToken, authController.deleteByIdSupplier);
 
-router.get('/batches', authenticateToken, authController.getAllBatches);
+router.get('/batch', authenticateToken, authController.getAllBatches);
 
-router.get('/batch', authenticateToken, authController.getBatchById);
+router.get('/batch/:id', authenticateToken, authController.getByIdBatch);
 
 router.post('/batch', authenticateToken, authController.postBatch);
 
-router.patch('/batch', authenticateToken, authController.editBatch);
+router.patch('/batch/:id', authenticateToken, authController.patchByIdBatch);
 
-router.delete('/batch', authenticateToken, authController.deleteBatch);
+router.delete('/batch/:id', authenticateToken, authController.deleteByIdBatch);
 
 router.get('/brand/aio', authenticateToken, authController.getAllAIOBrands);
 
@@ -141,5 +146,53 @@ router.post('/capacity/storage', authenticateToken, authController.postStorage);
 router.get('/capacity/gpu', authenticateToken, authController.getAllGPU);
 
 router.post('/capacity/gpu', authenticateToken, authController.postGPU);
+
+router.post('/part/ram', authenticateToken, authController.postPartRAM);
+
+router.get('/part/ram', authenticateToken, authController.getAllPartRAM);
+
+router.get('/part/ram/:id', authenticateToken, authController.getByIdPartRAM);
+
+router.patch('/part/ram/:id', authenticateToken, authController.patchByIdPartRAM);
+
+router.post('/part/gpu', authenticateToken, authController.postPartGPU);
+
+router.get('/part/gpu', authenticateToken, authController.getAllPartGPU);
+
+router.get('/part/gpu/:id', authenticateToken, authController.getByIdPartGPU);
+
+router.patch('/part/gpu/:id', authenticateToken, authController.patchByIdPartGPU);
+
+router.post('/part/storage', authenticateToken, authController.postPartStorage);
+
+router.get('/part/storage', authenticateToken, authController.getAllPartStorage);
+
+router.get('/part/storage/:id', authenticateToken, authController.getByIdPartStorage);
+
+router.patch('/part/storage/:id', authenticateToken, authController.patchByIdPartStorage);
+
+router.post('/part/processor', authenticateToken, authController.postPartProcessor);
+
+router.get('/part/processor', authenticateToken, authController.getAllPartProcessor);
+
+router.get('/part/processor/:id', authenticateToken, authController.getByIdPartProcessor);
+
+router.patch('/part/processor/:id', authenticateToken, authController.patchByIdPartProcessor);
+
+router.post('/part/motherboard', authenticateToken, authController.postPartMotherboard);
+
+router.get('/part/motherboard', authenticateToken, authController.getAllPartMotherboard);
+
+router.get('/part/motherboard/:id', authenticateToken, authController.getByIdPartMotherboard);
+
+router.patch('/part/motherboard/:id', authenticateToken, authController.patchByIdPartMotherboard);
+
+router.post('/part/chipset', authenticateToken, authController.postPartChipset);
+
+router.get('/part/chipset', authenticateToken, authController.getAllPartChipset);
+
+router.get('/part/chipset/:id', authenticateToken, authController.getByIdPartChipset);
+
+router.patch('/part/chipset/:id', authenticateToken, authController.patchByIdPartChipset);
 
 module.exports = router;
