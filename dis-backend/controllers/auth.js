@@ -1,19 +1,32 @@
 const { validationResult } = require('express-validator');
-const { Op, where } = require('sequelize');
+const { Op } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize } = require('../models/index');
+const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier } = require('../models/index');
+
+const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO } = require('../models/index');
+const { ProcessorComputer, MotherboardComputer, Computer, RAMComputer, StorageComputer, ConnectionsComputer, PeripheralsComputer } = require('../models/index');
+const { ProcessorLaptop, Laptop, RAMLaptop, StorageLaptop, ConnectionsLaptop, PeripheralsLaptop } = require('../models/index');
+const { Printer } = require('../models/index');
+const { Router } = require('../models/index');
+const { Scanner } = require('../models/index');
+const { ChipsetTablet, Tablet, PeripheralsTablet, ConnectionsTablet } = require('../models/index');
+const { UPS, BrandSeriesProcessor } = require('../models/index');
+
+const { CapacityGPU, CapacityRAM, CapacityStorage } = require('../models/index');
+const { PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount, Connection, Peripheral, SoftwareOS, SoftwareProductivity, SoftwareSecurity } = require('../models/index');
+const { PartChipset, PartGPU, PartMotherboard, PartProcessor, PartRAM, PartStorage } = require('../models/index');
+const { BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS, BrandMotherboard, BrandProcessor, BrandChipset } = require('../models/index');
 
 const { createErrors } = require('./error');
 
 require('dotenv').config();
 
-//User Async Functions
+//User Middleware Functions
 exports.signup = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
@@ -24,13 +37,11 @@ exports.signup = async (req, res, next) => {
         const password = req.body.password;
 
         const isEmailExisting = await User.findOne({ where: { email } });
-
         if (isEmailExisting) {
             return next(createErrors.conflict('A user with this email already exists.'));
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
-
         const userDetails = { first_name, last_name, email, password: hashedPassword };
 
         await User.create(userDetails);
@@ -43,7 +54,6 @@ exports.signup = async (req, res, next) => {
 exports.login = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
@@ -52,14 +62,13 @@ exports.login = async (req, res, next) => {
         const password = req.body.password;
 
         const existingUser = await User.findOne({ where: { email } });
-
         if (!existingUser) {
             return next(createErrors.notFound("Account with this email doesn't exist."));
         }
 
         const storedUser = existingUser.dataValues;
-        const isEqual = await bcrypt.compare(password, storedUser.password);
 
+        const isEqual = await bcrypt.compare(password, storedUser.password);
         if (!isEqual) {
             return next(createErrors.badRequest('Password is incorrect.'));
         }
@@ -80,7 +89,6 @@ exports.login = async (req, res, next) => {
 exports.recover = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
@@ -88,8 +96,7 @@ exports.recover = async (req, res, next) => {
         const email = req.query.email;
 
         const isExisting = await User.findOne({ where: { email } });
-
-        if (isExisting.length === 0) {
+        if (!isExisting) {
             return next(createErrors.notFound('An account with this email not found.'));
         }
       
@@ -102,13 +109,11 @@ exports.recover = async (req, res, next) => {
 exports.changePassword = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
         }
       
         const password = req.body.password;
-        
         const hashedPassword = await bcrypt.hash(password, 12);
 
         await User.update({ password: hashedPassword },
@@ -121,13 +126,16 @@ exports.changePassword = async (req, res, next) => {
     }
 }
 
-//Location Requests
+//Location Middleware Functions
 exports.getAllDivisions = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         res.status(200).json(await Division.findAll());
@@ -139,9 +147,12 @@ exports.getAllDivisions = async (req, res, next) => {
 exports.getDivisionById = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
@@ -155,9 +166,12 @@ exports.getDivisionById = async (req, res, next) => {
 exports.getSectionsByDivId = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
@@ -168,13 +182,16 @@ exports.getSectionsByDivId = async (req, res, next) => {
     }
 }
 
-//Supplier Async Function
+//Supplier Middleware Function
 exports.getAllSuppliers = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         res.status(200).json(await Supplier.findAll());
@@ -186,9 +203,12 @@ exports.getAllSuppliers = async (req, res, next) => {
 exports.getSupplierById = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
@@ -202,9 +222,12 @@ exports.getSupplierById = async (req, res, next) => {
 exports.postSupplier = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
@@ -234,18 +257,20 @@ exports.postSupplier = async (req, res, next) => {
 exports.editSupplier = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
 
         const isExisting = await Supplier.findOne({ where: { id } });
-
         if (!isExisting) {
-            return next(createErrors.notFound("Supplier with this id doesn't exist."));
+            return next(createErrors.notFound("This supplier doesn't exist."));
         }
 
         const userData = { name, contact_number, email, location, cp_name, cp_contact_number };
@@ -261,17 +286,19 @@ exports.editSupplier = async (req, res, next) => {
 exports.deleteSupplier = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
         
         const isExisting = await Supplier.findOne({ where: { id } });
-
         if (!isExisting) {
-            return next(createErrors.notFound(`A supplier with ${id} id doesn't exist.`));
+            return next(createErrors.notFound(`This supplier doesn't exist.`));
         }
 
         await Supplier.destroy({ where : { id } });
@@ -282,13 +309,16 @@ exports.deleteSupplier = async (req, res, next) => {
     }
 }
 
-//Batch Async Functions
+//Batch Middleware Functions
 exports.getAllBatches = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         res.status(200).json(await Batch.findAll());
@@ -300,9 +330,12 @@ exports.getAllBatches = async (req, res, next) => {
 exports.getBatchById = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
@@ -316,16 +349,18 @@ exports.getBatchById = async (req, res, next) => {
 exports.postBatch = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         const { number, file } = purchaseRequestDTO;
 
         const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number } });
-
         if (isPrExisting) {
             return next(createErrors.badRequest('Purchase request number already exists in a batch'));
         }
@@ -354,7 +389,6 @@ exports.postBatch = async (req, res, next) => {
         const batchId = `${year}-${String(newNumber).padStart(3, '0')}`;
 
         const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
-
         if (!pr) {
             return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
         }
@@ -376,16 +410,18 @@ exports.postBatch = async (req, res, next) => {
 exports.editBatch = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id } = req.body;
 
         const isBatchExisting = await Batch.findOne({ where: { id } });
-
         if (!isBatchExisting) {
             return next(createErrors.notFound("Batch with this id doesn't exist."));
         }
@@ -403,15 +439,17 @@ exports.editBatch = async (req, res, next) => {
 exports.deleteBatch = async (req, res, next) => {
     try {
         const error = validationResult(req);
-
         if (!error.isEmpty()) {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
         }
 
         const id = req.query.id;
 
         const isExisting = await Batch.findOne({ where: { id } });
-
         if (!isExisting) {
             return next(createErrors.notFound("A batch with this id doesn't exist."));
         }
@@ -421,5 +459,1131 @@ exports.deleteBatch = async (req, res, next) => {
         res.status(201).json({ code: 201, message: 'Batch deleted successfully.' });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on deleting batch.', err));
+    }
+}
+
+//Brands Middleware Functions
+exports.postBrandAIO = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandAIO.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This AIO brand already exists.'));
+        }
+
+        res.status(200).json(await BrandAIO.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving AIO brand.', err)); 
+    }
+}
+
+exports.postBrandLaptop = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandLaptop.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This laptop brand already exists.'));
+        }
+
+        res.status(200).json(await BrandLaptop.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving laptop brand.', err)); 
+    }
+}
+
+exports.postBrandPrinter = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandPrinter.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This printer brand already exists.'));
+        }
+
+        res.status(200).json(await BrandPrinter.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving printer brand.', err)); 
+    }
+}
+
+exports.postBrandRouter = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandRouter.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This router brand already exists.'));
+        }
+
+        res.status(200).json(await BrandRouter.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving router brand.', err)); 
+    }
+}
+
+exports.postBrandScanner = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandScanner.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This scanner brand already exists.'));
+        }
+
+        res.status(200).json(await BrandScanner.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving scanner brand.', err)); 
+    }
+}
+
+exports.postBrandTablet = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandTablet.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This scanner brand already exists.'));
+        }
+
+        res.status(200).json(await BrandTablet.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
+    }
+}
+
+exports.postBrandUPS = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandUPS.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This UPS brand already exists.'));
+        }
+
+        res.status(200).json(await BrandUPS.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving UPS brand.', err)); 
+    }
+}
+
+exports.postBrandMotherboard = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandMotherboard.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This motherboard brand already exists.'));
+        }
+
+        res.status(200).json(await BrandMotherboard.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
+    }
+}
+
+exports.postBrandProcessor = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandProcessor.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This processor brand already exists.'));
+        }
+
+        res.status(200).json(await BrandProcessor.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
+    }
+}
+
+exports.postBrandChipset = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await BrandChipset.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This chipset brand already exists.'));
+        }
+
+        res.status(200).json(await BrandChipset.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
+    }
+}
+
+exports.getAllAIOBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandAIO.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all AIO brands.', err));
+    }
+}
+
+exports.getAllLaptopBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandLaptop.findAll());
+    } catch (err) {
+       next(createErrors.internalServerError('Something went wrong on fetching all laptop brands.', err)); 
+    }
+}
+
+exports.getAllPrinterBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandPrinter.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer brands.', err)); 
+    }
+}
+
+exports.getAllRouterBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandRouter.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all router brands.', err)); 
+    }
+}
+
+exports.getAllScannerBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandScanner.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all scanner brands.', err)); 
+    }
+}
+
+exports.getAllTabletBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandTablet.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all tablet brands.', err)); 
+    }
+}
+
+exports.getAllUPSBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandUPS.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all UPS brands.', err)); 
+    }
+}
+
+exports.getAllMotherboardBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandMotherboard.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all motherboard brands.', err)); 
+    }
+}
+
+exports.getAllProcessorBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandProcessor.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all motherboard brands.', err)); 
+    }
+}
+
+exports.getAllChipsetBrands = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await BrandChipset.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all chipset brands.', err)); 
+    }
+}
+
+//Miscellaneous Middleware Functions
+exports.postPrinterType = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const type = req.query.type;
+
+        const isExisting = await PrinterType.findOne({ where: { type } });
+        if (isExisting) {
+            return next(createErrors.conflict('This printer type already exists'));
+        }
+
+        res.status(200).json(await PrinterType.create({ type }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving printer type.', err));
+    }
+}
+
+exports.postScannerType = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const type = req.query.type;
+
+        const isExisting = await ScannerType.findOne({ where: { type } });
+        if (isExisting) {
+            return next(createErrors.conflict('This scanner type already exists'));
+        }
+
+        res.status(200).json(await ScannerType.create({ type }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving scanner type.', err));
+    }
+}
+
+exports.postNetworkSpeed = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const speed_by_mbps = req.query.speed;
+
+        const isExisting = await NetworkSpeed.findOne({ where: { speed_by_mbps } });
+        if (isExisting) {
+            return next(createErrors.conflict('This network speed already exists.'));
+        }
+
+        res.status(200).json(await NetworkSpeed.create({ speed_by_mbps }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving network speed.', err));
+    }
+}
+
+exports.postAntennaCount = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const antenna_count = req.query.count;
+
+        const isExisting = await AntennaCount.findOne({ where: { antenna_count } });
+        if (isExisting) {
+            return next(createErrors.conflict('This antenna count already exists.'));
+        }
+
+        res.status(200).json(await AntennaCount.create({ antenna_count }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving antenna count.', err));
+    }
+}
+
+exports.getAllPrinterTypes = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await PrinterType.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
+    }
+}
+
+exports.getAllScannerTypes = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await ScannerType.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all scanner type.', err));
+    }
+}
+
+exports.getAllStorageTypes = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await StorageType.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
+    }
+}
+
+exports.getAllStorageTypes = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await StorageType.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
+    }
+}
+
+exports.getAllNetworkSpeeds = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await NetworkSpeed.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
+    }
+}
+
+exports.getAllAntennaCounts = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await AntennaCount.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
+    }
+}
+
+//Services Middleware Functions
+exports.postConnection = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await Connection.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This connection already exists.'));
+        }
+
+        res.status(200).json(await Connection.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving connection.', err));
+    }
+}
+
+exports.postPeripheral = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+        
+        const isExisting = await Peripheral.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This peripheral already exists.'));
+        }
+
+        res.status(200).json(await Peripheral.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving peripheral.', err));
+    }
+}
+
+exports.postSoftwareOS = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await SoftwareOS.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This operating system already exists.'));
+        }
+
+        res.status(200).json(await SoftwareOS.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving operating system.', err));
+    }
+}
+
+exports.postSoftwareProductivityTool = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+        
+        const isExisting = await SoftwareProductivity.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This productivity tool already exists.'));
+        }
+
+        res.status(200).json(await SoftwareProductivity.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving productivity tool.', err));
+    }
+}
+
+exports.postSoftwareSecurity = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const name = req.query.name;
+
+        const isExisting = await SoftwareSecurity.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This security tool already exists.'));
+        }
+
+        res.status(200).json(await SoftwareSecurity.create({ name }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving security.', err));
+    }
+}
+
+exports.getAllConnections = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await Connection.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all connections.', err));
+    }
+}
+
+exports.getAllPeripherals = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await Peripheral.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all peripherals.', err));
+    }
+}
+
+exports.getAllSoftwareOS = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await SoftwareOS.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all operating systems.', err));
+    }
+}
+
+exports.getAllSoftwareProductivity = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await SoftwareProductivity.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all productivity tools.', err));
+    }
+}
+
+exports.getAllSoftwareSecurity = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await SoftwareSecurity.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all securities.', err));
+    }
+}
+
+//Parts Middleware Functions 
+exports.postPartRAM = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const ram_id = req.body.ram_id;
+
+        const isExisting = await CapacityRAM.findOne({ where: { id: ram_id } });
+        if (!isExisting) {
+            return next(createErrors.notFound("This ram capacity doesn't exists."));
+        }
+
+        res.status(200).json(await PartRAM.create({ ram_id }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving RAM part.', err));
+    }
+}
+
+exports.postPartGPU = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const gpu_id = req.body.gpu_id;
+
+        const isExisting = await CapacityGPU.findOne({ where: { id: gpu_id } });
+        if (!isExisting) {
+            return next(createErrors.notFound("This GPU capacity doesnt' exists."));
+        }
+
+        res.status(200).json(await PartGPU.create({ gpu_id }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving GPU part.', err));
+    }
+}
+
+exports.postPartStorage = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const { storage_id, type_id } = req.body;
+
+        const isCapacityExisting = await CapacityStorage.findOne({ where: { id: storage_id } });
+        const isTypeExisting = await StorageType.findOne({ where: { id: type_id } });
+
+        if (!isCapacityExisting) {
+            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+        }
+
+        if (!isTypeExisting) {
+            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+        }
+
+        res.status(200).json(await PartRAM.create({ storage_id, type_id }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving storage part.', err));
+    }
+}
+
+exports.postPartProcessor = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const { series_id, model } = req.body;
+
+        const isExisting = await BrandSeriesProcessor.findOne({ where: { id: series_id } });
+        if (!isExisting) {
+            return next(createErrors.notFound("Series with this id doesn't exists."));
+        }
+
+        res.status(200).json(await PartProcessor.create({ series_id, model }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving processor part.', err));
+    }
+}
+
+exports.postPartMotherboard = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const { brand_id, model } = req.body;
+
+        const isExisting = await BrandMotherboard.findOne({ where: { id: brand_id } });
+        if (!isExisting) {
+            return next(createErrors.notFound("This brand doesn't exists."));
+        }
+
+        res.status(200).json(await PartMotherboard.create({ brand_id, model }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving motherboard part.', err));
+    }
+}
+
+exports.postChipset = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const { brand_id, model } = req.body;
+
+        const isExisting = await BrandChipset.findOne({ where: { id: brand_id } });
+        if (!isExisting) {
+            return next(createErrors.notFound("This chipset brand doesn't exists in the database."))
+        }
+        
+        res.status(200).json(await PartChipset.create({ brand_id, model }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving chipset part.', err));
+    }
+}
+
+//Capacities Middleware Functions
+exports.getAllRAM = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await CapacityRAM.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all RAM capacities.', err));
+    }
+}
+
+exports.getAllStorage = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await CapacityStorage.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all storage capacities.', err));
+    }
+}
+
+exports.getAllGPU = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        res.status(200).json(await CapacityGPU.findAll());
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all GPU capacities.', err));
+    }
+}
+
+exports.postRAM = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const capacity = req.query.capacity;
+
+        const isExisting = await CapacityRAM.findOne({ where: { capacity } });
+        if (isExisting) {
+            return next(createErrors.conflict('A RAM with this capacity already exists.'));
+        }
+
+        res.status(200).json(await CapacityRAM.create({ capacity }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving RAM.', err));
+    }
+}
+
+exports.postStorage = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const capacity = req.query.capacity;
+
+        const isExisting = await CapacityStorage.findOne({ where: { capacity } });
+        if (isExisting) {
+            return next(createErrors.conflict('A storage with this capacity already exists.'));
+        }
+
+        res.status(200).json(await CapacityStorage.create({ capacity }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving storage.', err));
+    }
+}
+
+exports.postGPU = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const capacity = req.query.capacity;
+
+        const isExisting = await CapacityGPU.findOne({ where: { capacity } });
+        if (isExisting) {
+            return next(createErrors.conflict('A GPU with this capacity already exists.'));
+        }
+
+        res.status(200).json(await CapacityGPU.create({ capacity }));
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on saving GPU.', err));
+    }
+}
+
+//Centralized Middleware Functions
+exports.findAllDevices = async (req, res, next) => {
+    try {
+        const error = validationResult(req);
+        if (!error.isEmpty()) {
+            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        }
+
+        if (!req.user) {
+            return next(createErrors.unauthorized('Invalid or expired token'));
+        }
+
+        const [ aios, computers, laptops, printers, routers, scanners, tablets, ups ] = await Promise.all([
+            AIO.findAll(), Computer.findAll(), Laptop.findAll(), Printer.findAll(), Router.findAll(), Scanner.findAll(), Tablet.findAll(), UPS.findAll()
+        ]);
+
+        const allDevices = [
+            ...aios.map(device => ({ type: 'AIO', device })),
+            ...computers.map(device => ({ type: 'Computer', device })),
+            ...laptops.map(device => ({ type: 'Laptop', device })),
+            ...printers.map(device => ({ type: 'Printer', device })),
+            ...routers.map(device => ({ type: 'Router', device })),
+            ...scanners.map(device => ({ type: 'Scanner', device })),
+            ...tablets.map(device => ({ type: 'Tablet', device })),
+            ...ups.map(device => ({ type: 'UPS', device }))
+        ];
+
+        allDevices.sort((a, b) => new Date(b.device.created_at) - new Date(a.device.created_at));
+
+        res.status(200).json(allDevices);
+    } catch (err) {
+        next(createErrors.internalServerError('Something went wrong on fetching all devices.', err));
     }
 }
