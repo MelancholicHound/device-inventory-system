@@ -1,5 +1,3 @@
-const { createErrors } = require('../controllers/error');
-
 const seedIfEmpty = async(model, dataArray, keyName) => {
     if (await model.count() === 0) {
         const objects = dataArray.map(item => ({ [keyName]: item }));
