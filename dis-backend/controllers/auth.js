@@ -18,6 +18,8 @@ const { CapacityGPU, CapacityRAM, CapacityStorage } = require('../models/index')
 const { PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount, Connection, Peripheral, SoftwareOS, SoftwareProductivity, SoftwareSecurity } = require('../models/index');
 const { PartChipset, PartGPU, PartMotherboard, PartProcessor, PartRAM, PartStorage } = require('../models/index');
 const { BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS, BrandMotherboard, BrandProcessor, BrandChipset } = require('../models/index');
+const { AuditRAM, AuditGPU, AuditStorage, AuditMotherboard, AuditProcessor, AuditChipset } = require('../models/index');
+const { generateChipsetReport, generateGPUReport, generateMotherboardReport, generateProcessorReport,generateRAMReport, generateStorageReport } = require('../util/common');
 
 const { createErrors } = require('./error');
 
@@ -1798,14 +1800,39 @@ exports.patchByIdPartRAM = async (req, res, next) => {
         }
 
         const id = req.params.id;
-        const ram_id = req.body.ram_id;
+        const capacity_id = req.body.capacity_id;
 
-        const isExisting = await CapacityRAM.findByPk(ram_id);
-        if (!isExisting) {
+        const oldRAM = await PartRAM.findByPk(id);
+        const capacity = await CapacityRAM.findByPk(capacity_id);
+
+        
+        if (!oldRAM) {
+            return next(createErrors.notFound("This RAM doesn't exist."));
+        }
+
+        if (!capacity) {
             return next(createErrors.notFound("This RAM capacity doesn't exist."));
         }
 
-        res.status(200).json(await PartRAM.update({ ram_id }, { where: { id } }));
+        const [updated] = await PartRAM.update({ capacity_id }, { where: { id } });
+
+        if (updated === 0) {
+            return next(createErrors.internalServerError('RAM part update failed.'));
+        }
+      
+        const report = await generateRAMReport('UPDATE', oldRAM, capacity);
+
+        await AuditRAM.create({
+            part_id: parseInt(id, 10),
+            old_capacity_id: oldRAM.capacity_id,
+            new_capacity_id: capacity_id,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part RAM ${id} update and audit logged.`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific RAM part.', err));
     }
@@ -1823,14 +1850,38 @@ exports.patchByIdPartGPU = async (req, res, next) => {
         }
 
         const id = req.params.id;
-        const gpu_id = req.body.gpu_id;
+        const capacity_id = req.body.capacity_id;
 
-        const isExisting = await CapacityGPU.findByPk(gpu_id);
-        if (!isExisting) {
+        const oldGPU = await PartRAM.findByPk(id);
+        const capacity = await CapacityGPU.findByPk(capacity_id);
+
+        if (!oldGPU) {
+            return next(createErrors.notFound("This GPU doesn't exist."));
+        }
+
+        if (!capacity) {
             return next(createErrors.notFound("This GPU capacity doesn't exist."));
         }
 
-        res.status(200).json(await PartGPU.update({ gpu_id }, { where: { id } }));
+        const [updated] = await PartGPU.update({ capacity_id }, { where: { id } });
+
+        if (updated === 0) {
+            return next(createErrors.internalServerError('GPU part update failed.'));
+        }
+
+        const report = await generateGPUReport('UPDATE', oldGPU, capacity);
+
+        await AuditGPU.create({
+            part_id: parseInt(id, 10),
+            old_capacity_id: oldGPU.capacity_id,
+            new_capacity_id: capacity_id,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part GPU ${id} update and audit logged.`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific GPU part.', err));
     }
@@ -1848,21 +1899,45 @@ exports.patchByIdPartStorage = async (req, res, next) => {
         }
 
         const id = req.params.id;
-        const { storage_id, type_id } = req.body;
+        const { capacity_id, type_id } = req.body;
 
-        const isCapacityExisting = await CapacityStorage.findByPk(storage_id);
-        const isTypeExisting = await StorageType.findByPk(type_id);
+        const oldStorage = await PartStorage.findByPk(id);
+        const capacity = await CapacityStorage.findByPk(capacity_id);
+        const type = await StorageType.findByPk(type_id);
 
-        if (!isCapacityExisting) {
+        if (!oldStorage) {
+            return next(createErrors.notFound("This storage doesn't exist."))
+        }
+
+        if (!capacity) {
             return next(createErrors.notFound("A capacity with this id doesn't exists."));
         }
 
-        if (!isTypeExisting) {
+        if (!type) {
             return next(createErrors.notFound("A capacity with this id doesn't exists."));
         }
 
+        const [updated] = await PartStorage.update({ capacity_id, type_id }, { where: { id } });
 
-        res.status(200).json(await PartStorage.update({ storage_id, type_id }, { where: { id } }));
+        if (updated === 0) {
+            return next(createErrors.internalServerError('Storage part update failed.'));
+        }
+
+        const report = await generateStorageReport('UPDATE', oldStorage, capacity);
+
+        await AuditStorage.create({
+            part_id: parseInt(id, 10),
+            old_capacity_id: oldStorage.capacity_id,
+            old_type_id: oldStorage.type_id,
+            new_capacity_id: capacity_id,
+            new_type_id: type_id,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part storage ${id} updated and audit logged.`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific storage part.', err));
     }
@@ -1882,12 +1957,38 @@ exports.patchByIdPartProcessor = async (req, res, next) => {
         const id = req.params.id;
         const { series_id, model } = req.body;
 
-        const isExisting = await BrandSeriesProcessor.findByPk(series_id);
-        if (!isExisting) {
-            return next(createErrors.notFound("Series with this id doesn't exists."));
+        const oldProcessor = await PartProcessor.findByPk(id);
+        const processorSeries = await BrandSeriesProcessor.findByPk(series_id);
+
+        if (!oldProcessor) {
+            return next(createErrors.notFound("This processor doesn't exists."));
         }
 
-        res.status(200).json(await PartProcessor.update({ series_id, model }, { where: { id } }));
+        if (!processorSeries) {
+            return next(createErrors.notFound("This processor series doesn't exists."));
+        }
+
+        const [updated] = await PartProcessor.update({ series_id, model }, { where: { id } });
+
+        if (updated === 0) {
+            return next(createErrors.internalServerError('Processor part update failed.'))
+        }
+
+        const report = await generateProcessorReport('UPDATE', oldProcessor, { series_id, model });
+
+        await AuditProcessor.create({
+            part_id: parseInt(id, 10),
+            old_series_id: oldProcessor.series_id,
+            old_model: oldProcessor.model,
+            new_series_id: series_id,
+            new_model: model,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part processor ${id} updated and audit logged.`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific processor part.', err));
     }
@@ -1907,12 +2008,38 @@ exports.patchByIdPartMotherboard = async (req, res, next) => {
         const id = req.params.id;
         const { brand_id, model } = req.body;
 
-        const isExisting = await BrandMotherboard.findByPk(brand_id);
-        if (!isExisting) {
-            return next(createErrors.notFound("This brand doesn't exists."));
+        const oldMotherboard = await PartMotherboard.findByPk(id);
+        const motherboardBrand = await BrandMotherboard.findByPk(brand_id);
+
+        if (!oldMotherboard) {
+            return next(createErrors.notFound("This motherboard doesn't exist."));
         }
 
-        res.status(200).json(await PartMotherboard.update({ brand_id, model }, { where: { id } }));
+        if (!motherboardBrand) {
+            return next(createErrors.notFound("This brand doesn't exist."));
+        }
+
+        const [updated] = await PartMotherboard.update({ brand_id, model }, { where: { id } });
+
+        if (updated === 0) {
+            return next(createErrors.internalServerError('Processor part update failed.'));
+        }
+
+        const report = await generateMotherboardReport('UPDATE', oldMotherboard, { brand_id, model });
+
+        await PartMotherboard.create({
+            part_id: parseInt(id, 10),
+            old_brand_id: oldMotherboard.brand_id,
+            old_model: oldMotherboard.model,
+            new_brand_id: brand_id,
+            new_model: model,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part motherboard ${id} updated and audit logged.`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific motherboard part.', err));
     }
@@ -1932,12 +2059,38 @@ exports.patchByIdPartChipset = async (req, res, next) => {
         const id = req.params.id;
         const { brand_id, model } = req.body;
 
-        const isExisting = await BrandChipset.findByPk(brand_id);
-        if (!isExisting) {
-            return next(createErrors.notFound("This chipset brand doesn't exists in the database."))
+        const oldChipset = await PartChipset.findByPk(id);
+        const chipsetBrand = await BrandChipset.findByPk(brand_id);
+
+        if (!oldChipset) {
+            return next(createErrors.notFound("This chipset doesn't exist."))
         }
 
-        res.status(200).json(await PartChipset.update({ brand_id, model }, { where: { id } }));
+        if (!chipsetBrand) {
+            return next(createErrors.notFound("This chipset brand doesn't exist."))
+        }
+
+        const [updated] = await PartChipset.update({ brand_id, model }, { where: { id } });
+
+        if (updated === 0) {
+            return next(createErrors.internalServerError('Chipset part update failed.'));
+        }
+
+        const report = await generateChipsetReport('UPDATE', oldChipset, { brand_id, model });
+
+        await PartChipset.create({
+            part_id: parseInt(id, 10),
+            old_brand_id: oldChipset.brand_id,
+            old_model: oldChipset.model,
+            new_brand_id: brand_id,
+            new_model: model,
+            action: 'UPDATE',
+            report: report,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        });
+
+        res.status(201).json({ code: 201, message: `Part chipset ${id} updated and audit logged`, report: report });
     } catch (err) {
         next(createErrors.internalServerError('Something went wrong on updating specific chipset part.', err));
     }

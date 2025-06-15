@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        ram_id: {
+        capacity_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        storage_id: {
+        capacity_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true,
             primaryKey: true
         },
-        gpu_id: {
+        capacity_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
