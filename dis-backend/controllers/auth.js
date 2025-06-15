@@ -2027,7 +2027,7 @@ exports.patchByIdPartMotherboard = async (req, res, next) => {
 
         const report = await generateMotherboardReport('UPDATE', oldMotherboard, { brand_id, model });
 
-        await PartMotherboard.create({
+        await AuditMotherboard.create({
             part_id: parseInt(id, 10),
             old_brand_id: oldMotherboard.brand_id,
             old_model: oldMotherboard.model,
@@ -2078,7 +2078,7 @@ exports.patchByIdPartChipset = async (req, res, next) => {
 
         const report = await generateChipsetReport('UPDATE', oldChipset, { brand_id, model });
 
-        await PartChipset.create({
+        await AuditChipset.create({
             part_id: parseInt(id, 10),
             old_brand_id: oldChipset.brand_id,
             old_model: oldChipset.model,
