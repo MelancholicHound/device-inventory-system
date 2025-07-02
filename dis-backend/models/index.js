@@ -66,16 +66,16 @@ const initDB = async() => {
         await sequelize.sync();
         console.log('Tables synced.');
  
-        CapacityRAM.hasMany(PartRAM, { foreignKey: 'ram_id' });
-        PartRAM.belongsTo(CapacityRAM, { foreignKey: 'ram_id' });
+        CapacityRAM.hasMany(PartRAM, { foreignKey: 'capacity_id' });
+        PartRAM.belongsTo(CapacityRAM, { foreignKey: 'capacity_id' });
 
-        CapacityGPU.hasMany(PartGPU, { foreignKey: 'gpu_id' });
-        PartGPU.belongsTo(CapacityGPU, { foreignKey: 'gpu_id' });
+        CapacityGPU.hasMany(PartGPU, { foreignKey: 'capacity_id' });
+        PartGPU.belongsTo(CapacityGPU, { foreignKey: 'capacity_id' });
         
-        CapacityStorage.hasMany(PartStorage, { foreignKey: 'storage_id' });
+        CapacityStorage.hasMany(PartStorage, { foreignKey: 'capacity_id' });
         StorageType.hasMany(PartStorage, { foreignKey: 'type_id' });
         PartStorage.belongsTo(StorageType, { foreignKey: 'type_id' });
-        PartStorage.belongsTo(CapacityStorage, { foreignKey: 'storage_id' });
+        PartStorage.belongsTo(CapacityStorage, { foreignKey: 'capacity_id' });
 
         BrandProcessor.hasMany(BrandSeriesProcessor, { foreignKey: 'brand_id' });
         BrandSeriesProcessor.belongsTo(BrandProcessor, { foreignKey: 'brand_id' });

@@ -1,9 +1,9 @@
 const { validationResult } = require('express-validator');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier } = require('../models/index');
+const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize } = require('../models/index');
 
 const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO } = require('../models/index');
 const { ProcessorComputer, MotherboardComputer, Computer, RAMComputer, StorageComputer, ConnectionsComputer, PeripheralsComputer } = require('../models/index');
@@ -22,8 +22,55 @@ const { AuditRAM, AuditGPU, AuditStorage, AuditMotherboard, AuditProcessor, Audi
 const { generateChipsetReport, generateGPUReport, generateMotherboardReport, generateProcessorReport,generateRAMReport, generateStorageReport } = require('../util/common');
 
 const { createErrors } = require('./error');
+const { raw } = require('body-parser');
 
 require('dotenv').config();
+
+async function setDeviceNumber(device) {
+    const models = {
+        AIO: { model: AIO, prefix: 'PJG-AIO', start: 1 },
+        Computer: { model: Computer, prefix: 'PJG-COMP', start: 1 },
+        Laptop: { model: Laptop, prefix: 'PJG-LAP', start: 1 },
+        Tablet: { model: Tablet, prefix: 'PJG-TAB', start: 1 },
+        Router: { model: Router, prefix: 'PJG-RT', start: 1 },
+        Scanner: { model: Scanner, prefix: 'PJG-SCAN', start: 1 },
+        Printer: { model: Printer, prefix: 'PJG-PRNT', start: 1 },
+        UPS: { model: UPS, prefix: 'PJG-UPS', start: 1 }
+    };
+
+    const entry = models[device];
+    if (!entry) return null;
+    
+    const existing = await entry.model.findAll({
+        attributes: ['device_number'],
+        raw: true
+    });
+
+    const usedNumbers = existing
+    .map(d => {
+        const parts = d.device_number?.split('-');
+        const numberPart = parts?.[parts.length - 1];
+        return parseInt(numberPart);
+    })
+    .filter(n => !isNaN(n));
+
+    const next = usedNumbers.length === 0 ? entry.start : Math.max(...usedNumbers) + 1;
+    const padded = String(next).padStart(3, '0');
+
+    return `${entry.prefix}-${padded}`;
+}
+
+function requestValidation(req) {
+    const error = validationResult(req);
+    if (!error.isEmpty()) {
+        return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+    }
+
+    if (!req.user) {
+        return next(createErrors.unauthorized('Invalid or expired token'));
+    }
+}
+
 
 //User Middleware Functions
 exports.signup = async (req, res, next) => {
@@ -49,6 +96,7 @@ exports.signup = async (req, res, next) => {
         await User.create(userDetails);
         res.status(201).json({ code: 201, message: 'User registered successfully.' });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during the signup', err));
     }
 }
@@ -82,8 +130,9 @@ exports.login = async (req, res, next) => {
             email: storedUser.email
         }, 'secretfortoken', { expiresIn: '9h' });
 
-        res.status(201).send(token);
+        res.status(200).send(token);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during login.', err));
     }
 }
@@ -102,8 +151,9 @@ exports.recover = async (req, res, next) => {
             return next(createErrors.notFound('An account with this email not found.'));
         }
       
-        res.status(201).json({ code: 200, message: `Email found.` });
+        res.status(200).json({ code: 200, message: `Email found.` });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong in recovering your account.', err));
     }
 }
@@ -124,6 +174,7 @@ exports.changePassword = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: 'Changed password successfully.' });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong in changing your password.', err));
     }
 }
@@ -131,36 +182,25 @@ exports.changePassword = async (req, res, next) => {
 //Location Middleware Functions
 exports.getAllDivisions = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await Division.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching of divisions.', err));
     }
 }
 
 exports.getSectionsByDivId = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
+        const sections = await Section.findAll({ where: { div_id: id } });
 
-        res.status(200).json(await Section.findAll({ where: { div_id: id } }));
+        res.status(200).json(sections.map(ram => ram.get({ plain: true })));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching of sections.', err));
     }
 }
@@ -168,50 +208,31 @@ exports.getSectionsByDivId = async (req, res, next) => {
 //Supplier Middleware Function
 exports.getAllSuppliers = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await Supplier.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching of suppliers.', err));
     }
 }
 
 exports.getByIdSupplier= async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
         res.status(200).json(await Supplier.findByPk(id));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching of specific supplier.', err));
     }
 }
 
 exports.postSupplier = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
 
@@ -233,20 +254,14 @@ exports.postSupplier = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: "Supplier saved." });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during saving of supplier.', err));
     }
 }
 
-exports.patchByIdSupplier = async (req, res, next) => {
+exports.putByIdSupplier = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
@@ -262,20 +277,14 @@ exports.patchByIdSupplier = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Supplier updated successfully` });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on editing supplier.', err));
     }
 }
 
 exports.deleteByIdSupplier = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         
@@ -286,8 +295,9 @@ exports.deleteByIdSupplier = async (req, res, next) => {
 
         await Supplier.destroy({ where : { id } });
 
-        res.status(201).json({ code: 201, message: 'Supplier deleted successfully.' });
+        res.status(200).json({ code: 200, message: 'Supplier deleted successfully.' });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during deleting supplier.'));
     }
 }
@@ -295,56 +305,39 @@ exports.deleteByIdSupplier = async (req, res, next) => {
 //Batch Middleware Functions
 exports.getAllBatches = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await Batch.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetched of batches.', err));
     }
 }
 
 exports.getByIdBatch = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
         res.status(200).json(await Batch.findByPk(id));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching os specific batch.', err));
     }
 }
 
 exports.postBatch = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         const { number, file } = purchaseRequestDTO;
 
-        const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number } });
+        const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number }, transaction: t });
         if (isPrExisting) {
+            await t.rollback();
             return next(createErrors.badRequest('Purchase request number already exists in a batch'));
         }
 
@@ -356,7 +349,8 @@ exports.postBatch = async (req, res, next) => {
                 }
             },
             attributes: ['batch_id'],
-            raw: true
+            raw: true,
+            transaction: t
         });
 
         const usedNumbers = existingBatches
@@ -373,6 +367,7 @@ exports.postBatch = async (req, res, next) => {
 
         const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
         if (!pr) {
+            await t.rollback();
             return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
         }
 
@@ -382,24 +377,20 @@ exports.postBatch = async (req, res, next) => {
             created_by: req.user.id,
             valid_until, date_delivered, date_tested,
             supplier_id, service_center
-        });
+        }, { transation: t });
 
+        await t.commit();
         res.status(201).json(batch);
     } catch (err) {
+        console.log(err);
+        await t.rollback();
         next(createErrors.internalServerError('Something went wrong during saving of batch.', err));
     }
 }
 
-exports.patchByIdBatch = async (req, res, next) => {
+exports.putByIdBatch = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id } = req.body;
@@ -415,20 +406,14 @@ exports.patchByIdBatch = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: 'Batch updated successfully.' });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on editing batch.', err));
     }
 }
 
 exports.deleteByIdBatch = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -439,8 +424,9 @@ exports.deleteByIdBatch = async (req, res, next) => {
 
         await Batch.destroy({ where: { id } });
 
-        res.status(201).json({ code: 201, message: 'Batch deleted successfully.' });
+        res.status(200).json({ code: 200, message: 'Batch deleted successfully.' });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on deleting batch.', err));
     }
 }
@@ -448,14 +434,7 @@ exports.deleteByIdBatch = async (req, res, next) => {
 //Brands Middleware Functions
 exports.postBrandAIO = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -466,20 +445,14 @@ exports.postBrandAIO = async (req, res, next) => {
 
         res.status(200).json(await BrandAIO.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving AIO brand.', err)); 
     }
 }
 
 exports.postBrandLaptop = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -490,20 +463,14 @@ exports.postBrandLaptop = async (req, res, next) => {
 
         res.status(200).json(await BrandLaptop.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving laptop brand.', err)); 
     }
 }
 
 exports.postBrandPrinter = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -514,20 +481,14 @@ exports.postBrandPrinter = async (req, res, next) => {
 
         res.status(200).json(await BrandPrinter.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving printer brand.', err)); 
     }
 }
 
 exports.postBrandRouter = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -538,20 +499,14 @@ exports.postBrandRouter = async (req, res, next) => {
 
         res.status(200).json(await BrandRouter.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving router brand.', err)); 
     }
 }
 
 exports.postBrandScanner = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -562,20 +517,14 @@ exports.postBrandScanner = async (req, res, next) => {
 
         res.status(200).json(await BrandScanner.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving scanner brand.', err)); 
     }
 }
 
 exports.postBrandTablet = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -586,20 +535,14 @@ exports.postBrandTablet = async (req, res, next) => {
 
         res.status(200).json(await BrandTablet.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
     }
 }
 
 exports.postBrandUPS = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -610,20 +553,14 @@ exports.postBrandUPS = async (req, res, next) => {
 
         res.status(200).json(await BrandUPS.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving UPS brand.', err)); 
     }
 }
 
 exports.postBrandMotherboard = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -634,20 +571,14 @@ exports.postBrandMotherboard = async (req, res, next) => {
 
         res.status(200).json(await BrandMotherboard.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
     }
 }
 
 exports.postBrandProcessor = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -658,20 +589,33 @@ exports.postBrandProcessor = async (req, res, next) => {
 
         res.status(200).json(await BrandProcessor.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
+    }
+}
+
+exports.postBrandProcessorSeries = async (req, res, next) => {
+    try {
+        requestValidation(req);
+
+        const id = req.params.id;
+        const name = req.query.name;
+
+        const isExisting = await BrandSeriesProcessor.findOne({ where: { name } });
+        if (isExisting) {
+            return next(createErrors.conflict('This processor series already exists.'));
+        }
+        
+        res.status(200).json(await BrandSeriesProcessor.create({ name: name, brand_id: id }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on saving processor series.', err));  
     }
 }
 
 exports.postBrandChipset = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -682,176 +626,130 @@ exports.postBrandChipset = async (req, res, next) => {
 
         res.status(200).json(await BrandChipset.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving tablet brand.', err)); 
     }
 }
 
 exports.getAllAIOBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandAIO.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all AIO brands.', err));
     }
 }
 
 exports.getAllLaptopBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandLaptop.findAll());
     } catch (err) {
-       next(createErrors.internalServerError('Something went wrong on fetching all laptop brands.', err)); 
+       console.log(err);n
+       ext(createErrors.internalServerError('Something went wrong on fetching all laptop brands.', err)); 
     }
 }
 
 exports.getAllPrinterBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandPrinter.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer brands.', err)); 
     }
 }
 
 exports.getAllRouterBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandRouter.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all router brands.', err)); 
     }
 }
 
 exports.getAllScannerBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandScanner.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all scanner brands.', err)); 
     }
 }
 
 exports.getAllTabletBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandTablet.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all tablet brands.', err)); 
     }
 }
 
 exports.getAllUPSBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandUPS.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all UPS brands.', err)); 
     }
 }
 
 exports.getAllMotherboardBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandMotherboard.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all motherboard brands.', err)); 
     }
 }
 
 exports.getAllProcessorBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandProcessor.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all motherboard brands.', err)); 
+    }
+}
+
+exports.getAllProcessorSeriesById = async (req, res, next) => {
+    try {
+        requestValidation(req);
+
+        const id = req.params.id;
+
+        res.status(200).json(await BrandSeriesProcessor.findAll({ where: { brand_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all processor series.'));
     }
 }
 
 exports.getAllChipsetBrands = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await BrandChipset.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all chipset brands.', err)); 
     }
 }
@@ -859,14 +757,7 @@ exports.getAllChipsetBrands = async (req, res, next) => {
 //Miscellaneous Middleware Functions
 exports.postPrinterType = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const type = req.query.type;
 
@@ -877,20 +768,14 @@ exports.postPrinterType = async (req, res, next) => {
 
         res.status(200).json(await PrinterType.create({ type }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving printer type.', err));
     }
 }
 
 exports.postScannerType = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const type = req.query.type;
 
@@ -901,20 +786,14 @@ exports.postScannerType = async (req, res, next) => {
 
         res.status(200).json(await ScannerType.create({ type }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving scanner type.', err));
     }
 }
 
 exports.postNetworkSpeed = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const speed_by_mbps = req.query.speed;
 
@@ -925,20 +804,14 @@ exports.postNetworkSpeed = async (req, res, next) => {
 
         res.status(200).json(await NetworkSpeed.create({ speed_by_mbps }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving network speed.', err));
     }
 }
 
 exports.postAntennaCount = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const antenna_count = req.query.count;
 
@@ -949,108 +822,73 @@ exports.postAntennaCount = async (req, res, next) => {
 
         res.status(200).json(await AntennaCount.create({ antenna_count }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving antenna count.', err));
     }
 }
 
 exports.getAllPrinterTypes = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PrinterType.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
     }
 }
 
 exports.getAllScannerTypes = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await ScannerType.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all scanner type.', err));
     }
 }
 
 exports.getAllStorageTypes = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await StorageType.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
     }
 }
 
 exports.getAllStorageTypes = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await StorageType.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
     }
 }
 
 exports.getAllNetworkSpeeds = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await NetworkSpeed.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
     }
 }
 
 exports.getAllAntennaCounts = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await AntennaCount.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printer type.', err));
     }
 }
@@ -1058,14 +896,7 @@ exports.getAllAntennaCounts = async (req, res, next) => {
 //Services Middleware Functions
 exports.postConnection = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -1076,20 +907,14 @@ exports.postConnection = async (req, res, next) => {
 
         res.status(200).json(await Connection.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving connection.', err));
     }
 }
 
 exports.postPeripheral = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
         
@@ -1100,20 +925,14 @@ exports.postPeripheral = async (req, res, next) => {
 
         res.status(200).json(await Peripheral.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving peripheral.', err));
     }
 }
 
 exports.postSoftwareOS = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -1124,20 +943,14 @@ exports.postSoftwareOS = async (req, res, next) => {
 
         res.status(200).json(await SoftwareOS.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving operating system.', err));
     }
 }
 
 exports.postSoftwareProductivityTool = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
         
@@ -1148,20 +961,14 @@ exports.postSoftwareProductivityTool = async (req, res, next) => {
 
         res.status(200).json(await SoftwareProductivity.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving productivity tool.', err));
     }
 }
 
 exports.postSoftwareSecurity = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const name = req.query.name;
 
@@ -1172,91 +979,62 @@ exports.postSoftwareSecurity = async (req, res, next) => {
 
         res.status(200).json(await SoftwareSecurity.create({ name }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving security.', err));
     }
 }
 
 exports.getAllConnections = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await Connection.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all connections.', err));
     }
 }
 
 exports.getAllPeripherals = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await Peripheral.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all peripherals.', err));
     }
 }
 
 exports.getAllSoftwareOS = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await SoftwareOS.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all operating systems.', err));
     }
 }
 
 exports.getAllSoftwareProductivity = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await SoftwareProductivity.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all productivity tools.', err));
     }
 }
 
 exports.getAllSoftwareSecurity = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await SoftwareSecurity.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all securities.', err));
     }
 }
@@ -1264,65 +1042,40 @@ exports.getAllSoftwareSecurity = async (req, res, next) => {
 //Capacities Middleware Functions
 exports.getAllRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await CapacityRAM.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all RAM capacities.', err));
     }
 }
 
 exports.getAllStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await CapacityStorage.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all storage capacities.', err));
     }
 }
 
 exports.getAllGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await CapacityGPU.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all GPU capacities.', err));
     }
 }
 
 exports.postRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const capacity = req.query.capacity;
 
@@ -1333,20 +1086,14 @@ exports.postRAM = async (req, res, next) => {
 
         res.status(200).json(await CapacityRAM.create({ capacity }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving RAM.', err));
     }
 }
 
 exports.postStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const capacity = req.query.capacity;
 
@@ -1357,20 +1104,14 @@ exports.postStorage = async (req, res, next) => {
 
         res.status(200).json(await CapacityStorage.create({ capacity }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving storage.', err));
     }
 }
 
 exports.postGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const capacity = req.query.capacity;
 
@@ -1381,6 +1122,7 @@ exports.postGPU = async (req, res, next) => {
 
         res.status(200).json(await CapacityGPU.create({ capacity }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving GPU.', err));
     }
 }
@@ -1388,14 +1130,7 @@ exports.postGPU = async (req, res, next) => {
 //Parts Middleware Functions 
 exports.postPartRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const ram_id = req.body.ram_id;
 
@@ -1406,20 +1141,14 @@ exports.postPartRAM = async (req, res, next) => {
 
         res.status(200).json(await PartRAM.create({ ram_id }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving RAM part.', err));
     }
 }
 
 exports.postPartGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const gpu_id = req.body.gpu_id;
 
@@ -1430,20 +1159,14 @@ exports.postPartGPU = async (req, res, next) => {
 
         res.status(200).json(await PartGPU.create({ gpu_id }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving GPU part.', err));
     }
 }
 
 exports.postPartStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { storage_id, type_id } = req.body;
 
@@ -1460,20 +1183,14 @@ exports.postPartStorage = async (req, res, next) => {
 
         res.status(200).json(await PartStorage.create({ storage_id, type_id }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving storage part.', err));
     }
 }
 
 exports.postPartProcessor = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { series_id, model } = req.body;
 
@@ -1484,20 +1201,14 @@ exports.postPartProcessor = async (req, res, next) => {
 
         res.status(200).json(await PartProcessor.create({ series_id, model }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving processor part.', err));
     }
 }
 
 exports.postPartMotherboard = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { brand_id, model } = req.body;
 
@@ -1508,20 +1219,14 @@ exports.postPartMotherboard = async (req, res, next) => {
 
         res.status(200).json(await PartMotherboard.create({ brand_id, model }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving motherboard part.', err));
     }
 }
 
 exports.postPartChipset = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const { brand_id, model } = req.body;
 
@@ -1532,122 +1237,80 @@ exports.postPartChipset = async (req, res, next) => {
         
         res.status(200).json(await PartChipset.create({ brand_id, model }));
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving chipset part.', err));
     }
 }
 
 exports.getAllPartRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartRAM.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all RAM part.', err));
     }
 }
 
 exports.getAllPartGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartGPU.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all GPU part.', err));
     }
 }
 
 exports.getAllPartStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartStorage.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all storage part.', err));
     }
 }
 
 exports.getAllPartProcessor = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartProcessor.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all processor part.', err));
     }
 }
 
 exports.getAllPartMotherboard = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartMotherboard.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all motherboard part.', err));
     }
 }
 
 exports.getAllPartChipset = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         res.status(200).json(await PartChipset.findAll());
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all chipset part.', err));
     }
 }
 
 exports.getByIdPartRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1659,20 +1322,14 @@ exports.getByIdPartRAM = async (req, res, next) => {
 
         res.status(200).json(partRAM);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific RAM part.', err));
     }
 }
 
 exports.getByIdPartGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1684,20 +1341,14 @@ exports.getByIdPartGPU = async (req, res, next) => {
 
         res.status(200).json(partGPU);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific GPU part.', err));
     }
 }
 
 exports.getByIdPartStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1709,20 +1360,14 @@ exports.getByIdPartStorage = async (req, res, next) => {
 
         res.status(200).json(partStorage);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific storage part.', err));
     }
 }
 
 exports.getByIdPartProcessor = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1734,20 +1379,14 @@ exports.getByIdPartProcessor = async (req, res, next) => {
 
         res.status(200).json(partProcessor);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific processor part.', err));
     }
 }
 
 exports.getByIdPartMotherboard = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1759,20 +1398,14 @@ exports.getByIdPartMotherboard = async (req, res, next) => {
 
         res.status(200).json(partMotherboard);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific motherboard part.', err));
     }
 }
 
 exports.getByIdPartChipset = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
 
@@ -1784,20 +1417,14 @@ exports.getByIdPartChipset = async (req, res, next) => {
 
         res.status(200).json(partChipset);
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching specific chipset part.', err));
     }
 }
 
-exports.patchByIdPartRAM = async (req, res, next) => {
+exports.putByIdPartRAM = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const capacity_id = req.body.capacity_id;
@@ -1834,20 +1461,14 @@ exports.patchByIdPartRAM = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part RAM ${id} update and audit logged.`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific RAM part.', err));
     }
 }
 
-exports.patchByIdPartGPU = async (req, res, next) => {
+exports.putByIdPartGPU = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const capacity_id = req.body.capacity_id;
@@ -1883,20 +1504,14 @@ exports.patchByIdPartGPU = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part GPU ${id} update and audit logged.`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific GPU part.', err));
     }
 }
 
-exports.patchByIdPartStorage = async (req, res, next) => {
+exports.putByIdPartStorage = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { capacity_id, type_id } = req.body;
@@ -1939,20 +1554,14 @@ exports.patchByIdPartStorage = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part storage ${id} updated and audit logged.`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific storage part.', err));
     }
 }
 
-exports.patchByIdPartProcessor = async (req, res, next) => {
+exports.putByIdPartProcessor = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { series_id, model } = req.body;
@@ -1990,20 +1599,14 @@ exports.patchByIdPartProcessor = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part processor ${id} updated and audit logged.`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific processor part.', err));
     }
 }
 
-exports.patchByIdPartMotherboard = async (req, res, next) => {
+exports.putByIdPartMotherboard = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { brand_id, model } = req.body;
@@ -2041,20 +1644,14 @@ exports.patchByIdPartMotherboard = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part motherboard ${id} updated and audit logged.`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific motherboard part.', err));
     }
 }
 
-exports.patchByIdPartChipset = async (req, res, next) => {
+exports.putByIdPartChipset = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
-
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
+        requestValidation(req);
 
         const id = req.params.id;
         const { brand_id, model } = req.body;
@@ -2092,50 +1689,265 @@ exports.patchByIdPartChipset = async (req, res, next) => {
 
         res.status(201).json({ code: 201, message: `Part chipset ${id} updated and audit logged`, report: report });
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on updating specific chipset part.', err));
     }
 }
 
 //AIO Middleware Functions
-exports.postAIO = async (req, res, next) => {
+exports.postDeviceAIO = async (req, res, next) => {
     try {
+        requestValidation(req);
+
+        const { 
+            batch_id, section_id, serial_number, 
+            brand_id, model, ups_id, 
+            processorDTO, connectionDTO, peripheralDTO, 
+            gpu_id, os_id, prod_id, security_id 
+        } = req.body;
         
+        const ramModules = req.body.ramDTO;
+        const storageModules = req.body.storageDTO;
+
+        if (!Array.isArray(ramModules)) {
+            return next(createErrors.badRequest('ramDTO must be inside an array.'));
+        }
+
+        if (!Array.isArray(storageModules)) {
+            return next(createErrors.badRequest('storageDTO must be inside an array.'))
+        }
+
+        const t = await sequelize.transaction();
+        
+        const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+        if (!isBatchExisting) {
+            await t.rollback();
+            return next(createErrors.notFound("This batch doesn't exist."));
+        }
+        
+        const deviceNum = await setDeviceNumber('AIO', batch_id);
+        const gpuResponse = await PartGPU.create({ capacity_id: gpu_id });
+        
+        const aio = await AIO.create({
+            batch_id, section_id,
+            device_number: deviceNum,
+            serial_number, brand_id,
+            model, is_condemned: false,
+            ups_id, gpu_id: gpuResponse.id,
+            os_id, prod_id, security_id
+        }, { transaction: t });
+
+        if (!aio) {
+            await t.rollback();
+            return next(createErrors.internalServerError("Saving AIO failed."));
+        }
+
+        const processor = await PartProcessor.create(processorDTO);
+
+        if (!processor) {
+            await t.rollback();
+            return next(createErrors.internalServerError("Processor part saving failed."));
+        }
+
+        await ProcessorAIO.create({
+            aio_id: aio.id,
+            cpu_id: processor.id
+        }, { transaction: t });
+
+        await Promise.all(
+            ramModules.map(async (ram) => {
+                const { capacity_id } = ram;
+                const ramResponse = await PartRAM.create({ capacity_id }, { transaction: t });
+
+                return await RAMAIO.create({
+                    aio_id: aio.id,
+                    ram_id: ramResponse.id
+                }, { transaction: t });
+            })
+        );
+
+        await Promise.all(
+            storageModules.map(async (storage) => {
+                const { capacity_id, type_id } = storage;
+                const storageResponse = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
+
+                return await StorageAIO.create({
+                    aio_id: aio.id,
+                    storage_id: storageResponse.id
+                }, { transaction: t });
+            })
+        );
+
+        await Promise.all(
+            connectionDTO.map(async (connection) => {
+                return await ConnectionsAIO.create({
+                    aio_id: aio.id,
+                    connection_id: connection
+                }, { transaction: t });
+            })
+        );
+
+        await Promise.all(
+            peripheralDTO.map(async (peripheral) => {
+                return await PeripheralsAIO.create({
+                    aio_id: aio.id,
+                    peripheral_id: peripheral
+                }, { transaction: t });
+            })
+        );
+ 
+        await t.commit();
+        res.status(201).json({ code: 201, message: 'AIO saved successfully.' })
     } catch (err) {
+        console.log(err);
         next(createErrors.internalServerError('Something went wrong on saving AIO.', err));
     }
 }
 
-//Centralized Middleware Functions
-exports.findAllDevices = async (req, res, next) => {
+exports.getAllDeviceAIO = async (req, res, next) => {
     try {
-        const error = validationResult(req);
-        if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
-        }
+        requestValidation(req);
 
-        if (!req.user) {
-            return next(createErrors.unauthorized('Invalid or expired token'));
-        }
-
-        const [ aios, computers, laptops, printers, routers, scanners, tablets, ups ] = await Promise.all([
-            AIO.findAll(), Computer.findAll(), Laptop.findAll(), Printer.findAll(), Router.findAll(), Scanner.findAll(), Tablet.findAll(), UPS.findAll()
-        ]);
-
-        const allDevices = [
-            ...aios.map(device => ({ type: 'AIO', device })),
-            ...computers.map(device => ({ type: 'Computer', device })),
-            ...laptops.map(device => ({ type: 'Laptop', device })),
-            ...printers.map(device => ({ type: 'Printer', device })),
-            ...routers.map(device => ({ type: 'Router', device })),
-            ...scanners.map(device => ({ type: 'Scanner', device })),
-            ...tablets.map(device => ({ type: 'Tablet', device })),
-            ...ups.map(device => ({ type: 'UPS', device }))
-        ];
-
-        allDevices.sort((a, b) => new Date(b.device.created_at) - new Date(a.device.created_at));
-
-        res.status(200).json(allDevices);
+        res.status(200).json(await AIO.findAll());
     } catch (err) {
-        next(createErrors.internalServerError('Something went wrong on fetching all devices.', err));
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all AIO.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req);
+
+        const allRawCondemnedAIO = await AIO.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedAIO.map(aio => aio.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+    }
+}
+
+exports.getDeviceAIOById = async (req, res, next) => {
+    try {
+        requestValidation(req);
+
+        const { id } = req.params;
+        
+        const aio = await AIO.findByPk(id);
+        if (!aio) {
+            return next(createErrors.notFound("This AIO doesn't exist."));
+        }
+
+        res.status(200).json(aio);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+    }
+}
+
+exports.condemnedDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req);
+
+        const { id } = req.params;
+
+        const aio = await AIO.findByPk(id);
+        if (!aio) {
+            return next(createErrors.notFound("This AIO doesn't exist."));
+        }
+
+        await AIO.update({ is_condemned: true }, { where: { id } });
+
+        res.status(201).json({ code: 201, message: `${aio.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+    }
+}
+
+exports.putByIdDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req);
+        
+        const { id } = req.params;
+
+        const { 
+            section_id, serial_number, 
+            brand_id, model, ups_id, 
+            processorDTO, connectionDTO, peripheralDTO, 
+            gpu_id, os_id, prod_id, security_id 
+        } = req.body;
+      
+        const ramModules = req.body.ramDTO;
+        const storageModules = req.body.storageDTO;
+
+        if (!Array.isArray(ramModules)) {
+            return next(createErrors.badRequest('ramDTO must be inside an array.'));
+        }
+
+        if (!Array.isArray(storageModules)) {
+            return next(createErrors.badRequest('storageDTO must be inside an array.'))
+        }
+
+        
+        if (!Array.isArray(connectionDTO) || !connectionDTO.every(id => typeof id === 'number')) {
+            return next(createErrors.badRequest('connectionDTO must be inside an array.'));
+        }
+
+        if (!Array.isArray(peripheralDTO) || !connectionDTO.every(id => typeof id === 'number')) {
+            return next(createErrors.badRequest('peripheralDTO must be inside an array.'));
+        }
+
+        const isAIOExisting = await AIO.findByPk(id);
+
+        if (!isAIOExisting) {
+            return next(createErrors.notFound("This AIO doesn't exist."));
+        }
+
+        const aioData = { section_id, serial_number, brand_id, model, ups_id, gpu_id, os_id, prod_id, security_id };
+        
+        await AIO.update(aioData, { where: { id } });
+
+        const processor = await ProcessorAIO.findOne({ where: { aio_id: id } });
+
+        if (processor) {
+            await PartProcessor.update(processorDTO, { where: { id: processor.cpu_id } });
+        }
+
+        const oldRAMs = await RAMAIO.findAll({ where: { aio_id: id } });
+        await Promise.all(oldRAMs.map(r => PartRAM.destroy({ where: { id: r.ram_id } })));
+        await RAMAIO.destroy({ where: { aio_id: id } });
+
+        await Promise.all(ramModules.map(async (ram) => {
+            const { capacity_id } = ram;
+            const ramPart = await PartRAM.create({ capacity_id });
+            return await RAMAIO.create({ aio_id: id, ram_id: ramPart.id });
+        }));
+
+        const oldStorages = await StorageAIO.findAll({ where: { aio_id: id } });
+        await Promise.all(oldStorages.map(s => PartStorage.destroy({ where: { id: s.storage_id } })));
+        await StorageAIO.destroy({ where: { aio_id: id } });
+
+        await Promise.all(storageModules.map(async (storage) => {
+            const { capacity_id, type_id } = storage;
+            const storagePart = await PartStorage.create({ capacity_id, type_id });
+            return await StorageAIO.create({ aio_id: id, storage_id: storagePart.id });
+        }));
+
+        await ConnectionsAIO.destroy({ where: { aio_id: id } });
+        await Promise.all(connectionDTO.map(async (connId) => {
+            return await ConnectionsAIO.create({ aio_id: id, connection_id: connId });
+        }));
+
+        await PeripheralsAIO.destroy({ where: { aio_id: id } });
+        await Promise.all(peripheralDTO.map(async (periphId) => {
+            return await PeripheralsAIO.create({ aio_id: id, peripheral_id: periphId });
+        }));
+
+        res.status(201).json({ code: 201, message: 'AIO updated successfully.' });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating specific AIO.', err));
     }
 }

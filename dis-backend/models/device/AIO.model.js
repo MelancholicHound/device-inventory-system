@@ -48,7 +48,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         ups_id: {
             type: DataTypes.INTEGER,
-            unique: true,
             references: {
                 model: 'tbl_device_ups',
                 key: 'id'
@@ -236,6 +235,77 @@ module.exports = (sequelize, DataTypes) => {
         createdAt: 'created_at',
         updatedAt: false
     });
+
+    const AuditAIOLocation = sequelize.define('tbl_audit_location_aio', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        aio_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: AIO,
+                key: 'id'
+            }
+        },
+        old_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        new_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        report: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        updated_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        updated_at: {
+            type: DataTypes.DATE, 
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_audit_location_aio',
+        timestamps: false
+    });
+
+    const AuditAIOPeripherals = sequelize.define('tbl_audit_peripheral_aio', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        aio_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: AIO,
+                key: 'id'
+            }
+        },
+        
+    }, {
+        tableName: 'tbl_audit_peripheral_aio',
+        timestamps: false
+    })
 
     return {
         ProcessorAIO,
