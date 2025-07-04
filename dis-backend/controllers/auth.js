@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 
 const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize } = require('../models/index');
 
-const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO } = require('../models/index');
+const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO, CondemnedAIO } = require('../models/index');
 const { ProcessorComputer, MotherboardComputer, Computer, RAMComputer, StorageComputer, ConnectionsComputer, PeripheralsComputer } = require('../models/index');
 const { ProcessorLaptop, Laptop, RAMLaptop, StorageLaptop, ConnectionsLaptop, PeripheralsLaptop } = require('../models/index');
 const { Printer } = require('../models/index');
@@ -19,10 +19,11 @@ const { PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount, Conne
 const { PartChipset, PartGPU, PartMotherboard, PartProcessor, PartRAM, PartStorage } = require('../models/index');
 const { BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS, BrandMotherboard, BrandProcessor, BrandChipset } = require('../models/index');
 const { AuditRAM, AuditGPU, AuditStorage, AuditMotherboard, AuditProcessor, AuditChipset } = require('../models/index');
-const { generateChipsetReport, generateGPUReport, generateMotherboardReport, generateProcessorReport,generateRAMReport, generateStorageReport } = require('../util/common');
+const { generateChipsetReport, generateGPUReport, generateMotherboardReport, generateProcessorReport, generateRAMReport, generateStorageReport } = require('../util/common');
 
 const { createErrors } = require('./error');
 const { raw } = require('body-parser');
+const { createReadStream } = require('fs');
 
 require('dotenv').config();
 
@@ -55,19 +56,18 @@ async function setDeviceNumber(device) {
     .filter(n => !isNaN(n));
 
     const next = usedNumbers.length === 0 ? entry.start : Math.max(...usedNumbers) + 1;
-    const padded = String(next).padStart(3, '0');
 
-    return `${entry.prefix}-${padded}`;
+    return { next, prefix: entry.prefix };
 }
 
-function requestValidation(req) {
+function requestValidation(req, next) {
     const error = validationResult(req);
     if (!error.isEmpty()) {
-        return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
+        throw createErrors.unprocessableEntity('Validation error: ', error.array());
     }
 
     if (!req.user) {
-        return next(createErrors.unauthorized('Invalid or expired token'));
+        throw createErrors.unauthorized('Invalid or expired token');
     }
 }
 
@@ -77,7 +77,7 @@ exports.signup = async (req, res, next) => {
     try {
         const error = validationResult(req);
         if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+            throw createErrors.unprocessableEntity('Validation error: ', error.array());
         }
 
         const first_name = req.body.first_name;
@@ -87,7 +87,7 @@ exports.signup = async (req, res, next) => {
 
         const isEmailExisting = await User.findOne({ where: { email } });
         if (isEmailExisting) {
-            return next(createErrors.conflict('A user with this email already exists.'));
+            throw createErrors.conflict('A user with this email already exists.');
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
@@ -105,7 +105,7 @@ exports.login = async (req, res, next) => {
     try {
         const error = validationResult(req);
         if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+            throw createErrors.unprocessableEntity('Validation error: ', error.array());
         }
 
         const email = req.body.email;
@@ -113,22 +113,17 @@ exports.login = async (req, res, next) => {
 
         const existingUser = await User.findOne({ where: { email } });
         if (!existingUser) {
-            return next(createErrors.notFound("Account with this email doesn't exist."));
+            throw createErrors.notFound("Account with this email doesn't exist.");
         }
 
         const storedUser = existingUser.dataValues;
 
         const isEqual = await bcrypt.compare(password, storedUser.password);
         if (!isEqual) {
-            return next(createErrors.badRequest('Password is incorrect.'));
+            throw createErrors.badRequest('Password is incorrect.');
         }
 
-        const token = jwt.sign({
-            id: storedUser.id,
-            first_name: storedUser.first_name,
-            last_name: storedUser.last_name,
-            email: storedUser.email
-        }, 'secretfortoken', { expiresIn: '9h' });
+        const token = jwt.sign({ id: storedUser.id, date_log: new Date() }, 'secretfortoken', { expiresIn: '9h' });
 
         res.status(200).send(token);
     } catch (err) {
@@ -141,14 +136,14 @@ exports.recover = async (req, res, next) => {
     try {
         const error = validationResult(req);
         if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+            throw createErrors.unprocessableEntity('Validation error: ', error.array());
         }
 
         const email = req.query.email;
 
         const isExisting = await User.findOne({ where: { email } });
         if (!isExisting) {
-            return next(createErrors.notFound('An account with this email not found.'));
+            throw createErrors.notFound('An account with this email not found.');
         }
       
         res.status(200).json({ code: 200, message: `Email found.` });
@@ -162,7 +157,7 @@ exports.changePassword = async (req, res, next) => {
     try {
         const error = validationResult(req);
         if (!error.isEmpty()) {
-            return next(createErrors.unprocessableEntity('Validation failed: ', error.array()));
+            throw createErrors.unprocessableEntity('Validation error: ', error.array());
         }
       
         const password = req.body.password;
@@ -179,10 +174,29 @@ exports.changePassword = async (req, res, next) => {
     }
 }
 
+exports.getUserById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const user = await User.findByPk(req.user.id, {
+            attributes: { exclude: ['password'] }
+        });
+
+        if (!user) {
+            throw createErrors.notFound('User not found');
+        }
+
+        res.status(200).json(user)
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Failed to retrieve user.', err));
+    }
+}
+
 //Location Middleware Functions
 exports.getAllDivisions = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await Division.findAll());
     } catch (err) {
@@ -193,7 +207,7 @@ exports.getAllDivisions = async (req, res, next) => {
 
 exports.getSectionsByDivId = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const sections = await Section.findAll({ where: { div_id: id } });
@@ -208,7 +222,7 @@ exports.getSectionsByDivId = async (req, res, next) => {
 //Supplier Middleware Function
 exports.getAllSuppliers = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await Supplier.findAll());
     } catch (err) {
@@ -219,7 +233,7 @@ exports.getAllSuppliers = async (req, res, next) => {
 
 exports.getByIdSupplier= async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
@@ -232,7 +246,7 @@ exports.getByIdSupplier= async (req, res, next) => {
 
 exports.postSupplier = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
 
@@ -241,11 +255,11 @@ exports.postSupplier = async (req, res, next) => {
         const isContactPersonNumberExisting = await Supplier.findOne({ where: { cp_contact_number } });
 
         if (isSupplierNumberExisting && isContactPersonNumberExisting) {
-            return next(createErrors.conflict('This phone number already exists.'));
+            throw createErrors.conflict('This phone number already exists.');
         }
 
         if (isContactPersonExisting) {
-            return next(createErrors.conflict('This contact person already exists in one of the suppliers.'));
+            throw createErrors.conflict('This contact person already exists in one of the suppliers.');
         }
 
         const supplierDetails = { name, contact_number, email, location, cp_name, cp_contact_number };
@@ -261,14 +275,14 @@ exports.postSupplier = async (req, res, next) => {
 
 exports.putByIdSupplier = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { name, contact_number, email, location, cp_name, cp_contact_number } = req.body;
 
         const isExisting = await Supplier.findByPk(id);
         if (!isExisting) {
-            return next(createErrors.notFound("This supplier doesn't exist."));
+            throw createErrors.notFound("This supplier doesn't exist.");
         }
 
         const userData = { name, contact_number, email, location, cp_name, cp_contact_number };
@@ -284,13 +298,13 @@ exports.putByIdSupplier = async (req, res, next) => {
 
 exports.deleteByIdSupplier = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         
         const isExisting = await Supplier.findByPk(id);
         if (!isExisting) {
-            return next(createErrors.notFound(`This supplier doesn't exist.`));
+            throw createErrors.notFound(`This supplier doesn't exist.`);
         }
 
         await Supplier.destroy({ where : { id } });
@@ -305,7 +319,7 @@ exports.deleteByIdSupplier = async (req, res, next) => {
 //Batch Middleware Functions
 exports.getAllBatches = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await Batch.findAll());
     } catch (err) {
@@ -316,7 +330,7 @@ exports.getAllBatches = async (req, res, next) => {
 
 exports.getByIdBatch = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
@@ -330,7 +344,7 @@ exports.getByIdBatch = async (req, res, next) => {
 exports.postBatch = async (req, res, next) => {
     const t = await sequelize.transaction();
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
         const { number, file } = purchaseRequestDTO;
@@ -338,7 +352,7 @@ exports.postBatch = async (req, res, next) => {
         const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number }, transaction: t });
         if (isPrExisting) {
             await t.rollback();
-            return next(createErrors.badRequest('Purchase request number already exists in a batch'));
+            throw createErrors.badRequest('Purchase request number already exists in a batch');
         }
 
         const year = new Date().getFullYear().toString();
@@ -368,7 +382,7 @@ exports.postBatch = async (req, res, next) => {
         const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
         if (!pr) {
             await t.rollback();
-            return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
+            throw createErrors.unprocessableEntity('Something went wrong during saving of purchase request');
         }
 
         const batch = await Batch.create({
@@ -390,14 +404,14 @@ exports.postBatch = async (req, res, next) => {
 
 exports.putByIdBatch = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id } = req.body;
 
         const isBatchExisting = await Batch.findByPk(id);
         if (!isBatchExisting) {
-            return next(createErrors.notFound("Batch with this id doesn't exist."));
+            throw createErrors.notFound("Batch with this id doesn't exist.");
         }
         
         const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id };
@@ -413,13 +427,13 @@ exports.putByIdBatch = async (req, res, next) => {
 
 exports.deleteByIdBatch = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const isExisting = await Batch.findByPk(id);
         if (!isExisting) {
-            return next(createErrors.notFound("A batch with this id doesn't exist."));
+            throw createErrors.notFound("A batch with this id doesn't exist.");
         }
 
         await Batch.destroy({ where: { id } });
@@ -434,13 +448,13 @@ exports.deleteByIdBatch = async (req, res, next) => {
 //Brands Middleware Functions
 exports.postBrandAIO = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandAIO.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This AIO brand already exists.'));
+            throw createErrors.conflict('This AIO brand already exists.');
         }
 
         res.status(200).json(await BrandAIO.create({ name }));
@@ -452,13 +466,13 @@ exports.postBrandAIO = async (req, res, next) => {
 
 exports.postBrandLaptop = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandLaptop.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This laptop brand already exists.'));
+            throw createErrors.conflict('This laptop brand already exists.');
         }
 
         res.status(200).json(await BrandLaptop.create({ name }));
@@ -470,13 +484,13 @@ exports.postBrandLaptop = async (req, res, next) => {
 
 exports.postBrandPrinter = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandPrinter.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This printer brand already exists.'));
+            throw createErrors.conflict('This printer brand already exists.');
         }
 
         res.status(200).json(await BrandPrinter.create({ name }));
@@ -488,13 +502,13 @@ exports.postBrandPrinter = async (req, res, next) => {
 
 exports.postBrandRouter = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandRouter.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This router brand already exists.'));
+            throw createErrors.conflict('This router brand already exists.');
         }
 
         res.status(200).json(await BrandRouter.create({ name }));
@@ -506,13 +520,13 @@ exports.postBrandRouter = async (req, res, next) => {
 
 exports.postBrandScanner = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandScanner.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This scanner brand already exists.'));
+            throw createErrors.conflict('This scanner brand already exists.');
         }
 
         res.status(200).json(await BrandScanner.create({ name }));
@@ -524,13 +538,13 @@ exports.postBrandScanner = async (req, res, next) => {
 
 exports.postBrandTablet = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandTablet.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This scanner brand already exists.'));
+            throw createErrors.conflict('This scanner brand already exists.');
         }
 
         res.status(200).json(await BrandTablet.create({ name }));
@@ -542,13 +556,13 @@ exports.postBrandTablet = async (req, res, next) => {
 
 exports.postBrandUPS = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandUPS.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This UPS brand already exists.'));
+            throw createErrors.conflict('This UPS brand already exists.');
         }
 
         res.status(200).json(await BrandUPS.create({ name }));
@@ -560,13 +574,13 @@ exports.postBrandUPS = async (req, res, next) => {
 
 exports.postBrandMotherboard = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandMotherboard.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This motherboard brand already exists.'));
+            throw createErrors.conflict('This motherboard brand already exists.');
         }
 
         res.status(200).json(await BrandMotherboard.create({ name }));
@@ -578,13 +592,13 @@ exports.postBrandMotherboard = async (req, res, next) => {
 
 exports.postBrandProcessor = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandProcessor.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This processor brand already exists.'));
+            throw createErrors.conflict('This processor brand already exists.');
         }
 
         res.status(200).json(await BrandProcessor.create({ name }));
@@ -596,14 +610,14 @@ exports.postBrandProcessor = async (req, res, next) => {
 
 exports.postBrandProcessorSeries = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const name = req.query.name;
 
         const isExisting = await BrandSeriesProcessor.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This processor series already exists.'));
+            throw createErrors.conflict('This processor series already exists.');
         }
         
         res.status(200).json(await BrandSeriesProcessor.create({ name: name, brand_id: id }));
@@ -615,13 +629,13 @@ exports.postBrandProcessorSeries = async (req, res, next) => {
 
 exports.postBrandChipset = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await BrandChipset.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This chipset brand already exists.'));
+            throw createErrors.conflict('This chipset brand already exists.');
         }
 
         res.status(200).json(await BrandChipset.create({ name }));
@@ -633,7 +647,7 @@ exports.postBrandChipset = async (req, res, next) => {
 
 exports.getAllAIOBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandAIO.findAll());
     } catch (err) {
@@ -644,7 +658,7 @@ exports.getAllAIOBrands = async (req, res, next) => {
 
 exports.getAllLaptopBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandLaptop.findAll());
     } catch (err) {
@@ -655,7 +669,7 @@ exports.getAllLaptopBrands = async (req, res, next) => {
 
 exports.getAllPrinterBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandPrinter.findAll());
     } catch (err) {
@@ -666,7 +680,7 @@ exports.getAllPrinterBrands = async (req, res, next) => {
 
 exports.getAllRouterBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandRouter.findAll());
     } catch (err) {
@@ -677,7 +691,7 @@ exports.getAllRouterBrands = async (req, res, next) => {
 
 exports.getAllScannerBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandScanner.findAll());
     } catch (err) {
@@ -688,7 +702,7 @@ exports.getAllScannerBrands = async (req, res, next) => {
 
 exports.getAllTabletBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandTablet.findAll());
     } catch (err) {
@@ -699,7 +713,7 @@ exports.getAllTabletBrands = async (req, res, next) => {
 
 exports.getAllUPSBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandUPS.findAll());
     } catch (err) {
@@ -710,7 +724,7 @@ exports.getAllUPSBrands = async (req, res, next) => {
 
 exports.getAllMotherboardBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandMotherboard.findAll());
     } catch (err) {
@@ -721,7 +735,7 @@ exports.getAllMotherboardBrands = async (req, res, next) => {
 
 exports.getAllProcessorBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandProcessor.findAll());
     } catch (err) {
@@ -732,7 +746,7 @@ exports.getAllProcessorBrands = async (req, res, next) => {
 
 exports.getAllProcessorSeriesById = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
@@ -745,7 +759,7 @@ exports.getAllProcessorSeriesById = async (req, res, next) => {
 
 exports.getAllChipsetBrands = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await BrandChipset.findAll());
     } catch (err) {
@@ -757,13 +771,13 @@ exports.getAllChipsetBrands = async (req, res, next) => {
 //Miscellaneous Middleware Functions
 exports.postPrinterType = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const type = req.query.type;
 
         const isExisting = await PrinterType.findOne({ where: { type } });
         if (isExisting) {
-            return next(createErrors.conflict('This printer type already exists'));
+            throw createErrors.conflict('This printer type already exists');
         }
 
         res.status(200).json(await PrinterType.create({ type }));
@@ -775,13 +789,13 @@ exports.postPrinterType = async (req, res, next) => {
 
 exports.postScannerType = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const type = req.query.type;
 
         const isExisting = await ScannerType.findOne({ where: { type } });
         if (isExisting) {
-            return next(createErrors.conflict('This scanner type already exists'));
+            throw createErrors.conflict('This scanner type already exists');
         }
 
         res.status(200).json(await ScannerType.create({ type }));
@@ -793,13 +807,13 @@ exports.postScannerType = async (req, res, next) => {
 
 exports.postNetworkSpeed = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const speed_by_mbps = req.query.speed;
 
         const isExisting = await NetworkSpeed.findOne({ where: { speed_by_mbps } });
         if (isExisting) {
-            return next(createErrors.conflict('This network speed already exists.'));
+            throw createErrors.conflict('This network speed already exists.');
         }
 
         res.status(200).json(await NetworkSpeed.create({ speed_by_mbps }));
@@ -811,13 +825,13 @@ exports.postNetworkSpeed = async (req, res, next) => {
 
 exports.postAntennaCount = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const antenna_count = req.query.count;
 
         const isExisting = await AntennaCount.findOne({ where: { antenna_count } });
         if (isExisting) {
-            return next(createErrors.conflict('This antenna count already exists.'));
+            throw createErrors.conflict('This antenna count already exists.');
         }
 
         res.status(200).json(await AntennaCount.create({ antenna_count }));
@@ -829,7 +843,7 @@ exports.postAntennaCount = async (req, res, next) => {
 
 exports.getAllPrinterTypes = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PrinterType.findAll());
     } catch (err) {
@@ -840,7 +854,7 @@ exports.getAllPrinterTypes = async (req, res, next) => {
 
 exports.getAllScannerTypes = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await ScannerType.findAll());
     } catch (err) {
@@ -851,7 +865,7 @@ exports.getAllScannerTypes = async (req, res, next) => {
 
 exports.getAllStorageTypes = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await StorageType.findAll());
     } catch (err) {
@@ -862,7 +876,7 @@ exports.getAllStorageTypes = async (req, res, next) => {
 
 exports.getAllStorageTypes = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await StorageType.findAll());
     } catch (err) {
@@ -873,7 +887,7 @@ exports.getAllStorageTypes = async (req, res, next) => {
 
 exports.getAllNetworkSpeeds = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await NetworkSpeed.findAll());
     } catch (err) {
@@ -884,7 +898,7 @@ exports.getAllNetworkSpeeds = async (req, res, next) => {
 
 exports.getAllAntennaCounts = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await AntennaCount.findAll());
     } catch (err) {
@@ -896,13 +910,13 @@ exports.getAllAntennaCounts = async (req, res, next) => {
 //Services Middleware Functions
 exports.postConnection = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await Connection.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This connection already exists.'));
+            throw createErrors.conflict('This connection already exists.');
         }
 
         res.status(200).json(await Connection.create({ name }));
@@ -914,13 +928,13 @@ exports.postConnection = async (req, res, next) => {
 
 exports.postPeripheral = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
         
         const isExisting = await Peripheral.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This peripheral already exists.'));
+            throw createErrors.conflict('This peripheral already exists.');
         }
 
         res.status(200).json(await Peripheral.create({ name }));
@@ -932,13 +946,13 @@ exports.postPeripheral = async (req, res, next) => {
 
 exports.postSoftwareOS = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await SoftwareOS.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This operating system already exists.'));
+            throw createErrors.conflict('This operating system already exists.');
         }
 
         res.status(200).json(await SoftwareOS.create({ name }));
@@ -950,13 +964,13 @@ exports.postSoftwareOS = async (req, res, next) => {
 
 exports.postSoftwareProductivityTool = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
         
         const isExisting = await SoftwareProductivity.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This productivity tool already exists.'));
+            throw createErrors.conflict('This productivity tool already exists.');
         }
 
         res.status(200).json(await SoftwareProductivity.create({ name }));
@@ -968,13 +982,13 @@ exports.postSoftwareProductivityTool = async (req, res, next) => {
 
 exports.postSoftwareSecurity = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const name = req.query.name;
 
         const isExisting = await SoftwareSecurity.findOne({ where: { name } });
         if (isExisting) {
-            return next(createErrors.conflict('This security tool already exists.'));
+            throw createErrors.conflict('This security tool already exists.');
         }
 
         res.status(200).json(await SoftwareSecurity.create({ name }));
@@ -986,7 +1000,7 @@ exports.postSoftwareSecurity = async (req, res, next) => {
 
 exports.getAllConnections = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await Connection.findAll());
     } catch (err) {
@@ -997,7 +1011,7 @@ exports.getAllConnections = async (req, res, next) => {
 
 exports.getAllPeripherals = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await Peripheral.findAll());
     } catch (err) {
@@ -1008,7 +1022,7 @@ exports.getAllPeripherals = async (req, res, next) => {
 
 exports.getAllSoftwareOS = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await SoftwareOS.findAll());
     } catch (err) {
@@ -1019,7 +1033,7 @@ exports.getAllSoftwareOS = async (req, res, next) => {
 
 exports.getAllSoftwareProductivity = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await SoftwareProductivity.findAll());
     } catch (err) {
@@ -1030,7 +1044,7 @@ exports.getAllSoftwareProductivity = async (req, res, next) => {
 
 exports.getAllSoftwareSecurity = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await SoftwareSecurity.findAll());
     } catch (err) {
@@ -1042,7 +1056,7 @@ exports.getAllSoftwareSecurity = async (req, res, next) => {
 //Capacities Middleware Functions
 exports.getAllRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await CapacityRAM.findAll());
     } catch (err) {
@@ -1053,7 +1067,7 @@ exports.getAllRAM = async (req, res, next) => {
 
 exports.getAllStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await CapacityStorage.findAll());
     } catch (err) {
@@ -1064,7 +1078,7 @@ exports.getAllStorage = async (req, res, next) => {
 
 exports.getAllGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await CapacityGPU.findAll());
     } catch (err) {
@@ -1075,13 +1089,13 @@ exports.getAllGPU = async (req, res, next) => {
 
 exports.postRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const capacity = req.query.capacity;
 
         const isExisting = await CapacityRAM.findOne({ where: { capacity } });
         if (isExisting) {
-            return next(createErrors.conflict('A RAM with this capacity already exists.'));
+            throw createErrors.conflict('A RAM with this capacity already exists.');
         }
 
         res.status(200).json(await CapacityRAM.create({ capacity }));
@@ -1093,13 +1107,13 @@ exports.postRAM = async (req, res, next) => {
 
 exports.postStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const capacity = req.query.capacity;
 
         const isExisting = await CapacityStorage.findOne({ where: { capacity } });
         if (isExisting) {
-            return next(createErrors.conflict('A storage with this capacity already exists.'));
+            throw createErrors.conflict('A storage with this capacity already exists.');
         }
 
         res.status(200).json(await CapacityStorage.create({ capacity }));
@@ -1111,13 +1125,13 @@ exports.postStorage = async (req, res, next) => {
 
 exports.postGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const capacity = req.query.capacity;
 
         const isExisting = await CapacityGPU.findOne({ where: { capacity } });
         if (isExisting) {
-            return next(createErrors.conflict('A GPU with this capacity already exists.'));
+            throw createErrors.conflict('A GPU with this capacity already exists.');
         }
 
         res.status(200).json(await CapacityGPU.create({ capacity }));
@@ -1130,13 +1144,13 @@ exports.postGPU = async (req, res, next) => {
 //Parts Middleware Functions 
 exports.postPartRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const ram_id = req.body.ram_id;
 
         const isExisting = await CapacityRAM.findByPk(ram_id);
         if (!isExisting) {
-            return next(createErrors.notFound("This ram capacity doesn't exists."));
+            throw createErrors.notFound("This ram capacity doesn't exists.");
         }
 
         res.status(200).json(await PartRAM.create({ ram_id }));
@@ -1148,13 +1162,13 @@ exports.postPartRAM = async (req, res, next) => {
 
 exports.postPartGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const gpu_id = req.body.gpu_id;
 
         const isExisting = await CapacityGPU.findByPk(gpu_id);
         if (!isExisting) {
-            return next(createErrors.notFound("This GPU capacity doesnt' exists."));
+            throw createErrors.notFound("This GPU capacity doesnt' exists.");
         }
 
         res.status(200).json(await PartGPU.create({ gpu_id }));
@@ -1166,7 +1180,7 @@ exports.postPartGPU = async (req, res, next) => {
 
 exports.postPartStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { storage_id, type_id } = req.body;
 
@@ -1174,11 +1188,11 @@ exports.postPartStorage = async (req, res, next) => {
         const isTypeExisting = await StorageType.findByPk(type_id);
 
         if (!isCapacityExisting) {
-            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+            throw createErrors.notFound("A capacity with this id doesn't exists.");
         }
 
         if (!isTypeExisting) {
-            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+            throw createErrors.notFound("A capacity with this id doesn't exists.");
         }
 
         res.status(200).json(await PartStorage.create({ storage_id, type_id }));
@@ -1190,13 +1204,13 @@ exports.postPartStorage = async (req, res, next) => {
 
 exports.postPartProcessor = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { series_id, model } = req.body;
 
         const isExisting = await BrandSeriesProcessor.findByPk(series_id);
         if (!isExisting) {
-            return next(createErrors.notFound("Series with this id doesn't exists."));
+            throw createErrors.notFound("Series with this id doesn't exists.");
         }
 
         res.status(200).json(await PartProcessor.create({ series_id, model }));
@@ -1208,13 +1222,13 @@ exports.postPartProcessor = async (req, res, next) => {
 
 exports.postPartMotherboard = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { brand_id, model } = req.body;
 
         const isExisting = await BrandMotherboard.findByPk(brand_id);
         if (!isExisting) {
-            return next(createErrors.notFound("This brand doesn't exists."));
+            throw createErrors.notFound("This brand doesn't exists.");
         }
 
         res.status(200).json(await PartMotherboard.create({ brand_id, model }));
@@ -1226,13 +1240,13 @@ exports.postPartMotherboard = async (req, res, next) => {
 
 exports.postPartChipset = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { brand_id, model } = req.body;
 
         const isExisting = await BrandChipset.findByPk(brand_id);
         if (!isExisting) {
-            return next(createErrors.notFound("This chipset brand doesn't exists in the database."))
+            throw createErrors.notFound("This chipset brand doesn't exists in the database.");
         }
         
         res.status(200).json(await PartChipset.create({ brand_id, model }));
@@ -1244,7 +1258,7 @@ exports.postPartChipset = async (req, res, next) => {
 
 exports.getAllPartRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartRAM.findAll());
     } catch (err) {
@@ -1255,7 +1269,7 @@ exports.getAllPartRAM = async (req, res, next) => {
 
 exports.getAllPartGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartGPU.findAll());
     } catch (err) {
@@ -1266,7 +1280,7 @@ exports.getAllPartGPU = async (req, res, next) => {
 
 exports.getAllPartStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartStorage.findAll());
     } catch (err) {
@@ -1277,7 +1291,7 @@ exports.getAllPartStorage = async (req, res, next) => {
 
 exports.getAllPartProcessor = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartProcessor.findAll());
     } catch (err) {
@@ -1288,7 +1302,7 @@ exports.getAllPartProcessor = async (req, res, next) => {
 
 exports.getAllPartMotherboard = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartMotherboard.findAll());
     } catch (err) {
@@ -1299,7 +1313,7 @@ exports.getAllPartMotherboard = async (req, res, next) => {
 
 exports.getAllPartChipset = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await PartChipset.findAll());
     } catch (err) {
@@ -1310,14 +1324,14 @@ exports.getAllPartChipset = async (req, res, next) => {
 
 exports.getByIdPartRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partRAM = await PartRAM.findByPk(id);
 
         if (!partRAM) {
-            return next(createErrors.notFound("This RAM part doesn't exists."));
+            throw createErrors.notFound("This RAM part doesn't exists.");
         }
 
         res.status(200).json(partRAM);
@@ -1329,14 +1343,14 @@ exports.getByIdPartRAM = async (req, res, next) => {
 
 exports.getByIdPartGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partGPU = await PartGPU.findByPk(id);
 
         if (!partGPU) {
-            return next(createErrors.notFound("This GPU part doesn't exists."));
+            throw createErrors.notFound("This GPU part doesn't exists.");
         }
 
         res.status(200).json(partGPU);
@@ -1348,14 +1362,14 @@ exports.getByIdPartGPU = async (req, res, next) => {
 
 exports.getByIdPartStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partStorage = await PartStorage.findByPk(id);
 
         if (!partStorage) {
-            return next(createErrors.notFound("This storage part doesn't exists."));
+            throw createErrors.notFound("This storage part doesn't exists.");
         }
 
         res.status(200).json(partStorage);
@@ -1367,14 +1381,14 @@ exports.getByIdPartStorage = async (req, res, next) => {
 
 exports.getByIdPartProcessor = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partProcessor = await PartProcessor.findByPk(id);
 
         if (!partProcessor) {
-            return next(createErrors.notFound("This processor part doesn't exists."));
+            throw createErrors.notFound("This processor part doesn't exists.");
         }
 
         res.status(200).json(partProcessor);
@@ -1386,14 +1400,14 @@ exports.getByIdPartProcessor = async (req, res, next) => {
 
 exports.getByIdPartMotherboard = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partMotherboard = await PartMotherboard.findByPk(id);
 
         if (!partMotherboard) {
-            return next(createErrors.notFound("This motherboard part doesn't exists."));
+            throw createErrors.notFound("This motherboard part doesn't exists.");
         }
 
         res.status(200).json(partMotherboard);
@@ -1405,14 +1419,14 @@ exports.getByIdPartMotherboard = async (req, res, next) => {
 
 exports.getByIdPartChipset = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
 
         const partChipset = await PartChipset.findByPk(id);
 
         if (!partChipset) {
-            return next(createErrors.notFound("This chipset part doesn't exists."));
+            throw createErrors.notFound("This chipset part doesn't exists.");
         }
 
         res.status(200).json(partChipset);
@@ -1424,7 +1438,7 @@ exports.getByIdPartChipset = async (req, res, next) => {
 
 exports.putByIdPartRAM = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const capacity_id = req.body.capacity_id;
@@ -1434,17 +1448,17 @@ exports.putByIdPartRAM = async (req, res, next) => {
 
         
         if (!oldRAM) {
-            return next(createErrors.notFound("This RAM doesn't exist."));
+            throw createErrors.notFound("This RAM doesn't exist.");
         }
 
         if (!capacity) {
-            return next(createErrors.notFound("This RAM capacity doesn't exist."));
+            throw createErrors.notFound("This RAM capacity doesn't exist.");
         }
 
         const [updated] = await PartRAM.update({ capacity_id }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('RAM part update failed.'));
+            throw createErrors.internalServerError('RAM part update failed.');
         }
       
         const report = await generateRAMReport('UPDATE', oldRAM, capacity);
@@ -1468,7 +1482,7 @@ exports.putByIdPartRAM = async (req, res, next) => {
 
 exports.putByIdPartGPU = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const capacity_id = req.body.capacity_id;
@@ -1477,17 +1491,17 @@ exports.putByIdPartGPU = async (req, res, next) => {
         const capacity = await CapacityGPU.findByPk(capacity_id);
 
         if (!oldGPU) {
-            return next(createErrors.notFound("This GPU doesn't exist."));
+            throw createErrors.notFound("This GPU doesn't exist.");
         }
 
         if (!capacity) {
-            return next(createErrors.notFound("This GPU capacity doesn't exist."));
+            throw createErrors.notFound("This GPU capacity doesn't exist.");
         }
 
         const [updated] = await PartGPU.update({ capacity_id }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('GPU part update failed.'));
+            throw createErrors.internalServerError('GPU part update failed.');
         }
 
         const report = await generateGPUReport('UPDATE', oldGPU, capacity);
@@ -1511,7 +1525,7 @@ exports.putByIdPartGPU = async (req, res, next) => {
 
 exports.putByIdPartStorage = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { capacity_id, type_id } = req.body;
@@ -1521,21 +1535,21 @@ exports.putByIdPartStorage = async (req, res, next) => {
         const type = await StorageType.findByPk(type_id);
 
         if (!oldStorage) {
-            return next(createErrors.notFound("This storage doesn't exist."))
+            throw createErrors.notFound("This storage doesn't exist.");
         }
 
         if (!capacity) {
-            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+            throw createErrors.notFound("A capacity with this id doesn't exists.");
         }
 
         if (!type) {
-            return next(createErrors.notFound("A capacity with this id doesn't exists."));
+            throw createErrors.notFound("A capacity with this id doesn't exists.");
         }
 
         const [updated] = await PartStorage.update({ capacity_id, type_id }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('Storage part update failed.'));
+            throw createErrors.internalServerError('Storage part update failed.');
         }
 
         const report = await generateStorageReport('UPDATE', oldStorage, capacity);
@@ -1561,7 +1575,7 @@ exports.putByIdPartStorage = async (req, res, next) => {
 
 exports.putByIdPartProcessor = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { series_id, model } = req.body;
@@ -1570,17 +1584,17 @@ exports.putByIdPartProcessor = async (req, res, next) => {
         const processorSeries = await BrandSeriesProcessor.findByPk(series_id);
 
         if (!oldProcessor) {
-            return next(createErrors.notFound("This processor doesn't exists."));
+            throw createErrors.notFound("This processor doesn't exists.");
         }
 
         if (!processorSeries) {
-            return next(createErrors.notFound("This processor series doesn't exists."));
+            throw createErrors.notFound("This processor series doesn't exists.");
         }
 
         const [updated] = await PartProcessor.update({ series_id, model }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('Processor part update failed.'))
+            throw createErrors.internalServerError('Processor part update failed.');
         }
 
         const report = await generateProcessorReport('UPDATE', oldProcessor, { series_id, model });
@@ -1606,7 +1620,7 @@ exports.putByIdPartProcessor = async (req, res, next) => {
 
 exports.putByIdPartMotherboard = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { brand_id, model } = req.body;
@@ -1615,17 +1629,17 @@ exports.putByIdPartMotherboard = async (req, res, next) => {
         const motherboardBrand = await BrandMotherboard.findByPk(brand_id);
 
         if (!oldMotherboard) {
-            return next(createErrors.notFound("This motherboard doesn't exist."));
+            throw createErrors.notFound("This motherboard doesn't exist.");
         }
 
         if (!motherboardBrand) {
-            return next(createErrors.notFound("This brand doesn't exist."));
+            throw createErrors.notFound("This brand doesn't exist.");
         }
 
         const [updated] = await PartMotherboard.update({ brand_id, model }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('Processor part update failed.'));
+            throw createErrors.internalServerError('Processor part update failed.');
         }
 
         const report = await generateMotherboardReport('UPDATE', oldMotherboard, { brand_id, model });
@@ -1651,7 +1665,7 @@ exports.putByIdPartMotherboard = async (req, res, next) => {
 
 exports.putByIdPartChipset = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const id = req.params.id;
         const { brand_id, model } = req.body;
@@ -1660,17 +1674,17 @@ exports.putByIdPartChipset = async (req, res, next) => {
         const chipsetBrand = await BrandChipset.findByPk(brand_id);
 
         if (!oldChipset) {
-            return next(createErrors.notFound("This chipset doesn't exist."))
+            throw createErrors.notFound("This chipset doesn't exist.");
         }
 
         if (!chipsetBrand) {
-            return next(createErrors.notFound("This chipset brand doesn't exist."))
+            throw createErrors.notFound("This chipset brand doesn't exist.");
         }
 
         const [updated] = await PartChipset.update({ brand_id, model }, { where: { id } });
 
         if (updated === 0) {
-            return next(createErrors.internalServerError('Chipset part update failed.'));
+            throw createErrors.internalServerError('Chipset part update failed.');
         }
 
         const report = await generateChipsetReport('UPDATE', oldChipset, { brand_id, model });
@@ -1696,117 +1710,110 @@ exports.putByIdPartChipset = async (req, res, next) => {
 
 //AIO Middleware Functions
 exports.postDeviceAIO = async (req, res, next) => {
+    const t = await sequelize.transaction();
+    
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
-        const { 
-            batch_id, section_id, serial_number, 
-            brand_id, model, ups_id, 
-            processorDTO, connectionDTO, peripheralDTO, 
-            gpu_id, os_id, prod_id, security_id 
-        } = req.body;
-        
-        const ramModules = req.body.ramDTO;
-        const storageModules = req.body.storageDTO;
-
-        if (!Array.isArray(ramModules)) {
-            return next(createErrors.badRequest('ramDTO must be inside an array.'));
-        }
-
-        if (!Array.isArray(storageModules)) {
-            return next(createErrors.badRequest('storageDTO must be inside an array.'))
-        }
-
-        const t = await sequelize.transaction();
-        
-        const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
-        if (!isBatchExisting) {
-            await t.rollback();
-            return next(createErrors.notFound("This batch doesn't exist."));
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            throw createErrors.badRequest('Request must be an array of AIO devices.');
         }
         
-        const deviceNum = await setDeviceNumber('AIO', batch_id);
-        const gpuResponse = await PartGPU.create({ capacity_id: gpu_id });
-        
-        const aio = await AIO.create({
-            batch_id, section_id,
-            device_number: deviceNum,
-            serial_number, brand_id,
-            model, is_condemned: false,
-            ups_id, gpu_id: gpuResponse.id,
-            os_id, prod_id, security_id
-        }, { transaction: t });
+        const savedDevices = [];
 
-        if (!aio) {
-            await t.rollback();
-            return next(createErrors.internalServerError("Saving AIO failed."));
+        const { next: baseNumber, prefix } = await setDeviceNumber('AIO');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, ups_id,
+                processorDTO, connectionDTO, peripheralDTO,
+                gpu_id, os_id, prod_id, security_id,
+                ramDTO: ramModules,
+                storageDTO: storageModules
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') {
+                throw createErrors.badRequest('batch_id is required and must be a number.');
+            }
+
+            if (!Array.isArray(ramModules)) {
+                throw createErrors.badRequest('ramDTO must be an array.');
+            }
+
+            if (!Array.isArray(storageModules)) {
+                throw createErrors.badRequest('storageDTO must be an array.');
+            }
+
+            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+            if (!isBatchExisting) {
+                await t.rollback();
+                throw createErrors.notFound("This batch doesn't exist.");
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const gpuResponse = await PartGPU.create({ capacity_id: gpu_id });
+
+            const aio = await AIO.create({
+                batch_id, section_id,
+                device_number: deviceNum,
+                serial_number, brand_id,
+                model, is_condemned: false,
+                ups_id, gpu_id: gpuResponse.id,
+                os_id, prod_id, security_id
+            }, { transaction: t });
+                
+            const processor = await PartProcessor.create(processorDTO, { transaction: t });
+            await ProcessorAIO.create({
+                aio_id: aio.id,
+                cpu_id: processor.id
+            }, { transaction: t });
+
+            await Promise.all(
+                ramModules.map(async ({ capacity_id }) => {
+                    const ram = await PartRAM.create({ capacity_id }, { transaction: t });
+                    await RAMAIO.create({ aio_id: aio.id, ram_id: ram.id }, { transaction: t });
+                })
+            );
+
+            await Promise.all(
+                storageModules.map(async ({ capacity_id, type_id }) => {
+                    const storage = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
+                    await StorageAIO.create({ aio_id: aio.id, storage_id: storage.id }, { transaction: t });
+                })
+            );
+
+            await Promise.all(
+                (connectionDTO || []).map(async (connection_id) => {
+                    await ConnectionsAIO.create({ aio_id: aio.id, connection_id }, { transaction: t });
+                })
+            );
+
+            await Promise.all(
+                (peripheralDTO || []).map(async (peripheral_id) => {
+                    await PeripheralsAIO.create({ aio_id: aio.id, peripheral_id }, { transaction: t });
+                })
+            );
+
+            savedDevices.push({ id: aio.id, device_number: deviceNum });
         }
 
-        const processor = await PartProcessor.create(processorDTO);
-
-        if (!processor) {
-            await t.rollback();
-            return next(createErrors.internalServerError("Processor part saving failed."));
-        }
-
-        await ProcessorAIO.create({
-            aio_id: aio.id,
-            cpu_id: processor.id
-        }, { transaction: t });
-
-        await Promise.all(
-            ramModules.map(async (ram) => {
-                const { capacity_id } = ram;
-                const ramResponse = await PartRAM.create({ capacity_id }, { transaction: t });
-
-                return await RAMAIO.create({
-                    aio_id: aio.id,
-                    ram_id: ramResponse.id
-                }, { transaction: t });
-            })
-        );
-
-        await Promise.all(
-            storageModules.map(async (storage) => {
-                const { capacity_id, type_id } = storage;
-                const storageResponse = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
-
-                return await StorageAIO.create({
-                    aio_id: aio.id,
-                    storage_id: storageResponse.id
-                }, { transaction: t });
-            })
-        );
-
-        await Promise.all(
-            connectionDTO.map(async (connection) => {
-                return await ConnectionsAIO.create({
-                    aio_id: aio.id,
-                    connection_id: connection
-                }, { transaction: t });
-            })
-        );
-
-        await Promise.all(
-            peripheralDTO.map(async (peripheral) => {
-                return await PeripheralsAIO.create({
-                    aio_id: aio.id,
-                    peripheral_id: peripheral
-                }, { transaction: t });
-            })
-        );
- 
         await t.commit();
-        res.status(201).json({ code: 201, message: 'AIO saved successfully.' })
+        res.status(201).json({ code: 201, message: `${savedDevices.length} AIO device(s) saved successfully.`, devices: savedDevices })
     } catch (err) {
         console.log(err);
+        if (t) await t.rollback();
         next(createErrors.internalServerError('Something went wrong on saving AIO.', err));
     }
 }
 
 exports.getAllDeviceAIO = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         res.status(200).json(await AIO.findAll());
     } catch (err) {
@@ -1817,7 +1824,7 @@ exports.getAllDeviceAIO = async (req, res, next) => {
 
 exports.getAllCondemnedDeviceAIO = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const allRawCondemnedAIO = await AIO.findAll({ where: { is_condemned: true } });
 
@@ -1830,13 +1837,13 @@ exports.getAllCondemnedDeviceAIO = async (req, res, next) => {
 
 exports.getDeviceAIOById = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { id } = req.params;
         
         const aio = await AIO.findByPk(id);
         if (!aio) {
-            return next(createErrors.notFound("This AIO doesn't exist."));
+            throw createErrors.notFound("This AIO doesn't exists.");
         }
 
         res.status(200).json(aio);
@@ -1848,18 +1855,20 @@ exports.getDeviceAIOById = async (req, res, next) => {
 
 exports.condemnedDeviceAIO = async (req, res, next) => {
     try {
-        requestValidation(req);
+        requestValidation(req, next);
 
         const { id } = req.params;
+        const { reason } = req.body;
 
         const aio = await AIO.findByPk(id);
         if (!aio) {
-            return next(createErrors.notFound("This AIO doesn't exist."));
+            throw createErrors.notFound("This AIO doesn't exist.");
         }
 
         await AIO.update({ is_condemned: true }, { where: { id } });
+        await CondemnedAIO.create({ aio_id: aio.id, reason, condemned_at: new Date() });
 
-        res.status(201).json({ code: 201, message: `${aio.device_number} condemned successfully.` });
+        res.status(200).json({ code: 200, message: `${aio.device_number} condemned successfully.` });
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
@@ -1867,87 +1876,125 @@ exports.condemnedDeviceAIO = async (req, res, next) => {
 }
 
 exports.putByIdDeviceAIO = async (req, res, next) => {
-    try {
-        requestValidation(req);
-        
-        const { id } = req.params;
+    const t = await sequelize.transaction();
 
-        const { 
-            section_id, serial_number, 
-            brand_id, model, ups_id, 
-            processorDTO, connectionDTO, peripheralDTO, 
-            gpu_id, os_id, prod_id, security_id 
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const {
+            section_id, serial_number, ups_id,
+            processorDTO, connectionDTO, peripheralDTO,
+            gpu_id, os_id, prod_id, security_id,
+            ramDTO: ramModules,
+            storageDTO: storageModules
         } = req.body;
-      
-        const ramModules = req.body.ramDTO;
-        const storageModules = req.body.storageDTO;
 
         if (!Array.isArray(ramModules)) {
-            return next(createErrors.badRequest('ramDTO must be inside an array.'));
+            throw createErrors.badRequest('ramDTO must be an array.');
         }
 
         if (!Array.isArray(storageModules)) {
-            return next(createErrors.badRequest('storageDTO must be inside an array.'))
+            throw createErrors.badRequest('storageDTO must be an array.');
+        }
+         
+        const aio = await AIO.findByPk(id, { transaction: t });
+        if (!aio) {
+            throw createErrors.notFound("This AIO doesn't exists.")
         }
 
+        const oldPartGPU = await PartGPU.findByPk(aio.gpu_id);
+        const newPartGPU = await PartGPU.update({ capacity_id: gpu_id }, { where: { id: aio.gpu_id }, transaction: t });
+        const gpuReport = await generateGPUReport('UPDATE', oldPartGPU, newPartGPU);
+
+        await AuditGPU.create({
+            part_id: aio.gpu_id,
+            old_capacity_id: oldPartGPU.capacity_id,
+            new_capacity_id: newPartGPU.id,
+            action: 'UPDATE',
+            report: gpuReport,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        }, { transaction: t });
+
+        const aioProcessor = await ProcessorAIO.findOne({ where: { aio_id: id } }); 
+        await PartProcessor.update(processorDTO, { where: { id: aioProcessor.cpu_id }, transation: t });
+
+        const aioRAMs = await RAMAIO.findAll({ where: { aio_id: id }, transaction: t });
+        if (aioRAMs.length !== ramModules.length) {
+            throw createErrors.badRequest('Mismatch between RAM modules provided and associated RAM slots.');
+        }
+
+        await Promise.all(
+            aioRAMs.map(async (ramAIO, index) => {
+                const { capacity_id } = ramModules[index];
+
+                const oldPartRAM = await PartRAM.findByPk(ramAIO.ram_id, { transaction: t });
+                if (!oldPartRAM) {
+                    throw createErrors.notFound(`PartRAM not found for ID ${ramAIO.ram_id}`);
+                }
+
+                if (oldPartRAM.capacity_id === capacity_id) return;
+
+                const newPartRAM = await PartRAM.update(
+                    { capacity_id }, 
+                    { where: { id: ramAIO.ram_id }, transaction: t }
+                );
+
+                const ramReport = await generateRAMReport('UPDATE', oldPartRAM, newPartRAM);
+
+                await AuditRAM.create({
+                    part_id: ramAIO.ram_id,
+                    old_capacity_id: oldPartRAM.capacity_id,
+                    new_capacity_id: capacity_id,
+                    action: 'UPDATE',
+                    report: ramReport,
+                    updated_by: req.user.id,
+                    updated_at: new Date()
+                }, { transaction: t });
+            })
+        );
+
+        const aioStorages = await StorageAIO.findAll({ where: { aio_id: id } });
+        if (aioStorages.length !== storageModules.length) {
+            throw createErrors.badRequest('Mismatch between storage modules provided and associated storage slots.');
+        }
+
+        await Promise.all(
+            aioStorages.map(async (storageAIO, index) => {
+                const { capacity_id, type_id } = storageModules[index];
+
+                const oldPartStorage = await PartStorage.findByPk(storageAIO.storage_id, { transaction: t });
+                if (!oldStorage) {
+                    throw createErrors.notFound(`PartStorage not found for ID ${storageAIO.storage_id}`);
+                }
+
+                if (oldPartStorage.capacity_id === capacity_id || oldPartStorage.type_id === type_id) return;
+
+                const newPartStorage = await PartStorage.update(
+                    { capacity_id, type_id }, 
+                    { where: { id: storageAIO.storage_id }, transaction: t }
+                );
+                const storageReport = await generateStorageReport('UPDATE', oldStorage, newStorage);
+
+                await AuditStorage.create({
+                    part_id: storageAIO.storage_id,
+                    old_capacity_id: oldPartStorage.capacity_id,
+                    old_type_id: oldPartStorage.type_id,
+                    new_capacity_id: newPartStorage.capacity_id,
+                    new_type_id: newPartStorage.type_id,
+                    action: 'UPDATE',
+                    report: storageReport,
+                    updated_by: req.user.id,
+                    updated_at: new Date()
+                }, { transaction: t });
+            })
+        );
+         
         
-        if (!Array.isArray(connectionDTO) || !connectionDTO.every(id => typeof id === 'number')) {
-            return next(createErrors.badRequest('connectionDTO must be inside an array.'));
-        }
-
-        if (!Array.isArray(peripheralDTO) || !connectionDTO.every(id => typeof id === 'number')) {
-            return next(createErrors.badRequest('peripheralDTO must be inside an array.'));
-        }
-
-        const isAIOExisting = await AIO.findByPk(id);
-
-        if (!isAIOExisting) {
-            return next(createErrors.notFound("This AIO doesn't exist."));
-        }
-
-        const aioData = { section_id, serial_number, brand_id, model, ups_id, gpu_id, os_id, prod_id, security_id };
-        
-        await AIO.update(aioData, { where: { id } });
-
-        const processor = await ProcessorAIO.findOne({ where: { aio_id: id } });
-
-        if (processor) {
-            await PartProcessor.update(processorDTO, { where: { id: processor.cpu_id } });
-        }
-
-        const oldRAMs = await RAMAIO.findAll({ where: { aio_id: id } });
-        await Promise.all(oldRAMs.map(r => PartRAM.destroy({ where: { id: r.ram_id } })));
-        await RAMAIO.destroy({ where: { aio_id: id } });
-
-        await Promise.all(ramModules.map(async (ram) => {
-            const { capacity_id } = ram;
-            const ramPart = await PartRAM.create({ capacity_id });
-            return await RAMAIO.create({ aio_id: id, ram_id: ramPart.id });
-        }));
-
-        const oldStorages = await StorageAIO.findAll({ where: { aio_id: id } });
-        await Promise.all(oldStorages.map(s => PartStorage.destroy({ where: { id: s.storage_id } })));
-        await StorageAIO.destroy({ where: { aio_id: id } });
-
-        await Promise.all(storageModules.map(async (storage) => {
-            const { capacity_id, type_id } = storage;
-            const storagePart = await PartStorage.create({ capacity_id, type_id });
-            return await StorageAIO.create({ aio_id: id, storage_id: storagePart.id });
-        }));
-
-        await ConnectionsAIO.destroy({ where: { aio_id: id } });
-        await Promise.all(connectionDTO.map(async (connId) => {
-            return await ConnectionsAIO.create({ aio_id: id, connection_id: connId });
-        }));
-
-        await PeripheralsAIO.destroy({ where: { aio_id: id } });
-        await Promise.all(peripheralDTO.map(async (periphId) => {
-            return await PeripheralsAIO.create({ aio_id: id, peripheral_id: periphId });
-        }));
-
-        res.status(201).json({ code: 201, message: 'AIO updated successfully.' });
     } catch (err) {
         console.log(err);
+        if (t) await t.rollback();
         next(createErrors.internalServerError('Something went wrong on updating specific AIO.', err));
     }
 }

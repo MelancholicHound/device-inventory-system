@@ -236,12 +236,35 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: false
     });
 
-    const AuditAIOLocation = sequelize.define('tbl_audit_location_aio', {
+    const CondemnedAIO = sequelize.define('tbl_condemned_aio', {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true
         },
+        aio_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: AIO,
+                key: 'id'
+            }
+        },
+        reason: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        condemned_at: {
+            type: DataTypes.DATE,
+            allowNull: false, 
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_condemned_aio',
+        timestamps: false
+    });
+
+    const AuditAIOLocation = sequelize.define('tbl_audit_location_aio', {
         aio_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -280,6 +303,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         updated_at: {
             type: DataTypes.DATE, 
+            allowNull: false,
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -287,12 +311,7 @@ module.exports = (sequelize, DataTypes) => {
         timestamps: false
     });
 
-    const AuditAIOPeripherals = sequelize.define('tbl_audit_peripheral_aio', {
-        id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true
-        },
+    const AuditAIOConnection = sequelize.define('tbl_audit_connection_aio', {
         aio_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -301,11 +320,27 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'id'
             }
         },
-        
+        connection_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        action: {
+            type: DataTypes.ENUM('ADD', 'REMOVE'),
+            allowNull: false
+        },
+        changed_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        changed_at: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        }
     }, {
-        tableName: 'tbl_audit_peripheral_aio',
+        tableName: 'tbl_audit_connection_aio',
         timestamps: false
-    })
+    });
 
     return {
         ProcessorAIO,
@@ -313,6 +348,9 @@ module.exports = (sequelize, DataTypes) => {
         RAMAIO,
         StorageAIO,
         ConnectionsAIO,
-        PeripheralsAIO
+        PeripheralsAIO,
+        CondemnedAIO,
+        AuditAIOConnection,
+        AuditAIOLocation
     };
 }

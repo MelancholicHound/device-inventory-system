@@ -15,6 +15,8 @@ router.post('/signup', [
 
 router.post('/login', authController.login);
 
+router.get('/user', authenticateToken, authController.getUserById);
+
 router.get('/user/recover', authController.recover);
 
 router.post('/user/recover', authController.changePassword);
