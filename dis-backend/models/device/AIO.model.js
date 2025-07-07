@@ -254,6 +254,14 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false
         },
+        condemned_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
         condemned_at: {
             type: DataTypes.DATE,
             allowNull: false, 

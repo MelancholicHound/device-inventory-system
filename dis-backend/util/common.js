@@ -1,9 +1,11 @@
 const { CapacityGPU, CapacityRAM, CapacityStorage } = require('../models/index');
 const { BrandSeriesProcessor, BrandMotherboard, BrandProcessor, BrandChipset } = require('../models/index');
+const { Division, Section } = require('../models/index');
+const { StorageType } = require('../models/index');
 
 async function generateRAMReport(action, oldData = {}, newData = {}) {
-    const oldRAM = await CapacityRAM.findByPk(oldData.ram_id);
-    const newRAM = await CapacityRAM.findByPk(newData.ram_id);
+    const oldRAM = await CapacityRAM.findByPk(oldData.capacity_id);
+    const newRAM = await CapacityRAM.findByPk(newData.capacity_id);
 
     if (action === 'UPDATE') {
         return `Updated from ${oldRAM.capacity} GB to ${newRAM.capacity} GB.`;
@@ -21,8 +23,8 @@ async function generateRAMReport(action, oldData = {}, newData = {}) {
 }
 
 async function generateGPUReport(action, oldData = {}, newData = {}) {
-    const oldGPU = await CapacityGPU.findByPk(oldData.gpu_id);
-    const newGPU = await CapacityGPU.findByPk(newData.gpu_id);
+    const oldGPU = await CapacityGPU.findByPk(oldData.capacity_id);
+    const newGPU = await CapacityGPU.findByPk(newData.capacity_id);
 
     if (action === 'UPDATE') {
         return `Updated from ${oldGPU.capacity} GB to ${newGPU.capacity} GB.`;
@@ -40,11 +42,14 @@ async function generateGPUReport(action, oldData = {}, newData = {}) {
 }
 
 async function generateStorageReport(action, oldData = {}, newData = {}) {
-    const oldStorage = await CapacityStorage.findByPk(oldData.storage_id);
-    const newStorage = await CapacityStorage.findByPk(newData.storage_id);
+    const oldStorageCap = await CapacityStorage.findByPk(oldData.capacity_id);
+    const newStorageCap = await CapacityStorage.findByPk(newData.capacity_id);
+
+    const oldStorageType = await StorageType.findByPk(oldData.type_id);
+    const newStorageType = await StorageType.findByPk(newData.type_id);
 
     if (action === 'UPDATE') {
-        return `Update from ${oldStorage.capacity} GB ${oldData.model} to ${newStorage.capacity} GB ${newData.model}.`;
+        return `Update from ${oldStorageCap.capacity} GB ${oldStorageType.type} to ${newStorageCap.capacity} GB ${newStorageType.type}.`;
     }
 
     if (action === 'CONDEMN') {
@@ -138,11 +143,38 @@ async function generateChipsetReport(action, oldData = {}, newData = {}) {
     return '';
 }
 
+async function generateSectionReport(oldId, newId) {
+   const oldSectionWithDivision = await Section.findByPk(oldId, {
+        attributes: ['name'],
+        include: {
+            model: Division,
+            attributes: ['name']
+        }
+    });
+
+    const newSectionWithDivision = await Section.findByPk(newId, {
+        attributes: ['name'],
+        include: {
+            model: Division,
+            attributes: ['name']
+        }
+    });
+
+    const oldDivName = oldSectionWithDivision.tbl_loc_division.name;
+    const oldSecName = oldSectionWithDivision.name;
+
+    const newDivName = newSectionWithDivision.tbl_loc_division.name;
+    const newSecName = newSectionWithDivision.name;
+
+    return `Change location from ${oldDivName} division (${oldSecName}) to ${newDivName} division (${newSecName}) `;
+}
+
 module.exports = {
     generateChipsetReport,
     generateGPUReport,
     generateMotherboardReport,
     generateProcessorReport,
     generateRAMReport,
-    generateStorageReport
+    generateStorageReport,
+    generateSectionReport
 };

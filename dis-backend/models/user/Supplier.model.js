@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
         cp_contact_number: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        created_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
         }
     }, {
         tableName: 'tbl_supplier',

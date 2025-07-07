@@ -207,8 +207,12 @@ router.get('/device/aio', authenticateToken, authController.getAllDeviceAIO);
 
 router.get('/device/aio/condemned', authenticateToken, authController.getAllCondemnedDeviceAIO);
 
+router.get('/device/aio/working', authenticateToken, authController.getAllWorkingDeviceAIO);
+
 router.get('/device/aio/:id', authenticateToken, authController.getDeviceAIOById);
 
 router.patch('/device/aio/:id', authenticateToken, authController.condemnedDeviceAIO);
+
+router.put('/device/aio/:id', authenticateToken, authController.putByIdDeviceAIO);
 
 module.exports = router;
