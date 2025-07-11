@@ -237,12 +237,132 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: false
     });
 
+    const CondemnedLaptop = sequelize.define('tbl_condemned_laptop', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        laptop_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Laptop,
+                key: 'id'
+            }
+        },
+        reason: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        condemned_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        condemned_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: false
+        }
+    }, {
+        tableName: 'tbl_condemned_laptop',
+        timestamps: false
+    });
+
+    const AuditLaptopLocation = sequelize.define('tbl_audit_location_laptop', {
+        laptop_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Laptop,
+                key: 'id'
+            }
+        },
+        old_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        new_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        report: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        updated_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        updated_at: {
+            type: DataTypes.DATEONLY, 
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_audit_location_laptop',
+        timestamps: false
+    });
+
+    const AuditLaptopConnection = sequelize.define('tbl_audit_connection_laptop', {
+        laptop_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Laptop,
+                key: 'id'
+            }
+        },
+        connection_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        action: {
+            type: DataTypes.ENUM('ADD', 'REMOVE'),
+            allowNull: false
+        },
+        changed_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        changed_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_audit_connection_laptop',
+        timestamps: false
+    })
+
     return {
         ProcessorLaptop,
         Laptop,
         RAMLaptop,
         StorageLaptop,
         ConnectionsLaptop,
-        PeripheralsLaptop
+        PeripheralsLaptop,
+        CondemnedLaptop,
+        AuditLaptopConnection,
+        AuditLaptopLocation
     };
 }

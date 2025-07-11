@@ -67,7 +67,7 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'tbl_part_gpu',
         timestamps: true,
         createdAt: 'created_at',
-        updatedAt: false
+        updatedAt: false 
     });
 
     const PartProcessor = sequelize.define('tbl_part_processor', {
@@ -191,7 +191,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -245,7 +245,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -316,7 +316,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -379,7 +379,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -442,7 +442,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {
@@ -505,7 +505,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             defaultValue: DataTypes.NOW
         }
     }, {

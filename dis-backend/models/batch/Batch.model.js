@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         },
         file: {
-            type: DataTypes.BLOB
+            type: DataTypes.BLOB('long')
         }
     }, {
         tableName: 'tbl_purchase_request',

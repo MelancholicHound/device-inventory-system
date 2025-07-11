@@ -215,4 +215,16 @@ router.patch('/device/aio/:id', authenticateToken, authController.condemnedDevic
 
 router.put('/device/aio/:id', authenticateToken, authController.putByIdDeviceAIO);
 
+router.get('/device/aio/audit/connection/:id', authenticateToken, authController.getConnectionAuditDeviceAIO);
+
+router.get('/device/aio/audit/location/:id', authenticateToken, authController.getLocationAuditDeviceAIO);
+
+router.post('/device/laptop', authenticateToken, authController.postDeviceLaptop);
+
+router.get('/device/laptop', authenticateToken, authController.getAllDeviceLaptop);
+
+router.get('/device/laptop/condemned', authenticateToken, authController.getAllCondemnedDeviceLaptop);
+
+router.get('/device/laptop/working', authenticateToken, authController.getAllWorkingDeviceLaptop);
+
 module.exports = router;

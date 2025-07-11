@@ -66,288 +66,215 @@ const initDB = async() => {
         await sequelize.sync();
         console.log('Tables synced.');
  
-        CapacityRAM.hasMany(PartRAM, { foreignKey: 'capacity_id' });
-        PartRAM.belongsTo(CapacityRAM, { foreignKey: 'capacity_id' });
+        CapacityRAM.hasMany(PartRAM, { foreignKey: 'capacity_id', as: 'ram_module' });
+        PartRAM.belongsTo(CapacityRAM, { foreignKey: 'capacity_id', as: 'capacity' });
 
-        CapacityGPU.hasMany(PartGPU, { foreignKey: 'capacity_id' });
-        PartGPU.belongsTo(CapacityGPU, { foreignKey: 'capacity_id' });
+        CapacityGPU.hasMany(PartGPU, { foreignKey: 'capacity_id', as: 'gpu_module' });
+        PartGPU.belongsTo(CapacityGPU, { foreignKey: 'capacity_id', as: 'capacity' });
         
-        CapacityStorage.hasMany(PartStorage, { foreignKey: 'capacity_id' });
-        StorageType.hasMany(PartStorage, { foreignKey: 'type_id' });
-        PartStorage.belongsTo(StorageType, { foreignKey: 'type_id' });
-        PartStorage.belongsTo(CapacityStorage, { foreignKey: 'capacity_id' });
+        CapacityStorage.hasMany(PartStorage, { foreignKey: 'capacity_id', as: 'storage_dto' });
+        PartStorage.belongsTo(CapacityStorage, { foreignKey: 'capacity_id', as: 'capacity' });
 
-        BrandProcessor.hasMany(BrandSeriesProcessor, { foreignKey: 'brand_id' });
-        BrandSeriesProcessor.belongsTo(BrandProcessor, { foreignKey: 'brand_id' });
+        StorageType.hasMany(PartStorage, { foreignKey: 'type_id', as: 'storage_dto' });
+        PartStorage.belongsTo(StorageType, { foreignKey: 'type_id', as: 'type' });
 
-        BrandSeriesProcessor.hasMany(PartProcessor, { foreignKey: 'series_id' });
-        PartProcessor.belongsTo(BrandSeriesProcessor, { foreignKey: 'series_id' });
+        BrandProcessor.hasMany(BrandSeriesProcessor, { foreignKey: 'brand_id', as: 'series_list' });
+        BrandSeriesProcessor.belongsTo(BrandProcessor, { foreignKey: 'brand_id', as: 'brand' });
 
-        BrandMotherboard.hasMany(PartMotherboard, { foreignKey: 'brand_id' });
-        PartMotherboard.belongsTo(BrandMotherboard, { foreignKey: 'brand_id' });
+        BrandSeriesProcessor.hasMany(PartProcessor, { foreignKey: 'series_id', as: 'processors' });
+        PartProcessor.belongsTo(BrandSeriesProcessor, { foreignKey: 'series_id', as: 'series' });
 
-        BrandChipset.hasMany(PartChipset, { foreignKey: 'brand_id' });
-        PartChipset.belongsTo(BrandChipset, { foreignKey: 'brand_id' });
+        BrandMotherboard.hasMany(PartMotherboard, { foreignKey: 'brand_id', as: 'motherboards' });
+        PartMotherboard.belongsTo(BrandMotherboard, { foreignKey: 'brand_id', as: 'brand' });
 
-        Batch.belongsTo(PurchaseRequestDTO, { foreignKey: 'prDTO_id' });
-        PurchaseRequestDTO.hasMany(Batch, { foreignKey: 'prDTO_id' });
+        BrandChipset.hasMany(PartChipset, { foreignKey: 'brand_id', as: 'chipsets' });
+        PartChipset.belongsTo(BrandChipset, { foreignKey: 'brand_id', as: 'brand' });
 
-        Batch.belongsTo(Supplier, { foreignKey: 'supplier_id' });
-        Supplier.hasMany(Batch, { foreignKey: 'supplier_id' });
+        Batch.belongsTo(PurchaseRequestDTO, { foreignKey: 'prDTO_id', as: 'purchaseRequestDTO' });
+        PurchaseRequestDTO.hasMany(Batch, { foreignKey: 'prDTO_id', as: 'batches' });
 
-        Batch.belongsTo(User, { foreignKey: 'created_by',  });
-        User.hasMany(Batch, { foreignKey: 'created_by' });
+        Batch.belongsTo(Supplier, { foreignKey: 'supplier_id', as: 'supplier' });
+        Supplier.hasMany(Batch, { foreignKey: 'supplier_id', as: 'batches' });
 
-        Section.belongsTo(Division, { foreignKey: 'div_id' });
-        Division.hasMany(Section, { foreignKey: 'div_id' });
+        Batch.belongsTo(User, { foreignKey: 'created_by', as: 'creator' });
+        User.hasMany(Batch, { foreignKey: 'created_by', as: 'batches_created' });
+
+        Section.belongsTo(Division, { foreignKey: 'div_id', as: 'division' });
+        Division.hasMany(Section, { foreignKey: 'div_id', as: 'sections' });
+
 
         //AIO Associations
-        AIO.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(AIO, { foreignKey: 'batch_id' });
+        AIO.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Batch.hasMany(AIO, { foreignKey: 'batch_id', as: 'aio_devices' });
 
-        AIO.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(AIO, { foreignKey: 'section_id' });
+        AIO.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Section.hasMany(AIO, { foreignKey: 'section_id', as: 'aio_devices' });
 
-        AIO.belongsTo(BrandAIO, { foreignKey: 'brand_id' });
-        BrandAIO.hasMany(AIO, { foreignKey: 'brand_id' });
+        AIO.belongsTo(BrandAIO, { foreignKey: 'brand_id', as: 'brand' });
+        BrandAIO.hasMany(AIO, { foreignKey: 'brand_id', as: 'aio_devices' });
 
-        AIO.belongsTo(UPS, { foreignKey: 'ups_id' });
-        UPS.hasOne(AIO, { foreignKey: 'ups_id' });
+        AIO.belongsTo(UPS, { foreignKey: 'ups_id', as: 'ups' });
+        UPS.hasOne(AIO, { foreignKey: 'ups_id', as: 'aio_device' });
 
-        AIO.belongsTo(PartGPU, { foreignKey: 'gpu_id' });
-        PartGPU.hasOne(AIO, { foreignKey: 'gpu_id' });
+        AIO.belongsTo(PartGPU, { foreignKey: 'gpu_id', as: 'gpu' });
+        PartGPU.hasOne(AIO, { foreignKey: 'gpu_id', as: 'aio_device' });
 
-        AIO.belongsTo(SoftwareOS, { foreignKey: 'os_id' });
-        AIO.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id' });
-        AIO.belongsTo(SoftwareSecurity, { foreignKey: 'security_id' });
+        AIO.belongsTo(SoftwareOS, { foreignKey: 'os_id', as: 'os' });
+        AIO.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
+        AIO.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        SoftwareOS.hasMany(AIO, { foreignKey: 'os_id' });
-        SoftwareProductivity.hasMany(AIO, { foreignKey: 'prod_id' });
-        SoftwareSecurity.hasMany(AIO, { foreignKey: 'security_id' });
+        AIO.hasOne(ProcessorAIO, { foreignKey: 'aio_id', as: 'processor' });
+        ProcessorAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
+        ProcessorAIO.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
+        PartProcessor.hasOne(ProcessorAIO, { foreignKey: 'cpu_id', as: 'used_in_AIO' });
 
-        AIO.hasOne(ProcessorAIO, { foreignKey: 'aio_id' });
-        ProcessorAIO.belongsTo(AIO, { foreignKey: 'aio_id' });
-        
-        ProcessorAIO.belongsTo(PartProcessor, { foreignKey: 'cpu_id' });
-        PartProcessor.hasOne(ProcessorAIO, { foreignKey: 'cpu_id' });
+        AIO.hasMany(RAMAIO, { foreignKey: 'aio_id', as: 'ram_modules' });
+        RAMAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
+        RAMAIO.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
+        PartRAM.hasMany(RAMAIO, { foreignKey: 'ram_id', as: 'used_in_AIO' });
 
-        AIO.hasMany(RAMAIO, { foreignKey: 'aio_id' });
-        RAMAIO.belongsTo(AIO, { foreignKey: 'aio_id' });
+        AIO.hasMany(StorageAIO, { foreignKey: 'aio_id', as: 'storage_dto' });
+        StorageAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
+        StorageAIO.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
+        PartStorage.hasMany(StorageAIO, { foreignKey: 'storage_id', as: 'used_in_AIO' });
 
-        RAMAIO.belongsTo(PartRAM, { foreignKey: 'ram_id' });
-        PartRAM.hasMany(RAMAIO, { foreignKey: 'ram_id' });
+        AIO.hasMany(ConnectionsAIO, { foreignKey: 'aio_id', as: 'connections' });
+        ConnectionsAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
+        ConnectionsAIO.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
+        Connection.hasMany(ConnectionsAIO, { foreignKey: 'connection_id', as: 'aio_connections' });
 
-        AIO.hasMany(StorageAIO, { foreignKey: 'aio_id' });
-        StorageAIO.belongsTo(AIO, { foreignKey: 'aio_id' });
-
-        StorageAIO.belongsTo(PartStorage, { foreignKey: 'storage_id' });
-        PartStorage.hasMany(StorageAIO, { foreignKey: 'storage_id' });
-
-        AIO.hasMany(ConnectionsAIO, { foreignKey: 'aio_id' });
-        ConnectionsAIO.belongsTo(AIO, { foreignKey: 'aio_id' });
-
-        ConnectionsAIO.belongsTo(Connection, { foreignKey: 'connection_id' });
-        Connection.hasMany(ConnectionsAIO, { foreignKey: 'connection_id' });
-
-        AIO.hasMany(PeripheralsAIO, { foreignKey: 'aio_id' });
-        PeripheralsAIO.belongsTo(AIO, { foreignKey: 'aio_id' });
-
-        PeripheralsAIO.belongsTo(Peripheral, { foreignKey: 'peripheral_id' });
-        Peripheral.hasMany(PeripheralsAIO, { foreignKey: 'peripheral_id' });
+        AIO.hasMany(PeripheralsAIO, { foreignKey: 'aio_id', as: 'peripherals' });
+        PeripheralsAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
+        PeripheralsAIO.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
+        Peripheral.hasMany(PeripheralsAIO, { foreignKey: 'peripheral_id', as: 'aio_peripherals' });
 
         //Computer Associations
-        Computer.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Computer, { foreignKey: 'batch_id' });
+        Computer.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Computer.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Computer.belongsTo(UPS, { foreignKey: 'ups_id', as: 'ups' });
+        Computer.belongsTo(PartGPU, { foreignKey: 'gpu_id', as: 'gpu' });
+        Computer.belongsTo(SoftwareOS, { foreignKey: 'os_id', as: 'os' });
+        Computer.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
+        Computer.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        Computer.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Computer, { foreignKey: 'section_id' });
+        Computer.hasOne(ProcessorComputer, { foreignKey: 'computer_id', as: 'processor' });
+        ProcessorComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        ProcessorComputer.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
+        PartProcessor.hasMany(ProcessorComputer, { foreignKey: 'cpu_id', as: 'used_in_computers' });
 
-        Computer.belongsTo(UPS, { foreignKey: 'ups_id' });
-        UPS.hasOne(Computer, { foreignKey: 'ups_id' });
+        Computer.hasOne(MotherboardComputer, { foreignKey: 'computer_id', as: 'motherboard' });
+        MotherboardComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        MotherboardComputer.belongsTo(PartMotherboard, { foreignKey: 'mobo_id', as: 'mobo' });
+        PartMotherboard.hasOne(MotherboardComputer, { foreignKey: 'mobo_id', as: 'used_in_computer' });
 
-        Computer.belongsTo(PartGPU, { foreignKey: 'gpu_id' });
-        PartGPU.hasOne(Computer, { foreignKey: 'gpu_id' });
+        Computer.hasMany(RAMComputer, { foreignKey: 'computer_id', as: 'ram_modules' });
+        RAMComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        RAMComputer.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
+        PartRAM.hasMany(RAMComputer, { foreignKey: 'ram_id', as: 'used_in_computers' });
 
-        Computer.belongsTo(SoftwareOS, { foreignKey: 'os_id' });
-        Computer.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id' });
-        Computer.belongsTo(SoftwareSecurity, { foreignKey: 'security_id' });
+        Computer.hasMany(StorageComputer, { foreignKey: 'computer_id', as: 'storage_dto' });
+        StorageComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        StorageComputer.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
+        PartStorage.hasMany(StorageComputer, { foreignKey: 'storage_id', as: 'used_in_computers' });
 
-        SoftwareOS.hasMany(Computer, { foreignKey: 'os_id' });
-        SoftwareProductivity.hasMany(Computer, { foreignKey: 'prod_id' });
-        SoftwareSecurity.hasMany(Computer, { foreignKey: 'security_id' });
+        Computer.hasMany(ConnectionsComputer, { foreignKey: 'computer_id', as: 'connections' });
+        ConnectionsComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        ConnectionsComputer.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
 
-        Computer.hasOne(ProcessorComputer, { foreignKey: 'computer_id' });
-        ProcessorComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        ProcessorComputer.belongsTo(PartProcessor, { foreignKey: 'cpu_id' });
-        PartProcessor.hasMany(ProcessorComputer, { foreignKey: 'cpu_id' });
-
-        Computer.hasOne(MotherboardComputer, { foreignKey: 'computer_id' });
-        MotherboardComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        MotherboardComputer.belongsTo(PartMotherboard, { foreignKey: 'mobo_id' });
-        PartMotherboard.hasOne(MotherboardComputer, { foreignKey: 'mobo_id' })
-
-        Computer.hasMany(RAMComputer, { foreignKey: 'computer_id' });
-        RAMComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        RAMComputer.belongsTo(PartRAM, { foreignKey: 'ram_id' });
-        PartRAM.hasMany(RAMComputer, { foreignKey: 'ram_id' });
-
-        Computer.hasMany(StorageComputer, { foreignKey: 'computer_id' });
-        StorageComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        StorageComputer.belongsTo(PartStorage, { foreignKey: 'storage_id' });
-        PartStorage.hasMany(StorageComputer, { foreignKey: 'storage_id' });
-
-        Computer.hasMany(ConnectionsComputer, { foreignKey: 'computer_id' });
-        ConnectionsComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        ConnectionsComputer.belongsTo(Connection, { foreignKey: 'connection_id' });
-        Connection.hasMany(ConnectionsComputer, { foreignKey: 'connection_id' });
-
-        Computer.hasMany(PeripheralsComputer, { foreignKey: 'computer_id' });
-        PeripheralsComputer.belongsTo(Computer, { foreignKey: 'computer_id' });
-
-        PeripheralsComputer.belongsTo(Peripheral, { foreignKey: 'peripheral_id' });
-        Peripheral.hasMany(PeripheralsComputer, { foreignKey: 'peripheral_id' });
+        Computer.hasMany(PeripheralsComputer, { foreignKey: 'computer_id', as: 'peripherals' });
+        PeripheralsComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
+        PeripheralsComputer.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
 
         //Laptop Associations
-        Laptop.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Laptop, { foreignKey: 'batch_id' });
+        Laptop.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Laptop.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Laptop.belongsTo(BrandLaptop, { foreignKey: 'brand_id', as: 'brand' });
+        Laptop.belongsTo(UPS, { foreignKey: 'ups_id', as: 'ups' });
+        Laptop.belongsTo(PartGPU, { foreignKey: 'gpu_id', as: 'gpu' });
+        Laptop.belongsTo(SoftwareOS, { foreignKey: 'os_id', as: 'os' });
+        Laptop.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
+        Laptop.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        Laptop.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Laptop, { foreignKey: 'section_id' });
+        Laptop.hasOne(ProcessorLaptop, { foreignKey: 'laptop_id', as: 'processor' });
+        ProcessorLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
+        ProcessorLaptop.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
 
-        Laptop.belongsTo(BrandLaptop, { foreignKey: 'brand_id' });
-        BrandLaptop.hasMany(Laptop, { foreignKey: 'brand_id' });
+        Laptop.hasMany(RAMLaptop, { foreignKey: 'laptop_id', as: 'ram_modules' });
+        RAMLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
+        RAMLaptop.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
 
-        Laptop.belongsTo(UPS, { foreignKey: 'ups_id' });
-        UPS.hasOne(Laptop, { foreignKey: 'ups_id' });
+        Laptop.hasMany(StorageLaptop, { foreignKey: 'laptop_id', as: 'storage_dto' });
+        StorageLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
+        StorageLaptop.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
 
-        Laptop.belongsTo(PartGPU, { foreignKey: 'gpu_id' });
-        PartGPU.hasOne(Laptop, { foreignKey: 'gpu_id' });
-        
-        Laptop.belongsTo(SoftwareOS, { foreignKey: 'os_id' });
-        Laptop.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id' });
-        Laptop.belongsTo(SoftwareSecurity, { foreignKey: 'security_id' });
+        Laptop.hasMany(ConnectionsLaptop, { foreignKey: 'laptop_id', as: 'connections' });
+        ConnectionsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
+        ConnectionsLaptop.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
 
-        SoftwareOS.hasMany(Laptop, { foreignKey: 'os_id' });
-        SoftwareProductivity.hasMany(Laptop, { foreignKey: 'prod_id' });
-        SoftwareSecurity.hasMany(Laptop, { foreignKey: 'security_id' });
-
-        Laptop.hasOne(ProcessorLaptop, { foreignKey: 'laptop_id' });
-        ProcessorLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id' });
-        
-        ProcessorLaptop.belongsTo(PartProcessor, { foreignKey: 'cpu_id' });
-        PartProcessor.hasOne(ProcessorLaptop, { foreignKey: 'cpu_id' });
-
-        Laptop.hasMany(RAMLaptop, { foreignKey: 'laptop_id' });
-        RAMLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id' });
-
-        RAMLaptop.belongsTo(PartRAM, { foreignKey: 'ram_id' });
-        PartRAM.hasMany(RAMLaptop, { foreignKey: 'ram_id' });
-
-        Laptop.hasMany(StorageLaptop, { foreignKey: 'laptop_id' });
-        StorageLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id' });
-
-        StorageLaptop.belongsTo(PartStorage, { foreignKey: 'storage_id' });
-        PartStorage.hasMany(StorageLaptop, { foreignKey: 'storage_id' });
-
-        Laptop.hasMany(ConnectionsLaptop, { foreignKey: 'laptop_id' });
-        ConnectionsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id' });
-
-        ConnectionsLaptop.belongsTo(Connection, { foreignKey: 'connection_id' });
-        Connection.hasMany(ConnectionsLaptop, { foreignKey: 'connection_id' });
-
-        Laptop.hasMany(PeripheralsLaptop, { foreignKey: 'laptop_id' });
-        PeripheralsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id' });
-
-        PeripheralsLaptop.belongsTo(Peripheral, { foreignKey: 'peripheral_id' });
-        Peripheral.hasMany(PeripheralsLaptop, { foreignKey: 'peripheral_id' });
+        Laptop.hasMany(PeripheralsLaptop, { foreignKey: 'laptop_id', as: 'peripherals' });
+        PeripheralsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
+        PeripheralsLaptop.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
 
         //Printer Associations
-        Printer.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Printer, { foreignKey: 'batch_id' });
+        Printer.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Printer.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Printer.belongsTo(BrandPrinter, { foreignKey: 'brand_id', as: 'brand' });
+        Printer.belongsTo(PrinterType, { foreignKey: 'type_id', as: 'type' });
 
-        Printer.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Printer, { foreignKey: 'section_id' });
-
-        Printer.belongsTo(BrandPrinter, { foreignKey: 'brand_id' });
-        BrandPrinter.hasMany(Printer, { foreignKey: 'brand_id' });
-
-        Printer.belongsTo(PrinterType, { foreignKey: 'type_id' });
-        PrinterType.hasMany(Printer, { foreignKey: 'type_id' });
+        Batch.hasMany(Printer, { foreignKey: 'batch_id', as: 'printers' });
+        Section.hasMany(Printer, { foreignKey: 'section_id', as: 'printers' });
+        BrandPrinter.hasMany(Printer, { foreignKey: 'brand_id', as: 'printers' });
+        PrinterType.hasMany(Printer, { foreignKey: 'type_id', as: 'printers' });
 
         //Router Associations
-        Router.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Router, { foreignKey: 'batch_id' });
+        Router.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Router.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Router.belongsTo(BrandRouter, { foreignKey: 'brand_id', as: 'brand' });
+        Router.belongsTo(NetworkSpeed, { foreignKey: 'network_speed_id', as: 'network_speed' });
+        Router.belongsTo(AntennaCount, { foreignKey: 'antenna_id', as: 'antenna' });
 
-        Router.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Router, { foreignKey: 'section_id' });
-
-        Router.belongsTo(BrandRouter, { foreignKey: 'brand_id' });
-        BrandRouter.hasMany(Router, { foreignKey: 'brand_id' });
-
-        Router.belongsTo(NetworkSpeed, { foreignKey: 'network_speed_id' });
-        NetworkSpeed.hasMany(Router, { foreignKey: 'network_speed_id' });
-
-        Router.belongsTo(AntennaCount, { foreignKey: 'antenna_id' });
-        AntennaCount.hasMany(Router, { foreignKey: 'antenna_id' });
+        Batch.hasMany(Router, { foreignKey: 'batch_id', as: 'routers' });
+        Section.hasMany(Router, { foreignKey: 'section_id', as: 'routers' });
+        BrandRouter.hasMany(Router, { foreignKey: 'brand_id', as: 'routers' });
+        NetworkSpeed.hasMany(Router, { foreignKey: 'network_speed_id', as: 'routers' });
+        AntennaCount.hasMany(Router, { foreignKey: 'antenna_id', as: 'routers' });
 
         //Scanner Association
-        Scanner.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Scanner, { foreignKey: 'batch_id' });
+        Scanner.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Scanner.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Scanner.belongsTo(BrandScanner, { foreignKey: 'brand_id', as: 'brand' });
+        Scanner.belongsTo(ScannerType, { foreignKey: 'type_id', as: 'type' });
 
-        Scanner.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Scanner, { foreignKey: 'section_id' });
-
-        Scanner.belongsTo(BrandScanner, { foreignKey: 'brand_id' });
-        BrandScanner.hasMany(Scanner, { foreignKey: 'brand_id' });
-        
-        Scanner.belongsTo(ScannerType, { foreignKey: 'type_id' });
-        ScannerType.hasMany(Scanner, { foreignKey: 'type_id' });
+        Batch.hasMany(Scanner, { foreignKey: 'batch_id', as: 'scanners' });
+        Section.hasMany(Scanner, { foreignKey: 'section_id', as: 'scanners' });
+        BrandScanner.hasMany(Scanner, { foreignKey: 'brand_id', as: 'scanners' });
+        ScannerType.hasMany(Scanner, { foreignKey: 'type_id', as: 'scanners' });
 
         //Tablet Association
-        Tablet.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(Tablet, { foreignKey: 'batch_id' });
+        Tablet.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        Tablet.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        Tablet.belongsTo(BrandTablet, { foreignKey: 'brand_id', as: 'brand' });
 
-        Tablet.belongsTo(Section, { foreignKey: 'section_id' });
-        Section.hasMany(Tablet, { foreignKey: 'section_id' });
+        Tablet.hasOne(ChipsetTablet, { foreignKey: 'tablet_id', as: 'chipset' });
+        ChipsetTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
+        ChipsetTablet.belongsTo(PartChipset, { foreignKey: 'cpu_id', as: 'chipset_part' });
 
-        Tablet.belongsTo(BrandTablet, { foreignKey: 'brand_id' });
-        BrandTablet.hasMany(Tablet, { foreignKey: 'brand_id' });
+        Tablet.hasMany(ConnectionsTablet, { foreignKey: 'tablet_id', as: 'connections' });
+        ConnectionsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
+        ConnectionsTablet.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
 
-        BrandChipset.hasMany(PartChipset, { foreignKey: 'brand_id' });
-        PartChipset.belongsTo(BrandChipset, { foreignKey: 'brand_id' });
-
-        Tablet.hasOne(ChipsetTablet, { foreignKey: 'tablet_id' });
-        ChipsetTablet.belongsTo(Tablet, { foreignKey: 'tablet_id' });
-
-        ChipsetTablet.belongsTo(PartChipset, { foreignKey: 'cpu_id' });
-        PartChipset.hasMany(ChipsetTablet, { foreignKey: 'cpu_id' });
-
-        Tablet.hasMany(ConnectionsTablet, { foreignKey: 'tablet_id' });
-        ConnectionsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id' });
-
-        ConnectionsTablet.belongsTo(Connection, { foreignKey: 'connection_id' });
-        Connection.hasMany(ConnectionsTablet, { foreignKey: 'connection_id' });
-
-        Tablet.hasMany(PeripheralsTablet, { foreignKey: 'tablet_id' });
-        PeripheralsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id' });
-
-        PeripheralsTablet.belongsTo(Peripheral, { foreignKey: 'peripheral_id' });
-        Peripheral.hasMany(PeripheralsTablet, { foreignKey: 'peripheral_id' });
+        Tablet.hasMany(PeripheralsTablet, { foreignKey: 'tablet_id', as: 'peripherals' });
+        PeripheralsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
+        PeripheralsTablet.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
 
         //UPS Associations
-        UPS.belongsTo(Batch, { foreignKey: 'batch_id' });
-        Batch.hasMany(UPS, { foreignKey: 'batch_id' });
+        UPS.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
+        UPS.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
+        UPS.belongsTo(BrandUPS, { foreignKey: 'brand_id', as: 'brand' });
 
-        UPS.belongsTo(Section, { focus: 'section_id' });
-        Section.hasMany(UPS, { foreignKey: 'section' });
-
-        UPS.belongsTo(BrandUPS, { foreignKey: 'brand_id' });
-        BrandUPS.hasMany(UPS, { foreignKey: 'brand_id' });
+        Batch.hasMany(UPS, { foreignKey: 'batch_id', as: 'ups_devices' });
+        Section.hasMany(UPS, { foreignKey: 'section_id', as: 'ups_devices' });
+        BrandUPS.hasMany(UPS, { foreignKey: 'brand_id', as: 'ups_devices' });
 
         console.log('Tables associated.');
 

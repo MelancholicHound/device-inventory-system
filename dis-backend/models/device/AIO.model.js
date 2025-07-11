@@ -263,9 +263,8 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         condemned_at: {
-            type: DataTypes.DATE,
-            allowNull: false, 
-            defaultValue: DataTypes.NOW
+            type: DataTypes.DATEONLY,
+            allowNull: false
         }
     }, {
         tableName: 'tbl_condemned_aio',
@@ -310,7 +309,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         updated_at: {
-            type: DataTypes.DATE, 
+            type: DataTypes.DATEONLY, 
             allowNull: false,
             defaultValue: DataTypes.NOW
         }
@@ -338,10 +337,14 @@ module.exports = (sequelize, DataTypes) => {
         },
         changed_by: {
             type: DataTypes.INTEGER,
-            allowNull: false
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
         },
         changed_at: {
-            type: DataTypes.DATE,
+            type: DataTypes.DATEONLY,
             allowNull: false,
             defaultValue: DataTypes.NOW
         }

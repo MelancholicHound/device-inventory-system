@@ -7,7 +7,7 @@ const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize 
 
 const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO, CondemnedAIO, AuditAIOConnection, AuditAIOLocation } = require('../models/index');
 const { ProcessorComputer, MotherboardComputer, Computer, RAMComputer, StorageComputer, ConnectionsComputer, PeripheralsComputer } = require('../models/index');
-const { ProcessorLaptop, Laptop, RAMLaptop, StorageLaptop, ConnectionsLaptop, PeripheralsLaptop } = require('../models/index');
+const { ProcessorLaptop, Laptop, RAMLaptop, StorageLaptop, ConnectionsLaptop, PeripheralsLaptop, CondemnedLaptop, AuditLaptopConnection, AuditLaptopLocation } = require('../models/index');
 const { Printer } = require('../models/index');
 const { Router } = require('../models/index');
 const { Scanner } = require('../models/index');
@@ -334,7 +334,12 @@ exports.getByIdBatch = async (req, res, next) => {
 
         const id = req.params.id;
 
-        res.status(200).json(await Batch.findByPk(id));
+        const batch = await Batch.findByPk(id, {
+            attributes: ['valid_until', 'date_delivered', 'date_tested', 'supplier_id', 'service_center'],
+            include: [{ model: PurchaseRequestDTO, as: 'purchaseRequestDTO', attributes: ['number', 'file'] }]
+        });
+
+        res.status(200).json(batch);
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong during fetching os specific batch.', err));
@@ -431,11 +436,12 @@ exports.deleteByIdBatch = async (req, res, next) => {
 
         const id = req.params.id;
 
-        const isExisting = await Batch.findByPk(id);
-        if (!isExisting) {
+        const batch = await Batch.findByPk(id);
+        if (!batch) {
             throw createErrors.notFound("A batch with this id doesn't exist.");
         }
 
+        await PurchaseRequestDTO.destroy({ where: { id: batch.prDTO_id } });
         await Batch.destroy({ where: { id } });
 
         res.status(200).json({ code: 200, message: 'Batch deleted successfully.' });
@@ -1766,37 +1772,31 @@ exports.postDeviceAIO = async (req, res, next) => {
                 cpu_id: processor.id
             }, { transaction: t });
 
-            await Promise.all(
-                ramModules.map(async ({ capacity_id }) => {
-                    const ram = await PartRAM.create({ capacity_id }, { transaction: t });
-                    await RAMAIO.create({ aio_id: aio.id, ram_id: ram.id }, { transaction: t });
-                })
-            );
+            for (const { capacity_id } of ramModules) {
+                const ram = await PartRAM.create({ capacity_id }, { transaction: t });
 
-            await Promise.all(
-                storageModules.map(async ({ capacity_id, type_id }) => {
-                    const storage = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
-                    await StorageAIO.create({ aio_id: aio.id, storage_id: storage.id }, { transaction: t });
-                })
-            );
+                await RAMAIO.create({ aio_id: aio.id, ram_id: ram.id }, { transaction: t });
+            }
 
-            await Promise.all(
-                (connectionDTO || []).map(async (connection_id) => {
-                    await ConnectionsAIO.create({ aio_id: aio.id, connection_id }, { transaction: t });
-                })
-            );
+            for (const { capacity_id, type_id } of storageModules) {
+                const storage = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
 
-            await Promise.all(
-                (peripheralDTO || []).map(async (peripheral_id) => {
-                    await PeripheralsAIO.create({ aio_id: aio.id, peripheral_id }, { transaction: t });
-                })
-            );
+                await StorageAIO.create({ aio_id: aio.id, storage_id: storage.id }, { transaction: t });
+            }
+
+            for (const connection_id of connectionDTO) {
+                await ConnectionsAIO.create({ aio_id: aio.id, connection_id }, { transaction: t });
+            }
+        
+            for (const peripheral_id of peripheralDTO) {
+                await PeripheralsAIO.create({ aio_id: aio.id, peripheral_id }, { transaction: t });
+            }
 
             savedDevices.push({ id: aio.id, device_number: deviceNum });
         }
 
         await t.commit();
-        res.status(201).json({ code: 201, message: `${savedDevices.length} AIO device(s) saved successfully.`, devices: savedDevices })
+        res.status(201).json({ code: 201, message: `${savedDevices.length} AIO device(s) saved successfully.`, devices: savedDevices });
     } catch (err) {
         console.log(err);
         if (t) await t.rollback();
@@ -1811,7 +1811,7 @@ exports.getAllDeviceAIO = async (req, res, next) => {
         res.status(200).json(await AIO.findAll());
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all AIO.', err));
+        next(createErrors.internalServerError('Something went wrong on fetching all AIOs.', err));
     }
 }
 
@@ -1824,7 +1824,7 @@ exports.getAllCondemnedDeviceAIO = async (req, res, next) => {
         res.status(200).json(allRawCondemnedAIO.map(aio => aio.get({ plain: true })));
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIOs.', err));
     }
 }
 
@@ -1832,12 +1832,12 @@ exports.getAllWorkingDeviceAIO = async (req, res, next) => {
     try {
         requestValidation(req, next);
 
-        const allRawCondemnedAIO = await AIO.findAll({ where: { is_condemned: false } });
+        const allRawWorkingAIO = await AIO.findAll({ where: { is_condemned: false } });
 
-        res.status(200).json(allRawCondemnedAIO.map(aio => aio.get({ plain: true })));
+        res.status(200).json(allRawWorkingAIO.map(aio => aio.get({ plain: true })));
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+        next(createErrors.internalServerError('Something went wrong on fetching all working AIOs.', err));
     }
 }
 
@@ -1847,15 +1847,113 @@ exports.getDeviceAIOById = async (req, res, next) => {
 
         const { id } = req.params;
         
-        const aio = await AIO.findByPk(id);
-        if (!aio) {
-            throw createErrors.notFound("This AIO doesn't exists.");
-        }
+        const aio = await AIO.findByPk(id, {
+            attributes: {
+                exclude: ['gpu_id', 'created_at'] 
+            },
+            include: [
+                {
+                    model: ProcessorAIO,
+                    as: 'processor',
+                    include: [{
+                        model: PartProcessor,
+                        as: 'cpu',
+                        include: [{ 
+                            model: BrandSeriesProcessor,
+                            as: 'series',
+                            include: [{
+                                model: BrandProcessor,
+                                as: 'brand'
+                            }] 
+                        }]
+                    }]
+                },
+                {
+                    model: PartGPU,
+                    as: 'gpu',
+                    include: [{ 
+                        model: CapacityGPU,
+                        as: 'capacity'
+                    }]
+                },
+                {
+                    model: RAMAIO,
+                    as: 'ram_modules',
+                    include: [{ 
+                        model: PartRAM, 
+                        as: 'ram',
+                        include: [{ 
+                            model: CapacityRAM,
+                            as: 'capacity'
+                        }] 
+                    }]
+                },
+                {
+                    model: StorageAIO,
+                    as: 'storage_dto',
+                    include: [{ 
+                        model: PartStorage,
+                        as: 'storage',
+                        include: [
+                            { model: CapacityStorage, as: 'capacity' }, 
+                            { model: StorageType, as: 'type' }
+                        ] 
+                    }]
+                },
+                {
+                    model: ConnectionsAIO,
+                    as: 'connections',
+                    include: [{ 
+                        model: Connection,
+                        as: 'connection'
+                    }]
+                },
+                {
+                    model: PeripheralsAIO,
+                    as: 'peripherals',
+                    include: [{ 
+                        model: Peripheral,
+                        as: 'peripheral'
+                    }]
+                }
+            ]
+        });
 
-        res.status(200).json(aio);
+        if (!aio) throw createErrors.notFound("This AIO doesn't exists.");
+
+        const json = aio.toJSON();
+
+        const result = {
+            id: json.id,
+            batch_id: json.batch_id,
+            section_id: json.section_id,
+            serial_number: json.serial_number,
+            brand_id: json.brand_id,
+            model: json.model,
+            ups_id: json.ups_id,
+            processorDTO: {
+                series_id: json.processor?.cpu?.series_id || null,
+                model: json.processor?.cpu?.model || null
+            },
+            ramDTO: json.ram_modules.map(ram => ({
+                capacity_id: ram.ram?.capacity_id || null
+            })),
+            storageDTO: json.storage_dto.map(storage => ({
+                capacity_id: storage.storage?.capacity_id || null,
+                type_id: storage.storage?.type_id || null
+            })),
+            connectionDTO: json.connections.map(conn => conn.connection_id),
+            peripheralDTO: json.peripherals.map(periph => periph.peripheral_id),
+            gpu_id: json.gpu_id,
+            os_id: json.os_id,
+            prod_id: json.prod_id,
+            security_id: json.security_id
+        };
+
+        res.status(200).json(result);
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+        next(createErrors.internalServerError('Something went wrong on fetching specific AIO.', err));
     }
 }
 
@@ -1864,15 +1962,15 @@ exports.condemnedDeviceAIO = async (req, res, next) => {
         requestValidation(req, next);
 
         const { id } = req.params;
-        const { reason } = req.body;
+        const { reason, condemned_at } = req.body;
 
         const aio = await AIO.findByPk(id);
-        if (!aio) {
-            throw createErrors.notFound("This AIO doesn't exist.");
-        }
+        if (!aio) throw createErrors.notFound("This AIO doesn't exist.");
 
         await AIO.update({ is_condemned: true }, { where: { id } });
-        await CondemnedAIO.create({ aio_id: aio.id, reason, condemned_by: req.user.id, condemned_at: new Date() });
+        await CondemnedAIO.create({ aio_id: aio.id, reason, condemned_by: req.user.id, condemned_at });
+        await ConnectionsAIO.destroy({ where: { aio_id: id } });
+        await PeripheralsAIO.destroy({ where: { aio_id: id } });
 
         res.status(200).json({ code: 200, message: `${aio.device_number} condemned successfully.` });
     } catch (err) {
@@ -1887,7 +1985,7 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
     try {
         requestValidation(req, next);
 
-        const { id } = req.params;
+        const { id } = req.query;
         const {
             section_id, serial_number, ups_id,
             processorDTO, connectionDTO, peripheralDTO,
@@ -1947,7 +2045,7 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
 
                 await AuditRAM.create({
                     part_id: ramAIO.ram_id,
-                    old_capacity_id: oldPartRAM.capacity_id,
+                    old_capacity_id: oldRAM.capacity_id,
                     new_capacity_id: capacity_id,
                     action: 'UPDATE',
                     report: ramReport,
@@ -2050,13 +2148,507 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
             os_id, prod_id, security_id
         }, { where: { id }, transaction: t });
 
-        await PartProcessor.update(processorDTO, { where: {  } });
-
         await t.commit();
         res.status(200).json({ code: 200, message: 'AIO device updated successfully.' });
     } catch (err) {
         console.log(err);
         if (t) await t.rollback();
         next(createErrors.internalServerError('Something went wrong on updating specific AIO.', err));
+    }
+}
+
+exports.getConnectionAuditDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.query;
+
+        res.status(200).json(await AuditAIOConnection.findAll({ where: { aio_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific AIO.', err));
+    }
+}
+
+exports.getLocationAuditDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.query;
+
+        res.status(200).json(await AuditAIOLocation.findAll({ where: { aio_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific AIO.', err));
+    }
+}
+
+//Laptop Middleware Functions
+exports.postDeviceLaptop = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            throw createErrors.badRequest('Request must be an array of Laptop devices.');
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('Laptop');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, ups_id,
+                processorDTO, connectionDTO, peripheralDTO,
+                gpu_id, os_id, prod_id, security_id,
+                ramDTO: ramModules,
+                storageDTO: storageModules
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') throw createErrors.badRequest('batch_id is required and must be a number.');
+
+            if (!Array.isArray(ramModules)) throw createErrors.badRequest('ramDTO must be an array.');
+            if (!Array.isArray(storageModules)) throw createErrors.badRequest('storageDTO must be an array.');
+            if (!Array.isArray(processorDTO)) throw createErrors.badRequest('processorDTO must be an array.');
+
+            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+            if (!isBatchExisting) {
+                await t.rollback();
+                throw createErrors.notFound("This batch doesn't exist.");
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const gpuResponse = await PartGPU.create({ capacity_id: gpu_id });
+
+            const laptop = await Laptop.create({
+                batch_id, section_id,
+                device_number: deviceNum,
+                serial_number, brand_id,
+                model, is_condemned: false,
+                ups_id, gpu_id: gpuResponse.id,
+                os_id, prod_id, security_id
+            }, { transaction: t });
+
+            const processor = await PartProcessor.create(processorDTO, { transaction: t });
+            await ProcessorAIO.create({
+                laptop_id: laptop.id,
+                cpu_id: processor.id
+            }, { transaction: t });
+
+            for (const { capacity_id } of ramModules) {
+                const ram = await PartRAM.create({ capacity_id }, { transaction: t });
+
+                await RAMLaptop.create({ laptop_id: laptop.id, ram_id: ram.id }, { transaction: t });
+            }
+
+            for (const { capacity_id, type_id } of storageModules) {
+                const storage = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
+
+                await StorageLaptop.create({ laptop_id: laptop.id, storage_id: storage.id }, { transaction: t });
+            }
+
+            for (const connection_id of connectionDTO) {
+                await ConnectionsLaptop.create({ laptop_id: laptop.id, connection_id }, { transaction: t });
+            }
+
+            for (const peripheral_id of peripheralDTO) {
+                await PeripheralsLaptop.create({ laptop_id: laptop.id, peripheral_id }, { transaction: t });
+            }
+
+            savedDevices.push({ id: laptop.id, device_number: deviceNum });
+        }
+
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} laptop device(s) saved successfully.`, devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on saving laptop.', err));
+    }
+}
+
+exports.getAllDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await Laptop.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all laptops.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedLaptop = await Laptop.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedLaptop.map(laptop => laptop.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned laptops.', err));
+    }
+}
+
+exports.getAllWorkingDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingLaptop = await Laptop.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingLaptop.map(laptop => laptop.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all working laptops.', err));
+    }
+}
+
+exports.getDeviceLaptopById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const laptop = await Laptop.findByPk(id, {
+            attributes: {
+                exclude: ['gpu_id', 'created_at'] 
+            },
+            include: [
+                {
+                    model: ProcessorAIO,
+                    as: 'processor',
+                    include: [{
+                        model: PartProcessor,
+                        as: 'cpu',
+                        include: [{ 
+                            model: BrandSeriesProcessor,
+                            as: 'series',
+                            include: [{
+                                model: BrandProcessor,
+                                as: 'brand'
+                            }] 
+                        }]
+                    }]
+                },
+                {
+                    model: PartGPU,
+                    as: 'gpu',
+                    include: [{ 
+                        model: CapacityGPU,
+                        as: 'capacity'
+                    }]
+                },
+                {
+                    model: RAMAIO,
+                    as: 'ram_modules',
+                    include: [{ 
+                        model: PartRAM, 
+                        as: 'ram',
+                        include: [{ 
+                            model: CapacityRAM,
+                            as: 'capacity'
+                        }] 
+                    }]
+                },
+                {
+                    model: StorageAIO,
+                    as: 'storage_dto',
+                    include: [{ 
+                        model: PartStorage,
+                        as: 'storage',
+                        include: [
+                            { model: CapacityStorage, as: 'capacity' }, 
+                            { model: StorageType, as: 'type' }
+                        ] 
+                    }]
+                },
+                {
+                    model: ConnectionsAIO,
+                    as: 'connections',
+                    include: [{ 
+                        model: Connection,
+                        as: 'connection'
+                    }]
+                },
+                {
+                    model: PeripheralsAIO,
+                    as: 'peripherals',
+                    include: [{ 
+                        model: Peripheral,
+                        as: 'peripheral'
+                    }]
+                }
+            ]
+        });
+
+        if (!laptop) throw createErrors.notFound("This laptop doesn't exists.");
+
+        const json = laptop.toJSON();
+
+        const result = {
+            id: json.id,
+            batch_id: json.batch_id,
+            section_id: json.section_id,
+            serial_number: json.serial_number,
+            brand_id: json.brand_id,
+            model: json.model,
+            ups_id: json.ups_id,
+            processorDTO: {
+                series_id: json.processor?.cpu?.series_id || null,
+                model: json.processor?.cpu?.model || null
+            },
+            ramDTO: json.ram_modules.map(ram => ({
+                capacity_id: ram.ram?.capacity_id || null
+            })),
+            storageDTO: json.storage_dto.map(storage => ({
+                capacity_id: storage.storage?.capacity_id || null,
+                type_id: storage.storage?.type_id || null
+            })),
+            connectionDTO: json.connections.map(conn => conn.connection_id),
+            peripheralDTO: json.peripherals.map(periph => periph.peripheral_id),
+            gpu_id: json.gpu_id,
+            os_id: json.os_id,
+            prod_id: json.prod_id,
+            security_id: json.security_id
+        };
+
+        res.status(200).json(result);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific laptop.', err));
+    }
+}
+
+exports.condemnedDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const laptop = await Laptop.findByPk(id);
+        if (!laptop) throw createErrors.notFound("This laptop doesn't exist.");
+
+        await Laptop.update({ is_condemned: true }, { where: { id } });
+        await CondemnedLaptop.create({ laptop_id: laptop.id, reason, condemned_by: req.user.id, condemned_at });
+        await ConnectionsLaptop.destroy({ where: { laptop_id: id } });
+        await PeripheralsLaptop.destroy({ where: { laptop_id: id } });
+
+        res.status(200).json({ code: 200, message: `${laptop.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned laptop.', err));
+    }
+}
+
+exports.putByIdDeviceLaptop = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.query;
+        const {
+            section_id, serial_number, ups_id,
+            processorDTO, connectionDTO, peripheralDTO,
+            gpu_id, os_id, prod_id, security_id,
+            ramDTO: ramModules,
+            storageDTO: storageModules
+        } = req.body;
+
+        if (!Array.isArray(ramModules)) throw createErrors.badRequest('ramDTO must be an array.');
+        if (!Array.isArray(storageModules)) throw createErrors.badRequest('storageDTO must be an array.');
+        if (!Array.isArray(connectionDTO)) throw createErrors.badRequest('connectionDTO must be an array');
+        if (!Array.isArray(peripheralDTO)) throw createErrors.badRequest('peripheralDTO must be an array');
+
+        const laptop = await Laptop.findByPk(id, { transaction: t });
+        if (!laptop) throw createErrors.notFound("This laptop doesn't exists.");
+
+        const oldGPU = await PartGPU.findByPk(laptop.gpu_id);
+
+        await PartGPU.update({ capacity_id: gpu_id }, { where: { id: laptop.gpu_id }, transaction: t });
+
+        const newGPU = await PartGPU.findByPk(laptop.gpu_id);
+
+        const gpuReport = await generateGPUReport('UPDATE', oldGPU, newGPU);
+
+        await AuditGPU.create({
+            part_id: laptop.gpu_id, 
+            old_capacity_id: oldGPU.capacity_id,
+            new_capacity_id: gpu_id,
+            action: 'UPDATE',
+            report: gpuReport,
+            updated_by: req.user.id,
+            updated_at: new Date()
+        }, { transaction: t });
+
+        const laptopProcessor = await ProcessorLaptop.findOne({ where: { laptop_id: id }, transaction: t });
+        if (!laptopProcessor) throw createErrors.notFound("ProcessorLaptop not found.");
+
+        await PartProcessor.update(processorDTO, { where: { id: laptopProcessor.cpu_id }, transaction: t });
+
+        const laptopRAMs = await RAMLaptop.findAll({ where: { laptop_id: id }, transaction: t });
+        if (laptopRAMs.length !== ramModules.length) {
+            throw createErrors.badRequest('Mismatch between RAM modules provided associated RAM slots.');
+        }
+
+        for (let i = 0; i < laptopRAMs.length; i++) {
+            const ramLaptop = laptopRAMs[i];
+            const { capacity_id } = ramModules[i];
+
+            const oldRAM = await PartRAM.findByPk(ramLaptop.ram_id);
+            if (!oldRAM) throw createErrors.notFound(`PartRAM not found for ID ${ramLaptop.ram_id}`);
+
+            if (oldRAM.capacity_id !== capacity_id) {
+                await PartRAM.update({ capacity_id }, { where: { id: ramLaptop.ram_id }, transaction: t });
+
+                const newRAM = await PartRAM.findByPk(ramLaptop.ram_id);
+                const ramReport = await generateRAMReport('UPDATE', oldRAM, newRAM);
+
+                await AuditRAM.create({
+                    part_id: ramLaptop.ram_id,
+                    old_capacity_id: oldRAM.capacity_id,
+                    new_capacity_id: capacity_id,
+                    action: 'UPDATE',
+                    report: ramReport,
+                    updated_by: req.user.id,
+                    updated_at: new Date()
+                }, { transaction: t });
+            }
+        }
+
+        const laptopStorages = await StorageLaptop.findAll({ where: { laptop_id: id }, transaction: t });
+        if (laptopStorages.length !== storageModules.length) {
+            throw createErrors.badRequest('Mismatch between storage modules provided and associated storage slots.');
+        }
+
+        for (let i = 0; i < laptopStorages.length; i++) {
+            const storageLaptop = laptopStorages[i];
+            const { capacity_id, type_id } = storageModules[i];
+
+            const oldStorage = await PartStorage.findByPk(storageLaptop.storage_id);
+            if (!oldStorage) throw createErrors.notFound(`Storage part not found for ID ${storageLaptop.storage_id}.`);
+
+            const needsUpdate = oldStorage.capacity_id !== capacity_id || oldStorage.type_id !== type_id;
+
+            if (needsUpdate) {
+                await PartStorage.update({ capacity_id, type_id }, { where: { id: storageLaptop.storage_id }, transaction: t });
+
+                const newStorage = await PartStorage.findByPk(storageLaptop.storage_id);
+                const storageReport = await generateStorageReport('UPDATE', oldStorage, newStorage);
+
+                await AuditStorage.create({
+                    part_id: storageLaptop.storage_id,
+                    old_capacity_id: oldStorage.capacity_id,
+                    old_type_id: oldStorage.type_id,
+                    new_capacity_id: capacity_id,
+                    new_type_id: type_id,
+                    action: 'UPDATE',
+                    report: storageReport,
+                    updated_by: req.user.id,
+                    updated_at: new Date()
+                }, { transaction: t });
+            }
+        }
+
+        const existingConns = await ConnectionsLaptop.findAll({
+            where: { laptop_id: id },
+            attributes: ['connection_id'],
+            raw: true,
+            transaction: t
+        });
+
+        const existingConnIds = existingConns.map(c => c.connection_id);
+        const newConnIds = connectionDTO;
+
+        const toAdd = newConnIds.filter(id => !existingConnIds.includes(id));
+        const toRemove = existingConnIds.filter(id = !newConnIds.includes(id));
+
+        for (const connId of toRemove) {
+            await ConnectionsLaptop.destroy({ where: { laptop_id: id, connection_id: connId }, transaction: t });
+
+            await AuditLaptopConnection.create({
+                laptop_id: id,
+                connection_id: connId,
+                action: 'REMOVE',
+                changed_by: req.user.id,
+                changed_at: new Date()
+            }, { transaction: t });
+        }
+
+        for (const connId of toAdd) {
+            await ConnectionsLaptop.create({ laptop_id: id, connection_id: connId }, { transaction: t });
+
+            await ConnectionsLaptop.create({
+                laptop_id: id,
+                connection_id: connId,
+                action: 'ADD',
+                changed_by: req.user.id,
+                changed_at: new Date()
+            }, { transaction: t });
+        }
+
+        await PeripheralsLaptop.destroy({ where: { laptop_id: id }, transaction: t });
+
+        await Promise.all(peripheralDTO.map(peripheral_id => PeripheralsLaptop.create({ laptop_id: id, peripheral_id }, { transaction: t })));
+
+        if (laptop.section_id !== section_id) {
+            const locationReport = await generateSectionReport(laptop.section_id, section_id);
+
+            await AuditLaptopLocation.create({
+                laptop_id: id,
+                old_section_id: laptop.section_id,
+                new_section_id: section_id,
+                report: locationReport,
+                updated_by: req.user.id,
+                updated_at: new Date()
+            }, { transaction: t });
+        }
+
+        await Laptop.update({
+            section_id, serial_number, ups_id, 
+            os_id, prod_id, security_id
+        }, { where: { id }, transaction: t });
+
+        await t.commit();
+        res.status(200).json({ code: 200, message: 'Laptop device updated successfully.' })
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific laptop.', err));
+    }
+}
+
+exports.getConnectionAuditDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.query;
+
+        res.status(200).json(await AuditAIOConnection.findAll({ where: { laptop_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific laptop.', err));
+    }
+}
+
+exports.getLoactionAuditDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.query;
+
+        res.status(200).json(await AuditLaptopLocation.findAll({ where: { laptop_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific laptop.', err));
     }
 }
