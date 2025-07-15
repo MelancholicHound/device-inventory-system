@@ -3,6 +3,17 @@ const { BrandSeriesProcessor, BrandMotherboard, BrandProcessor, BrandChipset } =
 const { Division, Section } = require('../models/index');
 const { StorageType } = require('../models/index');
 
+function fetchSectionWithDivision(id) {
+    return Section.findByPk(id, {
+        attributes: ['name'],
+        include: {
+            model: Division,
+            as: 'division',
+            attributes: ['name']
+        }
+    });
+}
+
 async function generateRAMReport(action, oldData = {}, newData = {}) {
     const oldRAM = await CapacityRAM.findByPk(oldData.capacity_id);
     const newRAM = await CapacityRAM.findByPk(newData.capacity_id);
@@ -144,27 +155,13 @@ async function generateChipsetReport(action, oldData = {}, newData = {}) {
 }
 
 async function generateSectionReport(oldId, newId) {
-   const oldSectionWithDivision = await Section.findByPk(oldId, {
-        attributes: ['name'],
-        include: {
-            model: Division,
-            attributes: ['name']
-        }
-    });
+   const [oldSection, newSection] = await Promise.all([
+        fetchSectionWithDivision(oldId),
+        fetchSectionWithDivision(newId)
+   ]);
 
-    const newSectionWithDivision = await Section.findByPk(newId, {
-        attributes: ['name'],
-        include: {
-            model: Division,
-            attributes: ['name']
-        }
-    });
-
-    const oldDivName = oldSectionWithDivision.tbl_loc_division.name;
-    const oldSecName = oldSectionWithDivision.name;
-
-    const newDivName = newSectionWithDivision.tbl_loc_division.name;
-    const newSecName = newSectionWithDivision.name;
+    const { division: { name: oldDivName }, name: oldSecName } = oldSection;
+    const { division: { name: newDivName }, name: newSecName } = newSection;
 
     return `Change location from ${oldDivName} division (${oldSecName}) to ${newDivName} division (${newSecName}) `;
 }

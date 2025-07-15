@@ -102,7 +102,6 @@ const initDB = async() => {
         Section.belongsTo(Division, { foreignKey: 'div_id', as: 'division' });
         Division.hasMany(Section, { foreignKey: 'div_id', as: 'sections' });
 
-
         //AIO Associations
         AIO.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
         Batch.hasMany(AIO, { foreignKey: 'batch_id', as: 'aio_devices' });

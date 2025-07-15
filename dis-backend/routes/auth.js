@@ -215,9 +215,9 @@ router.patch('/device/aio/:id', authenticateToken, authController.condemnedDevic
 
 router.put('/device/aio/:id', authenticateToken, authController.putByIdDeviceAIO);
 
-router.get('/device/aio/audit/connection/:id', authenticateToken, authController.getConnectionAuditDeviceAIO);
+router.get('/device/aio/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceAIO);
 
-router.get('/device/aio/audit/location/:id', authenticateToken, authController.getLocationAuditDeviceAIO);
+router.get('/device/aio/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceAIO);
 
 router.post('/device/laptop', authenticateToken, authController.postDeviceLaptop);
 
@@ -226,5 +226,33 @@ router.get('/device/laptop', authenticateToken, authController.getAllDeviceLapto
 router.get('/device/laptop/condemned', authenticateToken, authController.getAllCondemnedDeviceLaptop);
 
 router.get('/device/laptop/working', authenticateToken, authController.getAllWorkingDeviceLaptop);
+
+router.get('/device/laptop/:id', authenticateToken, authController.getDeviceLaptopById);
+
+router.patch('/device/laptop/:id', authenticateToken, authController.condemnedDeviceLaptop);
+
+router.put('/device/laptop/:id', authenticateToken, authController.putByIdDeviceLaptop);
+
+router.get('/device/laptop/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceLaptop);
+
+router.get('/device/laptop/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceLaptop);
+
+router.post('/device/computer', authenticateToken, authController.postDeviceComputer);
+
+router.get('/device/computer', authenticateToken, authController.getAllDeviceComputer);
+
+router.get('/device/computer/condemned', authenticateToken, authController.getAllCondemnedDeviceComputer);
+
+router.get('/device/computer/working', authenticateToken, authController.getAllWorkingDeviceComputer);
+
+router.get('/device/computer/:id', authenticateToken, authController.getDeviceComputerById);
+
+router.patch('/device/computer/:id', authenticateToken, authController.condemnedDeviceComputer);
+
+router.put('/device/computer/:id', authenticateToken, authController.putByIdDeviceComputer);
+
+router.get('/device/computer/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceComputer);
+
+router.get('/device/computer/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceComputer);
 
 module.exports = router;
