@@ -1766,6 +1766,9 @@ exports.postDeviceAIO = async (req, res, next) => {
                 os_id, prod_id, security_id
             }, { transaction: t });
                 
+            if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+            if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
+
             const processor = await PartProcessor.create(processorDTO, { transaction: t });
             await ProcessorAIO.create({
                 aio_id: aio.id,
@@ -2020,6 +2023,9 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
             updated_at: new Date()
         }, { transaction: t });
 
+        if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+        if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
+
         const aioProcessor = await ProcessorAIO.findOne({ where: { aio_id: id }, transaction: t });
         if (!aioProcessor) return next(createErrors.notFound('ProcessorAIO not found.'));
 
@@ -2234,6 +2240,9 @@ exports.postDeviceLaptop = async (req, res, next) => {
                 ups_id, gpu_id: gpuResponse.id,
                 os_id, prod_id, security_id
             }, { transaction: t });
+
+            if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+            if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
 
             const processor = await PartProcessor.create(processorDTO, { transaction: t });
             await ProcessorLaptop.create({
@@ -2489,6 +2498,9 @@ exports.putByIdDeviceLaptop = async (req, res, next) => {
             updated_at: new Date()
         }, { transaction: t });
 
+        if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+        if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
+
         const laptopProcessor = await ProcessorLaptop.findOne({ where: { laptop_id: id }, transaction: t });
         if (!laptopProcessor) return next(createErrors.notFound("ProcessorLaptop not found."));
 
@@ -2632,7 +2644,7 @@ exports.getConnectionAuditDeviceLaptop = async (req, res, next) => {
 
         const { id } = req.params;
 
-        res.status(200).json(await AuditAIOConnection.findAll({ where: { laptop_id: id } }));
+        res.status(200).json(await AuditLaptopConnection.findAll({ where: { laptop_id: id } }));
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching of audit in specific laptop.', err));
@@ -2674,7 +2686,7 @@ exports.postDeviceComputer = async (req, res, next) => {
                 batch_id, section_id, serial_number, ups_id,
                 processorDTO, connectionDTO, peripheralDTO,
                 gpu_id, os_id, prod_id, security_id,
-                ramDTO: ramModules,
+                motherboardDTO, ramDTO: ramModules,
                 storageDTO: storageModules
             } = device;
 
@@ -2702,10 +2714,22 @@ exports.postDeviceComputer = async (req, res, next) => {
                 os_id, prod_id, security_id
             }, { transaction: t });
 
+            if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+            if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
+
             const processor = await PartProcessor.create(processorDTO, { transaction: t });
             await ProcessorComputer.create({
                 computer_id: computer.id,
                 cpu_id: processor.id
+            }, { transaction: t });
+
+            if (!motherboardDTO) return next(createErrors.badRequest("motherboardDTO must have a value"));
+            if (typeof motherboardDTO !== 'object') return next(createErrors.badRequest('motherboardDTO must be an object'));
+
+            const motherboard = await PartMotherboard.create(motherboardDTO, { transaction: t });
+            await MotherboardComputer.create({
+                computer_id: computer.id,
+                mobo_id: motherboard.id
             }, { transaction: t });
 
             for (const { capacity_id } of ramModules) {
@@ -2924,7 +2948,7 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
             section_id, serial_number, ups_id,
             processorDTO, connectionDTO, peripheralDTO,
             gpu_id, os_id, prod_id, security_id,
-            ramDTO: ramModules,
+            motherboardDTO, ramDTO: ramModules,
             storageDTO: storageModules
         } = req.body;
 
@@ -2954,12 +2978,23 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
             updated_at: new Date()
         }, { transaction: t });
 
+        if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
+        if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
+
         const computerProcessor = await ProcessorComputer.findOne({ where: { computer_id: id }, transaction: t });
         if (!computerProcessor) return next(createErrors.notFound("ProcessorComputer not found."));
 
         await PartProcessor.update(processorDTO, { where: { id: computerProcessor.cpu_id }, transaction: t });
 
-        const computerRAMs = await RAMComputer.findAll({ where: { id: computerProcessor.cpu_id }, transaction: t });
+        if (!motherboardDTO) return next(createErrors.badRequest("motherboardDTO must have a value"));
+        if (typeof motherboardDTO !== 'object') return next(createErrors.badRequest('motherboardDTO must be an object'));
+
+        const computerMotherboard = await MotherboardComputer.findOne({ where: { computer_id: id }, transaction: t });
+        if (!computerMotherboard) return next(createErrors.notFound("MotherboardComputer not found."));
+
+        await PartMotherboard.update(motherboardDTO, { where: { id: computerMotherboard.mobo_id }, transaction: t });
+
+        const computerRAMs = await RAMComputer.findAll({ where: { computer_id: id }, transaction: t });
         if (computerRAMs.length !== ramModules.length) {
             return next(createErrors.badRequest('Mismatch between RAM modules provide associated RAM slots.'));
         }
@@ -3039,12 +3074,12 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
         for (const connId of toRemove) {
             await ConnectionsComputer.destroy({ where: { computer_id: id, connection_id: connId }, transaction: t });
 
-            await AuditLaptopConnection.create({
+            await AuditComputerConnection.create({
                 computer_id: id,
                 connection_id: connId,
                 action: 'REMOVE',
                 changed_by: req.user.id,
-            })
+            }, { transaction: t });
         }
 
         for (const connId of toAdd) {

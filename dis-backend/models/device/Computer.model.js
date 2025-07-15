@@ -367,7 +367,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: DataTypes.NOW
         }
     }, {
-        tableName: 'tbl_audit_location_computer',
+        tableName: 'tbl_audit_connection_computer',
         timestamps: false
     });
 
