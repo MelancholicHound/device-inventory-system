@@ -46,11 +46,19 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
-        ram_id: {
+        ram_capacity_id: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'tbl_part_ram',
+                model: 'tbl_cap_ram',
+                key: 'id'
+            }
+        },
+        storage_capacity_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_cap_storage',
                 key: 'id'
             }
         }
@@ -148,10 +156,130 @@ module.exports = (sequelize, DataTypes) => {
         updatedAt: false
     });
 
+    const CondemnedTablet = sequelize.define('tbl_condemned_tablet', {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true
+        },
+        tablet_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Tablet,
+                key: 'id'
+            }
+        },
+        reason: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        condemned_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        condemned_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: false
+        }
+    }, {
+        tableName: 'tbl_condemned_tablet',
+        timestamps: false
+    });
+
+    const AuditTabletLocation = sequelize.define('tbl_audit_location_tablet', {
+        tablet_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Tablet,
+                key: 'id'
+            }
+        },
+        old_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        new_section_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_loc_section',
+                key: 'id'
+            }
+        },
+        report: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        updated_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        updated_at: {
+            type: DataTypes.DATEONLY, 
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_audit_location_tablet',
+        timestamps: false
+    });
+
+    const AuditTabletConnection = sequelize.define('tbl_audit_connection_tablet', {
+        tablet_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: Tablet,
+                key: 'id'
+            }
+        },
+        connection_id: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        action: {
+            type: DataTypes.ENUM('ADD', 'REMOVE'),
+            allowNull: false
+        },
+        changed_by: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'tbl_user',
+                key: 'id'
+            }
+        },
+        changed_at: {
+            type: DataTypes.DATEONLY,
+            allowNull: false,
+            defaultValue: DataTypes.NOW
+        }
+    }, {
+        tableName: 'tbl_audit_location_tablet',
+        timestamps: false
+    });
+
     return {
         ChipsetTablet,
         Tablet,
         PeripheralsTablet,
-        ConnectionsTablet
+        ConnectionsTablet,
+        CondemnedTablet,
+        AuditTabletConnection,
+        AuditTabletLocation
     };
 }

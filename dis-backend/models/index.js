@@ -265,6 +265,10 @@ const initDB = async() => {
         Tablet.hasMany(PeripheralsTablet, { foreignKey: 'tablet_id', as: 'peripherals' });
         PeripheralsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
         PeripheralsTablet.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
+       
+        Tablet.belongsTo(CapacityRAM, { foreignKey: 'ram_capacity_id', as: 'ram' });
+
+        Tablet.belongsTo(CapacityStorage, { foreignKey: 'storage_capacity_id', as: 'storage' });
 
         //UPS Associations
         UPS.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });

@@ -8,22 +8,20 @@ const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize 
 const { ProcessorAIO, AIO, RAMAIO, StorageAIO, ConnectionsAIO, PeripheralsAIO, CondemnedAIO, AuditAIOConnection, AuditAIOLocation } = require('../models/index');
 const { ProcessorComputer, MotherboardComputer, Computer, RAMComputer, StorageComputer, ConnectionsComputer, PeripheralsComputer, CondemnedComputer, AuditComputerConnection, AuditComputerLocation } = require('../models/index');
 const { ProcessorLaptop, Laptop, RAMLaptop, StorageLaptop, ConnectionsLaptop, PeripheralsLaptop, CondemnedLaptop, AuditLaptopConnection, AuditLaptopLocation } = require('../models/index');
-const { Printer } = require('../models/index');
-const { Router } = require('../models/index');
-const { Scanner } = require('../models/index');
-const { ChipsetTablet, Tablet, PeripheralsTablet, ConnectionsTablet } = require('../models/index');
-const { UPS, BrandSeriesProcessor } = require('../models/index');
+const { Printer, CondemnedPrinter, AuditPrinterLocation } = require('../models/index');
+const { Router, CondemnedRouter, AuditRouterLocation } = require('../models/index');
+const { Scanner, CondemnedScanner, AuditScannerLocation } = require('../models/index');
+const { ChipsetTablet, Tablet, PeripheralsTablet, ConnectionsTablet, CondemnedTablet, AuditTabletConnection, AuditTabletLocation } = require('../models/index');
+const { UPS, CondemnedUPS, AuditUPSLocation } = require('../models/index');
 
 const { CapacityGPU, CapacityRAM, CapacityStorage } = require('../models/index');
 const { PrinterType, ScannerType, StorageType, NetworkSpeed, AntennaCount, Connection, Peripheral, SoftwareOS, SoftwareProductivity, SoftwareSecurity } = require('../models/index');
 const { PartChipset, PartGPU, PartMotherboard, PartProcessor, PartRAM, PartStorage } = require('../models/index');
-const { BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS, BrandMotherboard, BrandProcessor, BrandChipset } = require('../models/index');
+const { BrandAIO, BrandLaptop, BrandPrinter, BrandRouter, BrandScanner, BrandTablet, BrandUPS, BrandMotherboard, BrandProcessor, BrandChipset, BrandSeriesProcessor } = require('../models/index');
 const { AuditRAM, AuditGPU, AuditStorage, AuditMotherboard, AuditProcessor, AuditChipset } = require('../models/index');
 const { generateChipsetReport, generateGPUReport, generateMotherboardReport, generateProcessorReport, generateRAMReport, generateStorageReport, generateSectionReport } = require('../util/common');
 
 const { createErrors } = require('./error');
-const { raw } = require('body-parser');
-const { createReadStream } = require('fs');
 
 require('dotenv').config();
 
@@ -1978,7 +1976,7 @@ exports.condemnedDeviceAIO = async (req, res, next) => {
         res.status(200).json({ code: 200, message: `${aio.device_number} condemned successfully.` });
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned AIO.', err));
+        next(createErrors.internalServerError('Something went wrong on updating status of AIO.', err));
     }
 }
 
@@ -2189,6 +2187,28 @@ exports.getLocationAuditDeviceAIO = async (req, res, next) => {
     }
 }
 
+exports.getAllConnectionAuditDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditAIOConnection.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditAIOLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
 //Laptop Middleware Functions
 exports.postDeviceLaptop = async (req, res, next) => {
     const t = await sequelize.transaction();
@@ -2331,7 +2351,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
             },
             include: [
                 {
-                    model: ProcessorAIO,
+                    model: ProcessorLaptop,
                     as: 'processor',
                     include: [{
                         model: PartProcessor,
@@ -2355,7 +2375,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
                     }]
                 },
                 {
-                    model: RAMAIO,
+                    model: RAMLaptop,
                     as: 'ram_modules',
                     include: [{ 
                         model: PartRAM, 
@@ -2367,7 +2387,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
                     }]
                 },
                 {
-                    model: StorageAIO,
+                    model: StorageLaptop,
                     as: 'storage_dto',
                     include: [{ 
                         model: PartStorage,
@@ -2379,7 +2399,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
                     }]
                 },
                 {
-                    model: ConnectionsAIO,
+                    model: ConnectionsLaptop,
                     as: 'connections',
                     include: [{ 
                         model: Connection,
@@ -2387,7 +2407,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
                     }]
                 },
                 {
-                    model: PeripheralsAIO,
+                    model: PeripheralsLaptop,
                     as: 'peripherals',
                     include: [{ 
                         model: Peripheral,
@@ -2453,7 +2473,7 @@ exports.condemnedDeviceLaptop = async (req, res, next) => {
         res.status(200).json({ code: 200, message: `${laptop.device_number} condemned successfully.` });
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned laptop.', err));
+        next(createErrors.internalServerError('Something went wrong on updating status of laptop.', err));
     }
 }
 
@@ -2664,6 +2684,28 @@ exports.getLocationAuditDeviceLaptop = async (req, res, next) => {
     }
 }
 
+exports.getAllConnectionAuditDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditLaptopConnection.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditLaptopLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
 //Computer Middleware Functions
 exports.postDeviceComputer = async (req, res, next) => {
     const t = await sequelize.transaction();
@@ -2840,10 +2882,10 @@ exports.getDeviceComputerById = async (req, res, next) => {
                     model: RAMComputer,
                     as: 'ram_modules',
                     include: [{
-                        model: PartGPU,
+                        model: PartRAM,
                         as: 'ram',
                         include: [{
-                            model: CapacityGPU,
+                            model: CapacityRAM,
                             as: 'capacity'
                         }]
                     }]
@@ -2926,14 +2968,14 @@ exports.condemnedDeviceComputer = async (req, res, next) => {
         if (!computer) return next(createErrors.notFound("This computer doesn't exist."));
 
         await Computer.update({ is_condemned: true }, { where: { id } });
-        await CondemnedComputer.create({ computer_id: computer.id, reason, condemned_by: req.user.id, condemned_at });
-        await ConnectionsComputer.create({ where: { computer_id: id } });
-        await PeripheralsComputer.create({ where: { computer_id: id } });
+        await CondemnedComputer.create({ computer_id: id, reason, condemned_by: req.user.id, condemned_at });
+        await ConnectionsComputer.destroy({ where: { computer_id: id } });
+        await PeripheralsComputer.destroy({ where: { computer_id: id } });
         
         res.status(200).json({ code: 200, message: `${computer.device_number} condemned successfully.` });
     } catch (err) {
         console.log(err);
-        next(createErrors.internalServerError('Something went wrong on fetching all condemned computer.', err));
+        next(createErrors.internalServerError('Something went wrong on updating status of computer.', err));
     }
 }
 
@@ -3079,6 +3121,7 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
                 connection_id: connId,
                 action: 'REMOVE',
                 changed_by: req.user.id,
+                changed_at: new Date()
             }, { transaction: t });
         }
 
@@ -3151,4 +3194,1137 @@ exports.getLocationAuditDeviceComputer = async (req, res, next) => {
     }
 }
 
+exports.getAllConnectionAuditDeviceComputer = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditComputerConnection.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceComputer = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditComputerLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
 //Tablet Middleware Functions
+exports.postDeviceTablet = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            return next(createErrors.badRequest('Request must be an array of AIO devices.'));
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('Tablet');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model,
+                chipsetDTO, connectionDTO, 
+                peripheralDTO, ram_capacity_id,
+                storage_capacity_id
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
+
+            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+            if (!isBatchExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This batch doesn't exist."));
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const isRAMExisting = await CapacityRAM.findByPk(ram_capacity_id);
+            if (!isRAMExisting) return next(createErrors.badRequest("RAM capacity with this id doesn't exist."));
+
+            const isStorageExisting = await CapacityStorage.findByPk(storage_capacity_id);
+            if (!isStorageExisting) return next(createErrors.badRequest("Storage capacity with this id doesn't exist."));
+
+            const tablet = await Tablet.create({
+                batch_id, section_id,
+                device_number: deviceNum,
+                serial_number, brand_id,
+                model, is_condemned: false,
+                ram_capacity_id, storage_capacity_id
+            }, { transaction: t });
+
+            if (!chipsetDTO) return next(createErrors.badRequest('chipsetDTO must have a value.'));
+            if (typeof chipsetDTO !== 'object') return next(createErrors.badRequest('chipsetDTO must be an object.'));
+
+            const chipset = await PartChipset.create(chipsetDTO, { transaction: t });
+            await ChipsetTablet.create({
+                tablet_id: tablet.id,
+                cpu_id: chipset.id
+            }, { transaction: t });
+
+            for (const connection_id of connectionDTO) {
+                await ConnectionsTablet.create({ tablet_id: tablet.id, connection_id }, { transaction: t });
+            }
+
+            for (const peripheral_id of peripheralDTO) {
+                await PeripheralsTablet.create({ tablet_id: tablet.id, peripheral_id }, { transaction: t });
+            }
+
+            savedDevices.push({ id: tablet.id, device_number: deviceNum });
+        }
+
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} tablet device(s) saved successfully.`, devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on saving tablets.', err));
+    }
+}
+
+exports.getAllDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await Tablet.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all tablets.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedTablet = await Tablet.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedTablet.map(tablet => tablet.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned tablets.', err));
+    }
+}
+
+exports.getAllWorkingDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingTablet = await Tablet.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingTablet.map(tablet => tablet.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all working tablets.', err));
+    }
+}
+
+exports.getDeviceTabletById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const tablet = await Tablet.findByPk(id, {
+            attributes: [
+                'id', 'batch_id', 'section_id', 'serial_number',
+                'brand_id', 'model', 'ram_capacity_id', 'storage_capacity_id'
+            ],
+            include: [
+                {
+                    model: ChipsetTablet,
+                    as: 'chipset',
+                    include: [{
+                        model: PartChipset,
+                        as: 'chipset_part',
+                        attributes: ['brand_id', 'model']
+                    }]
+                },
+                {
+                    model: ConnectionsTablet,
+                    as: 'connections',
+                    attributes: ['connection_id']
+                },
+                {
+                    model: PeripheralsTablet,
+                    as: 'peripherals',
+                    include: [{
+                        model: Peripheral,
+                        as: 'peripheral'
+                    }]
+                }
+            ]
+        });
+
+        if (!tablet) return next(createErrors.notFound(`Tablet with ID ${id} not found.`));
+
+        const json = tablet.toJSON();
+
+        const response = {
+            id: json.id,
+            batch_id: json.batch_id,
+            section_id: json.section_id,
+            serial_number: json.serial_number,
+            brand_id: json.brand_id,
+            model: json.model,
+            chipsetDTO: json.chipset?.chipset_part
+                ? {
+                    brand_id: json.chipset.chipset_part.brand_id,
+                    model: json.chipset.chipset_part.model
+                }
+                : null,
+            ram_capacity_id: json.ram_capacity_id,
+            storage_capacity_id: json.storage_capacity_id,
+            connectionDTO: json.connections?.map(c => c.connection_id) || [],
+            peripheralDTO: json.peripherals?.map(p => p.peripheral_id) || []
+        };
+
+        res.status(200).json(response);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific tablet.', err));
+    }
+}
+
+exports.condemnedDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const tablet = await Tablet.findByPk(id);
+        if (!tablet) return next(createErrors.notFound("This tablet doesn't exist."));
+
+        await Tablet.update({ is_condemned: true }, { where: { id } });
+        await CondemnedTablet.create({ tablet_id: id, reason, condemned_by: req.user.id, condemned_at });
+        await ConnectionsTablet.destroy({ where: { tablet_id: id } });
+        await PeripheralsTablet.destroy({ where: { tablet_id: id } });
+
+        res.status(200).json({ code: 200, message: `${tablet.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating status of tablet.', err));
+    }
+}
+
+exports.putByIdDeviceTablet = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+      
+        const { 
+            section_id, serial_number,
+            chipsetDTO, connectionDTO, 
+            peripheralDTO, ram_capacity_id,
+            storage_capacity_id 
+        } = req.body;
+
+        if (typeof chipsetDTO !== 'object') return next(createErrors.badRequest("chipsetDTO must be an object."));
+        if (!Array.isArray(connectionDTO)) return next(createErrors.badRequest("connectionDTO must be an array."));
+        if (!Array.isArray(peripheralDTO)) return next(createErrors.badRequest("peripheralDTO must be an array."));
+
+        const tablet = await Tablet.findByPk(id, { transaction: t });
+        if (!tablet) return next(createErrors.notFound("This tablet doesn't exists."));
+
+        const tabletChipset = await ChipsetTablet.findOne({ where: { tablet_id: id }, transaction: t });
+        if (!tabletChipset) return next(createErrors.notFound("ChipsetTablet not found."));
+
+        await PartChipset.update(chipsetDTO, { where: { id: tabletChipset.cpu_id }, transaction: t });
+
+        const existingConns = await ConnectionsTablet.findAll({
+            where: { tablet_id: id },
+            attributes: ['connection_id'],
+            raw: true,
+            transaction: t
+        });
+
+        const existingConnsIds = existingConns.map(c => c.connection_id);
+        const newConnIds = connectionDTO;
+
+        const toAdd = newConnIds.filter(id => !existingConnsIds.includes(id));
+        const toRemove = existingConnsIds.filter(id => !newConnIds.includes(id));
+
+        for (const connId of toRemove) {
+            await ConnectionsTablet.destroy({ where: { tablet_id: id, connection_id: connId }, transaction: t });
+
+            await AuditTabletConnection.create({
+                tablet_id: id,
+                connection_id: connId,
+                action: 'REMOVE',
+                changed_by: req.user.id
+            }, { transaction: t });
+        }
+
+        for (const connId of toAdd) {
+            await ConnectionsTablet.create({ tablet_id: id, connection_id: connId }, { transaction: t });
+
+            await AuditTabletConnection.create({
+                tablet_id: id,
+                connection_id: connId,
+                action: 'ADD',
+                changed_by: req.user.id,
+                changed_at: new Date()
+            }, { transaction: t });
+        }
+
+        await PeripheralsTablet.destroy({ where: { tablet_id: id }, transaction: t });
+
+        await Promise.all(peripheralDTO.map(peripheral_id => PeripheralsTablet.create({ tablet_id: id, peripheral_id }, { transaction: t })));
+
+        if (tablet.section_id !== section_id) {
+            const locationReport = await generateSectionReport(tablet.section_id, section_id);
+
+            await AuditTabletLocation.create({
+                tablet_id: id,
+                old_section_id: tablet.section_id,
+                new_section_id: section_id,
+                report: locationReport,
+                updated_by: req.user.id,
+                updated_at: new Date()
+            }, { transaction: t });
+        }
+
+        const isRAMExisting = await CapacityRAM.findByPk(ram_capacity_id, { transaction: t });
+        if (!isRAMExisting) return next(createErrors.notFound("RAM with this id doesn't exist."));
+
+        const isStorageExisting = await CapacityStorage.findByPk(storage_capacity_id, { transaction: t });
+        if (!isStorageExisting) return next(createErrors.notFound("Storage with this id doesn't exist."));
+
+        await Tablet.update({
+            section_id, serial_number,
+            ram_capacity_id, storage_capacity_id
+        }, { where: { id }, transaction: t });
+
+        await t.commit();
+
+        res.status(200).json({ code: 200, message: 'Tablet device updated successfully.' });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific tablet.', err));
+    }
+}
+
+exports.getConnectionAuditDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditTabletConnection.findAll({ where: { tablet_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific tablet.', err));
+    }
+}
+
+exports.getLocationAuditDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditTabletLocation.findAll({ where: { tablet_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific tablet.', err));
+    }
+}
+
+exports.getAllConnectionAuditDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditTabletConnection.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditTabletLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+//Router Middleware Functions
+exports.postDeviceRouter = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            return next(createErrors.badRequest('Request must be an array of router devices.'));
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('Router');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, network_speed_id,
+                antenna_id
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is request and must be a number.'));
+
+            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+            const isNetworkSpeedExisting = await NetworkSpeed.findByPk(network_speed_id, { transaction: t });
+            const isAntennaExisting = await AntennaCount.findByPk(antenna_id, { transaction: t });
+
+            if (!isBatchExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This batch doesn't exist."));
+            }
+
+            if (!isNetworkSpeedExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This network speed doesn't exist."));
+            }
+
+            if (!isAntennaExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This antenna count doesn't exist."));
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+            
+            const router = await Router.create({
+                batch_id, section_id, serial_number,
+                brand_id, model,
+                device_number: deviceNum, 
+                is_condemned: false,
+                network_speed_id, antenna_id
+            });
+
+            savedDevices.push({ id: router.id, device_number: deviceNum });
+        }
+        
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} router device(s) saved successfully.`, devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on saving router.', err));
+    }
+}
+
+exports.getAllDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await Router.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all routers.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedRouter = await Router.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedRouter.map(router => router.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned routers.', err));
+    }
+}
+
+exports.getAllWorkingDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingRouter = await Router.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingRouter.map(router => router.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all working routers.', err));
+    }
+}
+
+exports.getDeviceRouterById = async (req, res, next) => {
+    try {
+        requestValidation(req, next); 
+
+        const { id } = req.params;
+
+        const router = await Router.findByPk(id, {
+            attributes: {
+                exclude: ['created_at']
+            }
+        });
+
+        if (!router) return next(createErrors.notFound("This router doesn't exists."));
+
+        res.status(200).json(router);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific router.', err));
+    }
+}
+
+exports.condemnedDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const router = await Router.findByPk(id);
+        if (!router) return next(createErrors.notFound("This router doesn't exist."));
+
+        await Router.update({ is_condemned: true }, { where: { id } });
+        await CondemnedRouter.create({ router_id: id, reason, condemned_by: req.user.id, condemned_at });
+
+        res.status(200).json({ code: 200, message: `${router.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating status of router.', err));
+    }
+}
+
+exports.putByIdDeviceRouter = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const {
+            section_id, serial_number,
+            network_speed_id, antenna_id
+        } = req.body
+
+        const router = await Router.findByPk(id, { transaction: t });
+        if (!router) return next(createErrors.notFound("This router doesn't exists."));
+        
+        const isAntennaExisting = await AntennaCount.findByPk(antenna_id);
+        const isSpeedExisting = await NetworkSpeed.findByPk(network_speed_id);
+
+        if (!isAntennaExisting) return next(createErrors.notFound("This id of antenna count doesn't exist."));
+        if (!isSpeedExisting) return next(createErrors.notFound("This id of network speed doesn't exist."));
+
+        await Router.update({
+            section_id, serial_number,
+            network_speed_id, antenna_id
+        }, { where: { id }, transaction: t });
+
+        await t.commit();
+        res.status(200).json({ code: 200, message: 'Router device updated successfully' });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific router.', err));
+    }
+}
+
+exports.getLocationAuditDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditRouterLocation.findAll({ where: { router_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific router.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditRouterLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all AIO.', err));
+    }
+}
+
+//Printer Middlware Functions
+exports.postDevicePrinter = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            return next(createErrors.badRequest('Request must be an array of printer devices.'));
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('Printer');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, type_id, with_scanner
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
+            if (typeof with_scanner !== 'boolean') return next(createErrors.badRequest('with_scanner should be a boolean'));
+
+            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
+            if (!isBatchExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This batch doesn't exist."));
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const printer = await Printer.create({
+                batch_id,section_id,
+                device_number: deviceNum,
+                serial_number, is_condemned: false,
+                brand_id, model, type_id,
+                with_scanner
+            }, { transaction: t });
+
+            savedDevices.push({ id: printer.id, device_number: deviceNum });
+        }
+
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} printer device(s) saved successfully.`, devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on saving printer.', err));
+    }
+}
+
+exports.getAllDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await Printer.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all printers.', err));
+    }
+}
+
+exports.getAllCondemnedDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedPrinter = await Printer.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedPrinter.map(printer => printer.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned printers.', err));
+    }
+}
+
+exports.getAllWorkingDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingPrinter = await Printer.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingPrinter.map(printer => printer.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all working printers.', err));
+    }
+}
+
+exports.getDevicePrinterById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const printer = await Printer.findByPk(id, {
+            attributes: {
+                exclude: ['created_at']
+            }
+        });
+
+        if (!printer) return next(createErrors.notFound("This printer doesn't exists."));
+        
+        res.status(200).json(printer);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific printer.', err));
+    }
+}
+
+exports.condemnedDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const printer = await Printer.findByPk(id);
+        if (!printer) return next(createErrors.notFound("This printer doesn't exist."));
+
+        await Printer.update({ is_condemned: true }, { where: { id } });
+        await CondemnedPrinter.create({ printer_id: id, reason, condemned_by: req.user.id, condemned_at });
+
+        res.status(200).json({ code: 200, message: `${printer.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating status of printer.', err));
+    }
+}
+
+exports.putByIdDevicePrinter = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const {
+            section_id, serial_number,
+            type_id, with_scanner
+        } = req.body;
+
+        const isTypeExisting = await PrinterType.findByPk(type_id);
+        if (!isTypeExisting) return next(createErrors.notFound("This id of printer type doesn't exist."));
+
+        if (typeof with_scanner !== 'boolean') return next(createErrors.badRequest('with_scanner should be a boolean'));
+
+        const printer = await Printer.findByPk(id, { transaction: t });
+        if (!printer) return next(createErrors.notFound("This printer doesn't exists."));
+
+        await Printer.update({
+            section_id, serial_number,
+            type_id, with_scanner
+        }, { where: { id }, transaction: t });
+
+        await t.commit();
+        res.status(200).json({ code: 200, message: 'Printer device updated successfully.' });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific printer.', err));
+    }
+}
+
+exports.getLocationAuditDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditPrinterLocation.findAll({ where: { printer_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific printer.', err));
+    }
+}
+
+exports.getAllLocationAuditDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditPrinterLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all printer.', err));
+    }
+}
+
+//Scanner Middlware Functions
+exports.postDeviceScanner = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            return next(createErrors.badRequest('Request must be an array of router devices.'));
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('Scanner');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, type_id
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
+
+            const isTypeExisting = await ScannerType.findByPk(type_id);
+            if (!isTypeExisting) {
+                await t.rollback();
+                return next(createErrors.notFound("This batch doesn't exist."));
+            }
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const scanner = await Scanner.create({
+                batch_id, section_id, serial_number,
+                brand_id, model, type_id,
+                device_number: deviceNum,
+                is_condemned: false,
+            });
+
+            savedDevices.push({ id: scanner.id, device_number: deviceNum });
+        }
+
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} scanner device(s) saved successfully` , devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on saving scanner.', err));
+    }
+}
+
+exports.getAllDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await Scanner.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all scanners.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedScanner = await Scanner.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedScanner.map(scanner => scanner.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned scanners.', err));
+    }
+}
+
+exports.getAllWorkingDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingScanner = await Scanner.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingScanner.map(scanner => scanner.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned scanners.', err));
+    }
+}
+
+exports.getDeviceScannerById = async (req, res, next) => {
+    try {
+        requestValidation(req, next); 
+
+        const { id } = req.params;
+
+        const scanner = await Scanner.findByPk(id, {
+            attributes: {
+                exclude: ['created_at']
+            }
+        });
+
+        if (!scanner) return next(createErrors.notFound("This scanner doesn't exists."));
+
+        res.status(200).json(scanner);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific scanner.', err));
+    }
+}
+
+exports.condemnedDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const scanner = await Scanner.findByPk(id);
+        if (!scanner) return next(createErrors.notFound("This scanner doesn't exist."));
+
+        await Scanner.update({ is_condemned: true }, { where: { id } });
+        await CondemnedScanner.create({ scanner_id: id, reason, condemned_by: req.user.id, condemned_at });
+
+        res.status(200).json({ code: 200, message: `${scanner.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating status of scanner.', err));
+    }
+}
+
+exports.putByIdDeviceScanner = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const {
+            section_id, serial_number,
+            type_id
+        } = req.body;
+
+        const isTypeExisting = await ScannerType.findByPk(type_id);
+        if (!isTypeExisting) return next(createErrors.notFound("This batch doesn't exist."));
+        
+        const scanner = await Scanner.findByPk(id, { transaction: t });
+        if (!scanner) return next(createErrors.notFound("This scanner doesn't exists."));
+
+        await Scanner.update(
+            { section_id, serial_number, type_id },
+            { where: { id }, transaction: t }
+        );
+
+        await t.commit();
+        res.status(200).json({ code: 200, message: 'Scanner device updated successfully.' });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific scanner.', err));
+    }
+}
+
+exports.getLocationAuditDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditScannerLocation.findAll({ where: { scanner_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific scanner.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditScannerLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all scanner.', err));
+    }
+}
+
+//UPS Middleware Functions
+exports.postDeviceUPS = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const payload = Array.isArray(req.body) ? req.body : [ req.body ];
+        if (!payload.length) {
+            return next(createErrors.badRequest('Request must be an array of router devices.'));
+        }
+
+        const savedDevices = [];
+
+        const { next: baseNumber, prefix } = await setDeviceNumber('UPS');
+        let counter = baseNumber;
+
+        for (const device of payload) {
+            const {
+                batch_id, section_id, serial_number,
+                brand_id, model, volt_amperes
+            } = device;
+
+            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
+
+            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
+            counter++;
+
+            const ups = await UPS.create({
+                batch_id, section_id, serial_number,
+                brand_id, model, volt_amperes,
+                device_number: deviceNum,
+                is_condemned: false, is_available: true,
+            });
+
+            savedDevices.push({ id: ups.id, device_number: deviceNum });
+        }
+
+        await t.commit();
+        res.status(201).json({ code: 201, message: `${savedDevices.length} UPS device(s) saved successfully` , devices: savedDevices });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on saving UPS.', err));
+    }
+}
+
+exports.getAllDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await UPS.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all UPS.', err));
+    }
+}
+
+exports.getAllCondemnedDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawCondemnedUPS = await UPS.findAll({ where: { is_condemned: true } });
+
+        res.status(200).json(allRawCondemnedUPS.map(ups => ups.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned UPS.', err));
+    }
+}
+
+exports.getAllWorkingDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const allRawWorkingUPS = await UPS.findAll({ where: { is_condemned: false } });
+
+        res.status(200).json(allRawWorkingUPS.map(ups => ups.get({ plain: true })));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all condemned UPS.', err));
+    }
+}
+
+exports.getDeviceUPSById = async (req, res, next) => {
+    try {
+        requestValidation(req, next); 
+
+        const { id } = req.params;
+
+        const ups = await UPS.findByPk(id, {
+            attributes: {
+                exclude: ['created_at']
+            }
+        });
+
+        if (!ups) return next(createErrors.notFound("This UPS doesn't exists."));
+
+        res.status(200).json(ups);
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific UPS.', err));
+    }
+}
+
+exports.condemnedDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const { reason, condemned_at } = req.body;
+
+        const ups = await UPS.findByPk(id);
+        if (!ups) return next(createErrors.notFound("This UPS doesn't exist."));
+
+        await UPS.update({ is_condemned: true }, { where: { id } });
+        await CondemnedUPS.create({ ups_id: id, reason, condemned_by: req.user.id, condemned_at });
+
+        res.status(200).json({ code: 200, message: `${ups.device_number} condemned successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on updating status of UPS.', err));
+    }
+}
+
+exports.putByIdDeviceUPS = async (req, res, next) => {
+    const t = await sequelize.transaction();
+
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+        const {
+            section_id, serial_number,
+            volt_amperes
+        } = req.body;
+
+        const ups = await UPS.findByPk(id, { transaction: t });
+        if (!ups) return next(createErrors.notFound("This UPS doesn't exists."));
+
+        await UPS.update(
+            { section_id, serial_number, volt_amperes },
+            { where: { id }, transaction: t }
+        );
+
+        await t.commit();
+        res.status(200).json({ code: 200, message: 'UPS device updated successfully.' });
+    } catch (err) {
+        console.log(err);
+        if (t) await t.rollback();
+        next(createErrors.internalServerError('Something went wrong on updating specific UPS.', err));
+    }
+}
+
+exports.getLocationAuditDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AuditUPSLocation.findAll({ where: { ups_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in specific UPS.', err));
+    }
+}
+
+exports.getAllLocationAuditDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        res.status(200).json(await AuditUPSLocation.findAll());
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching of audit in all UPS.', err));
+    }
+}
