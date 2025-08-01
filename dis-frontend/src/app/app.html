@@ -1,0 +1,44 @@
+<p-toast />
+
+<main class="landing_page grid relative h-svh w-svw bg-[#5c717e]" *ngIf="!isUserLogged(); else loggedIn">
+  <div class="card place-self-center bg-[#f4f6f7] flex flex-row items-center justify-evenly rounded-xl">
+    <img src="images/IMISS.png" class="w-full" alt="IMISS">
+    <span class="form_container flex flex-col gap-2 w-[43%]">
+      <h1 class="font-bold text-2xl"> DIS: Device Inventory System </h1>
+      @if (!isSigningUp()) {
+        <h2 class="text-gray-400"> Log in to your account </h2>
+        <app-login class [isSigningUp]="updateState"/>
+      } @else {
+        <h2 class="text-gray-400"> Create an account </h2>
+        <app-signup [isSigningUp]="updateState"/>
+      }
+    </span>
+  </div>
+</main>
+
+<ng-template #loggedIn>
+  <main class="h-svh w-svw flex">
+    <app-sidebar (activeLink)="handleActiveLink($event)"/>
+    <section class="flex flex-col w-full bg-gray-100">
+      <header class="flex p-9 justify-between">
+        <div class="flex items-center gap-6">
+          <button class="nav_button flex justify-center items-center" type="button">
+            <span class="material-symbols-outlined"> menu </span>
+          </button>
+          <div class="label flex gap-4 items-center">
+            <a href="" class="font-semibold text-xl hover:underline"> {{ navigationLabel() }} </a>
+          </div>
+        </div>
+        <div class="flex">
+          <p-menu #menu [model]="profileMenu" [popup]="true" />
+          <button type="button" class="hover:cursor-pointer" (click)="menu.toggle($event)">
+            <span class="material-symbols-outlined profile"> account_circle </span>
+          </button>
+        </div>
+      </header>
+      <aside class="px-9">
+        <router-outlet/>
+      </aside>
+    </section>
+  </main>
+</ng-template>

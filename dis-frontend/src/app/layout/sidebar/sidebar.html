@@ -1,0 +1,35 @@
+<nav class="h-full w-70">
+  <header class="flex items-center gap-4 p-5">
+    <img src="images/IMISS.png" alt="imiss_logo" class="w-[40%]">
+    <h1 class="font-semibold text-xl text-[#21262b]"> DIS </h1>
+  </header>
+  <section class="flex flex-col">
+    <h1 class="text-base font-bold text-[#21262b] px-5 py-2"> Home </h1>
+    <a #dashboardLink="routerLinkActive" class="py-2 px-5 flex gap-2" routerLink="/dashboard" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="material-symbols-outlined text-[#21262b]"> home </span>
+      <p> Dashboard </p>
+    </a>
+  </section>
+  <section class="flex flex-col">
+    <h1 class="text-base font-bold text-[#21262b] px-5 py-2"> Device Management </h1>
+    <a #batchLink="routerLinkActive" class="py-2 px-5 flex gap-2" routerLink="/batch-list" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="material-symbols-outlined text-[#21262b]"> list </span>
+      <p> Batch List </p>
+    </a>
+    <a #inventoryLink="routerLinkActive" class="py-1 px-5 flex gap-2" routerLink="/computer-inventory" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="material-symbols-outlined text-[#21262b]"> deployed_code </span>
+      <p> Computer Inventory </p>
+    </a>
+  </section>
+  <section>
+    <h1 class="text-base font-bold text-[#21262b] px-5 py-2"> Miscellaneous </h1>
+    <a #supplierLink="routerLinkActive" class="py-2 px-5 flex gap-2" routerLink="/supplier" routerLinkActive="active" ariaCurrentWhenActive="page">
+      <span class="material-symbols-outlined text-[#21262b]"> attribution </span>
+      <p> Supplier </p>
+    </a>
+  </section>
+  <a #auditLink="routerLinkActive" class="py-2 px-5 flex gap-2" routerLink="/audit-trail" routerLinkActive="active" ariaCurrentWhenActive="page">
+    <span class="material-symbols-outlined text-[#21262b]"> history </span>
+    <p> Audit Trail </p>
+  </a>
+</nav>

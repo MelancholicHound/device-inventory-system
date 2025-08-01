@@ -52,6 +52,12 @@ module.exports = (sequelize, DataTypes) => {
         volt_amperes: {
             type: DataTypes.DOUBLE,
             allowNull: false,
+        },
+        accountable_user: {
+            type: DataTypes.STRING
+        },
+        co_accountable_user: {
+            type: DataTypes.STRING
         }
     }, {
         tableName: 'tbl_device_ups',

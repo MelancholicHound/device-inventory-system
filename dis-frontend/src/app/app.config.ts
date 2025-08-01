@@ -1,21 +1,25 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
-
-import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 import { routes } from './app.routes';
 
+import { providePrimeNG } from 'primeng/config';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import Aura from '@primeuix/themes/aura';
+
 export const appConfig: ApplicationConfig = {
-    providers: [
-        provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
-        provideAnimations(),
-        provideHttpClient(withInterceptorsFromDi()),
-        providePrimeNG({
-            theme: { preset: Aura, options: { darkModeSelector: false || 'none' } }
-        })
-    ]
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideZonelessChangeDetection(),
+    provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
+    provideAnimationsAsync(),
+    MessageService,
+    ConfirmationService,
+    provideHttpClient(withInterceptorsFromDi()),
+    providePrimeNG({
+      theme: { preset: Aura, options: { darkModeSelector: false || 'none' } }
+    })
+  ]
 };

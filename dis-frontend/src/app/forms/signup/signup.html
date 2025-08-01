@@ -1,0 +1,67 @@
+<p-toast />
+<form action="" class="flex flex-col gap-4" [formGroup]="signupForm">
+  <span class="name_container flex flex-row gap-2">
+    <p-floatlabel variant="on">
+      <input type="text"
+             id="firstName"
+             [style]="{ width: '100%' }"
+             pInputText
+             formControlName="first_name"
+             autocomplete="off"
+             [pAutoFocus]="true">
+      <label for="firstName"> Firstname </label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <input type="text"
+             id="lastName"
+             [style]="{ width: '100%' }"
+             pInputText
+             formControlName="last_name"
+             autocomplete="off">
+      <label for="lastName"> Lastname </label>
+    </p-floatlabel>
+  </span>
+  <p-floatlabel variant="on">
+    <input type="email"
+           id="email"
+           [style]="{ width: '100%' }"
+           pInputText
+           formControlName="email"
+           autocomplete="off">
+    <label for="email"> Email </label>
+  </p-floatlabel>
+  <p-floatlabel variant="on">
+    <p-password id="password"
+                [fluid]="true"
+                [feedback]="false"
+                [toggleMask]="true"
+                autocomplete="off"
+                formControlName="password"/>
+    <label for="password"> Password </label>
+  </p-floatlabel>
+  <p-floatlabel variant="on">
+    <p-password id="confirmPassword"
+                [fluid]="true"
+                [feedback]="false"
+                [toggleMask]="true"
+                autocomplete="off"
+                formControlName="confirmPassword"/>
+    <label for="confirmPassword"> Confirm Password </label>
+  </p-floatlabel>
+  <span class="w-full flex flex-col">
+    <small style="color: red;" *ngIf="(!passwordsMatch() && confirmPassword()) || signupForm.hasError('passwordsMismatch')"> Passwords does not match. Please try again. </small>
+    <small style="color: red;" *ngIf="passwordControl?.dirty && passwordControl?.hasError('minlength')"> Password must be at least 5 characters </small>
+    <small style="color: red;" *ngIf="emailControl?.invalid && emailControl?.dirty && emailControl?.value"> Please try a valid email. </small>
+    <small style="color: #22c55e;" *ngIf="isRegistered"> Redirecting to login in {{ timer() }}s </small>
+  </span>
+  <footer class="flex flex-row justify-between">
+    <p-button label="Back to Login"
+              [style]="{ width: '150px' }"
+              severity="contrast"
+              (onClick)="isSigningUp()"/>
+    <p-button label="Create account"
+              [style]="{ width: '150px' }"
+              [disabled]="signupForm.invalid"
+              (onClick)="validateEmail()"/>
+  </footer>
+</form>

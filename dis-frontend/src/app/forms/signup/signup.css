@@ -1,0 +1,6 @@
+@media (max-width: 640px) {
+  .name_container {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

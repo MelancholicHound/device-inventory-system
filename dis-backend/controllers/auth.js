@@ -158,11 +158,15 @@ exports.changePassword = async (req, res, next) => {
             return next(createErrors.unprocessableEntity('Validation error: ', error.array()));
         }
       
-        const password = req.body.password;
+        const { email, password } = req.body;
+        
+        const isAccountExisting = await User.findOne({ where: { email } });
+        if (!isAccountExisting) return next(createErrors.notFound("An account with this email doesn't exist."));
+
         const hashedPassword = await bcrypt.hash(password, 12);
 
         await User.update({ password: hashedPassword },
-            { where: { id: req.user.id } }
+            { where: { email } }
         );
 
         res.status(201).json({ code: 201, message: 'Changed password successfully.' });
@@ -203,6 +207,19 @@ exports.getAllDivisions = async (req, res, next) => {
     }
 }
 
+exports.getDivisionById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Division.findOne({ where: { id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong during fetching of division by id.', err));
+    }
+}
+
 exports.getSectionsByDivId = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -217,6 +234,20 @@ exports.getSectionsByDivId = async (req, res, next) => {
     }
 }
 
+exports.getSectionById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Section.findOne({ where: { id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong during fetching of division by id.', err));
+    }
+}
+
+
 //Supplier Middleware Function
 exports.getAllSuppliers = async (req, res, next) => {
     try {
@@ -229,7 +260,7 @@ exports.getAllSuppliers = async (req, res, next) => {
     }
 }
 
-exports.getByIdSupplier= async (req, res, next) => {
+exports.getByIdSupplier = async (req, res, next) => {
     try {
         requestValidation(req, next);
 
@@ -333,7 +364,6 @@ exports.getByIdBatch = async (req, res, next) => {
         const id = req.params.id;
 
         const batch = await Batch.findByPk(id, {
-            attributes: ['valid_until', 'date_delivered', 'date_tested', 'supplier_id', 'service_center'],
             include: [{ model: PurchaseRequestDTO, as: 'purchaseRequestDTO', attributes: ['number', 'file'] }]
         });
 
@@ -381,6 +411,12 @@ exports.postBatch = async (req, res, next) => {
         }
 
         const batchId = `${year}-${String(newNumber).padStart(3, '0')}`;
+
+        const supplier = await Supplier.findByPk(supplier_id);
+        if (!supplier) {
+            await t.rollback();
+            return next(createErrors.notFound("This supplier doesn't exist."));
+        }
 
         const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
         if (!pr) {
@@ -1735,6 +1771,7 @@ exports.postDeviceAIO = async (req, res, next) => {
                 brand_id, model, ups_id,
                 processorDTO, connectionDTO, peripheralDTO,
                 gpu_id, os_id, prod_id, security_id,
+                accountable_user, co_accountable_user,
                 ramDTO: ramModules,
                 storageDTO: storageModules
             } = device;
@@ -1761,7 +1798,8 @@ exports.postDeviceAIO = async (req, res, next) => {
                 serial_number, brand_id,
                 model, is_condemned: false,
                 ups_id, gpu_id: gpuResponse.id,
-                os_id, prod_id, security_id
+                os_id, prod_id, security_id,
+                accountable_user, co_accountable_user,
             }, { transaction: t });
                 
             if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
@@ -1813,6 +1851,19 @@ exports.getAllDeviceAIO = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all AIOs.', err));
+    }
+}
+
+exports.getAllDeviceAIOByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await AIO.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all AIOs by batch id.', err));
     }
 }
 
@@ -1948,7 +1999,9 @@ exports.getDeviceAIOById = async (req, res, next) => {
             gpu_id: json.gpu_id,
             os_id: json.os_id,
             prod_id: json.prod_id,
-            security_id: json.security_id
+            security_id: json.security_id,
+            accountable_user: json.accountable_user, 
+            co_accountable_user: json.co_accountable_user,
         };
 
         res.status(200).json(result);
@@ -1991,6 +2044,7 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
             section_id, serial_number, ups_id,
             processorDTO, connectionDTO, peripheralDTO,
             gpu_id, os_id, prod_id, security_id,
+            accountable_user, co_accountable_user,
             ramDTO: ramModules,
             storageDTO: storageModules
         } = req.body;
@@ -2149,7 +2203,8 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
 
         await AIO.update({
             section_id, serial_number, ups_id, 
-            os_id, prod_id, security_id
+            os_id, prod_id, security_id,
+            accountable_user, co_accountable_user,
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -2232,6 +2287,7 @@ exports.postDeviceLaptop = async (req, res, next) => {
                 brand_id, model, ups_id,
                 processorDTO, connectionDTO, peripheralDTO,
                 gpu_id, os_id, prod_id, security_id,
+                accountable_user, co_accountable_user,
                 ramDTO: ramModules,
                 storageDTO: storageModules
             } = device;
@@ -2258,7 +2314,8 @@ exports.postDeviceLaptop = async (req, res, next) => {
                 serial_number, brand_id,
                 model, is_condemned: false,
                 ups_id, gpu_id: gpuResponse.id,
-                os_id, prod_id, security_id
+                os_id, prod_id, security_id,
+                accountable_user, co_accountable_user
             }, { transaction: t });
 
             if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
@@ -2310,6 +2367,19 @@ exports.getAllDeviceLaptop = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all laptops.', err));
+    }
+}
+
+exports.getAllDeviceLaptopByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Laptop.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all laptop by batch id.', err));
     }
 }
 
@@ -2445,7 +2515,9 @@ exports.getDeviceLaptopById = async (req, res, next) => {
             gpu_id: json.gpu_id,
             os_id: json.os_id,
             prod_id: json.prod_id,
-            security_id: json.security_id
+            security_id: json.security_id,
+            accountable_user: json.accountable_user,
+            co_accountable_user: json.co_accountable_user
         };
 
         res.status(200).json(result);
@@ -2488,6 +2560,7 @@ exports.putByIdDeviceLaptop = async (req, res, next) => {
             section_id, serial_number, ups_id,
             processorDTO, connectionDTO, peripheralDTO,
             gpu_id, os_id, prod_id, security_id,
+            accountable_user, co_accountable_user,
             ramDTO: ramModules,
             storageDTO: storageModules
         } = req.body;
@@ -2646,7 +2719,8 @@ exports.putByIdDeviceLaptop = async (req, res, next) => {
 
         await Laptop.update({
             section_id, serial_number, ups_id, 
-            os_id, prod_id, security_id
+            os_id, prod_id, security_id,
+            accountable_user, co_accountable_user
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -2728,6 +2802,7 @@ exports.postDeviceComputer = async (req, res, next) => {
                 batch_id, section_id, serial_number, ups_id,
                 processorDTO, connectionDTO, peripheralDTO,
                 gpu_id, os_id, prod_id, security_id,
+                accountable_user, co_accountable_user,
                 motherboardDTO, ramDTO: ramModules,
                 storageDTO: storageModules
             } = device;
@@ -2753,7 +2828,8 @@ exports.postDeviceComputer = async (req, res, next) => {
                 device_number: deviceNum,
                 serial_number, is_condemned: false,
                 ups_id, gpu_id: gpuResponse.id,
-                os_id, prod_id, security_id
+                os_id, prod_id, security_id,
+                accountable_user, co_accountable_user
             }, { transaction: t });
 
             if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
@@ -2814,6 +2890,19 @@ exports.getAllDeviceComputer = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all computers.', err));
+    }
+}
+
+exports.getAllDeviceComputerByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Computer.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all computers by batch id.', err));
     }
 }
 
@@ -2947,7 +3036,9 @@ exports.getDeviceComputerById = async (req, res, next) => {
             gpu_id: json.gpu_id,
             os_id: json.os_id,
             prod_id: json.prod_id,
-            security_id: json.security_id
+            security_id: json.security_id,
+            accountable_user: json.accountable_user,
+            co_accountable_user: json.co_accountable_user
         };
 
         res.status(200).json(result);
@@ -2990,6 +3081,7 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
             section_id, serial_number, ups_id,
             processorDTO, connectionDTO, peripheralDTO,
             gpu_id, os_id, prod_id, security_id,
+            accountable_user, co_accountable_user,
             motherboardDTO, ramDTO: ramModules,
             storageDTO: storageModules
         } = req.body;
@@ -3156,7 +3248,8 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
 
         await Computer.update({
             section_id, serial_number, ups_id, 
-            os_id, prod_id, security_id
+            os_id, prod_id, security_id,
+            accountable_user, co_accountable_user,
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -3239,7 +3332,8 @@ exports.postDeviceTablet = async (req, res, next) => {
                 brand_id, model,
                 chipsetDTO, connectionDTO, 
                 peripheralDTO, ram_capacity_id,
-                storage_capacity_id
+                storage_capacity_id,
+                accountable_user, co_accountable_user
             } = device;
 
             if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
@@ -3264,7 +3358,8 @@ exports.postDeviceTablet = async (req, res, next) => {
                 device_number: deviceNum,
                 serial_number, brand_id,
                 model, is_condemned: false,
-                ram_capacity_id, storage_capacity_id
+                ram_capacity_id, storage_capacity_id,
+                accountable_user, co_accountable_user
             }, { transaction: t });
 
             if (!chipsetDTO) return next(createErrors.badRequest('chipsetDTO must have a value.'));
@@ -3307,6 +3402,19 @@ exports.getAllDeviceTablet = async (req, res, next) => {
     }
 }
 
+exports.getAllDeviceTabletByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Tablet.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all tablets by batch id.', err));
+    }
+}
+
 exports.getAllCondemnedDeviceTablet = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -3342,7 +3450,8 @@ exports.getDeviceTabletById = async (req, res, next) => {
         const tablet = await Tablet.findByPk(id, {
             attributes: [
                 'id', 'batch_id', 'section_id', 'serial_number',
-                'brand_id', 'model', 'ram_capacity_id', 'storage_capacity_id'
+                'brand_id', 'model', 'ram_capacity_id', 'storage_capacity_id',
+                'accountable_user', 'co_accountable_user'
             ],
             include: [
                 {
@@ -3390,7 +3499,9 @@ exports.getDeviceTabletById = async (req, res, next) => {
             ram_capacity_id: json.ram_capacity_id,
             storage_capacity_id: json.storage_capacity_id,
             connectionDTO: json.connections?.map(c => c.connection_id) || [],
-            peripheralDTO: json.peripherals?.map(p => p.peripheral_id) || []
+            peripheralDTO: json.peripherals?.map(p => p.peripheral_id) || [],
+            accountable_user: json.accountable_user,
+            co_accountable_user: json.co_accountable_user
         };
 
         res.status(200).json(response);
@@ -3434,7 +3545,8 @@ exports.putByIdDeviceTablet = async (req, res, next) => {
             section_id, serial_number,
             chipsetDTO, connectionDTO, 
             peripheralDTO, ram_capacity_id,
-            storage_capacity_id 
+            storage_capacity_id,
+            accountable_user, co_accountable_user 
         } = req.body;
 
         if (typeof chipsetDTO !== 'object') return next(createErrors.badRequest("chipsetDTO must be an object."));
@@ -3510,7 +3622,8 @@ exports.putByIdDeviceTablet = async (req, res, next) => {
 
         await Tablet.update({
             section_id, serial_number,
-            ram_capacity_id, storage_capacity_id
+            ram_capacity_id, storage_capacity_id,
+            accountable_user, co_accountable_user
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -3592,7 +3705,7 @@ exports.postDeviceRouter = async (req, res, next) => {
             const {
                 batch_id, section_id, serial_number,
                 brand_id, model, network_speed_id,
-                antenna_id
+                antenna_id, accountable_user, co_accountable_user
             } = device;
 
             if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is request and must be a number.'));
@@ -3624,7 +3737,8 @@ exports.postDeviceRouter = async (req, res, next) => {
                 brand_id, model,
                 device_number: deviceNum, 
                 is_condemned: false,
-                network_speed_id, antenna_id
+                network_speed_id, antenna_id,
+                accountable_user, co_accountable_user
             });
 
             savedDevices.push({ id: router.id, device_number: deviceNum });
@@ -3647,6 +3761,19 @@ exports.getAllDeviceRouter = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all routers.', err));
+    }
+}
+
+exports.getAllDeviceRouterByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Tablet.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all tablets by batch id.', err));
     }
 }
 
@@ -3726,7 +3853,8 @@ exports.putByIdDeviceRouter = async (req, res, next) => {
         const { id } = req.params;
         const {
             section_id, serial_number,
-            network_speed_id, antenna_id
+            network_speed_id, antenna_id,
+            accountable_user, co_accountable_user
         } = req.body
 
         const router = await Router.findByPk(id, { transaction: t });
@@ -3740,7 +3868,8 @@ exports.putByIdDeviceRouter = async (req, res, next) => {
 
         await Router.update({
             section_id, serial_number,
-            network_speed_id, antenna_id
+            network_speed_id, antenna_id,
+            accountable_user, co_accountable_user
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -3796,7 +3925,8 @@ exports.postDevicePrinter = async (req, res, next) => {
         for (const device of payload) {
             const {
                 batch_id, section_id, serial_number,
-                brand_id, model, type_id, with_scanner
+                brand_id, model, type_id, with_scanner,
+                accountable_user, co_accountable_user
             } = device;
 
             if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
@@ -3816,7 +3946,8 @@ exports.postDevicePrinter = async (req, res, next) => {
                 device_number: deviceNum,
                 serial_number, is_condemned: false,
                 brand_id, model, type_id,
-                with_scanner
+                with_scanner,
+                accountable_user, co_accountable_user
             }, { transaction: t });
 
             savedDevices.push({ id: printer.id, device_number: deviceNum });
@@ -3838,6 +3969,19 @@ exports.getAllDevicePrinter = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all printers.', err));
+    }
+}
+
+exports.getAllDevicePrinterByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Printer.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all printers by batch id.', err));
     }
 }
 
@@ -3917,7 +4061,8 @@ exports.putByIdDevicePrinter = async (req, res, next) => {
         const { id } = req.params;
         const {
             section_id, serial_number,
-            type_id, with_scanner
+            type_id, with_scanner,
+            accountable_user, co_accountable_user
         } = req.body;
 
         const isTypeExisting = await PrinterType.findByPk(type_id);
@@ -3930,7 +4075,8 @@ exports.putByIdDevicePrinter = async (req, res, next) => {
 
         await Printer.update({
             section_id, serial_number,
-            type_id, with_scanner
+            type_id, with_scanner,
+            accountable_user, co_accountable_user
         }, { where: { id }, transaction: t });
 
         await t.commit();
@@ -3986,7 +4132,8 @@ exports.postDeviceScanner = async (req, res, next) => {
         for (const device of payload) {
             const {
                 batch_id, section_id, serial_number,
-                brand_id, model, type_id
+                brand_id, model, type_id,
+                accountable_user, co_accountable_user
             } = device;
 
             if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
@@ -4005,6 +4152,7 @@ exports.postDeviceScanner = async (req, res, next) => {
                 brand_id, model, type_id,
                 device_number: deviceNum,
                 is_condemned: false,
+                accountable_user, co_accountable_user
             });
 
             savedDevices.push({ id: scanner.id, device_number: deviceNum });
@@ -4026,6 +4174,20 @@ exports.getAllDeviceScanner = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all scanners.', err));
+    }
+}
+
+
+exports.getAllDeviceScannerByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await Scanner.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all scanners by batch id.', err));
     }
 }
 
@@ -4105,7 +4267,7 @@ exports.putByIdDeviceScanner = async (req, res, next) => {
         const { id } = req.params;
         const {
             section_id, serial_number,
-            type_id
+            type_id, accountable_user, co_accountable_user
         } = req.body;
 
         const isTypeExisting = await ScannerType.findByPk(type_id);
@@ -4115,7 +4277,7 @@ exports.putByIdDeviceScanner = async (req, res, next) => {
         if (!scanner) return next(createErrors.notFound("This scanner doesn't exists."));
 
         await Scanner.update(
-            { section_id, serial_number, type_id },
+            { section_id, serial_number, type_id, accountable_user, co_accountable_user },
             { where: { id }, transaction: t }
         );
 
@@ -4172,7 +4334,8 @@ exports.postDeviceUPS = async (req, res, next) => {
         for (const device of payload) {
             const {
                 batch_id, section_id, serial_number,
-                brand_id, model, volt_amperes
+                brand_id, model, volt_amperes,
+                accountable_user, co_accountable_user
             } = device;
 
             if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
@@ -4185,6 +4348,7 @@ exports.postDeviceUPS = async (req, res, next) => {
                 brand_id, model, volt_amperes,
                 device_number: deviceNum,
                 is_condemned: false, is_available: true,
+                accountable_user, co_accountable_user
             });
 
             savedDevices.push({ id: ups.id, device_number: deviceNum });
@@ -4206,6 +4370,19 @@ exports.getAllDeviceUPS = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all UPS.', err));
+    }
+}
+
+exports.getAllDeviceUPSByBatchId = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await UPS.findAll({ where: { batch_id: id } }));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching all UPS by batch id.', err));
     }
 }
 
@@ -4285,14 +4462,14 @@ exports.putByIdDeviceUPS = async (req, res, next) => {
         const { id } = req.params;
         const {
             section_id, serial_number,
-            volt_amperes
+            volt_amperes, accountable_user, co_accountable_user
         } = req.body;
 
         const ups = await UPS.findByPk(id, { transaction: t });
         if (!ups) return next(createErrors.notFound("This UPS doesn't exists."));
 
         await UPS.update(
-            { section_id, serial_number, volt_amperes },
+            { section_id, serial_number, volt_amperes, accountable_user, co_accountable_user },
             { where: { id }, transaction: t }
         );
 

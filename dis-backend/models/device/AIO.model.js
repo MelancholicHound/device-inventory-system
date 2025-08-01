@@ -83,6 +83,12 @@ module.exports = (sequelize, DataTypes) => {
                 model: 'tbl_misc_sw_security',
                 key: 'id'
             }
+        },
+        accountable_user: {
+            type: DataTypes.STRING
+        },
+        co_accountable_user: {
+            type: DataTypes.STRING
         }
     }, {
         tableName: 'tbl_device_aio',

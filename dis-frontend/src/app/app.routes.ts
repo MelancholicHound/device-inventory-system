@@ -1,20 +1,24 @@
 import { Routes } from '@angular/router';
 
-import { BatchListComponent } from './pages/batch-list/batch-list.component';
-import { InventoryComponent } from './pages/inventory/inventory.component';
-import { BatchDetailsComponent } from './pages/batch-details/batch-details.component';
+import { Dashboard } from './pages/dashboard/dashboard';
+import { BatchList } from './pages/batch-list/batch-list';
+import { Inventory } from './pages/inventory/inventory';
+import { SupplierList } from './pages/supplier-list/supplier-list';
+import { Audit } from './pages/audit/audit';
+import { BatchDetails } from './pages/batch-details/batch-details';
 
 export const routes: Routes = [
-    {
-        path : 'batch-list' ,
-        component : BatchListComponent ,
-        children : [
-            {
-                path : 'batch-details' ,
-                component : BatchDetailsComponent ,
-                loadChildren : () => import('./device-routing.module').then(m => m.DeviceRoutingModule)
-            }
-        ]
-    },
-    { path : 'device-inventory' , component : InventoryComponent }
+  { path: 'dashboard', component: Dashboard },
+  { path: 'batch-list',
+    component: BatchList,
+    children: [
+      {
+        path: 'batch-details',
+        component: BatchDetails
+      }
+    ]
+  },
+  { path: 'computer-inventory', component: Inventory },
+  { path: 'supplier', component: SupplierList },
+  { path: 'audit-trail', component: Audit }
 ];

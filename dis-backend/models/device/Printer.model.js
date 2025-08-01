@@ -57,6 +57,12 @@ module.exports = (sequelize, DataTypes) => {
         with_scanner: {
             type: DataTypes.BOOLEAN,
             allowNull: false
+        },
+        accountable_user: {
+            type: DataTypes.STRING
+        },
+        co_accountable_user: {
+            type: DataTypes.STRING
         }
     }, {
         tableName: 'tbl_device_printer',

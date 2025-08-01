@@ -1,0 +1,93 @@
+<section class="bg-white p-6 rounded-2xl">
+  <p-table #deviceTable
+           [value]="dataSource"
+           [(selection)]="selectedSupplier"
+           [customSort]="true"
+           [sortField]="'created_at'"
+           [sortOrder]="-1"
+           [paginator]="true"
+           [first]="first"
+           [showCurrentPageReport]="true"
+           [rowsPerPageOptions]="[10, 15, 20]"
+           [rows]="rows"
+           [globalFilterFields]="['name', 'location', 'contact_number', 'cp_name']"
+           (onPage)="pageChange($event)"
+           (sortFunction)="customSort($event)"
+           dataKey="name"
+           currentPageReportTemplate="Showing {first} to last of {totalRecords} entries">
+    <ng-template #caption>
+      <span class="flex justify-between">
+        <h1 class="font-bold text-xl ml-2"> Supplier List </h1>
+        <div class="flex gap-5">
+          <p-iconfield iconPosition="left" class="ml-auto">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input pInputText
+                   type="text"
+                   placeholder="Search keyword"
+                   (input)="onGlobalFilter($event)">
+          </p-iconfield>
+          <p-button label="Add Supplier"
+                    icon="pi pi-plus"
+                    (onClick)="showDialog()"/>
+        </div>
+      </span>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="width: 4rem;"> <p-tableHeaderCheckbox /> </th>
+        <th pSortableColumn="name">
+          Supplier Name <p-sortIcon field="name"/>
+        </th>
+        <th pSortableColumn="location">
+          Supplier Location <p-sortIcon field="location"/>
+        </th>
+        <th pSortableColumn="contact_number">
+          Contact Number <p-sortIcon field="contact_number"/>
+        </th>
+        <th pSortableColumn="cp_name">
+          Contact Person <p-sortIcon field="cp_name"/>
+        </th>
+        <th> Action </th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-supplier>
+      <tr>
+        <td> <p-tableCheckbox [value]="supplier"/> </td>
+        <td> {{ supplier.name }} </td>
+        <td> {{ supplier.location }} </td>
+        <td> {{ supplier.contact_number }} </td>
+        <td> {{ supplier.cp_name }} </td>
+        <td>
+          <p-menu #menuRef
+                  [model]="supplierMenu"
+                  [popup]="true"
+                  [appendTo]="'body'"
+                  autoZIndex/>
+          <p-button pButton
+                    icon="pi pi-ellipsis-v"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="secondary"
+                    (onClick)="onMenuClick($event, supplier); menuRef.toggle($event);"/>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #paginatorleft></ng-template>
+  </p-table>
+</section>
+
+<p-dialog [modal]="true"
+          [(visible)]="visible"
+          maximizable="true"
+          [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
+          [style]="{ width: '25%' }"
+          (onHide)="signalService.emptySupplierDetails()">
+  <ng-template pTemplate="header">
+    <span class="text-xl font-semibold"> {{ !signalService.supplierData() ? 'Add Supplier' : 'View Supplier' }} </span>
+  </ng-template>
+  <app-supplier (closeModal)="closeDialog($event)"/>
+</p-dialog>
+
+<p-confirmdialog />

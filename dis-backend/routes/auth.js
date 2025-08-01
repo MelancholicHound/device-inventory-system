@@ -21,9 +21,13 @@ router.get('/user/recover', authController.recover);
 
 router.post('/user/recover', authController.changePassword);
 
+router.get('/division/:id', authenticateToken, authController.getDivisionById);
+
 router.get('/division', authenticateToken, authController.getAllDivisions);
 
 router.get('/section/division/:id', authenticateToken, authController.getSectionsByDivId);
+
+router.get('/section/:id', authenticateToken, authController.getSectionById);
 
 router.get('/supplier', authenticateToken, authController.getAllSuppliers);
 
@@ -211,6 +215,8 @@ router.post('/device/aio', authenticateToken, authController.postDeviceAIO);
 
 router.get('/device/aio', authenticateToken, authController.getAllDeviceAIO);
 
+router.get('/device/aio/batch/:id', authenticateToken, authController.getAllDeviceAIOByBatchId);
+
 router.get('/device/aio/condemned', authenticateToken, authController.getAllCondemnedDeviceAIO);
 
 router.get('/device/aio/working', authenticateToken, authController.getAllWorkingDeviceAIO);
@@ -233,6 +239,8 @@ router.get('/device/aio/audit/location', authenticateToken, authController.getAl
 router.post('/device/laptop', authenticateToken, authController.postDeviceLaptop);
 
 router.get('/device/laptop', authenticateToken, authController.getAllDeviceLaptop);
+
+router.get('/device/laptop/batch/:id', authenticateToken, authController.getAllDeviceLaptopByBatchId);
 
 router.get('/device/laptop/condemned', authenticateToken, authController.getAllCondemnedDeviceLaptop);
 
@@ -257,6 +265,8 @@ router.post('/device/computer', authenticateToken, authController.postDeviceComp
 
 router.get('/device/computer', authenticateToken, authController.getAllDeviceComputer);
 
+router.get('/device/computer/batch/:id', authenticateToken, authController.getAllDeviceComputerByBatchId);
+
 router.get('/device/computer/condemned', authenticateToken, authController.getAllCondemnedDeviceComputer);
 
 router.get('/device/computer/working', authenticateToken, authController.getAllWorkingDeviceComputer);
@@ -279,6 +289,8 @@ router.get('/device/computer/audit/location', authenticateToken, authController.
 router.post('/device/tablet', authenticateToken, authController.postDeviceTablet);
 
 router.get('/device/tablet', authenticateToken, authController.getAllDeviceTablet);
+
+router.get('/device/tablet/batch/:id', authenticateToken, authController.getAllDeviceTabletByBatchId);
 
 router.get('/device/tablet/condemned', authenticateToken, authController.getAllCondemnedDeviceTablet);
 
@@ -303,6 +315,8 @@ router.post('/device/router', authenticateToken, authController.postDeviceRouter
 
 router.get('/device/router', authenticateToken, authController.getAllDeviceRouter);
 
+router.get('/device/router/batch/:id', authenticateToken, authController.getAllDeviceRouterByBatchId);
+
 router.get('/device/router/condemned', authenticateToken, authController.getAllCondemnedDeviceRouter);
 
 router.get('/device/router/working', authenticateToken, authController.getAllWorkingDeviceRouter);
@@ -321,6 +335,8 @@ router.get('/device/router/audit/location', authenticateToken, authController.ge
 router.post('/device/printer', authenticateToken, authController.postDevicePrinter);
 
 router.get('/device/printer', authenticateToken, authController.getAllDevicePrinter);
+
+router.get('/device/printer/batch/:id', authenticateToken, authController.getAllDevicePrinterByBatchId);
 
 router.get('/device/printer/condemned', authenticateToken, authController.getAllCondemnedDevicePrinter);
 
@@ -341,6 +357,8 @@ router.post('/device/scanner', authenticateToken, authController.postDeviceScann
 
 router.get('/device/scanner', authenticateToken, authController.getAllDeviceScanner);
 
+router.get('/device/scanner/batch/:id', authenticateToken, authController.getAllDeviceScannerByBatchId);
+
 router.get('/device/scanner/condemned', authenticateToken, authController.getAllCondemnedDeviceScanner);
 
 router.get('/device/scanner/working', authenticateToken, authController.getAllWorkingDeviceScanner);
@@ -359,6 +377,8 @@ router.get('/device/scanner/audit/location', authenticateToken, authController.g
 router.post('/device/ups', authenticateToken, authController.postDeviceUPS);
 
 router.get('/device/ups', authenticateToken, authController.getAllDeviceUPS);
+
+router.get('/device/ups/batch/:id', authenticateToken, authController.getAllDeviceUPSByBatchId);
 
 router.get('/device/ups/condemned', authenticateToken, authController.getAllCondemnedDeviceUPS);
 

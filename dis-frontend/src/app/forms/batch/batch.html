@@ -1,0 +1,86 @@
+<form action="" [formGroup]="batchForm" class="flex flex-col gap-3 items-center">
+  <div class="flex flex-col w-full" formGroupName="purchaseRequestDTO">
+    <label for="pr-num"> PR Number: </label>
+    <span class="flex gap-4">
+      <input class="w-full"
+             id="pr-num"
+             pInputText
+             autocomplete="off"
+             placeholder="Enter PR Number"
+             formControlName="number">
+      <p-button icon="pi pi-upload"
+                (onClick)="fileInput.click()"
+                *ngIf="!selectedFile()"/>
+      <input #fileInput
+             type="file"
+             id="file-upload"
+             (change)="handleFileInput($event)"
+             hidden>
+    </span>
+    <label for="file-upload" *ngIf="fileUpload"> File name: {{ fileUpload.name }} </label>
+  </div>
+  <div class="flex flex-col w-full">
+    <label for="supplier"> Supplier </label>
+    <p-select inputId="supplier"
+              class="w-full"
+              [options]="suppliers()"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select supplier"
+              formControlName="supplier_id"/>
+  </div>
+  <div class="flex flex-col w-full">
+    <label for="service-center"> Service Center: </label>
+    <input class="w-full"
+           pInputText
+           id="service-center"
+           autocomplete="off"
+           placeholder="Enter service center"
+           formControlName="service_center">
+  </div>
+  <span class="flex gap-5 w-full">
+    <div class="flex flex-col w-1/2">
+      <label for="date-delivered"> Date Delivered </label>
+      <p-datepicker inputId="date-delivered"
+                    [focusTrap]="true"
+                    [iconDisplay]="'input'"
+                    [appendTo]="'body'"
+                    [showIcon]="true"
+                    formControlName="date_delivered"/>
+    </div>
+    <div class="flex flex-col w-1/2">
+      <label for="valid-until"> Valid Until </label>
+      <p-datepicker inputId="valid-until"
+                    [focusTrap]="true"
+                    [iconDisplay]="'input'"
+                    [appendTo]="'body'"
+                    [showIcon]="true"
+                    [dateFormat]="'yy-mm-dd'"
+                    formControlName="valid_until"/>
+    </div>
+  </span>
+  <div class="flex flex-col w-full">
+    <label for="date-tested"> Date Tested </label>
+    <span class="flex gap-5">
+      <p-datepicker inputId="date-tested"
+                    [focusTrap]="true"
+                    class="w-1/2"
+                    [iconDisplay]="'input'"
+                    [appendTo]="'body'"
+                    [showIcon]="true"
+                    formControlName="date_tested"/>
+      <span class="flex gap-2 items-center mb-1 w-1/2">
+        <p-checkbox [binary]="true" formControlName="is_tested"/>
+        <p> Not tested yet </p>
+      </span>
+    </span>
+  </div>
+  <span class="flex w-full justify-between mt-3">
+    <p-button label="Cancel"
+              severity="contrast"
+              [style]="{ width: '100px' }"
+              (onClick)="emitCloseModal()"/>
+    <p-button label="Add Batch"
+              (onClick)="addBatch()"/>
+  </span>
+</form>

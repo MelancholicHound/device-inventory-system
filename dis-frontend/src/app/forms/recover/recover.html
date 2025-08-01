@@ -1,0 +1,49 @@
+<form action="" class="flex flex-col h-auto" [formGroup]="recoverForm">
+  <span class="flex flex-col gap-3">
+    <p-floatlabel variant="on">
+      <input type="email"
+            id="email"
+            class="w-full"
+            pInputText
+            formControlName="email"
+            autocomplete="off"
+            (blur)="onBlurEmail()">
+      <label for="email"> Email </label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-password id="password"
+                  [fluid]="true"
+                  [feedback]="false"
+                  [toggleMask]="true"
+                  autocomplete="off"
+                  formControlName="password"/>
+      <label for="password"> Password </label>
+    </p-floatlabel>
+    <p-floatlabel variant="on">
+      <p-password id="confirmPassword"
+                  [fluid]="true"
+                  [feedback]="false"
+                  [toggleMask]="true"
+                  autocomplete="off"
+                  formControlName="confirmPassword"/>
+      <label for="confirmPassword"> Confirm Password </label>
+    </p-floatlabel>
+    <div class="flex flex-col">
+      <small style="color: red;"
+             *ngIf="((!passwordMatch() && confirmPassword()) ||
+                    recoverForm.hasError('passwordsMismatch'))" > Passwords does not match. Please try again. </small>
+      <small style="color: red"
+             *ngIf="passwordControl?.dirty &&
+                    passwordControl?.hasError('minlength')"> Passwords must be at least 5 characters </small>
+      <small style="color: red;"
+             *ngIf="emailControl?.invalid &&
+                    emailControl?.dirty &&
+                    emailControl?.value"> Please try a valid email. </small>
+    </div>
+  </span>
+  <p-button label="Change Password"
+            class="mt-8"
+            [disabled]="recoverForm.invalid"
+            [style]="{ width: '100%' }"
+            (onClick)="changePassword()"/>
+</form>
