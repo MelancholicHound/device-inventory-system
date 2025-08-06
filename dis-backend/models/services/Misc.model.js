@@ -155,7 +155,7 @@ module.exports = (sequelize, DataTypes) => {
             unique: true
         }
     }, {
-        tableName: 'tbl_misc_sw_opsystem',
+        tableName: 'tbl_misc_sw_prodtool',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: false

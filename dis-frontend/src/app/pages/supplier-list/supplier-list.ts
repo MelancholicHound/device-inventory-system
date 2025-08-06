@@ -57,7 +57,7 @@ export class SupplierList implements OnInit {
   isSorted: boolean | null = null;
 
   first: number = 0;
-  rows: number = 10;
+  rows: number = 5;
   visible: boolean = false;
 
   requestAuth = inject(Request);

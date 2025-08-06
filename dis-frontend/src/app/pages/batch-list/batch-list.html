@@ -9,7 +9,7 @@
              [paginator]="true"
              [first]="first"
              [showCurrentPageReport]="true"
-             [rowsPerPageOptions]="[10, 15, 20]"
+             [rowsPerPageOptions]="[5, 10, 20]"
              [rows]="rows"
              [globalFilterFields]="['batch_id', 'supplier', 'date_delivered', 'valid_until']"
              (onPage)="pageChange($event)"
@@ -70,8 +70,7 @@
     </p-table>
   </section>
 </main>
-<router-outlet />
 
 <p-dialog header="Add Batch" [modal]="true" [(visible)]="visible" [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }" [style]="{ width: '30%' }">
-  <app-batch (closeModal)="closeDialog($event)"/>
+  <app-batch (closeModal)="closeDialog($event)" />
 </p-dialog>

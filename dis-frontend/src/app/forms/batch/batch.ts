@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ViewChild, Output, EventEmitter, inject, effect, signal } from '@angular/core';
+import { Component, OnInit, OnChanges, ChangeDetectorRef, ViewChild, Input, Output, EventEmitter, inject, signal, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -34,12 +34,12 @@ import { FileConverter } from '../../utilities/modules/common';
   templateUrl: './batch.html',
   styleUrl: './batch.css'
 })
-export class Batch implements OnInit {
+export class Batch implements OnInit, OnChanges {
+  @Input() batchDetails: any;
+
   @Output() closeModal = new EventEmitter<boolean>(true);
 
   @ViewChild('fileInput') fileInput!: HTMLInputElement;
-
-  batchDetails: any;
 
   batchForm!: FormGroup;
 
@@ -51,14 +51,13 @@ export class Batch implements OnInit {
   router = inject(Router);
 
   selectedFile = signal('');
+  isEditing = signal(false);
   suppliers = signal<SupplierInterface[]>([]);
 
   fileConverter = new FileConverter();
 
   constructor(private cdr: ChangeDetectorRef) {
     this.batchForm = this.createBatchForm();
-
-    effect(() => {  });
   }
 
   ngOnInit(): void {
@@ -76,23 +75,43 @@ export class Batch implements OnInit {
     const isTested = this.batchForm.get('is_tested')?.value;
 
     if (!isTested) {
-      this.testedDateControl?.disable();
+      this.testedDateControl?.enable();
       this.testedDateControl?.clearValidators();
       this.testedDateControl?.updateValueAndValidity();
     }
 
     this.batchForm.get('is_tested')?.valueChanges.subscribe((isChecked) => {
       if (isChecked) {
-        this.testedDateControl?.enable();
+        this.testedDateControl?.disable();
         this.testedDateControl?.setValidators([Validators.required]);
       } else {
-        this.testedDateControl?.disable();
+        this.testedDateControl?.enable();
         this.testedDateControl?.reset();
         this.testedDateControl?.clearValidators();
       }
 
       this.testedDateControl?.updateValueAndValidity();
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['batchDetails']) {
+      this.batchForm.patchValue({
+        valid_until: new Date(this.batchDetails.valid_until),
+        date_delivered: new Date(this.batchDetails.date_delivered),
+        date_tested: this.batchDetails.date_tested ? new Date(this.batchDetails.date_tested) : null,
+        supplier_id: this.batchDetails.supplier_id,
+        service_center: this.batchDetails.service_center,
+        purchaseRequestDTO: {
+          number: +this.batchDetails.purchaseRequestDTO.number,
+          file: this.batchDetails.purchaseRequestDTO.file
+        },
+        is_tested: this.batchDetails.date_tested ?? true
+      });
+
+      this.batchForm.disable();
+      this.isEditing.set(false);
+    }
   }
 
   private addOneYear(date: Date): Date {
@@ -198,5 +217,34 @@ export class Batch implements OnInit {
   cancelUpload(): void {
     this.fileInput.value = '';
     this.selectedFile.set('');
+  }
+
+  switchButton(): void {
+    this.isEditing.set(true);
+    this.batchForm.enable();
+  }
+
+  updateBatch(): void {
+    this.requestAuth.putBatch(this.batchForm.value, this.batchDetails.id).subscribe({
+      next: (res: any) => {
+        this.notification.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `${res.message}`
+        });
+
+        this.signalService.markBatchAsAdded();
+        setTimeout(() => {
+          this.emitCloseModal();
+        }, 2000);
+      },
+      error: (error: any) => {
+        this.notification.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `${error}`
+        });
+      }
+    });
   }
 }

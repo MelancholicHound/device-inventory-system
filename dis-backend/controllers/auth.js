@@ -446,14 +446,21 @@ exports.putByIdBatch = async (req, res, next) => {
         requestValidation(req, next);
 
         const id = req.params.id;
-        const { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id } = req.body;
+        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
 
-        const isBatchExisting = await Batch.findByPk(id);
-        if (!isBatchExisting) {
+        const batch = await Batch.findByPk(id);
+        if (!batch) {
             return next(createErrors.notFound("Batch with this id doesn't exist."));
         }
+
+        const isSupplierExisting = await Supplier.findByPk(supplier_id);
+        if (!isSupplierExisting) {
+            return next(createErrors.notFound("Supplier with this id doesn't exist."));
+        }
+
+        await PurchaseRequestDTO.update(purchaseRequestDTO, { where: { id: batch.prDTO_id } });
         
-        const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center, prDTO_id };
+        const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center };
 
         await Batch.update(batchData, { where: { id } });
 

@@ -40,7 +40,7 @@ export class Sidebar implements AfterViewInit {
 
   constructor() {
     if (this.requestAuth.isLoggedIn()) {
-      this.router.navigate(['/batch-list']);
+      /* this.router.navigate(['/batch-list']); */
     }
   }
 

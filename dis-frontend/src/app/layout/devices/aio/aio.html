@@ -1,0 +1,65 @@
+<form action="" [formGroup]="aioForm">
+  <div class="bg-white rounded-xl p-5">
+    <h1 class="text-xl font-semibold mb-5"> AIO Device Information </h1>
+    <div class="flex w-full justify-between items-center">
+      <div class="flex gap-5 items-center">
+        <blockquote class="flex items-center gap-2">
+          <p class="text-slate-600"> Batch Number: </p>
+          <p class="underline font-semibold"> {{ batchDetails()?.batch_id }} </p>
+        </blockquote>
+        <blockquote class="flex items-center gap-2">
+          <p class="text-slate-600"> Quantity: </p>
+          <p class="underline font-semibold"> {{ quantity() }} </p>
+        </blockquote>
+      </div>
+      <p-button label="Save"
+                [style]="{ width: '100px' }"
+                (onClick)="postAIO()"/>
+    </div>
+    <div class="flex justify-between items-center mt-5">
+      <div class="flex gap-6">
+        <span class="flex flex-col">
+          <label for="division" class="text-slate-600 mb-1"> Division: </label>
+          <p-select inputId="division"
+                    class="w-60"
+                    [options]="signalService.division()"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select Division"
+                    (onChange)="getSectionSelectValue($event)"/>
+        </span>
+        <span class="flex flex-col">
+          <label for="section" class="text-slate-600 mb-1"> Section: </label>
+          <p-select inputId="section"
+                    class="w-60"
+                    [options]="sectionsByDivId()"
+                    optionLabel="name"
+                    optionValue="id"
+                    placeholder="Select Section"
+                    formControlName="section_id"/>
+        </span>
+      </div>
+      <div class="flex gap-6">
+        <span class="flex flex-col">
+          <label class="text-slate-600 mb-1" for="brand"> Brand: </label>
+          <p-select inputId="brand"
+                    class="w-60"
+                    [options]="brand()"
+                    optionLabel="name"
+                    optionValue="id"
+                    [editable]="true"
+                    placeholder="Select Brand"
+                    formControlName="brand_id"
+                    (onBlur)="handleBrandInput($event)"/>
+        </span>
+        <span class="flex flex-col">
+          <label class="text-slate-600 mb-1" for="model"> Model: </label>
+          <input type="text"
+                 pInputText
+                 placeholder="Insert Model"
+                 formControlName="model">
+        </span>
+      </div>
+    </div>
+  </div>
+</form>

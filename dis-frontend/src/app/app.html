@@ -17,9 +17,9 @@
 </main>
 
 <ng-template #loggedIn>
-  <main class="h-svh w-svw flex">
-    <app-sidebar (activeLink)="handleActiveLink($event)"/>
-    <section class="flex flex-col w-full bg-gray-100">
+  <main class="relative h-svh w-svw flex">
+    <app-sidebar (activeLink)="handleActiveLink($event)" class="fixed top-0 left-0 h-screen w-64"/>
+    <section class="flex flex-col w-full bg-gray-100 ml-70 overflow-auto">
       <header class="flex p-9 justify-between">
         <div class="flex items-center gap-6">
           <button class="nav_button flex justify-center items-center" type="button">
@@ -36,7 +36,7 @@
           </button>
         </div>
       </header>
-      <aside class="px-9">
+      <aside class="px-9 h-full overflow-y-auto">
         <router-outlet/>
       </aside>
     </section>

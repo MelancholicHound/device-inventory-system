@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, inject, effect, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { forkJoin, map } from 'rxjs';
@@ -32,7 +32,6 @@ interface Column {
   selector: 'app-batch-list',
   imports: [
     CommonModule,
-    RouterOutlet,
     TableModule,
     IconFieldModule,
     InputTextModule,
@@ -61,7 +60,7 @@ export class BatchList implements OnInit {
   isSorted: boolean | null = null;
 
   first: number = 0;
-  rows: number = 10;
+  rows: number = 5;
   visible: boolean = false;
 
   requestAuth = inject(Request);
@@ -79,13 +78,8 @@ export class BatchList implements OnInit {
         label: 'Options',
         items: [
           {
-            label: 'View Details',
+            label: 'View Batch',
             icon: 'pi pi-eye',
-            command: () => this.viewDetailsOption(this.activeBatch)
-          },
-          {
-            label: 'Edit Batch',
-            icon: 'pi pi-pen-to-square',
             command: () => this.editBatchOption(this.activeBatch)
           },
           {
@@ -181,11 +175,13 @@ export class BatchList implements OnInit {
     this.menuRef.toggle(event);
   }
 
-  viewDetailsOption(batch: any): void {
+  editBatchOption(batch: any): void {
     this.requestAuth.getBatchById(batch.id).subscribe({
       next: (res: any) => {
         this.signalService.setBatchDetails(res);
-        this.router.navigate(['/batch-list/batch-details']);
+        this.router.navigate(['/batch-list/batch-details'], {
+          queryParams: { isEditing: true }
+        });
       },
       error: (error: any) => {
         this.notification.add({
@@ -194,11 +190,7 @@ export class BatchList implements OnInit {
           detail: `${error}`
         });
       }
-    })
-  }
-
-  editBatchOption(batch: any): void {
-    console.log(batch);
+    });
   }
 
   dropBatchOption(batch: any): void {

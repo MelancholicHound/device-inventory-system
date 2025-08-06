@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 import { Observable, throwError } from 'rxjs';
@@ -8,6 +8,14 @@ import { first, catchError, tap } from 'rxjs/operators';
 import { UserInterface } from '../models/UserInterface';
 import { BatchInterface } from '../models/BatchInteface';
 import { SupplierInterface } from '../models/SupplierInterface';
+
+import { DeviceAIO } from '../models/DeviceAIO';
+import { DeviceComputer } from '../models/DeviceComputer';
+import { DeviceLaptop } from '../models/DeviceLaptop';
+import { DevicePrinter } from '../models/DevicePrinter';
+import { DeviceRouter } from '../models/DeviceRouter';
+import { DeviceScanner } from '../models/DeviceScanner';
+import { DeviceTablet } from '../models/DeviceTablet';
 
 @Injectable({
   providedIn: 'root'
@@ -50,7 +58,7 @@ export class Request {
   login(email: Pick<UserInterface, 'email'>, password: Pick<UserInterface, 'password'>): Observable<any> {
     return this.http.post(`${this.url}/login`, { email, password }, { responseType: 'text' })
     .pipe(first(), tap((token) => this.setToken(token)), catchError((error: any) => {
-      const errorMessage = error?.error?.message || 'An unknown error occured during login.';
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during login.';
 
       return throwError(() => errorMessage);
     }));
@@ -78,6 +86,424 @@ export class Request {
     return this.http.post<SupplierInterface>(`${this.url}/supplier`, supplier, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of supplier.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postAIOBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/aio`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of AIO brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postLaptopBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/laptop`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of laptop brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postPrinterBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/printer`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of printer brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postRouterBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/router`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of router brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postScannerBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/scanner`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of laptop brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postTabletBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/tablet`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of tablet brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postMotherboardBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/motherboard`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of motherboard brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postProcessorBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/processor`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of processor brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postProcessorSeriesBrand(id: number, brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/processor/${id}/series`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message
+      || 'An unknown error occured during saving of processor series by brand id.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postChipsetBrand(brand: string): Observable<any> {
+    const endpoint = `${this.url}/brand/chipset`;
+    const params = new HttpParams().set('name', brand);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of chipset brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postRAMCapacity(capacity: number): Observable<any> {
+    const endpoint = `${this.url}/capacity/ram`;
+    const params = new HttpParams().set('capacity', capacity);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of RAM capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postStorageCapacity(capacity: number): Observable<any> {
+    const endpoint = `${this.url}/capacity/storage`;
+    const params = new HttpParams().set('capacity', capacity);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of storage capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postGPUCapacity(capacity: number): Observable<any> {
+    const endpoint = `${this.url}/capacity/gpu`;
+    const params = new HttpParams().set('capacity', capacity);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of GPU capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postPrinterType(type: string): Observable<any> {
+    const endpoint = `${this.url}/misc/type/printer`;
+    const params = new HttpParams().set('type', type);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of printer type.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postScannerType(type: string): Observable<any> {
+    const endpoint = `${this.url}/misc/type/scanner`;
+    const params = new HttpParams().set('type', type);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of scanner type.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postStorageType(type: string): Observable<any> {
+    const endpoint = `${this.url}/misc/type/storage`;
+    const params = new HttpParams().set('type', type);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of storage type.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postNetworkSpeed(speed: number): Observable<any> {
+    const endpoint = `${this.url}/misc/networkspeed`;
+    const params = new HttpParams().set('speed', speed);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of connection.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postAntennaCount(count: number): Observable<any> {
+    const endpoint = `${this.url}/misc/antennacount`;
+    const params = new HttpParams().set('count', count);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of antenna count.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postConnection(name: string): Observable<any> {
+    const endpoint = `${this.url}/services/connection`;
+    const params = new HttpParams().set('name', name);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of connection.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postPeripheral(name: string): Observable<any> {
+    const endpoint = `${this.url}/services/peripherals`;
+    const params = new HttpParams().set('name', name);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of peripheral.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postSoftwareOS(name: string): Observable<any> {
+    const endpoint = `${this.url}/services/software/os`;
+    const params = new HttpParams().set('name', name);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of operating system.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postSoftwareProdTool(name: string): Observable<any> {
+    const endpoint = `${this.url}/services/software/productivitytool`;
+    const params = new HttpParams().set('name', name);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of productivity tool.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postSoftwareSecurity(name: string): Observable<any> {
+    const endpoint = `${this.url}/services/software/security`;
+    const params = new HttpParams().set('name', name);
+
+    return this.http.post(endpoint, null, {
+      headers: this.httpOptionsWithToken().headers,
+      params
+    })
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of security.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postAIO(aio: Omit<DeviceAIO, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/aio`, aio, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of AIO.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postComputer(computer: Omit<DeviceComputer, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/computer`, computer, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of computer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postLaptop(laptop: Omit<DeviceLaptop, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/laptop`, laptop, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of laptop.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postPrinter(printer: Omit<DeviceLaptop, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/printer`, printer, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of printer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postRouter(router: Omit<DeviceRouter, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/router`, router, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.messwage || 'An unknown error occured during saving of router.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postScanner(scanner: Omit<DeviceScanner, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/scanner`, scanner, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of scanner.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postTablet(tablet: Omit<DeviceTablet, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/tablet`, tablet, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of tablet.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  postUPS(ups: Omit<DeviceAIO, 'id'>): Observable<any> {
+    return this.http.post(`${this.url}/device/ups`, ups, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of UPS.';
 
       return throwError(() => errorMessage);
     }));
@@ -174,10 +600,235 @@ export class Request {
     }));
   }
 
+  getAllAIOBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/aio`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all AIO brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllLaptopBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/laptop`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all laptop brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllPrinterBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/printer`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all printer brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllRouterBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/router`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all router brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllScannerBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/scanner`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all scanner brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllTabletBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/tablet`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all tablet brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllUPSBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/ups`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all UPS brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllMotherboardBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/motherboard`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all motherboard brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllProcessorBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/processor`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all processor brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllProcessorSeriesByBrandId(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/processor/${id}/series`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all processor series by brand id.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllChipsetBrand(): Observable<any> {
+    return this.http.get(`${this.url}/brand/chipset`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all chipset brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllRAMCapacities(): Observable<any> {
+    return this.http.get(`${this.url}/capacity/ram`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all RAM capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllStorageCapacities(): Observable<any> {
+    return this.http.get(`${this.url}/capacity/storage`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all storage capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllGPUCapacities(): Observable<any> {
+    return this.http.get(`${this.url}/capacity/gpu`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all gpu capacity.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getPrinterTypes(): Observable<any> {
+    return this.http.get(`${this.url}/misc/type/printer`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all printer types.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getScannerTypes(): Observable<any> {
+    return this.http.get(`${this.url}/misc/type/scanner`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all scanner types.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getStorageType(): Observable<any> {
+    return this.http.get(`${this.url}/misc/type/storage`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all storage types.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getNetworkSpeed(): Observable<any> {
+    return this.http.get(`${this.url}/misc/networkspeed`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all network speed.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAntennaCount(): Observable<any> {
+    return this.http.get(`${this.url}/misc/antennacount`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all antenna count.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllConnections(): Observable<any> {
+    return this.http.get(`${this.url}/services/connection`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all connections.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllPeripherals(): Observable<any> {
+    return this.http.get(`${this.url}/services/peripheral`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all peripherals.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllSoftwareOS(): Observable<any> {
+    return this.http.get(`${this.url}/services/softwares/os`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all operating systems.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllSoftwareProdTool(): Observable<any> {
+    return this.http.get(`${this.url}/services/softwares/productivitytool`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all peripherals.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllSoftwareSecurity(): Observable<any> {
+    return this.http.get(`${this.url}/services/softwares/security`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all securities.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllAIO(): Observable<any> {
     return this.http.get(`${this.url}/device/aio`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all AIOs.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAIOById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/aio/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific AIO.';
 
       return throwError(() => errorMessage);
     }));
@@ -201,6 +852,15 @@ export class Request {
     }));
   }
 
+  getLaptopById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/laptop/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific laptop.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllLaptopByBatchId(id: number): Observable<any> {
     return this.http.get(`${this.url}/device/laptop/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
@@ -214,6 +874,15 @@ export class Request {
     return this.http.get(`${this.url}/device/tablet`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all tablets.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getTabletById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/tablet/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific tablet.';
 
       return throwError(() => errorMessage);
     }));
@@ -237,6 +906,15 @@ export class Request {
     }));
   }
 
+  getComputerById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/computer/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific computer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllComputerByBatchId(id: number): Observable<any> {
     return this.http.get(`${this.url}/device/computer/batch/:id`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
@@ -250,6 +928,15 @@ export class Request {
     return this.http.get(`${this.url}/device/router`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all routers.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getRouterById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/router/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific router.';
 
       return throwError(() => errorMessage);
     }));
@@ -273,6 +960,15 @@ export class Request {
     }));
   }
 
+  getPrinterById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/printer/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific printer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllPrinterByBatchId(id: number): Observable<any> {
     return this.http.get(`${this.url}/device/printer/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
@@ -291,6 +987,15 @@ export class Request {
     }));
   }
 
+  getScannerById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/scanner/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific scanner.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllScannerByBatchId(id: number): Observable<any> {
     return this.http.get(`${this.url}/device/scanner/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
@@ -304,13 +1009,165 @@ export class Request {
   putSupplier(supplier: Omit<SupplierInterface, 'id'>, id: number): Observable<any> {
     return this.http.put(`${this.url}/supplier/${id}`, supplier, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
-      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of supplier';
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of supplier.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putBatch(batch: Omit<BatchInterface, 'id'>, id: number): Observable<any> {
+    return this.http.put(`${this.url}/batch/${id}`, batch, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of batch.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceAIO(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/aio/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of AIO.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceComputer(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/computer/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of computer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceLaptop(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/laptop/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of laptop.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDevicePrinter(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/printer/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of printer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceRouter(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/router/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of router.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceScanner(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/scanner/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of scanner.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceTablet(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/tablet/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of tablet.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  putDeviceUPS(id: number, form: any): Observable<any> {
+    return this.http.put(`${this.url}/device/ups/${id}`, form, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of UPS.';
 
       return throwError(() => errorMessage);
     }));
   }
 
   //PATCH Requests
+  condemnedAIO(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/aio/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating AIO status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedComputer(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/computer/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating computer status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedLaptop(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/laptop/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating laptop status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedPrinter(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/printer/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating printer status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedRouter(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/router/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating router status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedScanner(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/scanner/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating scanner status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedTablet(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/tablet/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating tablet status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  condemnedUPS(id: number, assessment: any): Observable<any> {
+    return this.http.patch(`${this.url}/device/ups/${id}`, assessment, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating UPS status.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
 
   //DELETE Requests
   deleteBatch(id: number): Observable<any> {

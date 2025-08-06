@@ -24,6 +24,8 @@
     <p-select inputId="supplier"
               class="w-full"
               [options]="suppliers()"
+              [checkmark]="true"
+              [showClear]="true"
               optionLabel="name"
               optionValue="id"
               placeholder="Select supplier"
@@ -81,6 +83,15 @@
               [style]="{ width: '100px' }"
               (onClick)="emitCloseModal()"/>
     <p-button label="Add Batch"
+              *ngIf="!batchDetails"
               (onClick)="addBatch()"/>
+    <p-button label="Edit"
+              [style]="{ width: '100px' }"
+              *ngIf="!isEditing() && batchDetails"
+              (onClick)="switchButton()"/>
+    <p-button label="Save"
+              [style]="{ width: '100px' }"
+              *ngIf="isEditing() && batchDetails"
+              (onClick)="updateBatch()"/>
   </span>
 </form>
