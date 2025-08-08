@@ -1,5 +1,5 @@
 import { Component, OnInit, effect, inject, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -10,11 +10,20 @@ import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { TreeSelect } from 'primeng/treeselect';
+
+import { firstValueFrom } from 'rxjs';
 
 import { Request } from '../../../utilities/services/request';
 import { Signal } from '../../../utilities/services/signal';
 
 import { Store } from '../../../utilities/services/store';
+
+interface TreeNode {
+  key: string;
+  label: string;
+  children?: TreeNode[];
+}
 
 @Component({
   selector: 'app-aio',
@@ -27,7 +36,8 @@ import { Store } from '../../../utilities/services/store';
     InputTextModule,
     KeyFilterModule,
     TabsModule,
-    MultiSelectModule
+    MultiSelectModule,
+    TreeSelect
   ],
   templateUrl: './aio.html',
   styleUrl: './aio.css'
@@ -38,12 +48,19 @@ export class Aio implements OnInit {
   signalService = inject(Signal);
   storage = inject(Store);
   notification = inject(MessageService);
+  fb = inject(FormBuilder);
 
   quantity = signal(0);
   sectionsByDivId = signal([]);
   seriesByBrandId = signal([]);
   brand = signal<any>([]);
   batchDetails = signal<any | null>(null);
+
+  ramList = signal<Array<any>>([{}]);
+  storageList = signal<Array<any>>([{}]);
+
+  treeData = signal<TreeNode[]>([]);
+  selectedUPS = signal<string | null>(null)
 
   aioForm!: FormGroup;
 
@@ -65,8 +82,8 @@ export class Aio implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-
+  async ngOnInit() {
+    await this.loadTreeData();
   }
 
   createAIOForm(): FormGroup {
@@ -75,16 +92,50 @@ export class Aio implements OnInit {
       section_id: new FormControl<number | null>(null, [Validators.required]),
       serial_number: new FormControl<string | null>(null),
       ups_id: new FormControl<number | any>(null),
-      storageDTO: new FormArray([], [Validators.required]),
-      ramDTO: new FormArray([], [Validators.required]),
+      storageDTO: new FormArray([this.createStorageGroup()]),
+      ramDTO: new FormArray([this.createRamGroup()]),
       gpu_id: new FormControl<number | null>(null, [Validators.required]),
       processorDTO: new FormGroup({
         series_id: new FormControl<number | null>(null, [Validators.required]),
         model: new FormControl<string | null>(null, [Validators.required])
       }),
       brand_id: new FormControl<number | null>(null, [Validators.required]),
-      model: new FormControl<string | null>(null, [Validators.required])
+      model: new FormControl<string | null>(null, [Validators.required]),
+      connectionDTO: new FormControl<number[] | null>([], [Validators.required]),
+      peripheralDTO: new FormControl<number[] | null>([], [Validators.required]),
+      os_id: new FormControl<number | null>(null, [Validators.required]),
+      prod_id: new FormControl<number | null>(null, [Validators.required]),
+      security_id: new FormControl<number | null>(null, [Validators.required]),
+      accountable_user: new FormControl<string | null>(null),
+      co_accountable_user: new FormControl<string | null>(null)
     });
+  }
+
+  async loadTreeData() {
+    const batches = await firstValueFrom(this.requestAuth.getAllBatches());
+    const treeNodes: TreeNode[] = [];
+
+    for (const batch of batches) {
+      const upsList = await firstValueFrom(
+        this.requestAuth.getAllUPSByBatchId(batch.id)
+      );
+
+      treeNodes.push({
+        key: `batch-${batch.id}`,
+        label: batch.batch_id,
+        children: upsList.map((ups: any) => ({
+          key: String(ups.id),
+          label: ups.device_number
+        }))
+      });
+    }
+
+    this.treeData.set(treeNodes);
+    console.log(treeNodes);
+  }
+
+  submitSelection() {
+    console.log(this.selectedUPS());
   }
 
   getSectionSelectValue(event: any): void {
@@ -127,6 +178,49 @@ export class Aio implements OnInit {
         });
       }
     });
+  }
+
+  // ---- RAM ----
+  createRamGroup(): FormGroup {
+    return this.fb.group({
+      capacity_id: [null, Validators.required]
+    });
+  }
+
+  get ramArray(): FormArray {
+    return this.aioForm.get('ramDTO') as FormArray;
+  }
+
+  addRAM = () => {
+    this.ramArray.push(this.createRamGroup());
+  }
+
+  removeRAM = (index: number) => {
+    if (this.ramArray.length > 1) {
+      this.ramArray.removeAt(index);
+    }
+  }
+
+  // ---- Storage ----
+  createStorageGroup(): FormGroup {
+    return this.fb.group({
+      capacity_id: [null, Validators.required],
+      type_id: [null, Validators.required]
+    });
+  }
+
+  get storageArray(): FormArray {
+    return this.aioForm.get('storageDTO') as FormArray;
+  }
+
+  addStorage(): void {
+    this.storageArray.push(this.createStorageGroup());
+  }
+
+  removeStorage(index: number): void {
+    if (this.storageArray.length > 1) {
+      this.storageArray.removeAt(index);
+    }
   }
 
   postAIO(): void {

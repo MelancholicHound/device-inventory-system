@@ -528,8 +528,8 @@ export class Request {
     }));
   }
 
-  getDivisions(): Observable<any> {
-    return this.http.get(`${this.url}/division`, this.httpOptionsWithToken())
+  getDivisions(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/division`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of divisions.';
 
@@ -546,8 +546,8 @@ export class Request {
     }));
   }
 
-  getSectionsByDivisionId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/section/division/${id}`, this.httpOptionsWithToken())
+  getSectionsByDivisionId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/section/division/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of sections by division id.';
 
@@ -564,8 +564,8 @@ export class Request {
     }));
   }
 
-  getAllBatches(): Observable<any> {
-    return this.http.get(`${this.url}/batch`, this.httpOptionsWithToken())
+  getAllBatches(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/batch`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of batches.';
 
@@ -600,8 +600,8 @@ export class Request {
     }));
   }
 
-  getAllAIOBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/aio`, this.httpOptionsWithToken())
+  getAllAIOBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/aio`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all AIO brands.';
 
@@ -609,8 +609,8 @@ export class Request {
     }));
   }
 
-  getAllLaptopBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/laptop`, this.httpOptionsWithToken())
+  getAllLaptopBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/laptop`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all laptop brands.';
 
@@ -618,8 +618,8 @@ export class Request {
     }));
   }
 
-  getAllPrinterBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/printer`, this.httpOptionsWithToken())
+  getAllPrinterBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/printer`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all printer brands.';
 
@@ -627,8 +627,8 @@ export class Request {
     }));
   }
 
-  getAllRouterBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/router`, this.httpOptionsWithToken())
+  getAllRouterBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/router`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all router brands.';
 
@@ -636,8 +636,8 @@ export class Request {
     }));
   }
 
-  getAllScannerBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/scanner`, this.httpOptionsWithToken())
+  getAllScannerBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/scanner`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all scanner brands.';
 
@@ -645,8 +645,8 @@ export class Request {
     }));
   }
 
-  getAllTabletBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/tablet`, this.httpOptionsWithToken())
+  getAllTabletBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/tablet`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all tablet brands.';
 
@@ -654,8 +654,8 @@ export class Request {
     }));
   }
 
-  getAllUPSBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/ups`, this.httpOptionsWithToken())
+  getAllUPSBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/ups`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all UPS brands.';
 
@@ -663,8 +663,8 @@ export class Request {
     }));
   }
 
-  getAllMotherboardBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/motherboard`, this.httpOptionsWithToken())
+  getAllMotherboardBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/motherboard`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all motherboard brands.';
 
@@ -672,8 +672,8 @@ export class Request {
     }));
   }
 
-  getAllProcessorBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/processor`, this.httpOptionsWithToken())
+  getAllProcessorBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/processor`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all processor brands.';
 
@@ -681,8 +681,8 @@ export class Request {
     }));
   }
 
-  getAllProcessorSeriesByBrandId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/brand/processor/${id}/series`, this.httpOptionsWithToken())
+  getAllProcessorSeriesByBrandId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/processor/${id}/series`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all processor series by brand id.';
 
@@ -690,8 +690,8 @@ export class Request {
     }));
   }
 
-  getAllChipsetBrand(): Observable<any> {
-    return this.http.get(`${this.url}/brand/chipset`, this.httpOptionsWithToken())
+  getAllChipsetBrand(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/brand/chipset`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all chipset brands.';
 
@@ -699,8 +699,8 @@ export class Request {
     }));
   }
 
-  getAllRAMCapacities(): Observable<any> {
-    return this.http.get(`${this.url}/capacity/ram`, this.httpOptionsWithToken())
+  getAllRAMCapacities(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/capacity/ram`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all RAM capacity.';
 
@@ -708,8 +708,8 @@ export class Request {
     }));
   }
 
-  getAllStorageCapacities(): Observable<any> {
-    return this.http.get(`${this.url}/capacity/storage`, this.httpOptionsWithToken())
+  getAllStorageCapacities(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/capacity/storage`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all storage capacity.';
 
@@ -717,8 +717,8 @@ export class Request {
     }));
   }
 
-  getAllGPUCapacities(): Observable<any> {
-    return this.http.get(`${this.url}/capacity/gpu`, this.httpOptionsWithToken())
+  getAllGPUCapacities(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/capacity/gpu`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all gpu capacity.';
 
@@ -726,8 +726,8 @@ export class Request {
     }));
   }
 
-  getPrinterTypes(): Observable<any> {
-    return this.http.get(`${this.url}/misc/type/printer`, this.httpOptionsWithToken())
+  getPrinterTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/misc/type/printer`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all printer types.';
 
@@ -735,8 +735,8 @@ export class Request {
     }));
   }
 
-  getScannerTypes(): Observable<any> {
-    return this.http.get(`${this.url}/misc/type/scanner`, this.httpOptionsWithToken())
+  getScannerTypes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/misc/type/scanner`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all scanner types.';
 
@@ -744,8 +744,8 @@ export class Request {
     }));
   }
 
-  getStorageType(): Observable<any> {
-    return this.http.get(`${this.url}/misc/type/storage`, this.httpOptionsWithToken())
+  getStorageType(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/misc/type/storage`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all storage types.';
 
@@ -753,8 +753,8 @@ export class Request {
     }));
   }
 
-  getNetworkSpeed(): Observable<any> {
-    return this.http.get(`${this.url}/misc/networkspeed`, this.httpOptionsWithToken())
+  getNetworkSpeed(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/misc/networkspeed`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all network speed.';
 
@@ -762,8 +762,8 @@ export class Request {
     }));
   }
 
-  getAntennaCount(): Observable<any> {
-    return this.http.get(`${this.url}/misc/antennacount`, this.httpOptionsWithToken())
+  getAntennaCount(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/misc/antennacount`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all antenna count.';
 
@@ -771,8 +771,8 @@ export class Request {
     }));
   }
 
-  getAllConnections(): Observable<any> {
-    return this.http.get(`${this.url}/services/connection`, this.httpOptionsWithToken())
+  getAllConnections(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/services/connection`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all connections.';
 
@@ -780,8 +780,8 @@ export class Request {
     }));
   }
 
-  getAllPeripherals(): Observable<any> {
-    return this.http.get(`${this.url}/services/peripheral`, this.httpOptionsWithToken())
+  getAllPeripherals(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/services/peripheral`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all peripherals.';
 
@@ -789,8 +789,8 @@ export class Request {
     }));
   }
 
-  getAllSoftwareOS(): Observable<any> {
-    return this.http.get(`${this.url}/services/softwares/os`, this.httpOptionsWithToken())
+  getAllSoftwareOS(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/services/softwares/os`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all operating systems.';
 
@@ -798,8 +798,8 @@ export class Request {
     }));
   }
 
-  getAllSoftwareProdTool(): Observable<any> {
-    return this.http.get(`${this.url}/services/softwares/productivitytool`, this.httpOptionsWithToken())
+  getAllSoftwareProdTool(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/services/softwares/productivitytool`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all peripherals.';
 
@@ -807,8 +807,8 @@ export class Request {
     }));
   }
 
-  getAllSoftwareSecurity(): Observable<any> {
-    return this.http.get(`${this.url}/services/softwares/security`, this.httpOptionsWithToken())
+  getAllSoftwareSecurity(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/services/softwares/security`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all securities.';
 
@@ -816,8 +816,8 @@ export class Request {
     }));
   }
 
-  getAllAIO(): Observable<any> {
-    return this.http.get(`${this.url}/device/aio`, this.httpOptionsWithToken())
+  getAllAIO(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/aio`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all AIOs.';
 
@@ -834,8 +834,8 @@ export class Request {
     }));
   }
 
-  getAllAIOByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/aio/batch/${id}`, this.httpOptionsWithToken())
+  getAllAIOByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/aio/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of AIOs by batch id.';
 
@@ -843,8 +843,8 @@ export class Request {
     }));
   }
 
-  getAllLaptop(): Observable<any> {
-    return this.http.get(`${this.url}/device/laptop`, this.httpOptionsWithToken())
+  getAllLaptop(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/laptop`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all laptops.';
 
@@ -861,8 +861,8 @@ export class Request {
     }));
   }
 
-  getAllLaptopByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/laptop/batch/${id}`, this.httpOptionsWithToken())
+  getAllLaptopByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/laptop/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of laptops by batch id.';
 
@@ -870,8 +870,8 @@ export class Request {
     }));
   }
 
-  getAllTablet(): Observable<any> {
-    return this.http.get(`${this.url}/device/tablet`, this.httpOptionsWithToken())
+  getAllTablet(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/tablet`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all tablets.';
 
@@ -888,8 +888,8 @@ export class Request {
     }));
   }
 
-  getAllTabletByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/tablet/batch/${id}`, this.httpOptionsWithToken())
+  getAllTabletByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/tablet/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of tablets by batch id.';
 
@@ -897,8 +897,8 @@ export class Request {
     }));
   }
 
-  getAllComputer(): Observable<any> {
-    return this.http.get(`${this.url}/device/computer`, this.httpOptionsWithToken())
+  getAllComputer(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/computer`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all computers.';
 
@@ -915,8 +915,8 @@ export class Request {
     }));
   }
 
-  getAllComputerByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/computer/batch/:id`, this.httpOptionsWithToken())
+  getAllComputerByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/computer/batch/:id`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of computers by batch id.';
 
@@ -924,8 +924,8 @@ export class Request {
     }));
   }
 
-  getAllRouter(): Observable<any> {
-    return this.http.get(`${this.url}/device/router`, this.httpOptionsWithToken())
+  getAllRouter(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/router`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all routers.';
 
@@ -942,8 +942,8 @@ export class Request {
     }));
   }
 
-  getAllRouterByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/router/batch/${id}`, this.httpOptionsWithToken())
+  getAllRouterByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/router/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of routers by batch id.';
 
@@ -951,8 +951,8 @@ export class Request {
     }));
   }
 
-  getAllPrinter(): Observable<any> {
-    return this.http.get(`${this.url}/device/printer`, this.httpOptionsWithToken())
+  getAllPrinter(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/printer`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all printers.';
 
@@ -969,8 +969,8 @@ export class Request {
     }));
   }
 
-  getAllPrinterByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/printer/batch/${id}`, this.httpOptionsWithToken())
+  getAllPrinterByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/printer/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of printers by batch id.';
 
@@ -978,8 +978,8 @@ export class Request {
     }));
   }
 
-  getAllScanner(): Observable<any> {
-    return this.http.get(`${this.url}/device/scanner`, this.httpOptionsWithToken())
+  getAllScanner(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/scanner`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of all scanners.';
 
@@ -996,10 +996,37 @@ export class Request {
     }));
   }
 
-  getAllScannerByBatchId(id: number): Observable<any> {
-    return this.http.get(`${this.url}/device/scanner/batch/${id}`, this.httpOptionsWithToken())
+  getAllScannerByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/scanner/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of scanners by batch id.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllUPS(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/ups`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all UPS.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getUPSById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/device/ups/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching UPS by id.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getAllUPSByBatchId(id: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.url}/device/ups/batch/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all UPS by batch id.';
 
       return throwError(() => errorMessage);
     }));
