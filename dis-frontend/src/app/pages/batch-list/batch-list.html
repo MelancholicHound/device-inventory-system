@@ -1,7 +1,7 @@
-<main class="w-full h-full" *ngIf="!router.url.includes('batch-details')">
+<main class="w-full h-full">
   <section class="bg-white p-6 rounded-2xl">
     <p-table #dataTable
-             [value]="dataSource"
+             [value]="batches"
              [(selection)]="selectedBatch"
              [customSort]="true"
              [sortField]="'created_at'"

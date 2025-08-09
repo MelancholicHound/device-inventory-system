@@ -14,7 +14,7 @@ import { Dialog } from 'primeng/dialog';
 import { Menu } from 'primeng/menu';
 
 import { Requestservice } from '../../utilities/services/requestservice';
-import { Signal } from '../../utilities/services/signal';
+import { Signalservice } from '../../utilities/services/signalservice';
 
 import { SupplierInterface } from '../../utilities/models/SupplierInterface';
 import { TableBatchInterface } from '../../utilities/models/TableBatchInterface';
@@ -64,7 +64,7 @@ export class BatchList implements OnInit {
   visible: boolean = false;
 
   requestAuth = inject(Requestservice);
-  signalService = inject(Signal);
+  signalService = inject(Signalservice);
   notification = inject(MessageService);
   router = inject(Router);
 
@@ -100,44 +100,21 @@ export class BatchList implements OnInit {
 
     effect(() => {
       if (this.signalService.batchSignal()) {
-        this.getAllBatch();
+        this.signalService.loadToTableBatch();
         this.signalService.resetBatchFlag();
       }
+
+      this.dataSource = [...this.signalService.tableBatchList()];
+      this.initialValue = [...this.signalService.tableBatchList()];
     });
   }
 
   ngOnInit(): void {
-    this.getAllBatch();
+    this.signalService.loadToTableBatch();
   }
 
-  getAllBatch(): void {
-    this.requestAuth.getAllBatches().subscribe({
-      next: (res: TableBatchInterface[]) => {
-        const batchData = res.map((item: TableBatchInterface) => {
-          return this.requestAuth.getSupplierById(item.supplier_id).pipe(
-            map((supplier: SupplierInterface) => ({
-              id: item.id,
-              batch_id: item.batch_id,
-              supplier: supplier?.name,
-              date_delivered: item.date_delivered,
-              valid_until: item.valid_until,
-              created_at: item.created_at
-            }))
-          );
-        });
-
-        forkJoin(batchData).subscribe((result: any) => {
-          this.dataSource = result;
-          this.initialValue = [...result];
-          this.cdr.detectChanges();
-        });
-      },
-      error: (error: any) => this.notification.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: `${error}`
-      })
-    });
+  get batches() {
+    return this.signalService.tableBatchList();
   }
 
   sortTableData(event: any) {
@@ -166,7 +143,9 @@ export class BatchList implements OnInit {
     } else if (this.isSorted == false) {
       this.isSorted = null;
       this.dataSource = [...this.initialValue];
-      this.dataTable.reset();
+      if (this.dataTable) {
+        this.dataTable.reset();
+      }
     }
   }
 
@@ -178,7 +157,7 @@ export class BatchList implements OnInit {
   editBatchOption(batch: any): void {
     this.requestAuth.getBatchById(batch.id).subscribe({
       next: (res: any) => {
-        this.signalService.setBatchDetails(res);
+        this.signalService.batchDetails.set(res);
         this.router.navigate(['/batch-list/batch-details'], {
           queryParams: { isEditing: true }
         });
@@ -205,6 +184,7 @@ export class BatchList implements OnInit {
 
   pageChange(event: any): void {
     this.first = event.first;
+    this.rows = event.rows;
   }
 
   showDialog(): void {

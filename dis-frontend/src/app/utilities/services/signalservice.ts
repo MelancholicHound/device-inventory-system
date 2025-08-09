@@ -1,5 +1,12 @@
 import { Injectable, signal, inject } from '@angular/core';
 
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
+
+import { MessageService } from 'primeng/api';
+
+import { TableBatchInterface } from '../models/TableBatchInterface';
+import { SupplierInterface } from '../models/SupplierInterface';
+
 import { Requestservice } from './requestservice';
 
 @Injectable({
@@ -7,6 +14,7 @@ import { Requestservice } from './requestservice';
 })
 export class Signalservice {
   requestAuth = inject(Requestservice);
+  notification = inject(MessageService);
 
   supplierDetails = signal<any | null>(null);
   batchDetails = signal<any | null>(null);
@@ -32,6 +40,8 @@ export class Signalservice {
 
   batchList = signal<any[]>([]);
   supplierList = signal<any[]>([]);
+
+  tableBatchList = signal<TableBatchInterface[]>([]);
 
   public readonly supplierSignal = this.supplierAdded.asReadonly();
   public readonly batchSignal = this.batchAdded.asReadonly();
@@ -101,6 +111,38 @@ export class Signalservice {
 
   resetDeviceFlag(): void {
     this.deviceAdded.set(false);
+  }
+
+  loadToTableBatch(): void {
+    this.requestAuth.getAllBatches().pipe(
+      switchMap((batches: TableBatchInterface[]) => {
+        if (!batches.length) return of([]);
+        const batchData$: Observable<{
+          id: number;
+          batch_id: string;
+          supplier: string;
+          date_delivered: string;
+          valid_until: string;
+          created_at: string;
+        }>[] = batches.map((batch: any) =>
+          this.requestAuth.getSupplierById(batch.supplier_id).pipe(
+            map((supplier: SupplierInterface) => ({
+              id: batch.id,
+              batch_id: batch.batch_id,
+              supplier: supplier?.name,
+              date_delivered: batch.date_delivered,
+              valid_until: batch.valid_until,
+              created_at: batch.created_at
+            }))
+          )
+        );
+
+        return forkJoin(batchData$);
+      })
+    ).subscribe({
+      next: (res: any) => this.tableBatchList.set(res),
+      error: (error: any) => console.error(error)
+    });
   }
 
   reinitializeBatch(): void {

@@ -11,7 +11,7 @@ import { Dialog } from 'primeng/dialog';
 import { Menu } from 'primeng/menu';
 
 import { Requestservice } from '../../utilities/services/requestservice';
-import { Signal } from '../../utilities/services/signal';
+import { Signalservice } from '../../utilities/services/signalservice';
 
 import { TableSupplierInterface } from '../../utilities/models/TableSupplierInterface';
 
@@ -61,7 +61,7 @@ export class SupplierList implements OnInit {
   visible: boolean = false;
 
   requestAuth = inject(Requestservice);
-  signalService = inject(Signal);
+  signalService = inject(Signalservice);
   notification = inject(MessageService);
   confirmation = inject(ConfirmationService);
 
@@ -151,7 +151,7 @@ export class SupplierList implements OnInit {
 
     this.requestAuth.getSupplierById(supplier.id).subscribe({
       next: (res: any) => {
-        this.signalService.setSupplierDetails(res);
+        this.signalService.supplierDetails.set(res);
       },
       error: (error: any) => {
         this.notification.add({

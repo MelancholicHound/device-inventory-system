@@ -20,7 +20,7 @@ import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
 
 import { Requestservice } from '../../utilities/services/requestservice';
-import { Signal } from '../../utilities/services/signal';
+import { Signalservice } from '../../utilities/services/signalservice';
 
 import { TableDeviceInterface } from '../../utilities/models/TableDeviceInterface';
 
@@ -76,7 +76,7 @@ export class BatchDetails {
   deviceMenu: MenuItem[] | undefined;
 
   requestAuth = inject(Requestservice);
-  signalService = inject(Signal);
+  signalService = inject(Signalservice);
   router = inject(Router);
   fb = inject(FormBuilder);
   notification = inject(MessageService);
@@ -145,14 +145,14 @@ export class BatchDetails {
     ];
 
     effect(() => {
-      if (this.signalService.batchData()) {
-        this.batchDetails = this.signalService.batchData();
+      if (this.signalService.batchDetails()) {
+        this.batchDetails = this.signalService.batchDetails();
         this.getAllDevicesByBatchId(this.batchDetails.id);
       }
 
-      if (this.signalService.deviceData()) {
+      if (this.signalService.deviceDetails()) {
         this.getAllDevicesByBatchId(this.batchDetails.id);
-        this.signalService.emptyDeviceDetails();
+        this.signalService.deviceDetails.set([]);
       }
     });
   }
@@ -205,7 +205,7 @@ export class BatchDetails {
         const rawFetchedData = res.flat();
         this.dataSource = rawFetchedData;
         this.initialValue = [...rawFetchedData];
-        this.signalService.setDeviceCount(rawFetchedData.length);
+        this.signalService.batchDeviceCount.set(rawFetchedData.length);
         this.cdr.detectChanges();
       },
       error: (error: any) => {
@@ -258,7 +258,7 @@ export class BatchDetails {
     if (typeof fetchFn === 'function') {
       fetchFn(device.id).subscribe({
         next: (res: any) => {
-          this.signalService.setDeviceDetails(res);
+          this.signalService.deviceDetails.set(res);
         },
         error: (error: any) => {
           this.notification.add({
@@ -333,11 +333,11 @@ export class BatchDetails {
 
   backButton(): void {
     this.router.navigate(['/batch-list']);
-    this.signalService.emptyBatchDetails();
+    this.signalService.batchDetails.set([]);
   }
 
   saveButton(): void {
-    this.signalService.emptyBatchDetails();
+    this.signalService.batchDetails.set([]);
     this.router.navigate(['/batch-list']);
     this.notification.add({
       severity: 'success',
