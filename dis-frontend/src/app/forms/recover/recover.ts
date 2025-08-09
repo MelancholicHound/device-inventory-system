@@ -12,7 +12,7 @@ import { PasswordModule } from 'primeng/password';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ToastModule } from 'primeng/toast';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 
 import { passwordsMatchValidator } from '../../utilities/modules/validator';
 
@@ -37,7 +37,7 @@ export class Recover implements OnInit {
 
   private subscription!: Subscription;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   notification = inject(MessageService);
 
   countdown: any | null = null;

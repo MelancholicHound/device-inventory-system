@@ -11,7 +11,7 @@ import { PasswordModule } from 'primeng/password';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 
 import { Recover } from '../recover/recover';
 
@@ -36,7 +36,7 @@ import { Recover } from '../recover/recover';
 export class Login {
   @Input() isSigningUp!: () => void;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   notification = inject(MessageService);
 
   loginForm!: FormGroup;

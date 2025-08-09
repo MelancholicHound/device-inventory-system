@@ -12,10 +12,8 @@ import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TreeSelect } from 'primeng/treeselect';
 
-import { firstValueFrom } from 'rxjs';
-
-import { Request } from '../../../utilities/services/request';
-import { Signal } from '../../../utilities/services/signal';
+import { Requestservice } from '../../../utilities/services/requestservice';
+import { Signalservice } from '../../../utilities/services/signalservice';
 import { Nodeservice } from '../../../utilities/services/nodeservice';
 
 interface TreeNode {
@@ -46,8 +44,8 @@ export class Aio implements OnInit {
   selectedNodes: any;
 
   router = inject(Router);
-  requestAuth = inject(Request);
-  signalService = inject(Signal);
+  requestAuth = inject(Requestservice);
+  signalService = inject(Signalservice);
   notification = inject(MessageService);
   fb = inject(FormBuilder);
   nodeService = inject(Nodeservice);
@@ -88,8 +86,8 @@ export class Aio implements OnInit {
     })
 
     effect(() => {
-      if (this.signalService.batchData()) {
-        this.batchDetails.set(this.signalService.batchData());
+      if (this.signalService.batchDetails()) {
+        this.batchDetails.set(this.signalService.batchDetails());
       }
     });
   }

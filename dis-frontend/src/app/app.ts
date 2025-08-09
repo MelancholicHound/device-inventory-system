@@ -9,7 +9,7 @@ import { Menu } from 'primeng/menu';
 
 import { UserInterface } from './utilities/models/UserInterface';
 
-import { Request } from './utilities/services/request';
+import { Requestservice } from './utilities/services/requestservice';
 
 import { Login } from './forms/login/login';
 import { Signup } from './forms/signup/signup';
@@ -38,7 +38,7 @@ export class App implements OnInit {
 
   profileMenu: MenuItem[] | undefined;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   notification = inject(MessageService);
 
   isSigningUp = signal(false);

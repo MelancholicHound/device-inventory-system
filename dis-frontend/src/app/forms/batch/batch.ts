@@ -11,8 +11,8 @@ import { FluidModule } from 'primeng/fluid';
 import { Select } from 'primeng/select';
 import { Checkbox } from 'primeng/checkbox';
 
-import { Request } from '../../utilities/services/request';
-import { Signal } from '../../utilities/services/signal';
+import { Requestservice } from '../../utilities/services/requestservice';
+import { Signalservice } from '../../utilities/services/signalservice';
 
 import { SupplierInterface } from '../../utilities/models/SupplierInterface';
 
@@ -45,8 +45,8 @@ export class Batch implements OnInit, OnChanges {
 
   fileUpload: File | null = null;
 
-  requestAuth = inject(Request);
-  signalService = inject(Signal);
+  requestAuth = inject(Requestservice);
+  signalService = inject(Signalservice);
   notification = inject(MessageService);
   router = inject(Router);
 
@@ -178,7 +178,7 @@ export class Batch implements OnInit, OnChanges {
     this.requestAuth.postBatch(formattedPayload).subscribe({
       next: (res: any) => {
         this.notification.add({ severity: 'success', summary: 'Success', detail: `Batch created successfully.` });
-        this.signalService.setBatchDetails(res);
+        this.signalService.batchDetails.set(res);
         this.signalService.markBatchAsAdded();
         this.router.navigate(['/batch-list/batch-details']);
         this.emitCloseModal();

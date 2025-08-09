@@ -1,7 +1,7 @@
 import { Component, Output, EventEmitter, ViewChild, AfterViewInit, inject } from '@angular/core';
 import { RouterLinkActive, RouterLink, Router } from '@angular/router';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,7 +22,7 @@ export class Sidebar implements AfterViewInit {
   @ViewChild('auditLink') auditLink!: RouterLinkActive;
 
   router = inject(Router);
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
 
   private emitActiveLink() {
     if (this.dashboardLink?.isActive) {

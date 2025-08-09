@@ -13,7 +13,7 @@ import { TableModule, Table } from 'primeng/table';
 import { Dialog } from 'primeng/dialog';
 import { Menu } from 'primeng/menu';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 import { Signal } from '../../utilities/services/signal';
 
 import { SupplierInterface } from '../../utilities/models/SupplierInterface';
@@ -63,7 +63,7 @@ export class BatchList implements OnInit {
   rows: number = 5;
   visible: boolean = false;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   signalService = inject(Signal);
   notification = inject(MessageService);
   router = inject(Router);

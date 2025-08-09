@@ -2,13 +2,13 @@ import { Injectable, inject } from '@angular/core';
 
 import { switchMap, forkJoin, map, of, Observable } from 'rxjs';
 
-import { Request } from './request';
+import { Requestservice } from './requestservice';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Nodeservice {
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
 
   getTreeNodesData(): Observable<any[]> {
     return this.requestAuth.getAllBatches().pipe(

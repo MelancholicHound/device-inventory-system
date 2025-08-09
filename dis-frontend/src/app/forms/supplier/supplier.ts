@@ -7,8 +7,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { ButtonModule } from 'primeng/button';
 
-import { Request } from '../../utilities/services/request';
-import { Signal } from '../../utilities/services/signal';
+import { Requestservice } from '../../utilities/services/requestservice';
+import { Signalservice } from '../../utilities/services/signalservice';
 
 @Component({
   selector: 'app-supplier',
@@ -28,14 +28,14 @@ export class Supplier {
 
   supplierForm!: FormGroup;
 
-  requestAuth = inject(Request);
-  signalService = inject(Signal);
+  requestAuth = inject(Requestservice);
+  signalService = inject(Signalservice);
   notification = inject(MessageService);
 
   isEditing = signal(false);
   isAdding = signal(true);
 
-  supplierData = this.signalService.supplierData;
+  supplierData = this.signalService.supplierDetails;
 
   constructor() {
     this.supplierForm = this.createSupplierForm();

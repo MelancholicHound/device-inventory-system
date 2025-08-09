@@ -19,7 +19,7 @@ import { Menu } from 'primeng/menu';
 import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 import { Signal } from '../../utilities/services/signal';
 
 import { TableDeviceInterface } from '../../utilities/models/TableDeviceInterface';
@@ -75,7 +75,7 @@ export class BatchDetails {
   devices: Device[] | undefined;
   deviceMenu: MenuItem[] | undefined;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   signalService = inject(Signal);
   router = inject(Router);
   fb = inject(FormBuilder);

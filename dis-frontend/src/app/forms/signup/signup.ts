@@ -12,7 +12,7 @@ import { PasswordModule } from 'primeng/password';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { ButtonModule } from 'primeng/button';
 
-import { Request } from '../../utilities/services/request';
+import { Requestservice } from '../../utilities/services/requestservice';
 import { passwordsMatchValidator } from '../../utilities/modules/validator';
 
 @Component({
@@ -34,7 +34,7 @@ import { passwordsMatchValidator } from '../../utilities/modules/validator';
 export class Signup implements OnInit {
   @Input({ required: true }) isSigningUp!: () => void;
 
-  requestAuth = inject(Request);
+  requestAuth = inject(Requestservice);
   notification = inject(MessageService);
 
   countdown: any | null = null;
