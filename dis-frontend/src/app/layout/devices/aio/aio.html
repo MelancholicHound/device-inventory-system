@@ -78,15 +78,15 @@
   <div class="bg-white rounded-xl p-5 w-full mt-5">
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
       <span class="flex flex-col">
-        <label for="serial" class="font-semibold mb-1 text-slate-600"> Serial Number: </label>
+        <label for="serial" class="font-semibold mb-1 ttext-slate-600"> Serial Number: </label>
         <input type="text" pInputText formControlName="serial_number" id="serial" formControlName="serial_number">
       </span>
       <span class="flex flex-col">
         <label for="ups" class="font-semibold mb-1 text-slate-600"> UPS </label>
-        <p-treeselect [options]="treeData()"
+        <p-treeselect [options]="node"
                       formControlName="ups_id"
-                      selectionMode="single"
-                      display="chip"/>
+                      [selectionMode]="'single'"
+                      (onNodeSelect)="getSelectedUPS($event)" />
       </span>
       <span class="flex flex-col">
         <label for="conns" class="font-semibold mb-1 text-slate-600"> Connections: </label>

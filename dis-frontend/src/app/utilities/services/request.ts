@@ -21,7 +21,7 @@ import { DeviceTablet } from '../models/DeviceTablet';
   providedIn: 'root'
 })
 export class Request {
-  private url = 'http://192.168.1.87:3001/app/auth';
+  private url = 'http://localhost:3001/app/auth';
   private _token = signal<string | null>(localStorage.getItem('token'));
 
   router = inject(Router);

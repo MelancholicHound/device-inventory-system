@@ -16,8 +16,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { Request } from '../../../utilities/services/request';
 import { Signal } from '../../../utilities/services/signal';
-
-import { Store } from '../../../utilities/services/store';
+import { Nodeservice } from '../../../utilities/services/nodeservice';
 
 interface TreeNode {
   key: string;
@@ -43,12 +42,15 @@ interface TreeNode {
   styleUrl: './aio.css'
 })
 export class Aio implements OnInit {
+  node: any[] = [];
+  selectedNodes: any;
+
   router = inject(Router);
   requestAuth = inject(Request);
   signalService = inject(Signal);
-  storage = inject(Store);
   notification = inject(MessageService);
   fb = inject(FormBuilder);
+  nodeService = inject(Nodeservice);
 
   quantity = signal(0);
   sectionsByDivId = signal([]);
@@ -58,9 +60,6 @@ export class Aio implements OnInit {
 
   ramList = signal<Array<any>>([{}]);
   storageList = signal<Array<any>>([{}]);
-
-  treeData = signal<TreeNode[]>([]);
-  selectedUPS = signal<string | null>(null)
 
   aioForm!: FormGroup;
 
@@ -75,6 +74,19 @@ export class Aio implements OnInit {
       this.quantity.set(navigation.extras.state['count']);
     }
 
+    this.nodeService.getTreeNodesData().subscribe({
+      next: (res: any) => {
+        this.node = res;
+      },
+      error: (error: any) => {
+        this.notification.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `${error}`
+        });
+      }
+    })
+
     effect(() => {
       if (this.signalService.batchData()) {
         this.batchDetails.set(this.signalService.batchData());
@@ -82,8 +94,8 @@ export class Aio implements OnInit {
     });
   }
 
-  async ngOnInit() {
-    await this.loadTreeData();
+  ngOnInit(): void {
+
   }
 
   createAIOForm(): FormGroup {
@@ -111,31 +123,10 @@ export class Aio implements OnInit {
     });
   }
 
-  async loadTreeData() {
-    const batches = await firstValueFrom(this.requestAuth.getAllBatches());
-    const treeNodes: TreeNode[] = [];
+  getSelectedUPS(event: any): void {
+    const node = event.node;
 
-    for (const batch of batches) {
-      const upsList = await firstValueFrom(
-        this.requestAuth.getAllUPSByBatchId(batch.id)
-      );
-
-      treeNodes.push({
-        key: `batch-${batch.id}`,
-        label: batch.batch_id,
-        children: upsList.map((ups: any) => ({
-          key: String(ups.id),
-          label: ups.device_number
-        }))
-      });
-    }
-
-    this.treeData.set(treeNodes);
-    console.log(treeNodes);
-  }
-
-  submitSelection() {
-    console.log(this.selectedUPS());
+    console.log(node.data);
   }
 
   getSectionSelectValue(event: any): void {
