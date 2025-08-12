@@ -1,7 +1,9 @@
-import { Component, OnInit, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, effect, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+
+import { forkJoin } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -56,12 +58,9 @@ export class Aio implements OnInit {
   brand = signal<any>([]);
   batchDetails = signal<any | null>(null);
 
-  ramList = signal<Array<any>>([{}]);
-  storageList = signal<Array<any>>([{}]);
-
   aioForm!: FormGroup;
 
-  constructor() {
+  constructor(private cdr: ChangeDetectorRef) {
     this.aioForm = this.createAIOForm();
 
     this.requestAuth.getAllAIOBrand().subscribe((res: any) => this.brand.set(res));
@@ -139,40 +138,10 @@ export class Aio implements OnInit {
     );
   }
 
-  handleBrandInput(event: any): void {
-    const inputValue = event.target.value?.trim();
-
-    const match = this.brand().some((b: any)=> b?.name.toUpperCase() === inputValue.toUpperCase());
-
-    if (!match && inputValue) {
-      this.postNewBrand(inputValue);
-    }
-  }
-
-  postNewBrand(name: string): void {
-    this.requestAuth.postAIOBrand(name).subscribe({
-      next: (res: any) => {
-        this.aioForm.patchValue({ brand_id: res.id });
-        this.notification.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `${res.name}`
-        });
-      },
-      error: (error: any) => {
-        this.notification.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `${error}`
-        });
-      }
-    });
-  }
-
   // ---- RAM ----
   createRamGroup(): FormGroup {
-    return this.fb.group({
-      capacity_id: [null, Validators.required]
+    return new FormGroup({
+      capacity_id: new FormControl<number | null>(null, [Validators.required])
     });
   }
 
@@ -192,9 +161,9 @@ export class Aio implements OnInit {
 
   // ---- Storage ----
   createStorageGroup(): FormGroup {
-    return this.fb.group({
-      capacity_id: [null, Validators.required],
-      type_id: [null, Validators.required]
+    return new FormGroup({
+      capacity_id: new FormControl<any | null>(null, [Validators.required]),
+      type_id: new FormControl<number | null>(null, [Validators.required])
     });
   }
 
@@ -213,6 +182,71 @@ export class Aio implements OnInit {
   }
 
   postAIO(): void {
-    console.log(this.aioForm.value);
+    const rawValue: any = this.aioForm.value;
+
+    const processCapacities = (
+      dtoArray: any[],
+      existingList: { id: number; capacity: string }[],
+      postFn: (capacity: number) => any
+    ) => {
+      const existingCapacities = existingList.map((e) => e.capacity);
+
+      dtoArray.forEach((item) => {
+        if (typeof item.capacity_id === 'string') {
+          const match = existingList.find(
+            (e) => String(e.capacity) === item.capacity_id
+          );
+          if (match) {
+            item.capacity_id = match.id;
+          }
+        }
+      });
+
+      const newCapacities = Array.from(
+        new Set<string>(
+          dtoArray
+            .filter((item) => typeof item.capacity_id === 'string')
+            .map((item) => item.capacity_id)
+            .filter((capacityId) => !existingCapacities.includes(capacityId))
+        )
+      );
+
+      newCapacities.forEach((capacityId) => {
+        postFn(Number(capacityId)).subscribe({
+          next: (res: any) => {
+            dtoArray.forEach((item) => {
+              if (item.capacity_id === capacityId) {
+                item.capacity_id = res.id;
+              }
+            });
+          },
+          error: (error: any) => {
+            this.notification.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: String(error)
+            });
+          }
+        });
+      });
+    };
+
+    processCapacities(
+      rawValue.ramDTO,
+      this.signalService.ram(),
+      (capacity) => this.requestAuth.postRAMCapacity(capacity)
+    );
+
+    processCapacities(
+      rawValue.storageDTO,
+      this.signalService.storage(),
+      (capacity) => this.requestAuth.postStorageCapacity(capacity)
+    );
+
+    const duplicatedArray = Array.from({ length: this.quantity() }, () => ({
+      ...structuredClone(rawValue)
+    }));
+
+    console.log(duplicatedArray);
   }
 }

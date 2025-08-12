@@ -60,8 +60,7 @@
                   [editable]="true"
                   optionLabel="name"
                   optionValue="id"
-                  formControlName="brand_id"
-                  (onBlur)="handleBrandInput($event)" />
+                  formControlName="brand_id" />
       </span>
 
       <!-- Model -->
@@ -180,6 +179,8 @@
                           inputId="ram-capacity-{{$index}}"
                           class="w-full"
                           [options]="signalService.ram()"
+                          [editable]="true"
+                          [showClear]="true"
                           optionLabel="capacity"
                           optionValue="id" />
                 <label for="ram-capacity-{{$index}}" class="text-slate-600">Gb/s</label>
@@ -217,8 +218,10 @@
                   <p-select inputId="capacity-{{$index}}"
                             class="w-full"
                             [options]="signalService.storage()"
+                            [editable]="true"
                             optionLabel="capacity"
                             optionValue="id"
+                            [showClear]="true"
                             formControlName="capacity_id"/>
                   <label for="capacity-{{$index}}" class="text-slate-600">Gb/s</label>
 

@@ -3,6 +3,8 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { switchMap, tap } from 'rxjs';
+
 import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
@@ -51,6 +53,7 @@ export class Batch implements OnInit, OnChanges {
   router = inject(Router);
 
   selectedFile = signal('');
+  isAdding = signal(true);
   isEditing = signal(false);
   suppliers = signal<SupplierInterface[]>([]);
 
@@ -96,6 +99,7 @@ export class Batch implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchDetails']) {
+      console.log(changes['batchDetails']);
       this.batchForm.patchValue({
         valid_until: new Date(this.batchDetails.valid_until),
         date_delivered: new Date(this.batchDetails.date_delivered),
@@ -103,7 +107,7 @@ export class Batch implements OnInit, OnChanges {
         supplier_id: this.batchDetails.supplier_id,
         service_center: this.batchDetails.service_center,
         purchaseRequestDTO: {
-          number: +this.batchDetails.purchaseRequestDTO.number,
+          number: this.batchDetails.purchaseRequestDTO.number,
           file: this.batchDetails.purchaseRequestDTO.file
         },
         is_tested: this.batchDetails.date_tested ?? true
@@ -133,7 +137,7 @@ export class Batch implements OnInit, OnChanges {
       supplier_id: new FormControl<number | null>(null, [Validators.required]),
       service_center: new FormControl<string | null>(null, [Validators.required]),
       purchaseRequestDTO: new FormGroup({
-        number: new FormControl<number | null>(null, [Validators.required]),
+        number: new FormControl<string | null>(null, [Validators.required]),
         file: new FormControl<string | null>(null)
       }),
       is_tested: new FormControl<boolean>(false)
@@ -175,15 +179,21 @@ export class Batch implements OnInit, OnChanges {
       }
     };
 
-    this.requestAuth.postBatch(formattedPayload).subscribe({
-      next: (res: any) => {
+    this.requestAuth.postBatch(formattedPayload).pipe(
+      tap(() => {
         this.notification.add({ severity: 'success', summary: 'Success', detail: `Batch created successfully.` });
-        this.signalService.batchDetails.set(res);
         this.signalService.markBatchAsAdded();
-        this.router.navigate(['/batch-list/batch-details']);
         this.emitCloseModal();
-      },
-      error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: `${error}` })
+      }),
+      switchMap((res: any) => this.requestAuth.getBatchById(res.id)),
+    ).subscribe({
+        next: (batchDetails: any) => {
+          this.signalService.batchDetails.set(batchDetails);
+          this.router.navigate(['/batch-list/batch-details']);
+        },
+        error: (error: any) => {
+          this.notification.add({ severity: 'error', summary: 'Error', detail: `${error}` });
+        }
     });
   }
 

@@ -4,19 +4,19 @@ import { CommonModule } from '@angular/common';
 
 import { forkJoin, map } from 'rxjs';
 
-import { MessageService, SortEvent, MenuItem } from 'primeng/api';
+import { MessageService, ConfirmationService, SortEvent, MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { TableModule, Table } from 'primeng/table';
 import { Dialog } from 'primeng/dialog';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 import { Menu } from 'primeng/menu';
 
 import { Requestservice } from '../../utilities/services/requestservice';
 import { Signalservice } from '../../utilities/services/signalservice';
 
-import { SupplierInterface } from '../../utilities/models/SupplierInterface';
 import { TableBatchInterface } from '../../utilities/models/TableBatchInterface';
 
 import { TableUtilities } from '../../utilities/modules/common';
@@ -37,6 +37,7 @@ interface Column {
     InputTextModule,
     InputIconModule,
     ButtonModule,
+    ConfirmDialog,
     Menu,
     Dialog,
     Batch
@@ -56,6 +57,7 @@ export class BatchList implements OnInit {
 
   columns: Column[] | undefined;
   batchMenu: MenuItem[] | undefined;
+  activeEvent: Event | undefined;
 
   isSorted: boolean | null = null;
 
@@ -66,6 +68,7 @@ export class BatchList implements OnInit {
   requestAuth = inject(Requestservice);
   signalService = inject(Signalservice);
   notification = inject(MessageService);
+  confirmation = inject(ConfirmationService);
   router = inject(Router);
 
   isBatchAdded = signal(false);
@@ -73,24 +76,6 @@ export class BatchList implements OnInit {
   tblUtilities = new TableUtilities();
 
   constructor(private cdr: ChangeDetectorRef) {
-    this.batchMenu = [
-      {
-        label: 'Options',
-        items: [
-          {
-            label: 'View Batch',
-            icon: 'pi pi-eye',
-            command: () => this.editBatchOption(this.activeBatch)
-          },
-          {
-            label: 'Drop Batch',
-            icon: 'pi pi-trash',
-            command: () => this.dropBatchOption(this.activeBatch)
-          }
-        ]
-      }
-    ];
-
     this.columns = [
       { field: 'batch_id', header: 'Batch ID' },
       { field: 'supplier', header: 'Supplier' },
@@ -149,9 +134,30 @@ export class BatchList implements OnInit {
     }
   }
 
-  onMenuClick(event: MouseEvent, batch: any) {
+  onMenuClick(event: MouseEvent, batch: any): void {
     this.activeBatch = batch;
-    this.menuRef.toggle(event);
+    this.activeEvent = event;
+    this.getBatchMenu();
+  }
+
+  getBatchMenu(): void {
+    this.batchMenu = [
+      {
+        label: 'Options',
+        items: [
+          {
+            label: 'View Batch',
+            icon: 'pi pi-eye',
+            command: () => this.editBatchOption(this.activeBatch)
+          },
+          {
+            label: 'Drop Batch',
+            icon: 'pi pi-trash',
+            command: () => this.dropBatchOption(this.activeEvent!, this.activeBatch)
+          }
+        ]
+      }
+    ];
   }
 
   editBatchOption(batch: any): void {
@@ -172,8 +178,39 @@ export class BatchList implements OnInit {
     });
   }
 
-  dropBatchOption(batch: any): void {
-    console.log(batch);
+  dropBatchOption(event: Event, batch: any): void {
+    this.confirmation.confirm({
+      target: event.currentTarget as HTMLInputElement,
+      message: `This action will delete ${batch.batch_id}. Continue?`,
+      header: 'Confirmation',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-contrast',
+      accept: () => {
+        this.requestAuth.deleteBatch(batch.id).subscribe({
+          next: (res: any) => {
+            this.notification.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `${res.message}`
+            });
+
+            this.signalService.markBatchAsAdded();
+          },
+          error: (error: any) => {
+            this.notification.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `${error}`
+            });
+          }
+        });
+      }
+    });
   }
 
   onGlobalFilter(event: Event): void {

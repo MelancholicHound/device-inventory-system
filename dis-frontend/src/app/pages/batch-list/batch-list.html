@@ -62,7 +62,7 @@
           <td> {{ batch.valid_until }} </td>
           <td>
             <p-menu #menuRef [model]="batchMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
-            <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, batch)"/>
+            <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, batch); menuRef.toggle($event);"/>
           </td>
         </tr>
       </ng-template>
@@ -74,3 +74,5 @@
 <p-dialog header="Add Batch" [modal]="true" [(visible)]="visible" [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }" [style]="{ width: '30%' }">
   <app-batch (closeModal)="closeDialog($event)" />
 </p-dialog>
+
+<p-confirmdialog />

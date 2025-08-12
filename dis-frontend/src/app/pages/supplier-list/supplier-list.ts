@@ -79,46 +79,55 @@ export class SupplierList implements OnInit {
 
     effect(() => {
       if (this.signalService.supplierSignal()) {
-        this.getAllSuppliers();
+        this.signalService.loadToTableSupplier();
         this.signalService.resetSupplierFlag();
       }
+
+      this.dataSource = [...this.signalService.tableSupplierList()];
+      this.initialValue = [...this.signalService.tableSupplierList()];
     });
   }
 
   ngOnInit(): void {
-    this.getAllSuppliers();
+    this.signalService.loadToTableSupplier();
   }
 
-  getAllSuppliers(): void {
-    this.requestAuth.getAllSuppliers().subscribe({
-      next: (res: any) => {
-        this.dataSource = res;
-        this.initialValue = [...res];
-        this.cdr.detectChanges();
-      },
-      error: (error: any) => {
-        this.notification.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `${error}`
-        });
-      }
+  get suppliers() {
+    return this.signalService.tableSupplierList();
+  }
+
+  sortTableData(event: any) {
+    event.data?.sort((data1: any, data2: any) => {
+      let value1 = data1[event.field];
+      let value2 = data2[event.field];
+      let result: any;
+
+      if (value1 == null && value2 != null) result = -1;
+      else if (value1 != null && value2 == null) result = 1;
+      else if (value1 == null && value2 == null) result = 0;
+      else if (typeof value1 === 'string' && typeof value2 === 'string') result = value1.localeCompare(value2);
+      else result = value1 < value2 ? -1 : value1 > value2 ? 1 : 0;
+
+      return event.order * result;
     });
   }
 
   customSort(event: SortEvent): void {
     if (this.isSorted == null || this.isSorted === undefined) {
       this.isSorted = true;
-      this.tblUtilities.sortTableData(event);
+      this.sortTableData(event);
     } else if (this.isSorted == true) {
       this.isSorted = false;
-      this.tblUtilities.sortTableData(event);
+      this.sortTableData(event);
     } else if (this.isSorted == false) {
       this.isSorted = null;
       this.dataSource = [...this.initialValue];
-      this.supplierTable.reset();
+      if (this.supplierTable) {
+        this.supplierTable.reset();
+      }
     }
   }
+
 
   onMenuClick(event: MouseEvent, supplier: any): void {
     this.activeSupplier = supplier;
@@ -206,6 +215,7 @@ export class SupplierList implements OnInit {
 
   pageChange(event: any): void {
     this.first = event.first;
+    this.rows = event.rows;
   }
 
   showDialog(): void {

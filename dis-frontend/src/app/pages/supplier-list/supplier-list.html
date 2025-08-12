@@ -1,6 +1,6 @@
 <section class="bg-white p-6 rounded-2xl">
   <p-table #deviceTable
-           [value]="dataSource"
+           [value]="suppliers"
            [(selection)]="selectedSupplier"
            [customSort]="true"
            [sortField]="'created_at'"
@@ -83,9 +83,9 @@
           maximizable="true"
           [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
           [style]="{ width: '25%' }"
-          (onHide)="signalService.emptySupplierDetails()">
+          (onHide)="signalService.supplierDetails.set(null)">
   <ng-template pTemplate="header">
-    <span class="text-xl font-semibold"> {{ !signalService.supplierData() ? 'Add Supplier' : 'View Supplier' }} </span>
+    <span class="text-xl font-semibold"> {{ !signalService.supplierDetails() ? 'Add Supplier' : 'View Supplier' }} </span>
   </ng-template>
   <app-supplier (closeModal)="closeDialog($event)"/>
 </p-dialog>

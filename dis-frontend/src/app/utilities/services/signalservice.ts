@@ -5,6 +5,7 @@ import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { MessageService } from 'primeng/api';
 
 import { TableBatchInterface } from '../models/TableBatchInterface';
+import { TableSupplierInterface } from '../models/TableSupplierInterface';
 import { SupplierInterface } from '../models/SupplierInterface';
 
 import { Requestservice } from './requestservice';
@@ -42,6 +43,7 @@ export class Signalservice {
   supplierList = signal<any[]>([]);
 
   tableBatchList = signal<TableBatchInterface[]>([]);
+  tableSupplierList = signal<TableSupplierInterface[]>([]);
 
   public readonly supplierSignal = this.supplierAdded.asReadonly();
   public readonly batchSignal = this.batchAdded.asReadonly();
@@ -142,6 +144,23 @@ export class Signalservice {
     ).subscribe({
       next: (res: any) => this.tableBatchList.set(res),
       error: (error: any) => console.error(error)
+    });
+  }
+
+  loadToTableSupplier(): void {
+    this.requestAuth.getAllSuppliers().subscribe({
+      next: (res: any) => {
+        const filteredSuppliers = res.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          location: item.location,
+          contact_number: item.contact_number,
+          cp_name: item.cp_name,
+          created_at: new Date(item.created_at)
+        }));
+
+        this.tableSupplierList.set(filteredSuppliers);
+      }
     });
   }
 
