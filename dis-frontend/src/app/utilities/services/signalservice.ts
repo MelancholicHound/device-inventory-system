@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, computed } from '@angular/core';
 
 import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 
@@ -21,11 +21,12 @@ export class Signalservice {
   batchDetails = signal<any | null>(null);
   deviceDetails = signal<any | null>(null);
 
-  batchDeviceCount = signal<number | null>(null);
+  initialBatchData = signal<any[]>([]);
+  currentBatchData = signal<any[]>([]);
+  addedDevice = signal<any[]>([]);
 
   private supplierAdded = signal<boolean>(false);
   private batchAdded = signal<boolean>(false);
-  private deviceAdded = signal<boolean>(false);
 
   divisions = signal<any[]>([]);
   procBrand = signal<any[]>([]);
@@ -47,7 +48,6 @@ export class Signalservice {
 
   public readonly supplierSignal = this.supplierAdded.asReadonly();
   public readonly batchSignal = this.batchAdded.asReadonly();
-  public readonly deviceSignal = this.deviceAdded.asReadonly();
 
   constructor() {
     this.requestAuth.getAllBatches().subscribe(
@@ -91,6 +91,13 @@ export class Signalservice {
     );
   }
 
+  isDeviceCountChanged = computed(() => {
+    const initial = this.initialBatchData();
+    const current = this.currentBatchData();
+
+    return current.length !== initial.length || current.length > 0;
+  });
+
   markSupplierAsAdded(): void {
     this.supplierAdded.set(true);
   }
@@ -99,20 +106,12 @@ export class Signalservice {
     this.batchAdded.set(true);
   }
 
-  markDeviceAsAdded(): void {
-    this.deviceAdded.set(true);
-  }
-
   resetSupplierFlag(): void {
     this.supplierAdded.set(false);
   }
 
   resetBatchFlag(): void {
     this.batchAdded.set(false);
-  }
-
-  resetDeviceFlag(): void {
-    this.deviceAdded.set(false);
   }
 
   loadToTableBatch(): void {
@@ -222,5 +221,10 @@ export class Signalservice {
     this.requestAuth.getAllSoftwareSecurity().subscribe(
       (res: any) => this.security.set(res)
     );
+  }
+
+  resetBatchData(): void {
+    this.initialBatchData.set([]);
+    this.currentBatchData.set([]);
   }
 }

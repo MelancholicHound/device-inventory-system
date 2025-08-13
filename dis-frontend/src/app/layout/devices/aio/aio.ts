@@ -3,8 +3,6 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Fo
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { forkJoin } from 'rxjs';
-
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
@@ -17,12 +15,6 @@ import { TreeSelect } from 'primeng/treeselect';
 import { Requestservice } from '../../../utilities/services/requestservice';
 import { Signalservice } from '../../../utilities/services/signalservice';
 import { Nodeservice } from '../../../utilities/services/nodeservice';
-
-interface TreeNode {
-  key: string;
-  label: string;
-  children?: TreeNode[];
-}
 
 @Component({
   selector: 'app-aio',
@@ -97,7 +89,7 @@ export class Aio implements OnInit {
 
   createAIOForm(): FormGroup {
     return new FormGroup({
-      batch_id: new FormControl<number>(this.batchDetails()?.id),
+      batch_id: new FormControl<number | null>(null, [Validators.required]),
       section_id: new FormControl<number | null>(null, [Validators.required]),
       serial_number: new FormControl<string | null>(null),
       ups_id: new FormControl<number | any>(null),
@@ -184,6 +176,9 @@ export class Aio implements OnInit {
   postAIO(): void {
     const rawValue: any = this.aioForm.value;
 
+    rawValue.batch_id = this.batchDetails().id;
+    rawValue.serial_number = rawValue.serial_number === '' ? null : rawValue.serial_number;
+
     const processCapacities = (
       dtoArray: any[],
       existingList: { id: number; capacity: string }[],
@@ -247,6 +242,30 @@ export class Aio implements OnInit {
       ...structuredClone(rawValue)
     }));
 
-    console.log(duplicatedArray);
+    this.requestAuth.postAIO(duplicatedArray).subscribe({
+      next: (res: any) => {
+        this.notification.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Saved'
+        });
+
+        const updatedList = [...this.signalService.currentBatchData(), ...duplicatedArray];
+        this.signalService.addedDevice.set(res.devices);
+        this.signalService.currentBatchData.set(updatedList);
+        this.router.navigate(['/batch-list/batch-details']);
+      },
+      error: (error: any) => {
+        this.notification.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `${error}`
+        });
+      }
+    });
+  }
+
+  backButton(): void {
+    this.router.navigate(['/batch-list/batch-details']);
   }
 }

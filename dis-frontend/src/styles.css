@@ -9,3 +9,6 @@
     font-optical-sizing: auto;
     user-select: none;
 }
+.confirm-multiline .p-confirm-dialog-message { white-space: pre-line; }
+/* fallback if your theme differs */
+.confirm-multiline .p-dialog-content { white-space: pre-line; }

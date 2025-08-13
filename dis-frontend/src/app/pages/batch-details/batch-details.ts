@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { forkJoin, firstValueFrom, Observable } from 'rxjs';
+import { forkJoin, firstValueFrom, Observable, tap } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { MessageService, SortEvent, MenuItem, ConfirmationService } from 'primeng/api';
@@ -74,6 +74,7 @@ export class BatchDetails {
   columns: Column[] | undefined;
   devices: Device[] | undefined;
   deviceMenu: MenuItem[] | undefined;
+  activeEvent: Event | undefined;
 
   requestAuth = inject(Requestservice);
   signalService = inject(Signalservice);
@@ -84,7 +85,6 @@ export class BatchDetails {
 
   isViewing = signal(false);
   isEditing = signal(false);
-  isDeviceAdded = signal(false);
   deviceLength = signal(0);
 
   isSorted: boolean | null = null;
@@ -149,11 +149,6 @@ export class BatchDetails {
         this.batchDetails = this.signalService.batchDetails();
         this.getAllDevicesByBatchId(this.batchDetails.id);
       }
-
-      if (this.signalService.deviceDetails()) {
-        this.getAllDevicesByBatchId(this.batchDetails.id);
-        this.signalService.deviceDetails.set([]);
-      }
     });
   }
 
@@ -205,7 +200,12 @@ export class BatchDetails {
         const rawFetchedData = res.flat();
         this.dataSource = rawFetchedData;
         this.initialValue = [...rawFetchedData];
-        this.signalService.batchDeviceCount.set(rawFetchedData.length);
+
+        if (this.signalService.initialBatchData().length === 0) {
+          this.signalService.initialBatchData.set([...rawFetchedData]);
+        }
+
+        this.signalService.currentBatchData.set([...rawFetchedData]);
         this.cdr.detectChanges();
       },
       error: (error: any) => {
@@ -234,6 +234,7 @@ export class BatchDetails {
 
   onMenuClick(event: MouseEvent, batch: any): void {
     this.activeDevice = batch;
+    this.activeEvent = event;
     this.menuRef.toggle(event);
   }
   onGlobalFilter(event: Event): void {
@@ -293,36 +294,6 @@ export class BatchDetails {
     this.visibleAddDevice = true;
   }
 
-  deleteConfirmation(event: Event): void {
-    this.confirmation.confirm({
-      target: event.target as EventTarget,
-      message: 'This action will delete this batch. Continue?',
-      header: 'Confirmation',
-      closable: true,
-      closeOnEscape: true,
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-contrast',
-      accept: () => {
-        this.requestAuth.deleteBatch(this.batchDetails.id).subscribe({
-          next: () => {
-            this.router.navigate(['/batch-list']);
-            this.signalService.resetBatchFlag();
-          },
-          error: (error: any) => {
-            this.notification.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: `${error}`
-            });
-          }
-        });
-      }
-    });
-  }
-
   closeDialog(event: boolean): void {
     this.visibleBatchDetails = event;
   }
@@ -331,9 +302,16 @@ export class BatchDetails {
     this.addDeviceForm.reset();
   }
 
-  backButton(): void {
-    this.router.navigate(['/batch-list']);
-    this.signalService.batchDetails.set([]);
+  backButton() {
+    if (this.signalService.initialBatchData().length === 0) {
+      this.confirmDeleteBatch();
+      return;
+    } else if (!this.signalService.isDeviceCountChanged()) {
+      this.navigateAndReset();
+      return;
+    }
+
+    this.confirmDeleteRecentDevices();
   }
 
   saveButton(): void {
@@ -344,11 +322,110 @@ export class BatchDetails {
       summary: 'Success',
       detail: 'Batch saved successfully'
     });
+    this.signalService.resetBatchData();
   }
 
   addDevice(): void {
     this.router.navigate([`/batch-list/batch-details/device/${this.addDeviceForm.value.device}`], {
       state: { count: this.addDeviceForm.value.quantity }
+    });
+  }
+
+  private navigateAndReset(): void {
+    this.router.navigate(['/batch-list']);
+    this.signalService.batchDetails.set([]);
+    this.signalService.resetBatchFlag();
+  }
+
+  private confirmDeleteBatch(): void {
+    this.confirmation.confirm({
+      target: this.activeEvent?.target as EventTarget,
+      message: `This action is irreversable and will delete ${this.batchDetails.batch_id}. Continue?`,
+      header: 'Confirmation',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-contrast',
+      accept: () => {
+        this.requestAuth.deleteBatch(this.batchDetails.id).subscribe({
+          next: (res: any) => {
+            this.notification.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: `${res.message}`
+            });
+            this.navigateAndReset();
+          },
+          error: (err: any) => {
+            this.notification.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `${err}`
+            });
+          }
+        });
+      }
+    });
+  }
+
+  private confirmDeleteRecentDevices(): void {
+    const fetchMethods: { pattern: string; method: (id: number) => Observable<any> }[] = [
+      { pattern: 'AIO', method: this.requestAuth.getAIOById.bind(this.requestAuth) },
+      { pattern: 'COMP', method: this.requestAuth.getComputerById.bind(this.requestAuth) },
+      { pattern: 'LAPTOP', method: this.requestAuth.getLaptopById.bind(this.requestAuth) },
+      { pattern: 'TABLET', method: this.requestAuth.getTabletById.bind(this.requestAuth) },
+      { pattern: 'ROUTER', method: this.requestAuth.getRouterById.bind(this.requestAuth) },
+      { pattern: 'PRINTER', method: this.requestAuth.getPrinterById.bind(this.requestAuth) },
+      { pattern: 'SCANNER', method: this.requestAuth.getScannerById.bind(this.requestAuth) }
+    ];
+
+    const getFetchMethod = (deviceNumber: string) =>
+      fetchMethods.find(fm => deviceNumber.includes(fm.pattern))?.method;
+
+    this.confirmation.confirm({
+      target: this.activeEvent?.target as EventTarget,
+      message: `This action is irreversable and will delete recent device/s saved. Continue?`,
+      header: 'Confirmation',
+      closable: true,
+      closeOnEscape: true,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-contrast',
+      accept: () => {
+        const devices = this.signalService.addedDevice();
+
+        devices.forEach(device => {
+          const fetch = getFetchMethod(device.device_number);
+          if (!fetch) return;
+
+          fetch(device.id).subscribe({
+            next: (res: any) => {
+              this.notification.add({
+                severity: 'success',
+                summary: 'Success',
+                detail: `${res.message}`
+              });
+            },
+            error: (error: any) => {
+              this.notification.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: `${error}`
+              });
+            },
+            complete: () => {
+              if (device === devices[devices.length - 1]) {
+                this.navigateAndReset();
+              }
+            }
+          });
+        });
+      }
     });
   }
 }

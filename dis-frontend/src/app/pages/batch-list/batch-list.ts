@@ -181,7 +181,7 @@ export class BatchList implements OnInit {
   dropBatchOption(event: Event, batch: any): void {
     this.confirmation.confirm({
       target: event.currentTarget as HTMLInputElement,
-      message: `This action will delete ${batch.batch_id}. Continue?`,
+      message: `This action will delete ${batch.batch_id} along with its devices. Continue?`,
       header: 'Confirmation',
       closable: true,
       closeOnEscape: true,

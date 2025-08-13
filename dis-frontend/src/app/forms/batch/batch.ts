@@ -99,7 +99,6 @@ export class Batch implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchDetails']) {
-      console.log(changes['batchDetails']);
       this.batchForm.patchValue({
         valid_until: new Date(this.batchDetails.valid_until),
         date_delivered: new Date(this.batchDetails.date_delivered),

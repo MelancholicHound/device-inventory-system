@@ -438,7 +438,7 @@ export class Requestservice {
     }));
   }
 
-  postAIO(aio: Omit<DeviceAIO, 'id'>): Observable<any> {
+  postAIO(aio: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/aio`, aio, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of AIO.';
@@ -447,7 +447,7 @@ export class Requestservice {
     }));
   }
 
-  postComputer(computer: Omit<DeviceComputer, 'id'>): Observable<any> {
+  postComputer(computer: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/computer`, computer, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of computer.';
@@ -456,7 +456,7 @@ export class Requestservice {
     }));
   }
 
-  postLaptop(laptop: Omit<DeviceLaptop, 'id'>): Observable<any> {
+  postLaptop(laptop: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/laptop`, laptop, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of laptop.';
@@ -465,7 +465,7 @@ export class Requestservice {
     }));
   }
 
-  postPrinter(printer: Omit<DevicePrinter, 'id'>): Observable<any> {
+  postPrinter(printer: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/printer`, printer, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of printer.';
@@ -474,7 +474,7 @@ export class Requestservice {
     }));
   }
 
-  postRouter(router: Omit<DeviceRouter, 'id'>): Observable<any> {
+  postRouter(router: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/router`, router, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.messwage || 'An unknown error occured during saving of router.';
@@ -483,7 +483,7 @@ export class Requestservice {
     }));
   }
 
-  postScanner(scanner: Omit<DeviceScanner, 'id'>): Observable<any> {
+  postScanner(scanner: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/scanner`, scanner, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of scanner.';
@@ -492,7 +492,7 @@ export class Requestservice {
     }));
   }
 
-  postTablet(tablet: Omit<DeviceTablet, 'id'>): Observable<any> {
+  postTablet(tablet: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/tablet`, tablet, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of tablet.';
@@ -501,7 +501,7 @@ export class Requestservice {
     }));
   }
 
-  postUPS(ups: Omit<DeviceAIO, 'id'>): Observable<any> {
+  postUPS(ups: any[]): Observable<any> {
     return this.http.post(`${this.url}/device/ups`, ups, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of UPS.';
@@ -1211,6 +1211,78 @@ export class Requestservice {
     return this.http.delete(`${this.url}/supplier/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of supplier';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteAIOById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/aio/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of AIO.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteComputerById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/computer/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of computer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteLaptopById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/laptop/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of laptop.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteTabletById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/tablet/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of tablet.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteRouterById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/router/:id`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of router.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deletePrinterById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/printer/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of printer.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteScannerById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/scanner/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of scanner.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  deleteUPSById(id: number): Observable<any> {
+    return this.http.delete(`${this.url}/device/ups/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during deleting of UPS.';
 
       return throwError(() => errorMessage);
     }));

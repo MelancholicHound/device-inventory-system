@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
             references: {
                 model: 'tbl_brand_device_aio',
                 key: 'id'
-            }
+            },
         },
         model: {
             type: DataTypes.STRING,

@@ -90,8 +90,8 @@ const initDB = async() => {
         BrandChipset.hasMany(PartChipset, { foreignKey: 'brand_id', as: 'chipsets' });
         PartChipset.belongsTo(BrandChipset, { foreignKey: 'brand_id', as: 'brand' });
 
-        Batch.belongsTo(PurchaseRequestDTO, { foreignKey: 'prDTO_id', as: 'purchaseRequestDTO' });
-        PurchaseRequestDTO.hasMany(Batch, { foreignKey: 'prDTO_id', as: 'batches' });
+        Batch.belongsTo(PurchaseRequestDTO, { foreignKey: 'prDTO_id', as: 'purchaseRequestDTO', onDelete: 'CASCADE' });
+        PurchaseRequestDTO.hasOne(Batch, { foreignKey: 'prDTO_id', as: 'batches' });
 
         Batch.belongsTo(Supplier, { foreignKey: 'supplier_id', as: 'supplier' });
         Supplier.hasMany(Batch, { foreignKey: 'supplier_id', as: 'batches' });
@@ -122,34 +122,34 @@ const initDB = async() => {
         AIO.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
         AIO.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        AIO.hasOne(ProcessorAIO, { foreignKey: 'aio_id', as: 'processor' });
+        AIO.hasOne(ProcessorAIO, { foreignKey: 'aio_id', as: 'processor', onDelete: 'CASCADE' });
         ProcessorAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
         ProcessorAIO.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
         PartProcessor.hasOne(ProcessorAIO, { foreignKey: 'cpu_id', as: 'used_in_AIO' });
 
-        AIO.hasMany(RAMAIO, { foreignKey: 'aio_id', as: 'ram_modules' });
+        AIO.hasMany(RAMAIO, { foreignKey: 'aio_id', as: 'ram_modules', onDelete: 'CASCADE' });
         RAMAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
         RAMAIO.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
         PartRAM.hasMany(RAMAIO, { foreignKey: 'ram_id', as: 'used_in_AIO' });
 
-        AIO.hasMany(StorageAIO, { foreignKey: 'aio_id', as: 'storage_dto' });
+        AIO.hasMany(StorageAIO, { foreignKey: 'aio_id', as: 'storage_dto', onDelete: 'CASCADE' });
         StorageAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
         StorageAIO.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
         PartStorage.hasMany(StorageAIO, { foreignKey: 'storage_id', as: 'used_in_AIO' });
 
-        AIO.hasMany(ConnectionsAIO, { foreignKey: 'aio_id', as: 'connections' });
+        AIO.hasMany(ConnectionsAIO, { foreignKey: 'aio_id', as: 'connections', onDelete: 'CASCADE' });
         ConnectionsAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
         ConnectionsAIO.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
         Connection.hasMany(ConnectionsAIO, { foreignKey: 'connection_id', as: 'aio_connection' });
 
-        AIO.hasMany(PeripheralsAIO, { foreignKey: 'aio_id', as: 'peripherals' });
+        AIO.hasMany(PeripheralsAIO, { foreignKey: 'aio_id', as: 'peripherals', onDelete: 'CASCADE' });
         PeripheralsAIO.belongsTo(AIO, { foreignKey: 'aio_id', as: 'aio' });
         PeripheralsAIO.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
         Peripheral.hasMany(PeripheralsAIO, { foreignKey: 'peripheral_id', as: 'aio_peripheral' });
 
         //Computer Associations
         Computer.belongsTo(Batch, { foreignKey: 'batch_id', as: 'batch' });
-        Batch.hasMany(Computer, { foreignKey: 'batch_id', as: 'computer_devices', onDelete: 'CASCADE' })
+        Batch.hasMany(Computer, { foreignKey: 'batch_id', as: 'computer_devices', onDelete: 'CASCADE' });
 
         Computer.belongsTo(Section, { foreignKey: 'section_id', as: 'section' });
         Section.hasMany(Computer, { foreignKey: 'section_id', as: 'computer_devices' });
@@ -164,32 +164,32 @@ const initDB = async() => {
         Computer.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
         Computer.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        Computer.hasOne(ProcessorComputer, { foreignKey: 'computer_id', as: 'processor' });
+        Computer.hasOne(ProcessorComputer, { foreignKey: 'computer_id', as: 'processor', onDelete: 'CASCADE' });
         ProcessorComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         ProcessorComputer.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
         PartProcessor.hasMany(ProcessorComputer, { foreignKey: 'cpu_id', as: 'used_in_computers' });
 
-        Computer.hasOne(MotherboardComputer, { foreignKey: 'computer_id', as: 'motherboard' });
+        Computer.hasOne(MotherboardComputer, { foreignKey: 'computer_id', as: 'motherboard', onDelete: 'CASCADE' });
         MotherboardComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         MotherboardComputer.belongsTo(PartMotherboard, { foreignKey: 'mobo_id', as: 'mobo' });
         PartMotherboard.hasOne(MotherboardComputer, { foreignKey: 'mobo_id', as: 'used_in_computer' });
 
-        Computer.hasMany(RAMComputer, { foreignKey: 'computer_id', as: 'ram_modules' });
+        Computer.hasMany(RAMComputer, { foreignKey: 'computer_id', as: 'ram_modules', onDelete: 'CASCADE' });
         RAMComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         RAMComputer.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
         PartRAM.hasMany(RAMComputer, { foreignKey: 'ram_id', as: 'used_in_computers' });
 
-        Computer.hasMany(StorageComputer, { foreignKey: 'computer_id', as: 'storage_dto' });
+        Computer.hasMany(StorageComputer, { foreignKey: 'computer_id', as: 'storage_dto', onDelete: 'CASCADE' });
         StorageComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         StorageComputer.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
         PartStorage.hasMany(StorageComputer, { foreignKey: 'storage_id', as: 'used_in_computers' });
 
-        Computer.hasMany(ConnectionsComputer, { foreignKey: 'computer_id', as: 'connections' });
+        Computer.hasMany(ConnectionsComputer, { foreignKey: 'computer_id', as: 'connections', onDelete: 'CASCADE' });
         ConnectionsComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         ConnectionsComputer.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
         Connection.hasMany(ConnectionsComputer, { foreignKey: 'connection_id', as: 'computer_connection' });
 
-        Computer.hasMany(PeripheralsComputer, { foreignKey: 'computer_id', as: 'peripherals' });
+        Computer.hasMany(PeripheralsComputer, { foreignKey: 'computer_id', as: 'peripherals', onDelete: 'CASCADE' });
         PeripheralsComputer.belongsTo(Computer, { foreignKey: 'computer_id', as: 'computer' });
         PeripheralsComputer.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
         Peripheral.hasMany(PeripheralsComputer, { foreignKey: 'peripheral_id', as: 'computer_peripheral' });
@@ -214,27 +214,27 @@ const initDB = async() => {
         Laptop.belongsTo(SoftwareProductivity, { foreignKey: 'prod_id', as: 'productivity' });
         Laptop.belongsTo(SoftwareSecurity, { foreignKey: 'security_id', as: 'security' });
 
-        Laptop.hasOne(ProcessorLaptop, { foreignKey: 'laptop_id', as: 'processor' });
+        Laptop.hasOne(ProcessorLaptop, { foreignKey: 'laptop_id', as: 'processor', onDelete: 'CASCADE' });
         ProcessorLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
         ProcessorLaptop.belongsTo(PartProcessor, { foreignKey: 'cpu_id', as: 'cpu' });
         PartProcessor.hasOne(ProcessorLaptop, { foreignKey: 'cpu_id', as: 'used_in_laptop' });
 
-        Laptop.hasMany(RAMLaptop, { foreignKey: 'laptop_id', as: 'ram_modules' });
+        Laptop.hasMany(RAMLaptop, { foreignKey: 'laptop_id', as: 'ram_modules', onDelete: 'CASCADE' });
         RAMLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
         RAMLaptop.belongsTo(PartRAM, { foreignKey: 'ram_id', as: 'ram' });
         PartRAM.hasMany(RAMLaptop, { foreignKey: 'ram_id', as: 'used_in_laptop' });
 
-        Laptop.hasMany(StorageLaptop, { foreignKey: 'laptop_id', as: 'storage_dto' });
+        Laptop.hasMany(StorageLaptop, { foreignKey: 'laptop_id', as: 'storage_dto', onDelete: 'CASCADE' });
         StorageLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
         StorageLaptop.belongsTo(PartStorage, { foreignKey: 'storage_id', as: 'storage' });
         PartStorage.hasMany(StorageLaptop, { foreignKey: 'storage_id', as: 'used_in_laptop' });
 
-        Laptop.hasMany(ConnectionsLaptop, { foreignKey: 'laptop_id', as: 'connections' });
+        Laptop.hasMany(ConnectionsLaptop, { foreignKey: 'laptop_id', as: 'connections', onDelete: 'CASCADE' });
         ConnectionsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
         ConnectionsLaptop.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
         Connection.hasMany(ConnectionsLaptop, { foreignKey: 'connection_id', as: 'laptop_connection' });
 
-        Laptop.hasMany(PeripheralsLaptop, { foreignKey: 'laptop_id', as: 'peripherals' });
+        Laptop.hasMany(PeripheralsLaptop, { foreignKey: 'laptop_id', as: 'peripherals', onDelete: 'CASCADE' });
         PeripheralsLaptop.belongsTo(Laptop, { foreignKey: 'laptop_id', as: 'laptop' });
         PeripheralsLaptop.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
         Peripheral.hasMany(PeripheralsLaptop, { foreignKey: 'peripheral_id', as: 'laptop_peripheral' });
@@ -284,17 +284,17 @@ const initDB = async() => {
         Tablet.belongsTo(BrandTablet, { foreignKey: 'brand_id', as: 'brand' });
         BrandTablet.hasMany(Tablet, { foreignKey: 'brand_id', as: 'tablet_devices' });
 
-        Tablet.hasOne(ChipsetTablet, { foreignKey: 'tablet_id', as: 'chipset' });
+        Tablet.hasOne(ChipsetTablet, { foreignKey: 'tablet_id', as: 'chipset', onDelete: 'CASCADE' });
         ChipsetTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
         ChipsetTablet.belongsTo(PartChipset, { foreignKey: 'cpu_id', as: 'chipset_part' });
         PartChipset.hasOne(ChipsetTablet, { foreignKey: 'cpu_id', as: 'used_in_tablet' });
 
-        Tablet.hasMany(ConnectionsTablet, { foreignKey: 'tablet_id', as: 'connections' });
+        Tablet.hasMany(ConnectionsTablet, { foreignKey: 'tablet_id', as: 'connections', onDelete: 'CASCADE' });
         ConnectionsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
         ConnectionsTablet.belongsTo(Connection, { foreignKey: 'connection_id', as: 'connection' });
         Connection.hasMany(ConnectionsTablet, { foreignKey: 'connection_id', as: 'tablet_connection' });
 
-        Tablet.hasMany(PeripheralsTablet, { foreignKey: 'tablet_id', as: 'peripherals' });
+        Tablet.hasMany(PeripheralsTablet, { foreignKey: 'tablet_id', as: 'peripherals', onDelete: 'CASCADE' });
         PeripheralsTablet.belongsTo(Tablet, { foreignKey: 'tablet_id', as: 'tablet' });
         PeripheralsTablet.belongsTo(Peripheral, { foreignKey: 'peripheral_id', as: 'peripheral' });
         Peripheral.hasMany(PeripheralsTablet, { foreignKey: 'peripheral_id', as: 'tablet_peripheral' });

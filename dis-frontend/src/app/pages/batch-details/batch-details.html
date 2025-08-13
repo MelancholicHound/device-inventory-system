@@ -1,7 +1,7 @@
 <span class="bg-white flex justify-between items-center mb-5 p-6 rounded-xl">
-  <div class="flex gap-2">
-    <h1 class="font-bold text-xl text-slate-600 ml-5"> Batch Number: </h1>
-    <h1 class="font-bold text-xl underline text-slate-600"> {{ batchDetails.batch_id }} </h1>
+  <div class="flex flex-col gap-2">
+    <h1 class="font-bold text-xl ml-5"> Batch Number: </h1>
+    <h1 class="font-bold text-xl underline text-slate-600 ml-5"> {{ batchDetails.batch_id }} </h1>
   </div>
   <div class="flex gap-3">
     <p-button label="Batch Details"
@@ -14,18 +14,15 @@
               severity="contrast"
               icon="pi pi-plus"
               (onClick)="showAddDeviceDialog()"/>
+    @if (signalService.isDeviceCountChanged()) {
     <p-button label="Save"
-              *ngIf="signalService.deviceSignal()"
               icon="pi pi-check"
               (onClick)="saveButton()" />
+    }
     <p-button label="Back"
               severity="contrast"
               icon="pi pi-arrow-left"
               (onClick)="backButton()" />
-    <p-button label="Cancel"
-              severity="contrast"
-              icon="pi pi-times"
-              (onClick)="deleteConfirmation($event)"/>
   </div>
 </span>
 <section class="bg-white rounded-xl p-8">

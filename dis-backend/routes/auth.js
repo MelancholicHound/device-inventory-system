@@ -227,6 +227,8 @@ router.patch('/device/aio/:id', authenticateToken, authController.condemnedDevic
 
 router.put('/device/aio/:id', authenticateToken, authController.putByIdDeviceAIO);
 
+router.delete('/device/aio/:id', authenticateToken, authController.deleteByIdDeviceAIO);
+
 router.get('/device/aio/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceAIO);
 
 router.get('/device/aio/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceAIO);
@@ -251,6 +253,8 @@ router.get('/device/laptop/:id', authenticateToken, authController.getDeviceLapt
 router.patch('/device/laptop/:id', authenticateToken, authController.condemnedDeviceLaptop);
 
 router.put('/device/laptop/:id', authenticateToken, authController.putByIdDeviceLaptop);
+
+router.delete('/device/laptop/:id', authenticateToken, authController.deleteByIdDeviceLaptop);
 
 router.get('/device/laptop/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceLaptop);
 
@@ -277,6 +281,8 @@ router.patch('/device/computer/:id', authenticateToken, authController.condemned
 
 router.put('/device/computer/:id', authenticateToken, authController.putByIdDeviceComputer);
 
+router.delete('/device/computer/:id', authenticateToken, authController.deleteByIdDeviceComputer);
+
 router.get('/device/computer/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceComputer);
 
 router.get('/device/computer/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceComputer);
@@ -301,6 +307,8 @@ router.get('/device/tablet/:id', authenticateToken, authController.getDeviceTabl
 router.patch('/device/tablet/:id', authenticateToken, authController.condemnedDeviceTablet);
 
 router.put('/device/tablet/:id', authenticateToken, authController.putByIdDeviceTablet);
+
+router.delete('/device/tablet/:id', authenticateToken, authController.deleteByIdDeviceTablet);
 
 router.get('/device/tablet/:id/audit/connection', authenticateToken, authController.getConnectionAuditDeviceTablet);
 
@@ -327,6 +335,8 @@ router.patch('/device/router/:id', authenticateToken, authController.condemnedDe
 
 router.put('/device/router/:id', authenticateToken, authController.putByIdDeviceRouter);
 
+router.delete('/device/router/:id', authenticateToken, authController.deleteByIdDeviceRouter);
+
 router.get('/device/router/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceRouter);
 
 router.get('/device/router/audit/location', authenticateToken, authController.getAllLocationAuditDeviceRouter);
@@ -347,6 +357,8 @@ router.get('/device/printer/:id', authenticateToken, authController.getDevicePri
 router.patch('/device/printer/:id', authenticateToken, authController.condemnedDevicePrinter);
 
 router.put('/device/printer/:id', authenticateToken, authController.putByIdDevicePrinter);
+
+router.delete('/device/printer/:id', authenticateToken, authController.deleteByIdDevicePrinter);
 
 router.get('/device/printer/:id/audit/location', authenticateToken, authController.getLocationAuditDevicePrinter);
 
@@ -369,6 +381,8 @@ router.patch('/device/scanner/:id', authenticateToken, authController.condemnedD
 
 router.put('/device/scanner/:id', authenticateToken, authController.putByIdDeviceScanner);
 
+router.delete('/device/scanner/:id', authenticateToken, authController.deleteByIdDeviceScanner);
+
 router.get('/device/scanner/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceScanner);
 
 router.get('/device/scanner/audit/location', authenticateToken, authController.getAllLocationAuditDeviceScanner);
@@ -389,6 +403,8 @@ router.get('/device/ups/:id', authenticateToken, authController.getDeviceUPSById
 router.patch('/device/ups/:id', authenticateToken, authController.condemnedDeviceUPS);
 
 router.put('/device/ups/:id', authenticateToken, authController.putByIdDeviceUPS);
+
+router.delete('/device/ups/:id', authenticateToken, authController.deleteByIdDeviceUPS);
 
 router.get('/device/ups/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceUPS);
 

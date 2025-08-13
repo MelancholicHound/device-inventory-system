@@ -478,13 +478,48 @@ exports.deleteByIdBatch = async (req, res, next) => {
         const id = req.params.id;
 
         const batch = await Batch.findByPk(id);
+
         if (!batch) {
             return next(createErrors.notFound("A batch with this id doesn't exist."));
         }
 
+        const deviceConfigs = [
+            { model: AIO, children: ['processor', 'ram_modules', 'storage_dto', 'connections', 'peripherals'] },
+            { model: Computer, children: ['processor', 'motherboard', 'ram_modules', 'storage_dto', 'connections', 'peripherals'] },
+            { model: Laptop, children: ['processor', 'ram_modules', 'storage_dto', 'connections', 'peripherals'] },
+            { model: Printer, children: [] },
+            { model: Router, children: [] },
+            { model: Scanner, children: [] },
+            { model: Tablet, children: ['chipset', 'connections', 'peripherals'] },
+            { model: UPS, children: [] },
+        ];
+
+        for (const { model, children } of deviceConfigs) {
+            const devices = await model.findAll({
+                where: { batch_id: id },
+                include: children,
+            });
+           
+            const deletePromises = devices.map(async (device) => {
+            for (const childName of children) {
+                const child = device[childName];
+                if (child) {
+                if (Array.isArray(child)) {
+                    await Promise.all(child.map(c => c.destroy()));
+                } else {
+                    await child.destroy();
+                }
+                }
+            }
+            
+            await device.destroy();
+            });
+
+            await Promise.all(deletePromises);
+        }
+        
         await Batch.destroy({ where: { id } });
         await PurchaseRequestDTO.destroy({ where: { id: batch.prDTO_id } });
-
         res.status(200).json({ code: 200, message: 'Batch deleted successfully.' });
     } catch (err) {
         console.log(err);
@@ -2223,6 +2258,24 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDeviceAIO = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const aio = await AIO.findOne({ where: { id } });
+        if (!aio) return next(createErrors.notFound("AIO device with this id doesn't exist."));
+
+        await AIO.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${aio.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific AIO.', err));
+    }
+}
+
 exports.getConnectionAuditDeviceAIO = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -2736,6 +2789,24 @@ exports.putByIdDeviceLaptop = async (req, res, next) => {
         console.log(err);
         if (t) await t.rollback();
         next(createErrors.internalServerError('Something went wrong on updating specific laptop.', err));
+    }
+}
+
+exports.deleteByIdDeviceLaptop = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const laptop = await Laptop.findOne({ where: { id } });
+        if (!laptop) return next(createErrors.notFound("Laptop device with this id doesn't exist."));
+
+        await Laptop.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${laptop.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific laptop.', err));
     }
 }
 
@@ -3268,6 +3339,24 @@ exports.putByIdDeviceComputer = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDeviceComputer = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const computer = await Computer.findOne({ where: { id } });
+        if (!computer) return next(createErrors.notFound("Computer device with this id doesn't exist."));
+
+        await Computer.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${computer.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific computer.', err));
+    }
+}
+
 exports.getConnectionAuditDeviceComputer = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -3643,6 +3732,24 @@ exports.putByIdDeviceTablet = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDeviceTablet = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const tablet = await Tablet.findOne({ where: { id } });
+        if (!tablet) return next(createErrors.notFound("Tablet device with this id doesn't exist."));
+
+        await Tablet.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${tablet.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific tablet.', err));
+    }
+}
+
 exports.getConnectionAuditDeviceTablet = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -3888,6 +3995,24 @@ exports.putByIdDeviceRouter = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDeviceRouter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const router = await Router.findOne({ where: { id } });
+        if (!router) return next(createErrors.notFound("Router device with this id doesn't exist."));
+
+        await Router.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${router.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific router.', err));
+    }
+}
+
 exports.getLocationAuditDeviceRouter = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -4095,6 +4220,24 @@ exports.putByIdDevicePrinter = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDevicePrinter = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const printer = await Printer.findOne({ where: { id } });
+        if (!printer) return next(createErrors.notFound("Printer device with this id doesn't exist."));
+
+        await Printer.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${printer.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific printer.', err));
+    }
+}
+
 exports.getLocationAuditDevicePrinter = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -4297,6 +4440,24 @@ exports.putByIdDeviceScanner = async (req, res, next) => {
     }
 }
 
+exports.deleteByIdDeviceScanner = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const scanner = await Scanner.findOne({ where: { id } });
+        if (!scanner) return next(createErrors.notFound("Scanner device with this id doesn't exist."));
+
+        await Scanner.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${scanner.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific scanner.', err));
+    }
+}
+
 exports.getLocationAuditDeviceScanner = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -4486,6 +4647,24 @@ exports.putByIdDeviceUPS = async (req, res, next) => {
         console.log(err);
         if (t) await t.rollback();
         next(createErrors.internalServerError('Something went wrong on updating specific UPS.', err));
+    }
+}
+
+exports.deleteByIdDeviceUPS = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        const ups = await UPS.findOne({ where: { id } });
+        if (!ups) return next(createErrors.notFound("UPS device with this id doesn't exist."));
+
+        await UPS.destroy({ where: { id } });
+
+        res.status(200).json({ code: 200, message: `${ups.device_number} deleted successfully.` });
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on deleting specific UPS.', err));
     }
 }
 
