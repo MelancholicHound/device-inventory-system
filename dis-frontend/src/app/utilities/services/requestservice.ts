@@ -917,7 +917,7 @@ export class Requestservice {
   }
 
   getAllComputerByBatchId(id: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.url}/device/computer/batch/:id`, this.httpOptionsWithToken())
+    return this.http.get<any[]>(`${this.url}/device/computer/batch/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching of computers by batch id.';
 

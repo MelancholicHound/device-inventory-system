@@ -1,4 +1,4 @@
-<form action="" [formGroup]="aioForm" class="w-full">
+<form action="" [formGroup]="aioForm" class="w-full mb-15" autocomplete="off">
   <div class="bg-white rounded-xl p-5 w-full shadow-lg">
     <h1 class="text-xl font-semibold mb-5"> AIO Device Information </h1>
 
@@ -15,10 +15,12 @@
         </blockquote>
       </div>
       <div class="flex gap-3">
+        @if (aioForm.valid) {
         <p-button label="Save"
                   class="w-full sm:w-auto"
                   [style]="{ width: '100px' }"
                   (onClick)="postAIO()" />
+        }
         <p-button label="Back"
                   class="w-full sm:w-auto"
                   [style]="{ width: '100px' }"
@@ -78,7 +80,7 @@
   <div class="bg-white rounded-xl p-5 w-full mt-5">
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
       <span class="flex flex-col">
-        <label for="serial" class="font-semibold mb-1 ttext-slate-600"> Serial Number: </label>
+        <label for="serial" class="font-semibold mb-1 text-slate-600"> Serial Number: </label>
         <input type="text" pInputText formControlName="serial_number" id="serial" formControlName="serial_number">
       </span>
       <span class="flex flex-col">
@@ -196,11 +198,6 @@
             </div>
           </ng-container>
       }
-
-      <div class="flex gap-3 items-center mt-2">
-        <p>Add RAM:</p>
-        <p-button icon="pi pi-plus" styleClass="p-button-sm" (onClick)="addRAM()" />
-      </div>
     </div>
 
 
@@ -247,12 +244,6 @@
             </div>
           </ng-container>
         }
-        <div class="flex gap-3 items-center mt-2">
-          <p>Add storage:</p>
-          <p-button icon="pi pi-plus"
-                    styleClass="p-button-sm"
-                    (onClick)="addStorage()" />
-        </div>
       </div>
     </div>
 

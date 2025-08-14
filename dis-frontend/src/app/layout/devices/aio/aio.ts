@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef, effect, inject, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, FormBuilder, Validators } from '@angular/forms';
+import { Component, effect, inject, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+
+import { Observable, forkJoin, of, tap } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -33,7 +35,7 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
   templateUrl: './aio.html',
   styleUrl: './aio.css'
 })
-export class Aio implements OnInit {
+export class Aio {
   node: any[] = [];
   selectedNodes: any;
 
@@ -41,7 +43,6 @@ export class Aio implements OnInit {
   requestAuth = inject(Requestservice);
   signalService = inject(Signalservice);
   notification = inject(MessageService);
-  fb = inject(FormBuilder);
   nodeService = inject(Nodeservice);
 
   quantity = signal(0);
@@ -52,7 +53,7 @@ export class Aio implements OnInit {
 
   aioForm!: FormGroup;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor() {
     this.aioForm = this.createAIOForm();
 
     this.requestAuth.getAllAIOBrand().subscribe((res: any) => this.brand.set(res));
@@ -83,13 +84,9 @@ export class Aio implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-
-  }
-
   createAIOForm(): FormGroup {
     return new FormGroup({
-      batch_id: new FormControl<number | null>(null, [Validators.required]),
+      batch_id: new FormControl<number | null>(null),
       section_id: new FormControl<number | null>(null, [Validators.required]),
       serial_number: new FormControl<string | null>(null),
       ups_id: new FormControl<number | any>(null),
@@ -175,17 +172,61 @@ export class Aio implements OnInit {
 
   postAIO(): void {
     const rawValue: any = this.aioForm.value;
-
     rawValue.batch_id = this.batchDetails().id;
-    rawValue.serial_number = rawValue.serial_number === '' ? null : rawValue.serial_number;
+    rawValue.serial_number = rawValue.serial_number || null;
 
+    const tasks: Observable<any>[] = [];
+
+    const ensureEntityId = (
+      currentValue: string | number,
+      existingList: any[],
+      key: keyof typeof existingList[0],
+      nameKey: keyof typeof existingList[0],
+      postFn: (name: string) => Observable<any>
+    ): void => {
+      if (typeof currentValue === 'string') {
+        const match = existingList.find(
+          (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
+        );
+        if (match) {
+          rawValue[key] = match.id;
+        } else {
+          tasks.push(
+            postFn(currentValue).pipe(
+              tap((res) => (rawValue[key] = res.id))
+            )
+          );
+        }
+      }
+    };
+
+    // Brand
+    ensureEntityId(rawValue.brand_id, this.brand(), 'brand_id', 'name',
+      (name) => this.requestAuth.postAIOBrand(name)
+    );
+
+    // OS
+    ensureEntityId(rawValue.os_id, this.signalService.os(), 'os_id', 'name',
+      (name) => this.requestAuth.postSoftwareOS(name)
+    );
+
+    // Productivity Tool
+    ensureEntityId(rawValue.prod_id, this.signalService.productivityTools(), 'prod_id', 'name',
+      (name) => this.requestAuth.postSoftwareProdTool(name)
+    );
+
+    // Security
+    ensureEntityId(rawValue.security_id, this.signalService.security(), 'security_id', 'name',
+      (name) => this.requestAuth.postSoftwareSecurity(name)
+    );
+
+    // Process Capacities
     const processCapacities = (
       dtoArray: any[],
       existingList: { id: number; capacity: string }[],
-      postFn: (capacity: number) => any
+      postFn: (capacity: number) => Observable<any>
     ) => {
-      const existingCapacities = existingList.map((e) => e.capacity);
-
+      const existingCaps = existingList.map((e) => String(e.capacity));
       dtoArray.forEach((item) => {
         if (typeof item.capacity_id === 'string') {
           const match = existingList.find(
@@ -197,70 +238,64 @@ export class Aio implements OnInit {
         }
       });
 
-      const newCapacities = Array.from(
-        new Set<string>(
+      const newCaps = Array.from(
+        new Set(
           dtoArray
             .filter((item) => typeof item.capacity_id === 'string')
             .map((item) => item.capacity_id)
-            .filter((capacityId) => !existingCapacities.includes(capacityId))
+            .filter((cap) => !existingCaps.includes(String(cap)))
         )
       );
 
-      newCapacities.forEach((capacityId) => {
-        postFn(Number(capacityId)).subscribe({
-          next: (res: any) => {
-            dtoArray.forEach((item) => {
-              if (item.capacity_id === capacityId) {
-                item.capacity_id = res.id;
-              }
-            });
-          },
-          error: (error: any) => {
-            this.notification.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: String(error)
-            });
-          }
-        });
+      newCaps.forEach((cap) => {
+        tasks.push(
+          postFn(Number(cap)).pipe(
+            tap((res) => {
+              dtoArray.forEach((item) => {
+                if (item.capacity_id === cap) {
+                  item.capacity_id = res.id;
+                }
+              });
+            })
+          )
+        );
       });
     };
 
-    processCapacities(
-      rawValue.ramDTO,
-      this.signalService.ram(),
-      (capacity) => this.requestAuth.postRAMCapacity(capacity)
-    );
+    processCapacities(rawValue.ramDTO, this.signalService.ram(), (cap) => this.requestAuth.postRAMCapacity(cap));
+    processCapacities(rawValue.storageDTO, this.signalService.storage(), (cap) => this.requestAuth.postStorageCapacity(cap));
 
-    processCapacities(
-      rawValue.storageDTO,
-      this.signalService.storage(),
-      (capacity) => this.requestAuth.postStorageCapacity(capacity)
-    );
+    // GPU
+    if (typeof rawValue.gpu_id === 'string') {
+      tasks.push(
+        this.requestAuth.postGPUCapacity(rawValue.gpu_id).pipe(
+          tap((res) => {
+            rawValue.gpu_id = res.id;
+            this.signalService.reinitializeGPU();
+          })
+        )
+      );
+    }
 
-    const duplicatedArray = Array.from({ length: this.quantity() }, () => ({
-      ...structuredClone(rawValue)
-    }));
-
-    this.requestAuth.postAIO(duplicatedArray).subscribe({
-      next: (res: any) => {
-        this.notification.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Saved'
+    // Wait for all entity creation before posting AIO
+    forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
+      next: () => {
+        const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
+        this.requestAuth.postAIO(duplicatedArray).subscribe({
+          next: (res: any) => {
+            this.notification.add({ severity: 'success', summary: 'Success', detail: 'Saved' });
+            const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
+            this.signalService.addedDevice.set(res.devices);
+            this.signalService.currentBatchData.set(updatedList);
+            this.router.navigate(['/batch-list/batch-details']);
+          },
+          error: (error: any) => {
+            this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+          }
         });
-
-        const updatedList = [...this.signalService.currentBatchData(), ...duplicatedArray];
-        this.signalService.addedDevice.set(res.devices);
-        this.signalService.currentBatchData.set(updatedList);
-        this.router.navigate(['/batch-list/batch-details']);
       },
-      error: (error: any) => {
-        this.notification.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: `${error}`
-        });
+      error: (error) => {
+        this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
       }
     });
   }

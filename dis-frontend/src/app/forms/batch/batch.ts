@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FluidModule } from 'primeng/fluid';
 import { Select } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 import { Checkbox } from 'primeng/checkbox';
 
 import { Requestservice } from '../../utilities/services/requestservice';
@@ -31,6 +32,7 @@ import { FileConverter } from '../../utilities/modules/common';
     DatePickerModule,
     FluidModule,
     Select,
+    TooltipModule,
     Checkbox
   ],
   templateUrl: './batch.html',

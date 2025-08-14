@@ -198,14 +198,12 @@ export class BatchDetails {
     ]).subscribe({
       next: (res: any[]) => {
         const rawFetchedData = res.flat();
+
+        this.signalService.setCurrentBatchData([...rawFetchedData]);
+        this.signalService.setInitialBatchData([...rawFetchedData]);
+
         this.dataSource = rawFetchedData;
         this.initialValue = [...rawFetchedData];
-
-        if (this.signalService.initialBatchData().length === 0) {
-          this.signalService.initialBatchData.set([...rawFetchedData]);
-        }
-
-        this.signalService.currentBatchData.set([...rawFetchedData]);
         this.cdr.detectChanges();
       },
       error: (error: any) => {
@@ -373,13 +371,13 @@ export class BatchDetails {
 
   private confirmDeleteRecentDevices(): void {
     const fetchMethods: { pattern: string; method: (id: number) => Observable<any> }[] = [
-      { pattern: 'AIO', method: this.requestAuth.getAIOById.bind(this.requestAuth) },
-      { pattern: 'COMP', method: this.requestAuth.getComputerById.bind(this.requestAuth) },
-      { pattern: 'LAPTOP', method: this.requestAuth.getLaptopById.bind(this.requestAuth) },
-      { pattern: 'TABLET', method: this.requestAuth.getTabletById.bind(this.requestAuth) },
-      { pattern: 'ROUTER', method: this.requestAuth.getRouterById.bind(this.requestAuth) },
-      { pattern: 'PRINTER', method: this.requestAuth.getPrinterById.bind(this.requestAuth) },
-      { pattern: 'SCANNER', method: this.requestAuth.getScannerById.bind(this.requestAuth) }
+      { pattern: 'AIO', method: this.requestAuth.deleteAIOById.bind(this.requestAuth) },
+      { pattern: 'COMP', method: this.requestAuth.deleteComputerById.bind(this.requestAuth) },
+      { pattern: 'LAP', method: this.requestAuth.deleteLaptopById.bind(this.requestAuth) },
+      { pattern: 'TAB', method: this.requestAuth.deleteTabletById.bind(this.requestAuth) },
+      { pattern: 'RT', method: this.requestAuth.deleteRouterById.bind(this.requestAuth) },
+      { pattern: 'PRNT', method: this.requestAuth.deletePrinterById.bind(this.requestAuth) },
+      { pattern: 'SCAN', method: this.requestAuth.deleteScannerById.bind(this.requestAuth) }
     ];
 
     const getFetchMethod = (deviceNumber: string) =>

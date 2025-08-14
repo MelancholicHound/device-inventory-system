@@ -14,6 +14,8 @@ import { Requestservice } from './requestservice';
   providedIn: 'root'
 })
 export class Signalservice {
+  private _initialSet: boolean = false;
+
   requestAuth = inject(Requestservice);
   notification = inject(MessageService);
 
@@ -95,8 +97,20 @@ export class Signalservice {
     const initial = this.initialBatchData();
     const current = this.currentBatchData();
 
-    return current.length !== initial.length || current.length > 0;
+    return (initial.length === 0 && current.length > 0) ||
+           (current.length !== initial.length);
   });
+
+  setInitialBatchData(data: any[]): void {
+    if (!this._initialSet) {
+      this.initialBatchData.set(data);
+      this._initialSet = true
+    }
+  }
+
+  setCurrentBatchData(data: any[]): void {
+    this.currentBatchData.set(data);
+  }
 
   markSupplierAsAdded(): void {
     this.supplierAdded.set(true);
@@ -226,5 +240,6 @@ export class Signalservice {
   resetBatchData(): void {
     this.initialBatchData.set([]);
     this.currentBatchData.set([]);
+    this._initialSet = false;
   }
 }

@@ -1,11 +1,10 @@
-<form action="" [formGroup]="batchForm" class="flex flex-col gap-3 items-center">
+<form action="" [formGroup]="batchForm" class="flex flex-col gap-3 items-center" autocomplete="off">
   <div class="flex flex-col w-full" formGroupName="purchaseRequestDTO">
     <label for="pr-num"> PR Number: </label>
     <span class="flex gap-4">
       <input class="w-full"
              id="pr-num"
              pInputText
-             autocomplete="off"
              placeholder="Enter PR Number"
              formControlName="number">
       <p-button icon="pi pi-upload"
@@ -21,24 +20,30 @@
   </div>
   <div class="flex flex-col w-full">
     <label for="supplier"> Supplier </label>
-    <p-select inputId="supplier"
-              class="w-full"
-              [options]="suppliers()"
-              [checkmark]="true"
-              [showClear]="true"
-              optionLabel="name"
-              optionValue="id"
-              placeholder="Select supplier"
-              formControlName="supplier_id"/>
+    <div class="flex items-center gap-3">
+      <p-select inputId="supplier"
+                class="w-full"
+                [options]="suppliers()"
+                [checkmark]="true"
+                [showClear]="true"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Select supplier"
+                formControlName="supplier_id"/>
+      <i class="pi pi-question-circle px-3"
+         style="color: #708090; font-size: 1.2rem; font-weight: semi-bold;"
+         pTooltip="Go to Miscellaneous > Supplier. On the top-right corner, click 'Add Supplier'"
+         tooltipPosition="bottom"></i>
+    </div>
   </div>
   <div class="flex flex-col w-full">
     <label for="service-center"> Service Center: </label>
     <input class="w-full"
            pInputText
            id="service-center"
-           autocomplete="off"
            placeholder="Enter service center"
            formControlName="service_center">
+
   </div>
   <span class="flex gap-5 w-full">
     <div class="flex flex-col w-1/2">

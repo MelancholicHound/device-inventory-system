@@ -2264,10 +2264,17 @@ exports.deleteByIdDeviceAIO = async (req, res, next) => {
 
         const { id } = req.params;
 
-        const aio = await AIO.findOne({ where: { id } });
-        if (!aio) return next(createErrors.notFound("AIO device with this id doesn't exist."));
+        const aio = await AIO.findByPk(id, {
+            include: ['processor', 'ram_modules', 'storage_dto', 'connections', 'peripherals']
+        });
 
-        await AIO.destroy({ where: { id } });
+        if (aio.processor) await aio.processor.destroy();
+        if (aio.ram_modules) await Promise.all(aio.ram_modules.map(r => r.destroy()));
+        if (aio.storage_dto) await Promise.all(aio.storage_dto.map(s => s.destroy()));
+        if (aio.connections) await Promise.all(aio.connections.map(c => c.destroy()));
+        if (aio.peripherals) await Promise.all(aio.peripherals.map(p => p.destroy()));
+
+        await aio.destroy();
 
         res.status(200).json({ code: 200, message: `${aio.device_number} deleted successfully.` });
     } catch (err) {
@@ -2798,10 +2805,18 @@ exports.deleteByIdDeviceLaptop = async (req, res, next) => {
 
         const { id } = req.params;
 
-        const laptop = await Laptop.findOne({ where: { id } });
+        const laptop = await Laptop.findByPk(id, {
+            include: ['processor', 'ram_modules', 'storage_dto', 'connections', 'peripherals']
+        });
         if (!laptop) return next(createErrors.notFound("Laptop device with this id doesn't exist."));
 
-        await Laptop.destroy({ where: { id } });
+        if (laptop.processor) await laptop.processor.destroy();
+        if (laptop.ram_modules) await Promise.all(laptop.ram_modules.map(r => r.destroy()));
+        if (laptop.storage_dto) await Promise.all(laptop.storage_dto.map(s => s.destroy()));
+        if (laptop.connections) await Promise.all(laptop.connections.map(c => c.destroy()));
+        if (laptop.peripherals) await Promise.all(laptop.peripherals.map(p => p.destroy()));
+
+        await laptop.destroy();
 
         res.status(200).json({ code: 200, message: `${laptop.device_number} deleted successfully.` });
     } catch (err) {
@@ -3345,10 +3360,19 @@ exports.deleteByIdDeviceComputer = async (req, res, next) => {
 
         const { id } = req.params;
 
-        const computer = await Computer.findOne({ where: { id } });
+        const computer = await Computer.findByPk(id, {
+            include: ['processor', 'motherboard', 'ram_modules', 'storage_dto', 'connections', 'peripherals']
+        });
         if (!computer) return next(createErrors.notFound("Computer device with this id doesn't exist."));
 
-        await Computer.destroy({ where: { id } });
+        if (comp.processor) await comp.processor.destroy();
+        if (comp.motherboard) await comp.motherboard.destroy();
+        if (comp.ram_modules) await Promise.all(comp.ram_modules.map(r => r.destroy()));
+        if (comp.storage_dto) await Promise.all(comp.storage_dto.map(s => s.destroy()));
+        if (comp.connections) await Promise.all(comp.connections.map(c => c.destroy()));
+        if (comp.peripherals) await Promise.all(comp.peripherals.map(p => p.destroy()));
+
+        await comp.destroy();
 
         res.status(200).json({ code: 200, message: `${computer.device_number} deleted successfully.` });
     } catch (err) {
@@ -3738,10 +3762,16 @@ exports.deleteByIdDeviceTablet = async (req, res, next) => {
 
         const { id } = req.params;
 
-        const tablet = await Tablet.findOne({ where: { id } });
+        const tablet = await Tablet.findByPk(id, {
+            include: ['chipset', 'connections', 'peripherals']
+        });
         if (!tablet) return next(createErrors.notFound("Tablet device with this id doesn't exist."));
 
-        await Tablet.destroy({ where: { id } });
+        if (tablet.chipset) await tablet.chipset.destroy();
+        if (tablet.connections) await Promise.all(tablet.connections.map(c => c.destroy()));
+        if (tablet.peripherals) await Promise.all(tablet.peripherals.map(p => p.destroy()));
+
+        await tablet.destroy();
 
         res.status(200).json({ code: 200, message: `${tablet.device_number} deleted successfully.` });
     } catch (err) {
