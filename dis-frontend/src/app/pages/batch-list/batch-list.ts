@@ -64,6 +64,7 @@ export class BatchList implements OnInit {
   first: number = 0;
   rows: number = 5;
   visible: boolean = false;
+  reset: boolean = false;
 
   requestAuth = inject(Requestservice);
   signalService = inject(Signalservice);

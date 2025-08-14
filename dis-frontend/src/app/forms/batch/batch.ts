@@ -40,6 +40,7 @@ import { FileConverter } from '../../utilities/modules/common';
 })
 export class Batch implements OnInit, OnChanges {
   @Input() batchDetails: any;
+  @Input() resetForm: any;
 
   @Output() closeModal = new EventEmitter<boolean>(true);
 
@@ -116,6 +117,10 @@ export class Batch implements OnInit, OnChanges {
 
       this.batchForm.disable();
       this.isEditing.set(false);
+    }
+
+    if (changes['resetForm']) {
+      this.batchForm.reset();
     }
   }
 

@@ -82,20 +82,17 @@
     </span>
   </div>
   <span class="flex w-full justify-between mt-3">
-    <p-button label="Cancel"
-              severity="contrast"
-              [style]="{ width: '100px' }"
-              (onClick)="emitCloseModal()"/>
-    <p-button label="Add Batch"
-              *ngIf="!batchDetails"
-              (onClick)="addBatch()"/>
-    <p-button label="Edit"
-              [style]="{ width: '100px' }"
-              *ngIf="!isEditing() && batchDetails"
-              (onClick)="switchButton()"/>
-    <p-button label="Save"
-              [style]="{ width: '100px' }"
-              *ngIf="isEditing() && batchDetails"
-              (onClick)="updateBatch()"/>
+    <p-button label="Cancel" severity="contrast" [style]="{ width: '100px' }" (onClick)="emitCloseModal()"/>
+    @if (!batchDetails) {
+      <p-button label="Add Batch" (onClick)="addBatch()" [disabled]="batchForm.invalid" />
+    }
+
+    @if (!isEditing() && batchDetails) {
+      <p-button label="Edit" [style]="{ width: '100px' }" (onClick)="switchButton()"/>
+    }
+
+    @if (isEditing() && batchDetails) {
+      <p-button label="Save" [style]="{ width: '100px' }" (onClick)="updateBatch()"/>
+    }
   </span>
 </form>

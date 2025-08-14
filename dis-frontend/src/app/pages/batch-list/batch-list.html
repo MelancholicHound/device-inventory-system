@@ -76,8 +76,9 @@
           maximizable="true"
           [(visible)]="visible"
           [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }"
-          [style]="{ width: '30%' }">
-  <app-batch (closeModal)="closeDialog($event)" />
+          [style]="{ width: '30%' }"
+          (onHide)="this.reset = !this.reset">
+  <app-batch (closeModal)="closeDialog($event)" [resetForm]="reset" />
 </p-dialog>
 
 <p-confirmdialog />
