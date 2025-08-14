@@ -32,11 +32,12 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
     TabsModule,
     MultiSelectModule,
     TreeSelect,
+    ConfirmDialog
   ],
   templateUrl: './computer.html',
   styleUrl: './computer.css'
 })
-export class Computer {
+export class DeviceComputer {
   node: any[] = [];
   selectedNodes: any;
 
@@ -45,6 +46,7 @@ export class Computer {
   signalService = inject(Signalservice);
   notification = inject(MessageService);
   nodeService = inject(Nodeservice);
+  confirmation = inject(ConfirmationService);
 
   quantity = signal(0);
   sectionsByDivId = signal([]);
@@ -281,7 +283,7 @@ export class Computer {
         const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
         this.requestAuth.postComputer(duplicatedArray).subscribe({
           next: (res: any) => {
-            this.notification.add({ severity: 'success', summary: 'Success', detail: 'Saved' });
+            this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} computer/s saved successfully.` });
             const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
             this.signalService.addedDevice.set(res.devices);
             this.signalService.currentBatchData.set(updatedList);
@@ -298,7 +300,23 @@ export class Computer {
     });
   }
 
-  backButton(): void {
-    this.router.navigate(['/batch-list/batch-details']);
+  backButton(event: Event): void {
+    if (this.computerForm.dirty) {
+      this.confirmation.confirm({
+        target: event.target as EventTarget,
+        message: "Any unsaved progress will be lost. Are you sure you want to continue?",
+        header: 'Confirmation',
+        closable: true,
+        closeOnEscape: true,
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Continue',
+        rejectLabel: 'Cancel',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-contrast',
+        accept: () => this.router.navigate(['/batch-list/batch-details'])
+      });
+    } else {
+      this.router.navigate(['/batch-list/batch-details']);
+    }
   }
 }

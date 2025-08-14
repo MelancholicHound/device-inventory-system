@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
-import { forkJoin, firstValueFrom, Observable, tap } from 'rxjs';
+import { forkJoin, firstValueFrom, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
 import { MessageService, SortEvent, MenuItem, ConfirmationService } from 'primeng/api';
@@ -175,7 +175,7 @@ export class BatchDetails {
   getAllDevicesByBatchId(id: number) {
     forkJoin([
       this.requestAuth.getAllAIOByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'AIO'))
+        switchMap((data: any[]) => (this.dataMapper(data, 'AIO')))
       ),
       this.requestAuth.getAllLaptopByBatchId(id).pipe(
         switchMap((data: any[]) => this.dataMapper(data, 'LAPTOP'))

@@ -1,5 +1,5 @@
-<form action="" [formGroup]="tabletForm" class="w-full mb-15">
-  <div class="bg-white rounded-xl p-5 w-full">
+<form action="" [formGroup]="tabletForm" class="w-full mb-15" autocomplete="off">
+  <div class="bg-white rounded-xl p-5 w-full border-1 border-gray-300">
     <h1 class="text-xl font-semibold mb-5"> Tablet Device Information </h1>
 
     <!-- Batch and Save -->
@@ -25,7 +25,7 @@
                   class="w-full sm:w-auto"
                   [style]="{ width: '100px' }"
                   severity="contrast"
-                  (onClick)="backButton()"/>
+                  (onClick)="backButton($event)"/>
       </div>
     </div>
 
@@ -76,7 +76,7 @@
       </span>
     </div>
   </div>
-  <div class="bg-white rounded-xl p-5 w-full mt-5">
+  <div class="bg-white rounded-xl p-5 w-full mt-5 border-1 border-gray-300">
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
       <span class="flex flex-col md:col-span-2 xl:col-span-1">
         <label for="serial" class="font-semibold mb-1 text-slate-600"> Serial Number: </label>
@@ -102,7 +102,7 @@
   </div>
   <section class="grid grid-cols-1 m:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 w-full">
     <!-- Accountability -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600"> Accountability </p>
       <div class="flex flex-col gap-5">
         <span class="flex flex-col">
@@ -117,7 +117,7 @@
     </div>
 
     <!-- Chipset -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full" formGroupName="chipsetDTO">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300" formGroupName="chipsetDTO">
       <p class="font-semibold mb-4 text-slate-600"> Chipset </p>
       <div class="flex flex-col gap-5">
         <span class="flex flex-col">
@@ -137,81 +137,43 @@
     </div>
 
     <!-- RAM -->
-    <div formArrayName="ramDTO" class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">RAM</p>
-
-      @for (ram of ramArray.controls; track $index) {
-        <ng-container [formGroupName]="$index">
-            <div class="flex flex-col">
-              <p class="text-slate-600"> Capacity </p>
-              <div class="flex gap-3 items-center mb-3">
-                <p-select formControlName="capacity_id"
-                          inputId="ram-capacity-{{$index}}"
-                          class="w-full"
-                          [options]="signalService.ram()"
-                          [editable]="true"
-                          [showClear]="true"
-                          optionLabel="capacity"
-                          optionValue="id" />
-                <label for="ram-capacity-{{$index}}" class="text-slate-600">Gb/s</label>
-
-                @if (ramArray.length > 1) {
-                  <p-button label="Remove"
-                            severity="danger"
-                            styleClass="p-button-sm"
-                            (onClick)="removeRAM($index)" />
-                }
-              </div>
-            </div>
-          </ng-container>
-      }
+      <div class="flex flex-col">
+        <p class="text-slate-600"> Capacity </p>
+        <span class="flex gap-3 items-center w-full">
+          <p-select class="w-full"
+                    [options]="signalService.ram()"
+                    [editable]="true"
+                    optionLabel="capacity"
+                    optionValue="id"
+                    [showClear]="true"
+                    formControlName="ram_capacity_id"/>
+          <label for="capacity" class="text-slate-600">Gb/s</label>
+        </span>
+      </div>
     </div>
 
 
     <!-- Storage -->
-    <div formArrayName="storageDTO" class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">Storage</p>
+      <div class="flex flex-col">
+        <label for="ram" class="text-slate-600"> Capacity </label>
+        <span class="flex gap-3 items-center w-full">
+          <p-select class="w-full"
+                    [options]="signalService.storage()"
+                    [editable]="true"
+                    optionLabel="capacity"
+                    optionValue="id"
+                    [showClear]="true"
+                    formControlName="storage_capacity_id"/>
+          <label for="capacity" class="text-slate-600"> Gb/s </label>
+        </span>
 
-      <div class="flex flex-col gap-5">
-        @for (storage of storageArray.controls; track $index) {
-          <ng-container [formGroupName]="$index">
-            <div class="flex flex-col gap-3 border border-slate-200 rounded p-3">
-
-              <div class="flex flex-col">
-                <p class="text-slate-600">Capacity </p>
-                <span class="flex gap-3 items-center w-full">
-                  <p-select inputId="capacity-{{$index}}"
-                            class="w-full"
-                            [options]="signalService.storage()"
-                            [editable]="true"
-                            optionLabel="capacity"
-                            optionValue="id"
-                            [showClear]="true"
-                            formControlName="capacity_id"/>
-                  <label for="capacity-{{$index}}" class="text-slate-600">Gb/s</label>
-
-                  @if (storageArray.length > 1) {
-                    <p-button label="Remove"
-                              severity="danger"
-                              styleClass="p-button-sm"
-                              (onClick)="removeStorage($index)" />
-                  }
-                </span>
-              </div>
-
-              <div class="flex flex-col">
-                <label for="type-{{$index}}" class="text-slate-600">Type</label>
-                <p-select inputId="type-{{$index}}"
-                          class="w-full"
-                          [options]="signalService.storageType()"
-                          optionLabel="type"
-                          optionValue="id"
-                          formControlName="type_id" />
-              </div>
-            </div>
-          </ng-container>
-        }
       </div>
     </div>
   </section>
 </form>
+
+<p-confirmdialog />

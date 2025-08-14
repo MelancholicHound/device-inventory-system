@@ -3914,7 +3914,7 @@ exports.getAllDeviceRouterByBatchId = async (req, res, next) => {
 
         const { id } = req.params;
 
-        res.status(200).json(await Tablet.findAll({ where: { batch_id: id } }));
+        res.status(200).json(await Router.findAll({ where: { batch_id: id } }));
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all tablets by batch id.', err));

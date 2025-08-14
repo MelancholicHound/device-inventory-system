@@ -1,5 +1,5 @@
 <form action="" [formGroup]="computerForm" class="w-full mb-15" autocomplete="off">
-  <div class="bg-white rounded-xl p-5 w-full shadow-lg">
+  <div class="bg-white rounded-xl p-5 w-full border-1 border-gray-300">
     <h1 class="text-xl font-semibold mb-5"> Computer Device Information </h1>
 
     <!-- Batch and Save -->
@@ -25,7 +25,7 @@
                   class="w-full sm:w-auto"
                   [style]="{ width: '100px' }"
                   severity="contrast"
-                  (onClick)="backButton()"/>
+                  (onClick)="backButton($event)"/>
       </div>
     </div>
 
@@ -55,7 +55,7 @@
       </span>
     </div>
   </div>
-  <div class="bg-white rounded-xl p-5 w-full mt-5">
+  <div class="bg-white rounded-xl p-5 w-full mt-5 border-1 border-gray-300">
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 w-full">
       <span class="flex flex-col">
         <label for="serial" class="font-semibold mb-1 text-slate-600"> Serial Number: </label>
@@ -88,7 +88,7 @@
   </div>
   <section class="grid grid-cols-1 m:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 w-full">
     <!-- Accountability -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600"> Accountability </p>
       <div class="flex flex-col gap-5">
         <span class="flex flex-col">
@@ -103,7 +103,7 @@
     </div>
 
     <!-- Processor -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full" formGroupName="processorDTO">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300" formGroupName="processorDTO">
       <p class="font-semibold mb-4 text-slate-600">Processor</p>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         <span class="flex flex-col w-full">
@@ -130,7 +130,7 @@
     </div>
 
     <!-- Motherboard -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full" formGroupName="motherboardDTO">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300" formGroupName="motherboardDTO">
       <p class="font-semibold mb-4 text-slate-600"> Motherboard </p>
       <div class="flex flex-col gap-5">
         <span class="flex flex-col">
@@ -150,7 +150,7 @@
     </div>
 
     <!-- Video Card -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">Video Card</p>
       <div class="flex flex-col w-full">
         <p class="text-slate-600">Capacity</p>
@@ -168,7 +168,7 @@
     </div>
 
     <!-- RAM -->
-    <div formArrayName="ramDTO" class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div formArrayName="ramDTO" class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">RAM</p>
 
       @for (ram of ramArray.controls; track $index) {
@@ -205,7 +205,7 @@
 
 
     <!-- Storage -->
-    <div formArrayName="storageDTO" class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div formArrayName="storageDTO" class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">Storage</p>
 
       <div class="flex flex-col gap-5">
@@ -257,7 +257,7 @@
     </div>
 
     <!-- Softwares -->
-    <div class="flex flex-col p-5 bg-white rounded-xl w-full">
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
       <p class="font-semibold mb-4 text-slate-600">Softwares</p>
       <div class="grid grid-cols-1  gap-5">
         <span class="flex flex-col">
@@ -291,3 +291,5 @@
     </div>
   </section>
 </form>
+
+<p-confirmdialog />

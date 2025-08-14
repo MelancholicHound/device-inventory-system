@@ -1,17 +1,18 @@
 import { Component, effect, inject, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { Observable, forkJoin, of, tap } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 import { Requestservice } from '../../../utilities/services/requestservice';
 import { Signalservice } from '../../../utilities/services/signalservice';
@@ -28,12 +29,13 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
     InputTextModule,
     KeyFilterModule,
     TabsModule,
-    MultiSelectModule
+    MultiSelectModule,
+    ConfirmDialog
   ],
   templateUrl: './tablet.html',
   styleUrl: './tablet.css'
 })
-export class Tablet {
+export class DeviceTablet {
   node: any[] = [];
   selectedNodes: any;
 
@@ -42,6 +44,7 @@ export class Tablet {
   signalService = inject(Signalservice);
   notification = inject(MessageService);
   nodeService = inject(Nodeservice);
+  confirmation = inject(ConfirmationService);
 
   quantity = signal(0);
   sectionsByDivId = signal([]);
@@ -90,9 +93,8 @@ export class Tablet {
       section_id: new FormControl<number | null>(null, [Validators.required]),
       serial_number: new FormControl<string | null>(null),
       ups_id: new FormControl<number | any>(null),
-      storageDTO: new FormArray([this.createStorageGroup()]),
-      ramDTO: new FormArray([this.createRamGroup()]),
-      gpu_id: new FormControl<number | null>(null, [Validators.required]),
+      storage_capacity_id: new FormControl<number | any>(null, [Validators.required]),
+      ram_capacity_id: new FormControl<number | any>(null, [Validators.required]),
       chipsetDTO: new FormGroup({
         brand_id: new FormControl<number | null>(null, [Validators.required]),
         model: new FormControl<string | null>(null, [Validators.required])
@@ -118,137 +120,43 @@ export class Tablet {
     );
   }
 
-  // ---- RAM ----
-  createRamGroup(): FormGroup {
-    return new FormGroup({
-      capacity_id: new FormControl<number | null>(null, [Validators.required])
-    });
-  }
-
-  get ramArray(): FormArray {
-    return this.tabletForm.get('ramDTO') as FormArray;
-  }
-
-  addRAM = () => {
-    this.ramArray.push(this.createRamGroup());
-  }
-
-  removeRAM = (index: number) => {
-    if (this.ramArray.length > 1) {
-      this.ramArray.removeAt(index);
-    }
-  }
-
-  // ---- Storage ----
-  createStorageGroup(): FormGroup {
-    return new FormGroup({
-      capacity_id: new FormControl<any | null>(null, [Validators.required]),
-      type_id: new FormControl<number | null>(null, [Validators.required])
-    });
-  }
-
-  get storageArray(): FormArray {
-    return this.tabletForm.get('storageDTO') as FormArray;
-  }
-
-  addStorage(): void {
-    this.storageArray.push(this.createStorageGroup());
-  }
-
-  removeStorage(index: number): void {
-    if (this.storageArray.length > 1) {
-      this.storageArray.removeAt(index);
-    }
-  }
-
   postTablet(): void {
     const rawValue: any = this.tabletForm.value;
     rawValue.batch_id = this.batchDetails().id;
     rawValue.serial_number = rawValue.serial_number || null;
 
-    const tasks: Observable<any>[] = [];
-
-     // Process Capacities
-    const processCapacities = (
-      dtoArray: any[],
-      existingList: { id: number; capacity: string }[],
-      postFn: (capacity: number) => Observable<any>
-    ) => {
-      const existingCaps = existingList.map((e) => String(e.capacity));
-      dtoArray.forEach((item) => {
-        if (typeof item.capacity_id === 'string') {
-          const match = existingList.find(
-            (e) => String(e.capacity) === item.capacity_id
-          );
-          if (match) {
-            item.capacity_id = match.id;
-          }
-        }
-      });
-
-      const newCaps = Array.from(
-        new Set(
-          dtoArray
-            .filter((item) => typeof item.capacity_id === 'string')
-            .map((item) => item.capacity_id)
-            .filter((cap) => !existingCaps.includes(String(cap)))
-        )
-      );
-
-      newCaps.forEach((cap) => {
-        tasks.push(
-          postFn(Number(cap)).pipe(
-            tap((res) => {
-              dtoArray.forEach((item) => {
-                if (item.capacity_id === cap) {
-                  item.capacity_id = res.id;
-                }
-              });
-            })
-          )
-        );
-      });
-    };
-
-    processCapacities(rawValue.ramDTO, this.signalService.ram(), (cap) => this.requestAuth.postRAMCapacity(cap));
-    processCapacities(rawValue.storageDTO, this.signalService.storage(), (cap) => this.requestAuth.postStorageCapacity(cap));
-
-    // GPU
-    if (typeof rawValue.gpu_id === 'string') {
-      tasks.push(
-        this.requestAuth.postGPUCapacity(rawValue.gpu_id).pipe(
-          tap((res) => {
-            rawValue.gpu_id = res.id;
-            this.signalService.reinitializeGPU();
-          })
-        )
-      );
-    }
-
-    // Wait for all entity creation before posting Computer
-    forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
-      next: () => {
-        const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
-        this.requestAuth.postComputer(duplicatedArray).subscribe({
-          next: (res: any) => {
-            this.notification.add({ severity: 'success', summary: 'Success', detail: 'Saved' });
-            const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
-            this.signalService.addedDevice.set(res.devices);
-            this.signalService.currentBatchData.set(updatedList);
-            this.router.navigate(['/batch-list/batch-details']);
-          },
-          error: (error: any) => {
-            this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
-          }
-        });
+    const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
+    this.requestAuth.postTablet(duplicatedArray).subscribe({
+      next: (res: any) => {
+        this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} tablet/s saved successfully.` });
+        const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
+        this.signalService.addedDevice.set(res.devices);
+        this.signalService.currentBatchData.set(updatedList);
+        this.router.navigate(['/batch-list/batch-details']);
       },
-      error: (error) => {
+      error: (error: any) => {
         this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
       }
     });
   }
 
-  backButton(): void {
-    this.router.navigate(['/batch-list/batch-details']);
+  backButton(event: Event): void {
+    if (this.tabletForm.dirty) {
+      this.confirmation.confirm({
+        target: event.target as EventTarget,
+        message: "Any unsaved progress will be lost. Are you sure you want to continue?",
+        header: 'Confirmation',
+        closable: true,
+        closeOnEscape: true,
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Continue',
+        rejectLabel: 'Cancel',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-contrast',
+        accept: () => this.router.navigate(['/batch-list/batch-details'])
+      });
+    } else {
+      this.router.navigate(['/batch-list/batch-details']);
+    }
   }
 }

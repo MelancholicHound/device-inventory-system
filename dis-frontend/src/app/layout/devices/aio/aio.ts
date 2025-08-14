@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 
 import { Observable, forkJoin, of, tap } from 'rxjs';
 
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
@@ -13,6 +13,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { TabsModule } from 'primeng/tabs';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { TreeSelect } from 'primeng/treeselect';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 import { Requestservice } from '../../../utilities/services/requestservice';
 import { Signalservice } from '../../../utilities/services/signalservice';
@@ -30,12 +31,13 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
     KeyFilterModule,
     TabsModule,
     MultiSelectModule,
-    TreeSelect
+    TreeSelect,
+    ConfirmDialog
   ],
   templateUrl: './aio.html',
   styleUrl: './aio.css'
 })
-export class Aio {
+export class DeviceAio {
   node: any[] = [];
   selectedNodes: any;
 
@@ -44,6 +46,7 @@ export class Aio {
   signalService = inject(Signalservice);
   notification = inject(MessageService);
   nodeService = inject(Nodeservice);
+  confirmation = inject(ConfirmationService);
 
   quantity = signal(0);
   sectionsByDivId = signal([]);
@@ -283,7 +286,7 @@ export class Aio {
         const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
         this.requestAuth.postAIO(duplicatedArray).subscribe({
           next: (res: any) => {
-            this.notification.add({ severity: 'success', summary: 'Success', detail: 'Saved' });
+            this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} AIO/s saved successfully.` });
             const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
             this.signalService.addedDevice.set(res.devices);
             this.signalService.currentBatchData.set(updatedList);
@@ -300,7 +303,23 @@ export class Aio {
     });
   }
 
-  backButton(): void {
-    this.router.navigate(['/batch-list/batch-details']);
+  backButton(event: Event): void {
+    if (this.aioForm.dirty) {
+      this.confirmation.confirm({
+        target: event.target as EventTarget,
+        message: "Any unsaved progress will be lost. Are you sure you want to continue?",
+        header: 'Confirmation',
+        closable: true,
+        closeOnEscape: true,
+        icon: 'pi pi-exclamation-triangle',
+        acceptLabel: 'Continue',
+        rejectLabel: 'Cancel',
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-contrast',
+        accept: () => this.router.navigate(['/batch-list/batch-details'])
+      });
+    } else {
+      this.router.navigate(['/batch-list/batch-details']);
+    }
   }
 }

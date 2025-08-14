@@ -1,1 +1,135 @@
-<p>printer works!</p>
+<form action="" [formGroup]="printerForm" class="w-full mb-15" autocomplete="off">
+  <div class="bg-white rounded-xl p-5 w-full border-1 border-gray-300">
+    <h1 class="text-xl font-semibold mb-5"> Printer Device Information </h1>
+
+    <!-- Batch and Save -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="flex flex-col sm:flex-row gap-5">
+        <blockquote class="flex items-center gap-2">
+          <p class="text-slate-600">Batch Number:</p>
+          <p class="underline font-semibold">{{ batchDetails()?.batch_id }}</p>
+        </blockquote>
+        <blockquote class="flex items-center gap-2">
+          <p class="text-slate-600">Quantity:</p>
+          <p class="underline font-semibold">{{ quantity() }}</p>
+        </blockquote>
+      </div>
+      <div class="flex gap-3">
+        @if (printerForm.valid) {
+        <p-button label="Save"
+                  class="w-full sm:w-auto"
+                  [style]="{ width: '100px' }"
+                  (onClick)="postPrinter()" />
+        }
+        <p-button label="Back"
+                  class="w-full sm:w-auto"
+                  [style]="{ width: '100px' }"
+                  severity="contrast"
+                  (onClick)="backButton($event)"/>
+      </div>
+    </div>
+
+    <!-- Form Fields Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mt-6 w-full">
+
+      <!-- Division -->
+      <span class="flex flex-col w-full">
+        <label for="division" class="text-slate-600 mb-1 font-semibold">Division:</label>
+        <p-select inputId="division"
+                  class="w-full"
+                  [options]="signalService.divisions()"
+                  optionLabel="name"
+                  optionValue="id"
+                  (onChange)="getSectionSelectValue($event)" />
+      </span>
+
+      <!-- Section -->
+      <span class="flex flex-col w-full">
+        <label for="section" class="text-slate-600 mb-1 font-semibold">Section:</label>
+        <p-select inputId="section"
+                  class="w-full"
+                  [options]="sectionsByDivId()"
+                  optionLabel="name"
+                  optionValue="id"
+                  formControlName="section_id" />
+      </span>
+
+      <!-- Brand -->
+      <span class="flex flex-col w-full">
+        <label for="brand" class="text-slate-600 mb-1 font-semibold">Brand:</label>
+        <p-select inputId="brand"
+                  class="w-full"
+                  [options]="brand()"
+                  [editable]="true"
+                  optionLabel="name"
+                  optionValue="id"
+                  formControlName="brand_id" />
+      </span>
+
+      <!-- Model -->
+      <span class="flex flex-col w-full">
+        <label for="model" class="text-slate-600 mb-1 font-semibold">Model:</label>
+        <input type="text"
+               pInputText
+               class="w-full"
+               formControlName="model" />
+      </span>
+    </div>
+  </div>
+  <div class="bg-white rounded-xl p-5 w-full mt-5 border-1 border-gray-300">
+    <div class="gap-6 w-full">
+      <span class="flex flex-col">
+        <label for="serial" class="font-semibold mb-1 text-slate-600"> Serial Number: </label>
+        <input type="text" pInputText formControlName="serial_number" id="serial" formControlName="serial_number">
+      </span>
+    </div>
+  </div>
+  <section class="grid grid-cols-1 m:grid-cols-2 lg:grid-cols-3 gap-5 mt-5 w-full">
+    <!-- Accountability -->
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
+      <p class="font-semibold mb-4 text-slate-600"> Accountability </p>
+      <div class="flex flex-col gap-5">
+        <span class="flex flex-col">
+          <label for="acct" class="text-slate-600">Accountable Person</label>
+          <input type="text" pInputText class="w-full" formControlName="accountable_user">
+        </span>
+        <span class="flex flex-col">
+          <label for="acct" class="text-slate-600">Accountable Person</label>
+          <input type="text" pInputText class="w-full" formControlName="co_accountable_user">
+        </span>
+      </div>
+    </div>
+
+    <!-- Type -->
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
+      <p class="font-semibold mb-4 text-slate-600"> Type </p>
+      <span class="flex flex-col">
+          <label for="capacity" class="text-slate-600"> Printer Type </label>
+          <p-select inputId="capacity"
+                    class="w-full"
+                    [options]="printerType()"
+                    [editable]="true"
+                    optionLabel="type"
+                    optionValue="id"
+                    formControlName="type_id" />
+      </span>
+    </div>
+
+    <!-- Functionality -->
+    <div class="flex flex-col p-5 bg-white rounded-xl w-full border-1 border-gray-300">
+      <p class="font-semibold mb-4 text-slate-600"> Functionality </p>
+      <div class="flex flex-col">
+        <label for="capacity" class="text-slate-600"> Label </label>
+        <p-select inputId="capacity"
+                  class="w-full"
+                  [options]="withScanner"
+                  [editable]="true"
+                  optionLabel="name"
+                  optionValue="response"
+                  formControlName="with_scanner" />
+      </div>
+    </div>
+  </section>
+</form>
+
+<p-confirmdialog />
