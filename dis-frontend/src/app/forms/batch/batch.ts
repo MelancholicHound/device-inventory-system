@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, ChangeDetectorRef, ViewChild, Input, Output, EventEmitter, inject, signal, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnChanges, ChangeDetectorRef, ViewChild, Input, Output, EventEmitter, inject, effect, signal, SimpleChanges } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -64,6 +64,13 @@ export class Batch implements OnInit, OnChanges {
 
   constructor(private cdr: ChangeDetectorRef) {
     this.batchForm = this.createBatchForm();
+
+    effect(() => {
+      if (this.signalService.supplierSignal()) {
+        this.suppliers.set(this.signalService.supplierList());
+        this.signalService.resetSupplierFlag();
+      }
+    });
   }
 
   ngOnInit(): void {
