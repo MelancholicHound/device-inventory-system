@@ -10,9 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true
         },
-        file: {
-            type: DataTypes.BLOB('long')
-        }
+        file: DataTypes.STRING
     }, {
         tableName: 'tbl_purchase_request',
         timestamps: true,

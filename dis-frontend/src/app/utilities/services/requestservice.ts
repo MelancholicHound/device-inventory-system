@@ -10,14 +10,6 @@ import { UserInterface } from '../models/UserInterface';
 import { BatchInterface } from '../models/BatchInteface';
 import { SupplierInterface } from '../models/SupplierInterface';
 
-import { DeviceAIO } from '../models/DeviceAIO';
-import { DeviceComputer } from '../models/DeviceComputer';
-import { DeviceLaptop } from '../models/DeviceLaptop';
-import { DevicePrinter } from '../models/DevicePrinter';
-import { DeviceRouter } from '../models/DeviceRouter';
-import { DeviceScanner } from '../models/DeviceScanner';
-import { DeviceTablet } from '../models/DeviceTablet';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -74,8 +66,12 @@ export class Requestservice {
     }));
   }
 
-  postBatch(batch: Omit<BatchInterface, 'id'>): Observable<any> {
-    return this.http.post(`${this.url}/batch`, batch, this.httpOptionsWithToken())
+  postBatch(batch: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this._token()}`
+    });
+
+    return this.http.post(`${this.url}/batch`, batch, { headers })
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during saving of batch.';
 

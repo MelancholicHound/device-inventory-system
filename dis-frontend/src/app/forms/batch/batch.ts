@@ -122,6 +122,7 @@ export class Batch implements OnInit, OnChanges {
         is_tested: this.batchDetails.date_tested ?? true
       });
 
+      console.log(this.batchDetails);
       this.batchForm.disable();
       this.isEditing.set(false);
     }
@@ -151,7 +152,7 @@ export class Batch implements OnInit, OnChanges {
       service_center: new FormControl<string | null>(null, [Validators.required]),
       purchaseRequestDTO: new FormGroup({
         number: new FormControl<string | null>(null, [Validators.required]),
-        file: new FormControl<string | null>(null)
+        file: new FormControl<File | null>(null)
       }),
       is_tested: new FormControl<boolean>(false)
     });
@@ -175,24 +176,27 @@ export class Batch implements OnInit, OnChanges {
 
   addBatch(): void {
     this.batchForm.removeControl('is_tested');
+    const formData = new FormData();
 
-    const rawValidUntil = this.batchForm.value.valid_until;
-    const rawDateDelivered = this.batchForm.value.date_delivered;
-    const rawDateTested = this.batchForm.value.date_tested;
-
-    const batchRawValue = this.batchForm.getRawValue();
-
-    const formattedPayload = {
-      ...batchRawValue,
-      valid_until: `${rawValidUntil.toISOString().split('T')[0]}`,
-      date_delivered: `${rawDateDelivered.toISOString().split('T')[0]}`,
-      date_tested: rawDateTested ? `${rawDateTested.toISOString().split('T')[0]}` : null,
-      purchaseRequestDTO: {
-        ...batchRawValue.purchaseRequestDTO
+    Object.entries(this.batchForm.value).forEach(([key, value]) => {
+      if (key === 'purchaseRequestDTO') {
+        const purchaseDTO = value as any;
+        formData.append('number', purchaseDTO?.number ?? '');
+        if (purchaseDTO?.file) {
+          formData.append('file', purchaseDTO.file);
+        } else {
+          formData.append('file', '');
+        }
+      } else if (value instanceof Date) {
+        formData.append(key, value.toISOString().split('T')[0]);
+      } else if (value === null || value === undefined) {
+        formData.append(key, '');
+      } else {
+        formData.append(key, value as any);
       }
-    };
+    });
 
-    this.requestAuth.postBatch(formattedPayload).pipe(
+    this.requestAuth.postBatch(formData).pipe(
       tap(() => {
         this.notification.add({ severity: 'success', summary: 'Success', detail: `Batch created successfully.` });
         this.signalService.markBatchAsAdded();
@@ -218,9 +222,7 @@ export class Batch implements OnInit, OnChanges {
 
       this.fileUpload = file;
 
-      this.fileConverter.fileToHex(this.fileUpload).then((hexString: string) => {
-        this.batchForm.patchValue({ purchaseRequestDTO: { file: hexString } });
-      });
+      this.batchForm.get('purchaseRequestDTO.file')?.setValue(this.fileUpload);
     }
   }
 

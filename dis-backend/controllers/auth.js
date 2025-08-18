@@ -379,9 +379,13 @@ exports.postBatch = async (req, res, next) => {
     try {
         requestValidation(req, next);
 
-        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
-        const { number, file } = purchaseRequestDTO;
-
+        const valid_until = req.body.valid_until || null;
+        const date_delivered = req.body.date_delivered || null;
+        const date_tested = req.body.date_tested || null;
+        const supplier_id = req.body.supplier_id || null;
+        const service_center = req.body.service_center || null;
+        const number = req.body.number || null;
+   
         const isPrExisting = await PurchaseRequestDTO.findOne({ where: { number }, transaction: t });
         if (isPrExisting) {
             await t.rollback();
@@ -410,6 +414,8 @@ exports.postBatch = async (req, res, next) => {
             newNumber++;
         }
 
+        console.log(req.file)
+
         const batchId = `${year}-${String(newNumber).padStart(3, '0')}`;
 
         const supplier = await Supplier.findByPk(supplier_id);
@@ -418,7 +424,11 @@ exports.postBatch = async (req, res, next) => {
             return next(createErrors.notFound("This supplier doesn't exist."));
         }
 
-        const pr = await PurchaseRequestDTO.create(purchaseRequestDTO);
+        const pr = await PurchaseRequestDTO.create({
+            number,
+            file: req.file ? req.file.filename : null
+        }, { transaction: t });
+
         if (!pr) {
             await t.rollback();
             return next(createErrors.unprocessableEntity('Something went wrong during saving of purchase request'));
@@ -428,9 +438,10 @@ exports.postBatch = async (req, res, next) => {
             batch_id: batchId,
             prDTO_id: pr.id,
             created_by: req.user.id,
-            valid_until, date_delivered, date_tested,
-            supplier_id, service_center
-        }, { transation: t });
+            valid_until, date_delivered, 
+            date_tested: date_tested ? date_tested.toISOString().split('T')[0] : null,
+            supplier_id: parseInt(supplier_id, 10), service_center
+        }, { transaction: t });
 
         await t.commit();
         res.status(201).json(batch);

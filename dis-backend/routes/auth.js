@@ -1,10 +1,30 @@
 const express = require('express');
 const { body } = require('express-validator');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const authController = require('../controllers/auth');
 const authenticateToken = require('../util/auth');
 
 const router = express.Router();
+
+const uploadPath = path.join(__dirname, '../private/directory');
+if (!fs.existsSync(uploadPath)) {
+    fs.mkdirSync(uploadPath, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+
+const upload = multer({ storage });
 
 router.post('/signup', [
     body('first_name').notEmpty().withMessage('First name is required.'),
@@ -57,7 +77,7 @@ router.get('/batch', authenticateToken, authController.getAllBatches);
 
 router.get('/batch/:id', authenticateToken, authController.getByIdBatch);
 
-router.post('/batch', authenticateToken, authController.postBatch);
+router.post('/batch', authenticateToken, upload.single('file'), authController.postBatch);
 
 router.put('/batch/:id', authenticateToken, authController.putByIdBatch);
 

@@ -45,7 +45,6 @@
     <input type="text"
            pInputText
            class="w-full"
-           pKeyFilter="alpha"
            id="location"
            autocomplete="off"
            placeholder="Enter name"
@@ -78,14 +77,17 @@
               severity="contrast"
               [style]="{ width: '100px' }"
               (onClick)="emitCloseModal()"/>
+    @if (!isAdding() && isEditing()) {
     <p-button label="Edit"
               [style]="{ width: '100px' }"
-              (onClick)="switchButton()"
-              *ngIf="!isAdding() && isEditing()"/>
+              (onClick)="switchButton()"/>
+    }
+    @if (isAdding() && !isEditing()) {
     <p-button label="Save"
               [style]="{ width: '100px' }"
               (onClick)="saveSupplier()"
-              [disabled]="supplierForm.invalid"
-              *ngIf="isAdding() && !isEditing()"/>
+              [disabled]="supplierForm.invalid"/>
+    }
+
   </div>
 </form>
