@@ -129,9 +129,9 @@ export class DeviceTablet {
     this.requestAuth.postTablet(duplicatedArray).subscribe({
       next: (res: any) => {
         this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} tablet/s saved successfully.` });
-        const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
+        const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
         this.signalService.addedDevice.set(res.devices);
-        this.signalService.currentBatchData.set(updatedList);
+        this.signalService.currentBatchDeviceData.set(updatedList);
         this.router.navigate(['/batch-list/batch-details']);
       },
       error: (error: any) => {

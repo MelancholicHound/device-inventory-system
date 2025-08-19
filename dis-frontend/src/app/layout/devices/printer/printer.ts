@@ -115,9 +115,9 @@ export class DevicePrinter {
           detail: `${duplicatedArray.length} printer/s saved successfully.`
         });
 
-        const updatedList = [...this.signalService.currentBatchData(), ...res.devices];
+        const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
         this.signalService.addedDevice.set(res.devices);
-        this.signalService.currentBatchData.set(updatedList);
+        this.signalService.currentBatchDeviceData.set(updatedList);
         this.router.navigate(['/batch-list/batch-details']);
       },
       error: (error: any) => {

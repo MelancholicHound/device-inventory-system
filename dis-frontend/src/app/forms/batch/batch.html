@@ -7,9 +7,13 @@
              pInputText
              placeholder="Enter PR Number"
              formControlName="number">
-      @if (!selectedFile()) {
+      @if (!selectedFile() && !batchDetails || isEditing()) {
       <p-button icon="pi pi-upload"
                 (onClick)="fileInput.click()"/>
+      }
+      @if (batchDetails && !isEditing()) {
+      <p-button icon="pi pi-download"
+                (onClick)="downloadButton()"/>
       }
       <input #fileInput
              type="file"
@@ -18,7 +22,9 @@
              hidden>
     </span>
     @if (fileUpload) {
-    <label for="file-upload"> File name: {{ fileUpload.name || batchDetails.purchaseRequestDTO.file }} </label>
+      <label for="file-upload"> File name: {{ fileUpload.name }} </label>
+    } @else if (batchDetails) {
+      <label for="file-upload"> File name: {{ batchDetails.purchaseRequestDTO.file }} </label>
     }
   </div>
   <div class="flex flex-col w-full">

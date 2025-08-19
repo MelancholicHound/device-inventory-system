@@ -40,7 +40,7 @@ import { FileConverter } from '../../utilities/modules/common';
 })
 export class Batch implements OnInit, OnChanges {
   @Input() batchDetails: any;
-  @Input() resetForm: any;
+  @Input() resetForm!: boolean;
 
   @Output() closeModal = new EventEmitter<boolean>(true);
 
@@ -96,11 +96,11 @@ export class Batch implements OnInit, OnChanges {
     this.batchForm.get('is_tested')?.valueChanges.subscribe((isChecked) => {
       if (isChecked) {
         this.testedDateControl?.disable();
-        this.testedDateControl?.setValidators([Validators.required]);
+        this.testedDateControl?.clearValidators();
       } else {
         this.testedDateControl?.enable();
         this.testedDateControl?.reset();
-        this.testedDateControl?.clearValidators();
+        this.testedDateControl?.setValidators([Validators.required]);
       }
 
       this.testedDateControl?.updateValueAndValidity();
@@ -122,13 +122,14 @@ export class Batch implements OnInit, OnChanges {
         is_tested: this.batchDetails.date_tested ?? true
       });
 
-      console.log(this.batchDetails);
       this.batchForm.disable();
       this.isEditing.set(false);
     }
 
     if (changes['resetForm']) {
-      this.batchForm.reset();
+      if (changes['resetForm'].currentValue === true) {
+        this.emitCloseModal();
+      }
     }
   }
 
@@ -235,8 +236,14 @@ export class Batch implements OnInit, OnChanges {
   }
 
   emitCloseModal(): void {
+    if (this.isAdding() && !this.isEditing()) {
+      this.batchForm.reset();
+    }
+    if (this.batchDetails) {
+      this.batchForm.disable();
+      this.isEditing.set(false);
+    }
     this.closeModal.emit(false);
-    this.batchForm.reset();
   }
 
   cancelUpload(): void {
@@ -247,6 +254,19 @@ export class Batch implements OnInit, OnChanges {
   switchButton(): void {
     this.isEditing.set(true);
     this.batchForm.enable();
+  }
+
+  downloadButton(): void {
+    this.requestAuth.downloadFile(this.batchDetails.purchaseRequestDTO.file).subscribe({
+      next: (res: any) => {
+        const url = window.URL.createObjectURL(res);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.batchDetails.purchaseRequestDTO.file}`; // force "Save as"
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+    });
   }
 
   updateBatch(): void {

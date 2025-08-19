@@ -18,11 +18,13 @@ import { Dialog } from 'primeng/dialog';
 import { Menu } from 'primeng/menu';
 import { Select } from 'primeng/select';
 import { InputNumber } from 'primeng/inputnumber';
+import { TabsModule } from 'primeng/tabs';
 
 import { Requestservice } from '../../utilities/services/requestservice';
 import { Signalservice } from '../../utilities/services/signalservice';
 
 import { TableDeviceInterface } from '../../utilities/models/TableDeviceInterface';
+import { TableUPSInterface } from '../../utilities/models/TableUPSInterface';
 
 import { TableUtilities } from '../../utilities/modules/common';
 
@@ -55,6 +57,7 @@ interface Device {
     Dialog,
     Select,
     InputNumber,
+    TabsModule,
     Batch
   ],
   templateUrl: './batch-details.html',
@@ -62,14 +65,20 @@ interface Device {
 })
 export class BatchDetails {
   @ViewChild('deviceTable') deviceTable!: Table;
+  @ViewChild('upsTable') upsTable!: Table;
   @ViewChild('menuRef') menuRef!: Menu;
 
   activeDevice: any;
   batchDetails: any;
+  resetForm: boolean = false;
 
-  dataSource!: TableDeviceInterface[];
-  initialValue!: TableDeviceInterface[];
+  deviceDataSource!: TableDeviceInterface[];
+  initialDeviceValue!: TableDeviceInterface[];
   selectedDevice!: TableDeviceInterface;
+
+  upsDataSource!: TableUPSInterface[];
+  initialUPSValue!: TableUPSInterface[];
+  selectedUPS!: TableDeviceInterface;
 
   columns: Column[] | undefined;
   devices: Device[] | undefined;
@@ -87,10 +96,13 @@ export class BatchDetails {
   isEditing = signal(false);
   deviceLength = signal(0);
 
-  isSorted: boolean | null = null;
+  isDeviceSorted: boolean | null = null;
+  isUPSSorted: boolean | null = null;
 
-  first: number = 0;
-  rows: number = 5;
+  firstDevice: number = 0;
+  rowsDevice: number = 5;
+  firstUPS: number = 0;
+  rowsUPS: number = 5;
   visibleBatchDetails: boolean = false;
   visibleAddDevice: boolean = false;
 
@@ -148,11 +160,32 @@ export class BatchDetails {
       if (this.signalService.batchDetails()) {
         this.batchDetails = this.signalService.batchDetails();
         this.getAllDevicesByBatchId(this.batchDetails.id);
+        this.requestAuth.getAllUPSByBatchId(this.batchDetails.id)
+        .pipe(switchMap((data: any[]) => this.dataUPSMapper(data)))
+        .subscribe({
+          next: (res: any) => {
+            const rawFetchedData = res.flat();
+
+            this.signalService.setCurrentBatchUPSData([...rawFetchedData]);
+            this.signalService.setInitialBatchUPSData([...rawFetchedData]);
+
+            this.upsDataSource = rawFetchedData;
+            this.initialUPSValue = [...rawFetchedData];
+            this.cdr.detectChanges();
+          },
+          error: (error: any) => {
+            this.notification.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: `${error}`
+            });
+          }
+        });
       }
     });
   }
 
-  async dataMapper(data: any[], deviceType: string): Promise<any[]> {
+  async dataDeviceMapper(data: any[], deviceType: string): Promise<any[]> {
     const mappedData = await Promise.all(
       data.map(async (item) => {
         const section = await firstValueFrom(this.requestAuth.getSectionById(item.section_id));
@@ -172,38 +205,57 @@ export class BatchDetails {
     return mappedData;
   }
 
+  async dataUPSMapper(data: any[]): Promise<any[]> {
+    const mappedData = await Promise.all(
+      data.map(async(item) => {
+        const brand = await firstValueFrom(this.requestAuth.getUPSBrandById(item.brand_id));
+
+        return {
+          id: item.id,
+          device_number: item.device_number,
+          is_available: item.is_available,
+          name: brand.name,
+          model: item.model,
+          created_at: item.created_at
+        }
+      })
+    );
+
+    return mappedData;
+  }
+
   getAllDevicesByBatchId(id: number) {
     forkJoin([
       this.requestAuth.getAllAIOByBatchId(id).pipe(
-        switchMap((data: any[]) => (this.dataMapper(data, 'AIO')))
+        switchMap((data: any[]) => (this.dataDeviceMapper(data, 'AIO')))
       ),
       this.requestAuth.getAllLaptopByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'LAPTOP'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'LAPTOP'))
       ),
       this.requestAuth.getAllTabletByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'TABLET'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'TABLET'))
       ),
       this.requestAuth.getAllComputerByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'COMPUTER'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'COMPUTER'))
       ),
       this.requestAuth.getAllRouterByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'ROUTER'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'ROUTER'))
       ),
       this.requestAuth.getAllPrinterByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'PRINTER'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'PRINTER'))
       ),
       this.requestAuth.getAllScannerByBatchId(id).pipe(
-        switchMap((data: any[]) => this.dataMapper(data, 'SCANNER'))
+        switchMap((data: any[]) => this.dataDeviceMapper(data, 'SCANNER'))
       )
     ]).subscribe({
       next: (res: any[]) => {
         const rawFetchedData = res.flat();
 
-        this.signalService.setCurrentBatchData([...rawFetchedData]);
-        this.signalService.setInitialBatchData([...rawFetchedData]);
+        this.signalService.setCurrentBatchDeviceData([...rawFetchedData]);
+        this.signalService.setInitialBatchDeviceData([...rawFetchedData]);
 
-        this.dataSource = rawFetchedData;
-        this.initialValue = [...rawFetchedData];
+        this.deviceDataSource = rawFetchedData;
+        this.initialDeviceValue = [...rawFetchedData];
         this.cdr.detectChanges();
       },
       error: (error: any) => {
@@ -216,17 +268,31 @@ export class BatchDetails {
     });
   }
 
-  customSort(event: SortEvent): void {
-    if (this.isSorted == null || this.isSorted === undefined) {
-      this.isSorted = true;
+  customDeviceSort(event: SortEvent): void {
+    if (this.isDeviceSorted === null || this.isDeviceSorted === undefined) {
+      this.isDeviceSorted = true;
       this.tblUtilities.sortTableData(event);
-    } else if (this.isSorted == true) {
-      this.isSorted = false;
+    } else if (this.isDeviceSorted === true) {
+      this.isDeviceSorted = false;
       this.tblUtilities.sortTableData(event);
-    } else if (this.isSorted == false) {
-      this.isSorted = null;
-      this.dataSource = [...this.initialValue];
+    } else if (this.isDeviceSorted === false) {
+      this.isDeviceSorted = null;
+      this.deviceDataSource = [...this.initialDeviceValue];
       this.deviceTable.reset();
+    }
+  }
+
+  customUPSSort(event: SortEvent): void {
+    if (this.isUPSSorted == null || this.isUPSSorted === undefined) {
+      this.isUPSSorted = true;
+      this.tblUtilities.sortTableData(event);
+    } else if (this.isUPSSorted == true) {
+      this.isUPSSorted = false;
+      this.tblUtilities.sortTableData(event);
+    } else if (this.isUPSSorted == false) {
+      this.isUPSSorted = null;
+      this.upsDataSource = [...this.initialUPSValue];
+      this.upsTable.reset();
     }
   }
 
@@ -234,11 +300,6 @@ export class BatchDetails {
     this.activeDevice = batch;
     this.activeEvent = event;
     this.menuRef.toggle(event);
-  }
-  onGlobalFilter(event: Event): void {
-    const inputElement = event.target as HTMLInputElement;
-
-    this.deviceTable.filterGlobal(inputElement.value, 'contains');
   }
 
   editDeviceOption(device: any): void {
@@ -280,8 +341,12 @@ export class BatchDetails {
     console.log(device);
   }
 
-  pageChange(event: any): void {
-    this.first = event.first;
+  pageChangeDevice(event: any): void {
+    this.firstDevice = event.first;
+  }
+
+  pageChangeUPS(event: any): void {
+    this.firstUPS = event.first;
   }
 
   showBatchDetailsDialog(): void {
@@ -300,8 +365,13 @@ export class BatchDetails {
     this.addDeviceForm.reset();
   }
 
+  restoreOnHide(): void {
+    this.resetForm = !this.resetForm;
+  }
+
   backButton() {
-    if (this.signalService.initialBatchData().length === 0) {
+    if (this.signalService.initialBatchDeviceData().length === 0 ||
+    this.signalService.initialBatchUPSData().length === 0) {
       this.confirmDeleteBatch();
       return;
     } else if (!this.signalService.isDeviceCountChanged()) {
@@ -320,7 +390,8 @@ export class BatchDetails {
       summary: 'Success',
       detail: 'Batch saved successfully'
     });
-    this.signalService.resetBatchData();
+    this.signalService.resetBatchDeviceData();
+    this.signalService.resetBatchUPSData();
   }
 
   addDevice(): void {

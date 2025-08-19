@@ -14,7 +14,8 @@ import { Requestservice } from './requestservice';
   providedIn: 'root'
 })
 export class Signalservice {
-  private _initialSet: boolean = false;
+  private _initialSetDevice: boolean = false;
+  private _initialSetUPS: boolean = false;
 
   requestAuth = inject(Requestservice);
   notification = inject(MessageService);
@@ -23,8 +24,11 @@ export class Signalservice {
   batchDetails = signal<any | null>(null);
   deviceDetails = signal<any | null>(null);
 
-  initialBatchData = signal<any[]>([]);
-  currentBatchData = signal<any[]>([]);
+  initialBatchDeviceData = signal<any[]>([]);
+  initialBatchUPSData = signal<any[]>([]);
+  currentBatchDeviceData = signal<any[]>([]);
+  currentBatchUPSData = signal<any[]>([]);
+
   addedDevice = signal<any[]>([]);
 
   private supplierAdded = signal<boolean>(false);
@@ -94,22 +98,41 @@ export class Signalservice {
   }
 
   isDeviceCountChanged = computed(() => {
-    const initial = this.initialBatchData();
-    const current = this.currentBatchData();
+    const initial = this.initialBatchDeviceData();
+    const current = this.currentBatchDeviceData();
 
     return (initial.length === 0 && current.length > 0) ||
            (current.length !== initial.length);
   });
 
-  setInitialBatchData(data: any[]): void {
-    if (!this._initialSet) {
-      this.initialBatchData.set(data);
-      this._initialSet = true
+  isUPSCountChanged = computed(() => {
+    const initial = this.initialBatchUPSData();
+    const current = this.currentBatchUPSData();
+
+    return (initial.length === 0 && current.length > 0) ||
+           (current.length !== initial.length);
+  });
+
+  setInitialBatchDeviceData(data: any[]): void {
+    if (!this._initialSetDevice) {
+      this.initialBatchDeviceData.set(data);
+      this._initialSetDevice = true
     }
   }
 
-  setCurrentBatchData(data: any[]): void {
-    this.currentBatchData.set(data);
+  setInitialBatchUPSData(data: any[]): void {
+    if (!this._initialSetUPS) {
+      this.initialBatchUPSData.set(data);
+      this._initialSetUPS = true
+    }
+  }
+
+  setCurrentBatchDeviceData(data: any[]): void {
+    this.currentBatchDeviceData.set(data);
+  }
+
+  setCurrentBatchUPSData(data: any[]): void {
+    this.currentBatchUPSData.set(data);
   }
 
   markSupplierAsAdded(): void {
@@ -237,9 +260,15 @@ export class Signalservice {
     );
   }
 
-  resetBatchData(): void {
-    this.initialBatchData.set([]);
-    this.currentBatchData.set([]);
-    this._initialSet = false;
+  resetBatchDeviceData(): void {
+    this.initialBatchDeviceData.set([]);
+    this.currentBatchDeviceData.set([]);
+    this._initialSetDevice = false;
+  }
+
+  resetBatchUPSData(): void {
+    this.initialBatchUPSData.set([]);
+    this.currentBatchUPSData.set([]);
+    this._initialSetUPS = false
   }
 }

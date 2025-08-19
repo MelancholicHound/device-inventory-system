@@ -660,6 +660,15 @@ export class Requestservice {
     }));
   }
 
+  getUPSBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/ups/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific UPS brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllMotherboardBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/motherboard`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
@@ -1294,6 +1303,10 @@ export class Requestservice {
     localStorage.removeItem('token');
     this._token.set(null);
     this.router.navigateByUrl('/');
+  }
+
+  downloadFile(fileName: string): Observable<any> {
+    return this.http.get(`${this.url}/dir/${fileName}`, { responseType: 'blob' });
   }
 
   isLoggedIn = computed(() => !!this._token());

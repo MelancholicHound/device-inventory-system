@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 const { Op, where } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 const { User, Division, Section, Batch, PurchaseRequestDTO, Supplier, sequelize } = require('../models/index');
 
@@ -413,8 +414,6 @@ exports.postBatch = async (req, res, next) => {
         while (usedNumbers.includes(newNumber)) {
             newNumber++;
         }
-
-        console.log(req.file)
 
         const batchId = `${year}-${String(newNumber).padStart(3, '0')}`;
 
@@ -4731,4 +4730,14 @@ exports.getAllLocationAuditDeviceUPS = async (req, res, next) => {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching of audit in all UPS.', err));
     }
+}
+
+exports.getFile = async (req, res, next) => {
+    const { file_name } = req.params;
+
+    const filePath = path.join(__dirname, '../dir', file_name);
+
+    res.sendFile(filePath, (err) => {
+        if (err) return next(createErrors.badRequest('There is no file found.'));
+    }); 
 }

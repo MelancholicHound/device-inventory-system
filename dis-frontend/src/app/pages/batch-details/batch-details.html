@@ -1,7 +1,7 @@
 <span class="bg-white flex justify-between items-center mb-5 p-6 rounded-xl">
   <div class="flex flex-col gap-2">
     <h1 class="font-bold text-xl ml-5"> Batch Number: </h1>
-    <h1 class="font-bold text-xl underline text-slate-600 ml-5"> {{ batchDetails.batch_id }} </h1>
+    <h1 class="font-bold text-xl underline text-slate-600 ml-5"> {{ batchDetails?.batch_id }} </h1>
   </div>
   <div class="flex gap-3">
     <p-button label="Batch Details"
@@ -26,79 +26,128 @@
   </div>
 </span>
 <section class="bg-white rounded-xl p-8">
-  <p-table #deviceTable
-           [value]="dataSource"
-           [(selection)]="selectedDevice"
-           [customSort]="true"
-           [sortField]="'created_at'"
-           [paginator]="true"
-           [sortOrder]="-1"
-           [first]="first"
-           [showCurrentPageReport]="true"
-           [rowsPerPageOptions]="[5, 10, 20]"
-           [rows]="rows"
-           [globalFilterFields]="['device_number', 'device', 'division', 'section']"
-           (onPage)="pageChange($event)"
-           (sortFunction)="customSort($event)"
-           dataKey="device_number"
-           currentPageReportTemplate="Showing {first} to last of {totalRecords} entries">
-    <ng-template #caption>
-      <span class="flex justify-between items-center mb-4">
-        <h1 class="font-bold text-xl"> Device Table </h1>
-        <div class="flex">
-          <p-iconfield iconPosition="left" class="ml-auto">
-            <p-inputicon>
-              <i class="pi pi-search"></i>
-            </p-inputicon>
-            <input pInputText
-                  type="text"
-                  placeholder="Search keyword"
-                  (input)="onGlobalFilter($event)">
-          </p-iconfield>
-        </div>
-      </span>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th style="width: 4rem;"> <p-tableHeaderCheckbox /> </th>
-        <th pSortableColumn="device_number">
-          Device Number <p-sortIcon field="device_number"/>
-        </th>
-        <th pSortableColumn="device">
-          Device <p-sortIcon field="device"/>
-        </th>
-        <th pSortableColumn="division">
-          Division <p-sortIcon field="division"/>
-        </th>
-        <th pSortableColumn="section">
-          Section <p-sortIcon field="section"/>
-        </th>
-        <th> Action </th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-device>
-      <tr>
-        <td> <p-tableCheckbox [value]="device"/> </td>
-        <td> {{ device.device_number }} </td>
-        <td> {{ device.device }} </td>
-        <td> {{ device.division }} </td>
-        <td> {{ device.section }} </td>
-        <td>
-          <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
-          <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, device)"/>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #paginatorleft></ng-template>
-  </p-table>
+  <p-tabs value="0">
+    <p-tablist>
+      <p-tab value="0" class="flex items-center !gap-2 text-inherit">
+        <i class="pi pi-desktop"></i>
+        Device </p-tab>
+      <p-tab value="1" class="flex items-center !gap-2 text-inherit">
+        <i class="pi pi-bolt"></i>
+        UPS </p-tab>
+    </p-tablist>
+    <p-tabpanels>
+      <p-tabpanel value="0">
+        <p-table #deviceTable
+                 [value]="deviceDataSource"
+                 [(selection)]="selectedDevice"
+                 [customSort]="true"
+                 [sortField]="'created_at'"
+                 [paginator]="true"
+                 [sortOrder]="-1"
+                 [first]="firstDevice"
+                 [showCurrentPageReport]="true"
+                 [rowsPerPageOptions]="[5, 10, 20]"
+                 [rows]="rowsDevice"
+                 [globalFilterFields]="['device_number', 'device', 'division', 'section']"
+                 (onPage)="pageChangeDevice($event)"
+                 (sortFunction)="customDeviceSort($event)"
+                 dataKey="device_number"
+                 currentPageReportTemplate="Showing {{firstDevice}} to last of {totalRecords} entries">
+          <ng-template #header>
+            <tr>
+              <th style="width: 4rem;"> <p-tableHeaderCheckbox /> </th>
+              <th pSortableColumn="device_number">
+                Device Number <p-sortIcon field="device_number"/>
+              </th>
+              <th pSortableColumn="device">
+                Device <p-sortIcon field="device"/>
+              </th>
+              <th pSortableColumn="division">
+                Division <p-sortIcon field="division"/>
+              </th>
+              <th pSortableColumn="section">
+                Section <p-sortIcon field="section"/>
+              </th>
+              <th> Action </th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-device>
+            <tr>
+              <td> <p-tableCheckbox [value]="device"/> </td>
+              <td> {{ device.device_number }} </td>
+              <td> {{ device.device }} </td>
+              <td> {{ device.division }} </td>
+              <td> {{ device.section }} </td>
+              <td>
+                <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
+                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, device)"/>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #paginatorleft></ng-template>
+        </p-table>
+      </p-tabpanel>
+      <p-tabpanel value="1">
+        <p-table #upsTable
+                 [value]="upsDataSource"
+                 [(selection)]="selectedUPS"
+                 [customSort]="true"
+                 [sortField]="'created_at'"
+                 [paginator]="true"
+                 [sortOrder]="-1"
+                 [first]="firstUPS"
+                 [showCurrentPageReport]="true"
+                 [rowsPerPageOptions]="[5, 10, 20]"
+                 [rows]="rowsUPS"
+                 [globalFilterFields]="['device_number', 'is_available', 'name', 'model']"
+                 (onPage)="pageChangeUPS($event)"
+                 (sortFunction)="customUPSSort($event)"
+                 dataKey="device_number"
+                 currentPageReportTemplate="Showing {{firstUPS}} to last of {totalRecords} entries">
+          <ng-template #header>
+            <tr>
+              <th style="width: 4rem;"> <p-tableHeaderCheckbox /> </th>
+              <th pSortableColumn="device_number">
+                Device Number <p-sortIcon field="device_number"/>
+              </th>
+              <th pSortableColumn="is_available">
+                Status <p-sortIcon field="is_available"/>
+              </th>
+              <th pSortableColumn="name">
+                Brand Name <p-sortIcon field="name"/>
+              </th>
+              <th pSortableColumn="model">
+                Model <p-sortIcon field="model"/>
+              </th>
+              <th> Action </th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-ups>
+            <tr>
+              <td> <p-tableCheckbox [value]="ups"/> </td>
+              <td> {{ ups.device_number }} </td>
+              <td> {{ ups.device }} </td>
+              <td> {{ ups.division }} </td>
+              <td> {{ ups.section }} </td>
+              <td>
+                <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
+                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, ups)"/>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #paginatorleft></ng-template>
+        </p-table>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
 </section>
 
 
-<p-dialog [modal]="true" [(visible)]="visibleBatchDetails" maximizable="true" [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }" [style]="{ width: '30%' }">
+<p-dialog [modal]="true" [(visible)]="visibleBatchDetails" maximizable="true" [breakpoints]="{ '1199px': '50vw', '575px': '90vw' }" [style]="{ width: '30%' }" (onHide)="restoreOnHide()">
   <ng-template pTemplate="header">
     <span class="text-xl font-semibold"> Batch {{ batchDetails.batch_id }}  Details </span>
   </ng-template>
-  <app-batch (closeModal)="closeDialog($event)" [batchDetails]="batchDetails"/>
+  <app-batch (closeModal)="closeDialog($event)" [batchDetails]="batchDetails" [resetForm]="resetForm" />
 </p-dialog>
 
 <p-dialog header="Add Device"

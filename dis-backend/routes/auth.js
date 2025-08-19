@@ -9,7 +9,7 @@ const authenticateToken = require('../util/auth');
 
 const router = express.Router();
 
-const uploadPath = path.join(__dirname, '../private/directory');
+const uploadPath = path.join(__dirname, '../dir');
 if (!fs.existsSync(uploadPath)) {
     fs.mkdirSync(uploadPath, { recursive: true });
 }
@@ -429,5 +429,7 @@ router.delete('/device/ups/:id', authenticateToken, authController.deleteByIdDev
 router.get('/device/ups/:id/audit/location', authenticateToken, authController.getLocationAuditDeviceUPS);
 
 router.get('/device/ups/audit/location', authenticateToken, authController.getAllLocationAuditDeviceUPS);
+
+router.get('/dir/:file_name', authController.getFile);
 
 module.exports = router;
