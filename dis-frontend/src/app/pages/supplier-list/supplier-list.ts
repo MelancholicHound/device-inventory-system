@@ -17,7 +17,7 @@ import { TableSupplierInterface } from '../../utilities/models/TableSupplierInte
 
 import { TableUtilities } from '../../utilities/modules/common';
 
-import { Supplier } from '../../forms/supplier/supplier';
+import { Supplier } from '../../layout/supplier/supplier';
 
 interface Column {
   field: string;

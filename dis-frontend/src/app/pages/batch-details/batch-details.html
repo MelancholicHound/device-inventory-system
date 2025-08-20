@@ -1,4 +1,4 @@
-<span class="bg-white flex justify-between items-center mb-5 p-6 rounded-xl">
+<span class="bg-white flex justify-between items-center mb-5 p-6 rounded-xl  border-1 border-gray-300">
   <div class="flex flex-col gap-2">
     <h1 class="font-bold text-xl ml-5"> Batch Number: </h1>
     <h1 class="font-bold text-xl underline text-slate-600 ml-5"> {{ batchDetails?.batch_id }} </h1>
@@ -25,7 +25,7 @@
               (onClick)="backButton()" />
   </div>
 </span>
-<section class="bg-white rounded-xl p-8">
+<section class="bg-white rounded-xl p-8 border-1 border-gray-300">
   <p-tabs value="0">
     <p-tablist>
       <p-tab value="0" class="flex items-center !gap-2 text-inherit">
@@ -79,8 +79,8 @@
               <td> {{ device.division }} </td>
               <td> {{ device.section }} </td>
               <td>
-                <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
-                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, device)"/>
+                <p-menu #deviceMenuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
+                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onDeviceMenuClick($event, device)"/>
               </td>
             </tr>
           </ng-template>
@@ -110,14 +110,14 @@
               <th pSortableColumn="device_number">
                 Device Number <p-sortIcon field="device_number"/>
               </th>
-              <th pSortableColumn="is_available">
-                Status <p-sortIcon field="is_available"/>
-              </th>
               <th pSortableColumn="name">
                 Brand Name <p-sortIcon field="name"/>
               </th>
               <th pSortableColumn="model">
                 Model <p-sortIcon field="model"/>
+              </th>
+              <th pSortableColumn="is_available">
+                Status <p-sortIcon field="is_available"/>
               </th>
               <th> Action </th>
             </tr>
@@ -126,12 +126,12 @@
             <tr>
               <td> <p-tableCheckbox [value]="ups"/> </td>
               <td> {{ ups.device_number }} </td>
-              <td> {{ ups.device }} </td>
-              <td> {{ ups.division }} </td>
-              <td> {{ ups.section }} </td>
+              <td> {{ ups.name }} </td>
+              <td> {{ ups.model }} </td>
+              <td> {{ ups.is_available ? 'Available' : 'Deployed' }} </td>
               <td>
-                <p-menu #menuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
-                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onMenuClick($event, ups)"/>
+                <p-menu #upsMenuRef [model]="deviceMenu" [popup]="true" [appendTo]="'body'" autoZIndex/>
+                <p-button pButton icon="pi pi-ellipsis-v" [rounded]="true" [text]="true" severity="secondary" (onClick)="onDeviceMenuClick($event, ups)"/>
               </td>
             </tr>
           </ng-template>

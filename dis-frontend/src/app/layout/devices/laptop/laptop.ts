@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Va
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { Observable, forkJoin, of, tap } from 'rxjs';
+import { Observable, forkJoin, of, tap, switchMap } from 'rxjs';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -37,6 +37,8 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
 })
 export class DeviceLaptop {
   selectedNodes: any;
+  divisionOption: any;
+  procBrandOptions: any;
 
   router = inject(Router);
   requestAuth = inject(Requestservice);
@@ -67,6 +69,14 @@ export class DeviceLaptop {
     effect(() => {
       if (this.signalService.batchDetails()) {
         this.batchDetails.set(this.signalService.batchDetails());
+      }
+
+      if (this.signalService.deviceDetails()) {
+        this.requestAuth.getSectionById(this.signalService.deviceDetails().section_id)
+        .pipe(switchMap((section: any) => this.requestAuth.getDivisionById(section.div_id)
+          .pipe()
+        ))
+        this.laptopForm.patchValue(this.signalService.deviceDetails());
       }
     });
   }

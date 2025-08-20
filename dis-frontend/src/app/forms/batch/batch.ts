@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, Validators } 
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { switchMap, tap } from 'rxjs';
+import { switchMap, tap, catchError, of } from 'rxjs';
 
 import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
@@ -85,27 +85,19 @@ export class Batch implements OnInit, OnChanges {
       }
     );
 
-    const isTested = this.batchForm.get('is_tested')?.value;
-
-    if (!isTested) {
-      this.testedDateControl?.enable();
-      this.testedDateControl?.clearValidators();
-      this.testedDateControl?.updateValueAndValidity();
-    }
-
     this.batchForm.get('is_tested')?.valueChanges.subscribe((isChecked) => {
       if (isChecked) {
         this.testedDateControl?.disable();
         this.testedDateControl?.clearValidators();
       } else {
         this.testedDateControl?.enable();
-        this.testedDateControl?.reset();
+        if (!this.batchDetails) {
+          this.testedDateControl?.reset();
+        }
         this.testedDateControl?.setValidators([Validators.required]);
       }
-
-      this.testedDateControl?.updateValueAndValidity();
-    });
-  }
+    })
+}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['batchDetails']) {
@@ -119,17 +111,15 @@ export class Batch implements OnInit, OnChanges {
           number: this.batchDetails.purchaseRequestDTO.number,
           file: this.batchDetails.purchaseRequestDTO.file
         },
-        is_tested: this.batchDetails.date_tested ?? true
+        is_tested: this.batchDetails.date_tested ? false : true
       });
 
       this.batchForm.disable();
-      this.isEditing.set(false);
+      this.isAdding.set(false);
     }
 
     if (changes['resetForm']) {
-      if (changes['resetForm'].currentValue === true) {
-        this.emitCloseModal();
-      }
+      this.emitCloseModal();
     }
   }
 
@@ -236,11 +226,11 @@ export class Batch implements OnInit, OnChanges {
   }
 
   emitCloseModal(): void {
-    if (this.isAdding() && !this.isEditing()) {
+    if (this.isAdding()) {
       this.batchForm.reset();
     }
-    if (this.batchDetails) {
-      this.batchForm.disable();
+    if (this.batchDetails && this.isEditing()) {
+      this.batchForm.disable({ emitEvent: false });
       this.isEditing.set(false);
     }
     this.closeModal.emit(false);
@@ -253,7 +243,7 @@ export class Batch implements OnInit, OnChanges {
 
   switchButton(): void {
     this.isEditing.set(true);
-    this.batchForm.enable();
+    this.batchForm.enable({ emitEvent: false });
   }
 
   downloadButton(): void {
@@ -270,26 +260,28 @@ export class Batch implements OnInit, OnChanges {
   }
 
   updateBatch(): void {
-    this.requestAuth.putBatch(this.batchForm.value, this.batchDetails.id).subscribe({
-      next: (res: any) => {
+    this.requestAuth.putBatch(this.batchForm.value, this.batchDetails.id).pipe(
+      tap((res: any) => {
         this.notification.add({
           severity: 'success',
           summary: 'Success',
           detail: `${res.message}`
         });
-
         this.signalService.markBatchAsAdded();
-        setTimeout(() => {
-          this.emitCloseModal();
-        }, 2000);
-      },
-      error: (error: any) => {
+      }),
+      switchMap(() => this.requestAuth.getBatchById(this.batchDetails.id)),
+      tap((res: any) => this.signalService.batchDetails.set(res)),
+      catchError((error: any) => {
         this.notification.add({
           severity: 'error',
           summary: 'Error',
           detail: `${error}`
         });
-      }
-    });
+
+        return of(null);
+      })
+    ).subscribe(() => setTimeout(() => {
+      this.emitCloseModal()
+    }, 2000));
   }
 }

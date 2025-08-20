@@ -438,7 +438,7 @@ exports.postBatch = async (req, res, next) => {
             prDTO_id: pr.id,
             created_by: req.user.id,
             valid_until, date_delivered, 
-            date_tested: date_tested ? date_tested.toISOString().split('T')[0] : null,
+            date_tested: date_tested ? date_tested : null,
             supplier_id: parseInt(supplier_id, 10), service_center
         }, { transaction: t });
 
@@ -748,14 +748,40 @@ exports.getAllAIOBrands = async (req, res, next) => {
     }
 }
 
+exports.getAIOBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandAIO.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific AIO brand.', err));
+    }
+}
+
 exports.getAllLaptopBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
 
         res.status(200).json(await BrandLaptop.findAll());
     } catch (err) {
-       console.log(err);n
-       ext(createErrors.internalServerError('Something went wrong on fetching all laptop brands.', err)); 
+       console.log(err);
+       next(createErrors.internalServerError('Something went wrong on fetching all laptop brands.', err)); 
+    }
+}
+
+exports.getLaptopBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandLaptop.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific laptop brand.', err));
     }
 }
 
@@ -770,6 +796,19 @@ exports.getAllPrinterBrands = async (req, res, next) => {
     }
 }
 
+exports.getPrinterBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandPrinter.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific printer brand.', err)); 
+    }
+}
+
 exports.getAllRouterBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -778,6 +817,19 @@ exports.getAllRouterBrands = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all router brands.', err)); 
+    }
+}
+
+exports.getRouterBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandRouter.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific printer brand.', err)); 
     }
 }
 
@@ -792,6 +844,19 @@ exports.getAllScannerBrands = async (req, res, next) => {
     }
 }
 
+exports.getScannerBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandScanner.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific scanner brand.', err)); 
+    }
+}
+
 exports.getAllTabletBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -800,6 +865,19 @@ exports.getAllTabletBrands = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all tablet brands.', err)); 
+    }
+}
+
+exports.getTabletBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandTablet.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific tablet brand.', err)); 
     }
 }
 
@@ -814,6 +892,19 @@ exports.getAllUPSBrands = async (req, res, next) => {
     }
 }
 
+exports.getUPSBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandUPS.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific UPS brand.', err)); 
+    }
+}
+
 exports.getAllMotherboardBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -825,6 +916,19 @@ exports.getAllMotherboardBrands = async (req, res, next) => {
     }
 }
 
+exports.getMotherboardBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandMotherboard.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific motherboard brand.', err)); 
+    }
+}
+
 exports.getAllProcessorBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -833,6 +937,19 @@ exports.getAllProcessorBrands = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all motherboard brands.', err)); 
+    }
+}
+
+exports.getProcessorBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandProcessor.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific motherboard brand.', err)); 
     }
 }
 
@@ -857,6 +974,19 @@ exports.getAllChipsetBrands = async (req, res, next) => {
     } catch (err) {
         console.log(err);
         next(createErrors.internalServerError('Something went wrong on fetching all chipset brands.', err)); 
+    }
+}
+
+exports.getChipsetBrandById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const { id } = req.params;
+
+        res.status(200).json(await BrandChipset.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific motherboard brand.', err)); 
     }
 }
 

@@ -68,6 +68,7 @@ export class DeviceRouter {
 
     effect(() => {
       if (this.signalService.batchDetails()) {
+
         this.batchDetails.set(this.signalService.batchDetails());
       }
     });

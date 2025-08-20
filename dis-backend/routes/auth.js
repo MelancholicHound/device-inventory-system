@@ -86,37 +86,55 @@ router.delete('/batch/:id', authenticateToken, authController.deleteByIdBatch);
 // ============= Brand =============
 router.get('/brand/aio', authenticateToken, authController.getAllAIOBrands);
 
+router.get('/brand/aio/:id', authenticateToken, authController.getAIOBrandById);
+
 router.post('/brand/aio', authenticateToken, authController.postBrandAIO);
 
 router.get('/brand/laptop', authenticateToken, authController.getAllLaptopBrands);
+
+router.get('/brand/laptop/:id', authenticateToken, authController.getLaptopBrandById);
 
 router.post('/brand/laptop', authenticateToken, authController.postBrandLaptop);
 
 router.get('/brand/printer', authenticateToken, authController.getAllPrinterBrands);
 
+router.get('/brand/printer/:id', authenticateToken, authController.getPrinterBrandById);
+
 router.post('/brand/printer', authenticateToken, authController.postBrandPrinter);
 
 router.get('/brand/router', authenticateToken, authController.getAllRouterBrands);
+
+router.get('/brand/router/:id', authenticateToken, authController.getRouterBrandById);
 
 router.post('/brand/router', authenticateToken, authController.postBrandRouter);
 
 router.get('/brand/scanner', authenticateToken, authController.getAllScannerBrands);
 
+router.get('/brand/scanner/:id', authenticateToken, authController.getScannerBrandById);
+
 router.post('/brand/scanner', authenticateToken, authController.postBrandScanner);
 
 router.get('/brand/tablet', authenticateToken, authController.getAllTabletBrands);
+
+router.get('/brand/tablet/:id', authenticateToken, authController.getTabletBrandById);
 
 router.post('/brand/tablet', authenticateToken, authController.postBrandTablet);
 
 router.get('/brand/ups', authenticateToken, authController.getAllUPSBrands);
 
+router.get('/brand/ups/:id', authenticateToken, authController.getUPSBrandById);
+
 router.post('/brand/ups', authenticateToken, authController.postBrandUPS);
 
 router.get('/brand/motherboard', authenticateToken, authController.getAllMotherboardBrands);
 
+router.get('/brand/motherboard/:id', authenticateToken, authController.getMotherboardBrandById);
+
 router.post('/brand/motherboard', authenticateToken, authController.postBrandMotherboard);
 
 router.get('/brand/processor', authenticateToken, authController.getAllProcessorBrands);
+
+router.get('/brand/processor/:id', authenticateToken, authController.getProcessorBrandById);
 
 router.post('/brand/processor', authenticateToken, authController.postBrandProcessor);
 
@@ -125,6 +143,8 @@ router.get('/brand/processor/:id/series', authenticateToken, authController.getA
 router.post('/brand/processor/:id/series', authenticateToken, authController.postBrandProcessorSeries);
 
 router.get('/brand/chipset', authenticateToken, authController.getAllChipsetBrands);
+
+router.get('/brand/chipset/:id', authenticateToken, authController.getChipsetBrandById);
 
 router.post('/brand/chipset', authenticateToken, authController.postBrandChipset);
 

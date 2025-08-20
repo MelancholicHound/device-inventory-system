@@ -66,9 +66,11 @@ interface Device {
 export class BatchDetails {
   @ViewChild('deviceTable') deviceTable!: Table;
   @ViewChild('upsTable') upsTable!: Table;
-  @ViewChild('menuRef') menuRef!: Menu;
+  @ViewChild('deviceMenuRef') deviceMenuRef!: Menu;
+  @ViewChild('upsMenuRef') upsMenuRef!: Menu;
 
   activeDevice: any;
+  activeUPS: any;
   batchDetails: any;
   resetForm: boolean = false;
 
@@ -83,7 +85,8 @@ export class BatchDetails {
   columns: Column[] | undefined;
   devices: Device[] | undefined;
   deviceMenu: MenuItem[] | undefined;
-  activeEvent: Event | undefined;
+  activeDeviceEvent: Event | undefined;
+  activeUPSEvent: Event | undefined;
 
   requestAuth = inject(Requestservice);
   signalService = inject(Signalservice);
@@ -296,10 +299,16 @@ export class BatchDetails {
     }
   }
 
-  onMenuClick(event: MouseEvent, batch: any): void {
-    this.activeDevice = batch;
-    this.activeEvent = event;
-    this.menuRef.toggle(event);
+  onDeviceMenuClick(event: MouseEvent, device: any): void {
+    this.activeDevice = device;
+    this.activeDeviceEvent = event;
+    this.deviceMenuRef.toggle(event);
+  }
+
+  onUPSMenuClick(event: MouseEvent, ups: any): void {
+    this.activeUPS = ups;
+    this.activeUPSEvent = event;
+    this.upsMenuRef.toggle(event);
   }
 
   editDeviceOption(device: any): void {
@@ -310,15 +319,29 @@ export class BatchDetails {
       TABLET: this.requestAuth.getTabletById.bind(this.requestAuth),
       ROUTER: this.requestAuth.getRouterById.bind(this.requestAuth),
       PRINTER: this.requestAuth.getPrinterById.bind(this.requestAuth),
-      SCANNER: this.requestAuth.getScannerById.bind(this.requestAuth)
+      SCANNER: this.requestAuth.getScannerById.bind(this.requestAuth),
+      UPS: this.requestAuth.getUPSById.bind(this.requestAuth)
     };
 
+    const routeMap: { [key: string]: string } = {
+      AIO: 'aio',
+      COMPUTER: 'computer',
+      LAPTOP: 'laptop',
+      TABLET: 'tablet',
+      ROUTER: 'router',
+      PRINTER: 'printer',
+      SCANNER: 'scanner',
+      UPS: 'ups'
+    }
+
     const fetchFn = fetchMethods[device.device];
+    const routeSegment = routeMap[device.device];
 
     if (typeof fetchFn === 'function') {
       fetchFn(device.id).subscribe({
         next: (res: any) => {
           this.signalService.deviceDetails.set(res);
+          this.router.navigate([`/batch-list/batch-details/device/${routeSegment}`]);
         },
         error: (error: any) => {
           this.notification.add({
@@ -408,7 +431,7 @@ export class BatchDetails {
 
   private confirmDeleteBatch(): void {
     this.confirmation.confirm({
-      target: this.activeEvent?.target as EventTarget,
+      target: this.activeDeviceEvent?.target as EventTarget,
       message: `This action is irreversable and will delete ${this.batchDetails.batch_id}. Continue?`,
       header: 'Confirmation',
       closable: true,
@@ -455,7 +478,7 @@ export class BatchDetails {
       fetchMethods.find(fm => deviceNumber.includes(fm.pattern))?.method;
 
     this.confirmation.confirm({
-      target: this.activeEvent?.target as EventTarget,
+      target: this.activeDeviceEvent?.target as EventTarget,
       message: `This action is irreversable and will delete recent device/s saved. Continue?`,
       header: 'Confirmation',
       closable: true,

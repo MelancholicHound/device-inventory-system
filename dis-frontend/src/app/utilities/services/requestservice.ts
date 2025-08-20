@@ -14,7 +14,7 @@ import { SupplierInterface } from '../models/SupplierInterface';
   providedIn: 'root'
 })
 export class Requestservice {
-  private url = 'http://localhost:3001/app/auth';
+  private url = 'http://192.168.1.87:3001/app/auth';
   private _token = signal<string | null>(localStorage.getItem('token'));
 
   router = inject(Router);
@@ -606,10 +606,28 @@ export class Requestservice {
     }));
   }
 
+  getAIOBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/aio/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific AIO brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllLaptopBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/laptop`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all laptop brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getLaptopBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/laptop/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific laptop brand.';
 
       return throwError(() => errorMessage);
     }));
@@ -624,10 +642,28 @@ export class Requestservice {
     }));
   }
 
+  getPrinterBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/printer/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific printer brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllRouterBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/router`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all router brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getRouterBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/router/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific router brand.';
 
       return throwError(() => errorMessage);
     }));
@@ -642,10 +678,28 @@ export class Requestservice {
     }));
   }
 
+  getScannerBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/scanner/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific scanner brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllTabletBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/tablet`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all tablet brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getTabletBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/tablet/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific tablet brand.';
 
       return throwError(() => errorMessage);
     }));
@@ -663,7 +717,7 @@ export class Requestservice {
   getUPSBrandById(id: number): Observable<any> {
     return this.http.get(`${this.url}/brand/ups/${id}`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
-      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific UPS brand.';
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific motherboard brand.';
 
       return throwError(() => errorMessage);
     }));
@@ -678,10 +732,28 @@ export class Requestservice {
     }));
   }
 
+  getMotherboardBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/motherboard/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific motherboard brand.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllProcessorBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/processor`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all processor brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getProcessorBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/processor/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific processor brand.';
 
       return throwError(() => errorMessage);
     }));
@@ -700,6 +772,15 @@ export class Requestservice {
     return this.http.get<any[]>(`${this.url}/brand/chipset`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching all chipset brands.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
+  getChipsetBrandById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/chipset/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific chipset brand.';
 
       return throwError(() => errorMessage);
     }));
