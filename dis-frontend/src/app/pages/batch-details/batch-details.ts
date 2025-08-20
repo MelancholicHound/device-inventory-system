@@ -393,11 +393,19 @@ export class BatchDetails {
   }
 
   backButton() {
-    if (this.signalService.initialBatchDeviceData().length === 0 ||
-    this.signalService.initialBatchUPSData().length === 0) {
+    const noInitialData =
+      this.signalService.initialBatchDeviceData().length === 0 &&
+      this.signalService.initialBatchUPSData().length === 0;
+
+    if (noInitialData) {
       this.confirmDeleteBatch();
       return;
-    } else if (!this.signalService.isDeviceCountChanged()) {
+    }
+
+    const deviceChanged = this.signalService.isDeviceCountChanged();
+    const upsChanged = this.signalService.isUPSCountChanged();
+
+    if (!deviceChanged && !upsChanged) {
       this.navigateAndReset();
       return;
     }
@@ -452,6 +460,11 @@ export class BatchDetails {
               detail: `${res.message}`
             });
             this.navigateAndReset();
+            this.signalService.batchDetails.set([]);
+            this.signalService.deviceDetails.set([]);
+            this.signalService.resetBatchUPSData();
+            this.signalService.resetBatchUPSData();
+            this.signalService.markBatchAsAdded();
           },
           error: (err: any) => {
             this.notification.add({

@@ -15,11 +15,11 @@
         </blockquote>
       </div>
       <div class="flex gap-3">
-        @if (laptopForm.valid) {
-        <p-button label="Save"
-                  class="w-full sm:w-auto"
-                  [style]="{ width: '100px' }"
-                  (onClick)="postLaptop()" />
+        @if (laptopForm.valid && !signalService.deviceDetails()) {
+          <p-button label="Save"
+                    class="w-full sm:w-auto"
+                    [style]="{ width: '100px' }"
+                    (onClick)="postLaptop()" />
         }
         <p-button label="Back"
                   class="w-full sm:w-auto"

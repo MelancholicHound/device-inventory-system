@@ -966,6 +966,19 @@ exports.getAllProcessorSeriesById = async (req, res, next) => {
     }
 }
 
+exports.getProcessorSeriesById = async (req, res, next) => {
+    try {
+        requestValidation(req, next);
+
+        const id = req.params.id;
+
+        res.status(200).json(await BrandSeriesProcessor.findByPk(id));
+    } catch (err) {
+        console.log(err);
+        next(createErrors.internalServerError('Something went wrong on fetching specific processor series.'));
+    }
+}
+
 exports.getAllChipsetBrands = async (req, res, next) => {
     try {
         requestValidation(req, next);
@@ -2719,7 +2732,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
             })),
             connectionDTO: json.connections.map(conn => conn.connection_id),
             peripheralDTO: json.peripherals.map(periph => periph.peripheral_id),
-            gpu_id: json.gpu_id,
+            gpu_id: json.gpu.capacity?.id,
             os_id: json.os_id,
             prod_id: json.prod_id,
             security_id: json.security_id,

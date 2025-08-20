@@ -142,6 +142,8 @@ router.get('/brand/processor/:id/series', authenticateToken, authController.getA
 
 router.post('/brand/processor/:id/series', authenticateToken, authController.postBrandProcessorSeries);
 
+router.get('/brand/processor/series/:id', authenticateToken, authController.getProcessorSeriesById);
+
 router.get('/brand/chipset', authenticateToken, authController.getAllChipsetBrands);
 
 router.get('/brand/chipset/:id', authenticateToken, authController.getChipsetBrandById);

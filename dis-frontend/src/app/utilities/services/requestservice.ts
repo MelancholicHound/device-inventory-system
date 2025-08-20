@@ -768,6 +768,15 @@ export class Requestservice {
     }));
   }
 
+  getProcessorSeriesById(id: number): Observable<any> {
+    return this.http.get(`${this.url}/brand/processor/series/${id}`, this.httpOptionsWithToken())
+    .pipe(first(), catchError((error: any) => {
+      const errorMessage = error?.error?.error?.message || 'An unknown error occured during fetching specific processor series.';
+
+      return throwError(() => errorMessage);
+    }));
+  }
+
   getAllChipsetBrand(): Observable<any[]> {
     return this.http.get<any[]>(`${this.url}/brand/chipset`, this.httpOptionsWithToken())
     .pipe(first(), catchError((error: any) => {

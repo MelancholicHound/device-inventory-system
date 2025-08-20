@@ -37,7 +37,7 @@ import { Nodeservice } from '../../../utilities/services/nodeservice';
 })
 export class DeviceLaptop {
   selectedNodes: any;
-  divisionOption: any;
+  divisionOption!: string;
   procBrandOptions: any;
 
   router = inject(Router);
@@ -72,23 +72,66 @@ export class DeviceLaptop {
       }
 
       if (this.signalService.deviceDetails()) {
-        this.requestAuth.getSectionById(this.signalService.deviceDetails().section_id)
-        .pipe(switchMap((section: any) => this.requestAuth.getDivisionById(section.div_id)))
-        .subscribe({
-          next: (division: any) => this.divisionOption = division.name,
+        const processorDTO = this.laptopForm.get('processorDTO') as FormGroup;
+
+        this.laptopForm.addControl('div_id', new FormControl(null, Validators.required));
+        this.requestAuth.getSectionById(this.signalService.deviceDetails().section_id).pipe(
+          switchMap((section: any) =>
+            this.requestAuth.getDivisionById(section.div_id).pipe(
+              tap((division: any) => {
+                this.laptopForm.get('div_id')?.setValue(division.id);
+                this.laptopForm.get('section_id')?.setValue(this.signalService.deviceDetails().section_id);
+              }),
+              switchMap((division: any) =>
+                this.requestAuth.getSectionsByDivisionId(division.id)
+              )
+            )
+          )
+        ).subscribe({
+          next: (res: any) => this.sectionsByDivId.set(res),
           error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) })
         });
 
+        processorDTO.addControl('brand_id', new FormControl(null, Validators.required));
+        this.requestAuth.getProcessorSeriesById(this.signalService.deviceDetails().processorDTO.series_id).pipe(
+          switchMap((series: any) =>
+            this.requestAuth.getProcessorBrandById(series.brand_id).pipe(
+              tap((brand: any) => {
+                this.laptopForm.get('processorDTO.brand_id')?.setValue(brand.id);
+                this.laptopForm.get('processorDTO.series_id')?.setValue(this.signalService.deviceDetails().processorDTO.series_id);
+              }),
+              switchMap((brand: any) =>
+                this.requestAuth.getAllProcessorSeriesByBrandId(brand.id)
+              )
+            )
+          )
+        ).subscribe({
+          next: (res: any) => this.seriesByBrandId.set(res),
+          error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) })
+        });
+
+        this.laptopForm.get('gpu_id')?.patchValue(this.signalService.deviceDetails().gpu_id);
         this.laptopForm.patchValue(this.signalService.deviceDetails());
+        this.laptopForm.get('serial_number')?.setValue('Temporarily disabled');
       }
     });
+  }
+
+  get dynamicDivisionControl(): FormControl {
+    return (this.laptopForm.get('div_id') as FormControl) ?? new FormControl(null);
+  }
+
+  get dynamicBrandControl(): FormControl {
+    const processorDTO = this.laptopForm.get('processorDTO') as FormGroup;
+
+    return (processorDTO.get('brand_id') as FormControl) ?? new FormControl(null);
   }
 
   createLaptopForm(): FormGroup {
     return new FormGroup({
       batch_id: new FormControl<number | null>(null),
       section_id: new FormControl<number | null>(null, [Validators.required]),
-      serial_number: new FormControl<string | null>(null),
+      serial_number: new FormControl<string | null>({value: 'Temporarily disabled', disabled: true}),
       ups_id: new FormControl<number | any>(null),
       storageDTO: new FormArray([this.createStorageGroup()]),
       ramDTO: new FormArray([this.createRamGroup()]),
@@ -165,133 +208,137 @@ export class DeviceLaptop {
   }
 
   postLaptop(): void {
-    const rawValue: any = this.laptopForm.value;
-    rawValue.batch_id = this.batchDetails().id;
-    rawValue.serial_number = rawValue.serial_number || null;
+    if (this.signalService.deviceDetails()) {
 
-    const tasks: Observable<any>[] = [];
+    } else {
+      const rawValue: any = this.laptopForm.value;
+      rawValue.batch_id = this.batchDetails().id;
+      rawValue.serial_number = rawValue.serial_number || null;
 
-    const ensureEntityId = (
-      currentValue: string | number,
-      existingList: any[],
-      key: keyof typeof existingList[0],
-      nameKey: keyof typeof existingList[0],
-      postFn: (name: string) => Observable<any>
-    ): void => {
-      if (typeof currentValue === 'string') {
-        const match = existingList.find(
-          (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
-        );
-        if (match) {
-          rawValue[key] = match.id;
-        } else {
-          tasks.push(
-            postFn(currentValue).pipe(
-              tap((res) => (rawValue[key] = res.id))
-            )
-          );
-        }
-      }
-    };
+      const tasks: Observable<any>[] = [];
 
-    // Brand
-    ensureEntityId(rawValue.brand_id, this.brand(), 'brand_id', 'name',
-      (name) => this.requestAuth.postLaptopBrand(name)
-    );
-
-    // OS
-    ensureEntityId(rawValue.os_id, this.signalService.os(), 'os_id', 'name',
-      (name) => this.requestAuth.postSoftwareOS(name)
-    );
-
-    // Productivity Tool
-    ensureEntityId(rawValue.prod_id, this.signalService.productivityTools(), 'prod_id', 'name',
-      (name) => this.requestAuth.postSoftwareProdTool(name)
-    );
-
-    // Security
-    ensureEntityId(rawValue.security_id, this.signalService.security(), 'security_id', 'name',
-      (name) => this.requestAuth.postSoftwareSecurity(name)
-    );
-
-    // Process Capacities
-    const processCapacities = (
-      dtoArray: any[],
-      existingList: { id: number; capacity: string }[],
-      postFn: (capacity: number) => Observable<any>
-    ) => {
-      const existingCaps = existingList.map((e) => String(e.capacity));
-      dtoArray.forEach((item) => {
-        if (typeof item.capacity_id === 'string') {
+      const ensureEntityId = (
+        currentValue: string | number,
+        existingList: any[],
+        key: keyof typeof existingList[0],
+        nameKey: keyof typeof existingList[0],
+        postFn: (name: string) => Observable<any>
+      ): void => {
+        if (typeof currentValue === 'string') {
           const match = existingList.find(
-            (e) => String(e.capacity) === item.capacity_id
+            (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
           );
           if (match) {
-            item.capacity_id = match.id;
+            rawValue[key] = match.id;
+          } else {
+            tasks.push(
+              postFn(currentValue).pipe(
+                tap((res) => (rawValue[key] = res.id))
+              )
+            );
           }
         }
-      });
+      };
 
-      const newCaps = Array.from(
-        new Set(
-          dtoArray
-            .filter((item) => typeof item.capacity_id === 'string')
-            .map((item) => item.capacity_id)
-            .filter((cap) => !existingCaps.includes(String(cap)))
-        )
+      // Brand
+      ensureEntityId(rawValue.brand_id, this.brand(), 'brand_id', 'name',
+        (name) => this.requestAuth.postLaptopBrand(name)
       );
 
-      newCaps.forEach((cap) => {
+      // OS
+      ensureEntityId(rawValue.os_id, this.signalService.os(), 'os_id', 'name',
+        (name) => this.requestAuth.postSoftwareOS(name)
+      );
+
+      // Productivity Tool
+      ensureEntityId(rawValue.prod_id, this.signalService.productivityTools(), 'prod_id', 'name',
+        (name) => this.requestAuth.postSoftwareProdTool(name)
+      );
+
+      // Security
+      ensureEntityId(rawValue.security_id, this.signalService.security(), 'security_id', 'name',
+        (name) => this.requestAuth.postSoftwareSecurity(name)
+      );
+
+      // Process Capacities
+      const processCapacities = (
+        dtoArray: any[],
+        existingList: { id: number; capacity: string }[],
+        postFn: (capacity: number) => Observable<any>
+      ) => {
+        const existingCaps = existingList.map((e) => String(e.capacity));
+        dtoArray.forEach((item) => {
+          if (typeof item.capacity_id === 'string') {
+            const match = existingList.find(
+              (e) => String(e.capacity) === item.capacity_id
+            );
+            if (match) {
+              item.capacity_id = match.id;
+            }
+          }
+        });
+
+        const newCaps = Array.from(
+          new Set(
+            dtoArray
+              .filter((item) => typeof item.capacity_id === 'string')
+              .map((item) => item.capacity_id)
+              .filter((cap) => !existingCaps.includes(String(cap)))
+          )
+        );
+
+        newCaps.forEach((cap) => {
+          tasks.push(
+            postFn(Number(cap)).pipe(
+              tap((res) => {
+                dtoArray.forEach((item) => {
+                  if (item.capacity_id === cap) {
+                    item.capacity_id = res.id;
+                  }
+                });
+              })
+            )
+          );
+        });
+      };
+
+      processCapacities(rawValue.ramDTO, this.signalService.ram(), (cap) => this.requestAuth.postRAMCapacity(cap));
+      processCapacities(rawValue.storageDTO, this.signalService.storage(), (cap) => this.requestAuth.postStorageCapacity(cap));
+
+      // GPU
+      if (typeof rawValue.gpu_id === 'string') {
         tasks.push(
-          postFn(Number(cap)).pipe(
+          this.requestAuth.postGPUCapacity(rawValue.gpu_id).pipe(
             tap((res) => {
-              dtoArray.forEach((item) => {
-                if (item.capacity_id === cap) {
-                  item.capacity_id = res.id;
-                }
-              });
+              rawValue.gpu_id = res.id;
+              this.signalService.reinitializeGPU();
             })
           )
         );
-      });
-    };
-
-    processCapacities(rawValue.ramDTO, this.signalService.ram(), (cap) => this.requestAuth.postRAMCapacity(cap));
-    processCapacities(rawValue.storageDTO, this.signalService.storage(), (cap) => this.requestAuth.postStorageCapacity(cap));
-
-    // GPU
-    if (typeof rawValue.gpu_id === 'string') {
-      tasks.push(
-        this.requestAuth.postGPUCapacity(rawValue.gpu_id).pipe(
-          tap((res) => {
-            rawValue.gpu_id = res.id;
-            this.signalService.reinitializeGPU();
-          })
-        )
-      );
-    }
-
-    // Wait for all entity creation before posting AIO
-    forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
-      next: () => {
-        const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
-        this.requestAuth.postLaptop(duplicatedArray).subscribe({
-          next: (res: any) => {
-            this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} laptop/s saved successfully.` });
-            const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
-            this.signalService.addedDevice.set(res.devices);
-            this.signalService.currentBatchDeviceData.set(updatedList);
-            this.router.navigate(['/batch-list/batch-details']);
-          },
-          error: (error: any) => {
-            this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
-          }
-        });
-      },
-      error: (error) => {
-        this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
       }
-    });
+
+      // Wait for all entity creation before posting AIO
+      forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
+        next: () => {
+          const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
+          this.requestAuth.postLaptop(duplicatedArray).subscribe({
+            next: (res: any) => {
+              this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} laptop/s saved successfully.` });
+              const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
+              this.signalService.addedDevice.set(res.devices);
+              this.signalService.currentBatchDeviceData.set(updatedList);
+              this.router.navigate(['/batch-list/batch-details']);
+            },
+            error: (error: any) => {
+              this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+            }
+          });
+        },
+        error: (error) => {
+          this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+        }
+      });
+    }
   }
 
   backButton(event: Event): void {
@@ -307,10 +354,14 @@ export class DeviceLaptop {
         rejectLabel: 'Cancel',
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-contrast',
-        accept: () => this.router.navigate(['/batch-list/batch-details'])
+        accept: () => {
+          this.router.navigate(['/batch-list/batch-details']);
+          this.signalService.deviceDetails.set(null);
+        }
       });
     } else {
       this.router.navigate(['/batch-list/batch-details']);
+      this.signalService.deviceDetails.set(null);
     }
   }
 }
