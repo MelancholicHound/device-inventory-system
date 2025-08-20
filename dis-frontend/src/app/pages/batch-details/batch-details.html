@@ -14,7 +14,7 @@
               severity="contrast"
               icon="pi pi-plus"
               (onClick)="showAddDeviceDialog()"/>
-    @if (signalService.isDeviceCountChanged()) {
+    @if (signalService.isDeviceCountChanged() && signalService.isUPSCountChanged()) {
     <p-button label="Save"
               icon="pi pi-check"
               (onClick)="saveButton()" />

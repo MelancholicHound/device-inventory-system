@@ -68,11 +68,11 @@ export class Supplier {
   createSupplierForm(): FormGroup {
     return new FormGroup({
       name: new FormControl<string | null>(null, [Validators.required]),
-      contact_number: new FormControl<string | null>(null, [Validators.required, Validators.maxLength(11), Validators.minLength(11)]),
+      contact_number: new FormControl<string | null>(null, [Validators.required]),
       email: new FormControl<string | null>(null, [Validators.required, Validators.email]),
       location: new FormControl<string | null>(null, [Validators.required]),
       cp_name: new FormControl<string | null>(null, [Validators.required]),
-      cp_contact_number: new FormControl<string | null>(null, [Validators.required, Validators.maxLength(11), Validators.minLength(11)])
+      cp_contact_number: new FormControl<string | null>(null, [Validators.required])
     });
   }
 

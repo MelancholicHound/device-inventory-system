@@ -426,6 +426,8 @@ export class BatchDetails {
   private navigateAndReset(): void {
     this.router.navigate(['/batch-list']);
     this.signalService.batchDetails.set([]);
+    this.signalService.resetBatchDeviceData();
+    this.signalService.resetBatchUPSData();
     this.signalService.resetBatchFlag();
   }
 

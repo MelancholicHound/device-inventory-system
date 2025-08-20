@@ -10,14 +10,14 @@
            formControlName="name">
   </div>
   <div class="flex flex-col">
-    <label for="contact_number"> Mobile Number: </label>
+    <label for="contact_number"> Mobile Number/Landline: </label>
     <input type="text"
            pInputText
            class="w-full"
            pKeyFilter="num"
            id="location"
            autocomplete="off"
-           placeholder="Enter mobile number"
+           placeholder="Enter mobile number or landline"
            formControlName="contact_number">
   </div>
   <div class="flex flex-col">
@@ -62,11 +62,6 @@
            formControlName="cp_contact_number">
   </div>
   <div class="flex flex-col">
-    <small style="color: red;"
-           *ngIf="(mobileNumControl?.hasError('minlength') ||
-                  mobileNumControl?.hasError('maxlength')) ||
-                  (mobileNumContactControl?.hasError('minlength') ||
-                  mobileNumContactControl?.hasError('maxlength'))"> Mobile number should contain exactly 11 numbers </small>
     <small style="color: red;"
            *ngIf="emailControl?.invalid &&
                   emailControl?.dirty &&

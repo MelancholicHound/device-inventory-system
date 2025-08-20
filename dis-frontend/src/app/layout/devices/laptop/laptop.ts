@@ -73,9 +73,12 @@ export class DeviceLaptop {
 
       if (this.signalService.deviceDetails()) {
         this.requestAuth.getSectionById(this.signalService.deviceDetails().section_id)
-        .pipe(switchMap((section: any) => this.requestAuth.getDivisionById(section.div_id)
-          .pipe()
-        ))
+        .pipe(switchMap((section: any) => this.requestAuth.getDivisionById(section.div_id)))
+        .subscribe({
+          next: (division: any) => this.divisionOption = division.name,
+          error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) })
+        });
+
         this.laptopForm.patchValue(this.signalService.deviceDetails());
       }
     });
