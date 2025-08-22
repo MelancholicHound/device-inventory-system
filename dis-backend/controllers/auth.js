@@ -452,11 +452,17 @@ exports.postBatch = async (req, res, next) => {
 }
 
 exports.putByIdBatch = async (req, res, next) => {
+    const t = await sequelize.transaction();
     try {
         requestValidation(req, next);
 
         const id = req.params.id;
-        const { valid_until, date_delivered, date_tested, supplier_id, service_center, purchaseRequestDTO } = req.body;
+        const valid_until = req.body.valid_until || null;
+        const date_delivered = req.body.date_delivered || null;
+        const date_tested = req.body.date_tested || null;
+        const supplier_id = req.body.supplier_id || null;
+        const service_center = req.body.service_center || null;
+        const number = req.body.number || null;
 
         const batch = await Batch.findByPk(id);
         if (!batch) {
@@ -468,11 +474,22 @@ exports.putByIdBatch = async (req, res, next) => {
             return next(createErrors.notFound("Supplier with this id doesn't exist."));
         }
 
-        await PurchaseRequestDTO.update(purchaseRequestDTO, { where: { id: batch.prDTO_id } });
+        const pr = await PurchaseRequestDTO.update({
+            number,
+            file: req.file ? req.file.filename : null
+        }, { where: { id: batch.prDTO_id } });
+        if (!pr) {
+            await t.rollback();
+            return next(createErrors.unprocessableEntity('Something went wrong during updating of purchase request'));
+        }
         
         const batchData = { valid_until, date_delivered, date_tested, supplier_id, service_center };
 
-        await Batch.update(batchData, { where: { id } });
+        const batchUpdate = await Batch.update(batchData, { where: { id } });
+        if (!batch) {
+            await t.rollback();
+            return next(createErrors.unprocessableEntity('Something went wrong during updating of batch.'));
+        }
 
         res.status(201).json({ code: 201, message: 'Batch updated successfully.' });
     } catch (err) {

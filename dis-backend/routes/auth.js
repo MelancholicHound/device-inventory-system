@@ -79,7 +79,7 @@ router.get('/batch/:id', authenticateToken, authController.getByIdBatch);
 
 router.post('/batch', authenticateToken, upload.single('file'), authController.postBatch);
 
-router.put('/batch/:id', authenticateToken, authController.putByIdBatch);
+router.put('/batch/:id', authenticateToken, upload.single('file'), authController.putByIdBatch);
 
 router.delete('/batch/:id', authenticateToken, authController.deleteByIdBatch);
 

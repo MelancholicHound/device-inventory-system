@@ -9,9 +9,10 @@
              formControlName="number">
       @if (!selectedFile() && !batchDetails || isEditing()) {
       <p-button icon="pi pi-upload"
-                (onClick)="fileInput.click()"/>
+                (onClick)="fileInput.click()"
+                [disabled]="batchForm.disabled" />
       }
-      @if (batchDetails && !isEditing()) {
+      @if (batchDetails?.purchaseRequestDTO.file && !isEditing()) {
       <p-button icon="pi pi-download"
                 (onClick)="downloadButton()"/>
       }
@@ -23,7 +24,7 @@
     </span>
     @if (fileUpload) {
       <label for="file-upload"> File name: {{ fileUpload.name }} </label>
-    } @else if (batchDetails) {
+    } @else if (batchDetails?.purchaseRequestDTO.file) {
       <label for="file-upload"> File name: {{ batchDetails.purchaseRequestDTO.file }} </label>
     }
   </div>
@@ -39,8 +40,8 @@
                 optionValue="id"
                 placeholder="Select supplier"
                 formControlName="supplier_id"/>
-      <i class="pi pi-question-circle px-3"
-         style="color: #708090; font-size: 1.2rem; font-weight: semi-bold;"
+      <i class="pi pi-question-circle px-1"
+         style="color: #708090; font-size: 1rem; font-weight: semi-bold;"
          pTooltip="Go to Miscellaneous > Supplier. On the top-right corner, click 'Add Supplier'"
          tooltipPosition="bottom"></i>
     </div>

@@ -390,7 +390,7 @@ export class Requestservice {
   }
 
   postSoftwareOS(name: string): Observable<any> {
-    const endpoint = `${this.url}/services/software/os`;
+    const endpoint = `${this.url}/services/softwares/os`;
     const params = new HttpParams().set('name', name);
 
     return this.http.post(endpoint, null, {
@@ -405,7 +405,7 @@ export class Requestservice {
   }
 
   postSoftwareProdTool(name: string): Observable<any> {
-    const endpoint = `${this.url}/services/software/productivitytool`;
+    const endpoint = `${this.url}/services/softwares/productivitytool`;
     const params = new HttpParams().set('name', name);
 
     return this.http.post(endpoint, null, {
@@ -420,7 +420,7 @@ export class Requestservice {
   }
 
   postSoftwareSecurity(name: string): Observable<any> {
-    const endpoint = `${this.url}/services/software/security`;
+    const endpoint = `${this.url}/services/softwares/security`;
     const params = new HttpParams().set('name', name);
 
     return this.http.post(endpoint, null, {
@@ -1138,8 +1138,10 @@ export class Requestservice {
     }));
   }
 
-  putBatch(batch: Omit<BatchInterface, 'id'>, id: number): Observable<any> {
-    return this.http.put(`${this.url}/batch/${id}`, batch, this.httpOptionsWithToken())
+  putBatch(batch: any, id: number): Observable<any> {
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${this._token()}` });
+
+    return this.http.put(`${this.url}/batch/${id}`, batch, { headers })
     .pipe(first(), catchError((error: any) => {
       const errorMessage = error?.error?.error?.message || 'An unknown error occured during updating of batch.';
 

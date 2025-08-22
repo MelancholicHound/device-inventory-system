@@ -260,7 +260,29 @@ export class Batch implements OnInit, OnChanges {
   }
 
   updateBatch(): void {
-    this.requestAuth.putBatch(this.batchForm.value, this.batchDetails.id).pipe(
+    this.batchForm.removeControl('is_tested');
+    console.log(this.batchForm.value);
+    const formData = new FormData();
+
+    Object.entries(this.batchForm.value).forEach(([key, value]) => {
+      if (key === 'purchaseRequestDTO') {
+        const purchaseDTO = value as any;
+        formData.append('number', purchaseDTO?.number ?? '');
+        if (purchaseDTO?.file) {
+          formData.append('file', purchaseDTO.file);
+        } else {
+          formData.append('file', '');
+        }
+      } else if (value instanceof Date) {
+        formData.append(key, value.toISOString().split('T')[0]);
+      } else if (value === null || value === undefined) {
+        formData.append(key, '');
+      } else {
+        formData.append(key, value as any);
+      }
+    });
+
+    this.requestAuth.putBatch(formData, this.batchDetails.id).pipe(
       tap((res: any) => {
         this.notification.add({
           severity: 'success',
