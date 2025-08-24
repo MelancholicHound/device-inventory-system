@@ -261,7 +261,6 @@ export class Batch implements OnInit, OnChanges {
 
   updateBatch(): void {
     this.batchForm.removeControl('is_tested');
-    console.log(this.batchForm.value);
     const formData = new FormData();
 
     Object.entries(this.batchForm.value).forEach(([key, value]) => {

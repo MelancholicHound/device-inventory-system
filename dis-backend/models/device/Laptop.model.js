@@ -71,7 +71,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         prod_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
                 model: 'tbl_misc_sw_opsystem',
                 key: 'id'
@@ -79,7 +78,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         security_id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
             references: {
                 model: 'tbl_misc_sw_security',
                 key: 'id'

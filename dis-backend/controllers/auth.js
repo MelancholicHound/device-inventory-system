@@ -3060,7 +3060,41 @@ exports.postDeviceComputer = async (req, res, next) => {
         const { next: baseNumber, prefix } = await setDeviceNumber('Computer');
         let counter = baseNumber;
 
+        const validateDevice = (device) => {
+            if (!device.batch_id || typeof device.batch_id !== 'number') {
+                return next(createErrors.badRequest('batch_id is required and must be a number.'));
+            }
+            if (!Array.isArray(device.ramDTO)) {
+                return next(createErrors.badRequest('ramDTO must be an array.'));
+            }
+            if (!Array.isArray(device.storageDTO)) {
+                return next(createErrors.badRequest('storageDTO must be an array.'));
+            }
+            if (!device.processorDTO || typeof device.processorDTO !== 'object') {
+                return next(createErrors.badRequest('processorDTO must be an object and not null.'));
+            }
+            if (!device.motherboardDTO || typeof device.motherboardDTO !== 'object') {
+                return next(createErrors.badRequest('motherboardDTO must be an object and not null.'));
+            }
+        }
+
+        const createMotherboard = async (dto) => {
+            if (typeof dto.brand_id === 'string') {
+                const [brand] = await BrandMotherboard.findOrCreate({
+                    where: { name: dto.brand_id },
+                    defaults: { name: dto.brand_id },
+                    transaction: t
+                });
+                
+                dto.brand_id = brand.id;
+            }
+
+            return PartMotherboard.create(dto, { transaction: t });
+        }
+
         for (const device of payload) {
+            validateDevice(device);
+
             const {
                 batch_id, section_id, serial_number, ups_id,
                 processorDTO, connectionDTO, peripheralDTO,
@@ -3070,68 +3104,54 @@ exports.postDeviceComputer = async (req, res, next) => {
                 storageDTO: storageModules
             } = device;
 
-            if (!batch_id || typeof batch_id !== 'number') return next(createErrors.badRequest('batch_id is required and must be a number.'));
-
-            if (!Array.isArray(ramModules)) return next(createErrors.badRequest('ramDTO must be an array.'));
-            if (!Array.isArray(storageModules)) return next(createErrors.badRequest('storageDTO must be an array.'));
-
-            const isBatchExisting = await Batch.findByPk(batch_id, { transaction: t });
-            if (!isBatchExisting) {
+            const batch = await Batch.findByPk(batch_id, { transaction: t });
+            if (!batch) {
                 await t.rollback();
                 return next(createErrors.notFound("This batch doesn't exist."));
             }
 
-            const deviceNum = `${prefix}-${String(counter).padStart(3, '0')}`;
-            counter++;
+            const deviceNum = `${prefix}-${String(counter++).padStart(3, '0')}`;
 
-            const gpuResponse = await PartGPU.create({ capacity_id: gpu_id });
+   
+            const gpu = await PartGPU.create({ capacity_id: gpu_id }, { transaction: t });
 
+        
             const computer = await Computer.create({
-                batch_id, section_id,
-                device_number: deviceNum,
-                serial_number, is_condemned: false,
-                ups_id, gpu_id: gpuResponse.id,
-                os_id, prod_id, security_id,
+                batch_id, section_id, device_number: deviceNum,
+                serial_number, is_condemned: false, ups_id,
+                gpu_id: gpu.id, os_id, prod_id, security_id,
                 accountable_user, co_accountable_user
             }, { transaction: t });
 
-            if (!processorDTO) return next(createErrors.badRequest("processorDTO must have a value"));
-            if (typeof processorDTO !== 'object') return next(createErrors.badRequest('processorDTO must be an object'));
-
+   
             const processor = await PartProcessor.create(processorDTO, { transaction: t });
-            await ProcessorComputer.create({
-                computer_id: computer.id,
-                cpu_id: processor.id
-            }, { transaction: t });
+            await ProcessorComputer.create({ computer_id: computer.id, cpu_id: processor.id }, { transaction: t });
 
-            if (!motherboardDTO) return next(createErrors.badRequest("motherboardDTO must have a value"));
-            if (typeof motherboardDTO !== 'object') return next(createErrors.badRequest('motherboardDTO must be an object'));
+ 
+            const motherboard = await createMotherboard(motherboardDTO);
+            await MotherboardComputer.create({ computer_id: computer.id, mobo_id: motherboard.id }, { transaction: t });
 
-            const motherboard = await PartMotherboard.create(motherboardDTO, { transaction: t });
-            await MotherboardComputer.create({
-                computer_id: computer.id,
-                mobo_id: motherboard.id
-            }, { transaction: t });
-
+       
             for (const { capacity_id } of ramModules) {
                 const ram = await PartRAM.create({ capacity_id }, { transaction: t });
-
                 await RAMComputer.create({ computer_id: computer.id, ram_id: ram.id }, { transaction: t });
             }
 
+        
             for (const { capacity_id, type_id } of storageModules) {
                 const storage = await PartStorage.create({ capacity_id, type_id }, { transaction: t });
-
                 await StorageComputer.create({ computer_id: computer.id, storage_id: storage.id }, { transaction: t });
             }
 
+          
             for (const connection_id of connectionDTO) {
                 await ConnectionsComputer.create({ computer_id: computer.id, connection_id }, { transaction: t });
             }
-
             for (const peripheral_id of peripheralDTO) {
                 await PeripheralsComputer.create({ computer_id: computer.id, peripheral_id }, { transaction: t });
             }
+
+            savedDevices.push({ id: computer.id, device_number: deviceNum });
 
             savedDevices.push({ id: computer.id, device_number: deviceNum });
         }
