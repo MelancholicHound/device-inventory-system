@@ -15,7 +15,7 @@
         </blockquote>
       </div>
       <div class="flex gap-3">
-        @if (laptopForm.valid && !signalService.deviceDetails()) {
+        @if (laptopForm.valid) {
           <p-button label="Save"
                     class="w-full sm:w-auto"
                     [style]="{ width: '100px' }"

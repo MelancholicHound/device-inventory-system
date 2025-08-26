@@ -2190,6 +2190,7 @@ exports.getDeviceAIOById = async (req, res, next) => {
         const result = {
             id: json.id,
             batch_id: json.batch_id,
+            device_number: json.device_number,
             section_id: json.section_id,
             serial_number: json.serial_number,
             brand_id: json.brand_id,
@@ -2208,7 +2209,7 @@ exports.getDeviceAIOById = async (req, res, next) => {
             })),
             connectionDTO: json.connections.map(conn => conn.connection_id),
             peripheralDTO: json.peripherals.map(periph => periph.peripheral_id),
-            gpu_id: json.gpu_id,
+            gpu_id: json.gpu.capacity?.id,
             os_id: json.os_id,
             prod_id: json.prod_id,
             security_id: json.security_id,
@@ -2263,8 +2264,6 @@ exports.putByIdDeviceAIO = async (req, res, next) => {
 
         if (!Array.isArray(ramModules)) return next(createErrors.badRequest('ramDTO must be an array.'));
         if (!Array.isArray(storageModules)) return next(createErrors.badRequest('storageDTO must be an array.'));
-        if (!Array.isArray(connectionDTO)) return next(createErrors.badRequest('connectionDTO must be an array'));
-        if (!Array.isArray(peripheralDTO)) return next(createErrors.badRequest('peripheralDTO must be an array'));
          
         const aio = await AIO.findByPk(id, { transaction: t });
         if (!aio) return next(createErrors.notFound("This AIO doesn't exists."));
@@ -2731,6 +2730,7 @@ exports.getDeviceLaptopById = async (req, res, next) => {
         const result = {
             id: json.id,
             batch_id: json.batch_id,
+            device_number: json.device_number,
             section_id: json.section_id,
             serial_number: json.serial_number,
             brand_id: json.brand_id,
@@ -3243,6 +3243,14 @@ exports.getDeviceComputerById = async (req, res, next) => {
                     }]
                 },
                 {
+                    model: MotherboardComputer,
+                    as: 'motherboard',
+                    include: [{
+                        model: PartMotherboard,
+                        as: 'mobo'
+                    }]
+                },
+                {
                     model: PartGPU,
                     as: 'gpu',
                     include: [{
@@ -3303,6 +3311,10 @@ exports.getDeviceComputerById = async (req, res, next) => {
             section_id: json.section_id,
             serial_number: json.serial_number,
             ups_id: json.ups_id,
+            motherboardDTO: {
+                brand_id: json.motherboard?.mobo?.brand_id,
+                model: json.motherboard?.mobo?.model
+            },
             processorDTO: {
                 series_id: json.processor?.cpu?.series_id || null,
                 model: json.processor?.cpu?.model || null
@@ -3316,7 +3328,7 @@ exports.getDeviceComputerById = async (req, res, next) => {
             })),
             connectionDTO: json.connections.map(conn => conn.connection_id),
             peripheralDTO: json.peripherals.map(periph => periph.peripheral_id),
-            gpu_id: json.gpu_id,
+            gpu_id: json.gpu?.capacity?.id,
             os_id: json.os_id,
             prod_id: json.prod_id,
             security_id: json.security_id,

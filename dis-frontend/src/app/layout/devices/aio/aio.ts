@@ -3,7 +3,7 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl, FormArray, Va
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { Observable, forkJoin, of, tap } from 'rxjs';
+import { Observable, forkJoin, of, switchMap, tap } from 'rxjs';
 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -48,7 +48,8 @@ export class DeviceAio {
   nodeService = inject(Nodeservice);
   confirmation = inject(ConfirmationService);
 
-  quantity = signal(0);
+  aioId = signal<number>(0)
+  quantity = signal<number>(0);
   sectionsByDivId = signal([]);
   seriesByBrandId = signal([]);
   brand = signal<any>([]);
@@ -84,14 +85,69 @@ export class DeviceAio {
       if (this.signalService.batchDetails()) {
         this.batchDetails.set(this.signalService.batchDetails());
       }
+
+      if (this.signalService.deviceDetails()) {
+        this.aioId.set(this.signalService.deviceDetails().id);
+        const processorDTO = this.aioForm.get('processorDTO') as FormGroup;
+
+        this.aioForm.addControl('div_id', new FormControl(null, Validators.required));
+        this.requestAuth.getSectionById(this.signalService.deviceDetails().section_id).pipe(
+          switchMap((section: any) =>
+            this.requestAuth.getDivisionById(section.div_id).pipe(
+              tap((division: any) => {
+                this.aioForm.get('div_id')?.setValue(division.id);
+                this.aioForm.get('section_id')?.setValue(this.signalService.deviceDetails().section_id);
+              }),
+              switchMap((division: any) =>
+                this.requestAuth.getSectionsByDivisionId(division.id)
+              )
+            )
+          )
+        ).subscribe({
+          next: (res: any) => this.sectionsByDivId.set(res),
+          error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) })
+        });
+
+        processorDTO.addControl('brand_id', new FormControl(null, Validators.required));
+        this.requestAuth.getProcessorSeriesById(this.signalService.deviceDetails().processorDTO.series_id).pipe(
+          switchMap((series: any) =>
+            this.requestAuth.getProcessorBrandById(series.brand_id).pipe(
+              tap((brand: any) => {
+                this.aioForm.get('processorDTO.brand_id')?.setValue(brand.id);
+                this.aioForm.get('processorDTO.series_id')?.setValue(this.signalService.deviceDetails().processorDTO.series_id);
+              }),
+              switchMap((brand: any) =>
+                this.requestAuth.getAllProcessorSeriesByBrandId(brand.id)
+              )
+            )
+          )
+        ).subscribe({
+          next: (res: any) => this.seriesByBrandId.set(res),
+          error: (error: any) => this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) })
+        });
+
+        this.aioForm.get('gpu_id')?.patchValue(this.signalService.deviceDetails().gpu_id);
+        this.aioForm.patchValue(this.signalService.deviceDetails());
+        this.aioForm.get('serial_number')?.setValue('Temporarily disabled');
+      }
     });
+  }
+
+  get dynamicDivisionControl(): FormControl {
+    return (this.aioForm.get('div_id') as FormControl) ?? new FormControl(null);
+  }
+
+  get dynamicBrandControl(): FormControl {
+    const processorDTO = this.aioForm.get('processorDTO') as FormGroup;
+
+    return (processorDTO.get('brand_id') as FormControl) ?? new FormControl(null);
   }
 
   createAIOForm(): FormGroup {
     return new FormGroup({
       batch_id: new FormControl<number | null>(null),
       section_id: new FormControl<number | null>(null, [Validators.required]),
-      serial_number: new FormControl<string | null>(null),
+      serial_number: new FormControl<string | null>({ value: 'Temporarily disabled', disabled: true }),
       ups_id: new FormControl<number | any>(null),
       storageDTO: new FormArray([this.createStorageGroup()]),
       ramDTO: new FormArray([this.createRamGroup()]),
@@ -174,177 +230,348 @@ export class DeviceAio {
   }
 
   postAIO(): void {
-    const rawValue: any = this.aioForm.value;
-    rawValue.batch_id = this.batchDetails().id;
-    rawValue.serial_number = rawValue.serial_number || null;
+    if (this.signalService.deviceDetails()) {
+      const rawValue: any = this.aioForm.value;
+      rawValue.batch_id = this.batchDetails().id;
+      rawValue.serial_number = rawValue.serial_number || null;
 
-    const tasks: Observable<any>[] = [];
+      const tasks: Observable<any>[] = [];
 
-    const ensureEntityId = (
-      currentValue: string | number,
-      existingList: any[],
-      key: string,
-      nameKey: string,
-      postFn: (name: string) => Observable<any>,
-      reinitFn: () => void,
-      rawValue: any,
-      tasks: Observable<any>[]
-    ): void => {
-      if (typeof currentValue === 'number') {
-        rawValue[key] = currentValue;
-        return;
-      }
+      const ensureEntityId = (
+        currentValue: string | number,
+        existingList: any[],
+        key: string,
+        nameKey: string,
+        postFn: (name: string) => Observable<any>,
+        reinitFn: () => void,
+        rawValue: any,
+        tasks: Observable<any>[]
+      ): void => {
+        if (typeof currentValue === 'number') {
+          rawValue[key] = currentValue;
+          return;
+        }
 
-      if (typeof currentValue === 'string') {
-        const match = existingList.find(
-          (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
+        if (typeof currentValue === 'string') {
+          const match = existingList.find(
+            (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
+          );
+          if (match) {
+            rawValue[key] = match.id;
+          } else {
+            tasks.push(
+              postFn(currentValue).pipe(
+                tap((res) => {
+                  rawValue[key] = res.id;
+                  reinitFn();
+                })
+              )
+            );
+          }
+        }
+      };
+
+      // Brand
+      ensureEntityId(
+        rawValue.brand_id,
+        this.brand(),
+        'brand_id',
+        'name',
+        (name) => this.requestAuth.postAIOBrand(name),
+        () => this.requestAuth.getAllAIOBrand().subscribe((res: any) => this.brand.set(res)),
+        rawValue,
+        tasks
+      );
+
+      // OS
+      ensureEntityId(
+        rawValue.os_id,
+        this.signalService.os(),
+        'os_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareOS(name),
+        () => this.signalService.reinitializeOS(),
+        rawValue,
+        tasks
+      );
+
+      // Productivity Tool
+      ensureEntityId(
+        rawValue.prod_id,
+        this.signalService.productivityTools(),
+        'prod_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareProdTool(name),
+        () => this.signalService.reinitializeProdTool(),
+        rawValue,
+        tasks
+      );
+
+      // Security
+      ensureEntityId(
+        rawValue.security_id,
+        this.signalService.security(),
+        'security_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareSecurity(name),
+        () => this.signalService.reinitializeSecurity(),
+        rawValue,
+        tasks
+      );
+
+      // Process Capacities
+      const processCapacities = (
+        dtoArray: any[],
+        existingList: { id: number; capacity: string }[],
+        postFn: (capacity: number) => Observable<any>,
+        reinitFn: () => void,
+        tasks: Observable<any>[]
+      ) => {
+        dtoArray.forEach((item) => {
+          if (typeof item.capacity_id === 'string') {
+            const match = existingList.find(
+              (e) => String(e.capacity) === item.capacity_id
+            );
+            if (match) {
+              item.capacity_id = match.id;
+            } else {
+              tasks.push(
+                postFn(Number(item.capacity_id)).pipe(
+                tap((res) => {
+                  item.capacity_id = res.id;
+                  reinitFn();
+                })
+                )
+              );
+            }
+          }
+        });
+      };
+
+      processCapacities(
+        rawValue.ramDTO,
+        this.signalService.ram(),
+        (cap) => this.requestAuth.postRAMCapacity(cap),
+        () => this.signalService.reinitializeRAM(),
+        tasks
+      );
+      processCapacities(
+        rawValue.storageDTO,
+        this.signalService.storage(),
+        (cap) => this.requestAuth.postStorageCapacity(cap),
+        () => this.signalService.reinitializeStorage(),
+        tasks
+      );
+
+      // GPU
+      if (typeof rawValue.gpu_id === 'string') {
+        const match = this.signalService.gpu().find(
+          (g) => String(g.capacity) === rawValue.gpu_id
         );
         if (match) {
-          rawValue[key] = match.id;
+          rawValue.gpu_id = match.id;
         } else {
           tasks.push(
-            postFn(currentValue).pipe(
+            this.requestAuth.postGPUCapacity(parseInt(rawValue.gpu_id, 10)).pipe(
               tap((res) => {
-                rawValue[key] = res.id;
-                reinitFn();
+                rawValue.gpu_id = res.id;
+                this.signalService.reinitializeGPU();
               })
             )
           );
         }
       }
-    };
+      // Wait for all entity creation before posting AIO
+      forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
+        next: () => {
+          this.requestAuth.putDeviceAIO(this.aioId(), rawValue).subscribe({
+            next: () => {
+              this.notification.add({ severity: 'success', summary: 'Success', detail: `${this.signalService.deviceDetails().device_number} updated successfully.` });
+              this.router.navigate(['/batch-list/batch-details']);
+              this.signalService.deviceDetails.set([]);
+            },
+            error: (error: any) => {
+              this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+            }
+          });
+        },
+        error: (error) => {
+          this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+        }
+      });
+    } else {
+      const rawValue: any = this.aioForm.value;
+      rawValue.batch_id = this.batchDetails().id;
+      rawValue.serial_number = rawValue.serial_number || null;
 
-    // Brand
-    ensureEntityId(
-      rawValue.brand_id,
-      this.brand(),
-      'brand_id',
-      'name',
-      (name) => this.requestAuth.postAIOBrand(name),
-      () => this.requestAuth.getAllAIOBrand().subscribe((res: any) => this.brand.set(res)),
-      rawValue,
-      tasks
-    );
+      const tasks: Observable<any>[] = [];
 
-    // OS
-    ensureEntityId(
-      rawValue.os_id,
-      this.signalService.os(),
-      'os_id',
-      'name',
-      (name) => this.requestAuth.postSoftwareOS(name),
-      () => this.signalService.reinitializeOS(),
-      rawValue,
-      tasks
-    );
+      const ensureEntityId = (
+        currentValue: string | number,
+        existingList: any[],
+        key: string,
+        nameKey: string,
+        postFn: (name: string) => Observable<any>,
+        reinitFn: () => void,
+        rawValue: any,
+        tasks: Observable<any>[]
+      ): void => {
+        if (typeof currentValue === 'number') {
+          rawValue[key] = currentValue;
+          return;
+        }
 
-    // Productivity Tool
-    ensureEntityId(
-      rawValue.prod_id,
-      this.signalService.productivityTools(),
-      'prod_id',
-      'name',
-      (name) => this.requestAuth.postSoftwareProdTool(name),
-      () => this.signalService.reinitializeProdTool(),
-      rawValue,
-      tasks
-    );
-
-    // Security
-    ensureEntityId(
-      rawValue.security_id,
-      this.signalService.security(),
-      'security_id',
-      'name',
-      (name) => this.requestAuth.postSoftwareSecurity(name),
-      () => this.signalService.reinitializeSecurity(),
-      rawValue,
-      tasks
-    );
-
-    // Process Capacities
-    const processCapacities = (
-      dtoArray: any[],
-      existingList: { id: number; capacity: string }[],
-      postFn: (capacity: number) => Observable<any>,
-      reinitFn: () => void,
-      tasks: Observable<any>[]
-    ) => {
-      dtoArray.forEach((item) => {
-        if (typeof item.capacity_id === 'string') {
+        if (typeof currentValue === 'string') {
           const match = existingList.find(
-            (e) => String(e.capacity) === item.capacity_id
+            (e) => String(e[nameKey]).toLowerCase() === currentValue.toLowerCase()
           );
           if (match) {
-            item.capacity_id = match.id;
+            rawValue[key] = match.id;
           } else {
             tasks.push(
-              postFn(Number(item.capacity_id)).pipe(
-              tap((res) => {
-                item.capacity_id = res.id;
-                reinitFn();
-              })
+              postFn(currentValue).pipe(
+                tap((res) => {
+                  rawValue[key] = res.id;
+                  reinitFn();
+                })
               )
             );
           }
         }
-      });
-    };
+      };
 
-    processCapacities(
-      rawValue.ramDTO,
-      this.signalService.ram(),
-      (cap) => this.requestAuth.postRAMCapacity(cap),
-      () => this.signalService.reinitializeRAM(),
-      tasks
-    );
-    processCapacities(
-      rawValue.storageDTO,
-      this.signalService.storage(),
-      (cap) => this.requestAuth.postStorageCapacity(cap),
-      () => this.signalService.reinitializeStorage(),
-      tasks
-    );
-
-    // GPU
-    if (typeof rawValue.gpu_id === 'string') {
-      const match = this.signalService.gpu().find(
-        (g) => String(g.capacity) === rawValue.gpu_id
+      // Brand
+      ensureEntityId(
+        rawValue.brand_id,
+        this.brand(),
+        'brand_id',
+        'name',
+        (name) => this.requestAuth.postAIOBrand(name),
+        () => this.requestAuth.getAllAIOBrand().subscribe((res: any) => this.brand.set(res)),
+        rawValue,
+        tasks
       );
-      if (match) {
-        rawValue.gpu_id = match.id;
-      } else {
-        tasks.push(
-          this.requestAuth.postGPUCapacity(parseInt(rawValue.gpu_id, 10)).pipe(
-            tap((res) => {
-              rawValue.gpu_id = res.id;
-              this.signalService.reinitializeGPU();
-            })
-          )
-        );
-      }
-    }
-    // Wait for all entity creation before posting AIO
-    forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
-      next: () => {
-        const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
-        this.requestAuth.postAIO(duplicatedArray).subscribe({
-          next: (res: any) => {
-            this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} AIO/s saved successfully.` });
-            const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
-            this.signalService.addedDevice.set(res.devices);
-            this.signalService.currentBatchDeviceData.set(updatedList);
-            this.router.navigate(['/batch-list/batch-details']);
-          },
-          error: (error: any) => {
-            this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+
+      // OS
+      ensureEntityId(
+        rawValue.os_id,
+        this.signalService.os(),
+        'os_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareOS(name),
+        () => this.signalService.reinitializeOS(),
+        rawValue,
+        tasks
+      );
+
+      // Productivity Tool
+      ensureEntityId(
+        rawValue.prod_id,
+        this.signalService.productivityTools(),
+        'prod_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareProdTool(name),
+        () => this.signalService.reinitializeProdTool(),
+        rawValue,
+        tasks
+      );
+
+      // Security
+      ensureEntityId(
+        rawValue.security_id,
+        this.signalService.security(),
+        'security_id',
+        'name',
+        (name) => this.requestAuth.postSoftwareSecurity(name),
+        () => this.signalService.reinitializeSecurity(),
+        rawValue,
+        tasks
+      );
+
+      // Process Capacities
+      const processCapacities = (
+        dtoArray: any[],
+        existingList: { id: number; capacity: string }[],
+        postFn: (capacity: number) => Observable<any>,
+        reinitFn: () => void,
+        tasks: Observable<any>[]
+      ) => {
+        dtoArray.forEach((item) => {
+          if (typeof item.capacity_id === 'string') {
+            const match = existingList.find(
+              (e) => String(e.capacity) === item.capacity_id
+            );
+            if (match) {
+              item.capacity_id = match.id;
+            } else {
+              tasks.push(
+                postFn(Number(item.capacity_id)).pipe(
+                tap((res) => {
+                  item.capacity_id = res.id;
+                  reinitFn();
+                })
+                )
+              );
+            }
           }
         });
-      },
-      error: (error) => {
-        this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+      };
+
+      processCapacities(
+        rawValue.ramDTO,
+        this.signalService.ram(),
+        (cap) => this.requestAuth.postRAMCapacity(cap),
+        () => this.signalService.reinitializeRAM(),
+        tasks
+      );
+      processCapacities(
+        rawValue.storageDTO,
+        this.signalService.storage(),
+        (cap) => this.requestAuth.postStorageCapacity(cap),
+        () => this.signalService.reinitializeStorage(),
+        tasks
+      );
+
+      // GPU
+      if (typeof rawValue.gpu_id === 'string') {
+        const match = this.signalService.gpu().find(
+          (g) => String(g.capacity) === rawValue.gpu_id
+        );
+        if (match) {
+          rawValue.gpu_id = match.id;
+        } else {
+          tasks.push(
+            this.requestAuth.postGPUCapacity(parseInt(rawValue.gpu_id, 10)).pipe(
+              tap((res) => {
+                rawValue.gpu_id = res.id;
+                this.signalService.reinitializeGPU();
+              })
+            )
+          );
+        }
       }
-    });
+      // Wait for all entity creation before posting AIO
+      forkJoin(tasks.length ? tasks : [of(null)]).subscribe({
+        next: () => {
+          const duplicatedArray = Array.from({ length: this.quantity() }, () => structuredClone(rawValue));
+          this.requestAuth.postAIO(duplicatedArray).subscribe({
+            next: (res: any) => {
+              this.notification.add({ severity: 'success', summary: 'Success', detail: `${duplicatedArray.length} AIO/s saved successfully.` });
+              const updatedList = [...this.signalService.currentBatchDeviceData(), ...res.devices];
+              this.signalService.addedDevice.set(res.devices);
+              this.signalService.currentBatchDeviceData.set(updatedList);
+              this.router.navigate(['/batch-list/batch-details']);
+            },
+            error: (error: any) => {
+              this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+            }
+          });
+        },
+        error: (error) => {
+          this.notification.add({ severity: 'error', summary: 'Error', detail: String(error) });
+        }
+      });
+    }
   }
 
   backButton(event: Event): void {
@@ -360,7 +587,10 @@ export class DeviceAio {
         rejectLabel: 'Cancel',
         acceptButtonStyleClass: 'p-button-danger',
         rejectButtonStyleClass: 'p-button-contrast',
-        accept: () => this.router.navigate(['/batch-list/batch-details'])
+        accept: () => {
+          this.router.navigate(['/batch-list/batch-details']);
+          this.signalService.deviceDetails.set(null);
+        }
       });
     } else {
       this.router.navigate(['/batch-list/batch-details']);
